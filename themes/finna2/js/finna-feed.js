@@ -186,8 +186,6 @@ finna.feed = (function finnaFeed() {
             }
             // Force refresh to make sure that the layout is ok
             obj.slick('slickGoTo', 0, true);
-            holder.find('.slick-prev').attr("aria-label", VuFind.translate("Prev"));
-            holder.find('.slick-next').attr("aria-label", VuFind.translate("Next"));
           }
 
           // Bind lightbox if feed content is shown in modal
@@ -215,6 +213,8 @@ finna.feed = (function finnaFeed() {
       dots: settings.dots,
       swipe: !settings.vertical,
       infinite: true,
+      prevArrow: '<button class="slick-prev" aria-label=' + VuFind.translate("Prev") + ' type="button">Previous</button>',
+      nextArrow: '<button class="slick-next" aria-label=' + VuFind.translate("Next") + ' type="button">Next</button>',
       touchThreshold: 8,
       autoplay: autoplay !== 0,
       autoplaySpeed: autoplay,
