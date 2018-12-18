@@ -186,6 +186,8 @@ finna.feed = (function finnaFeed() {
             }
             // Force refresh to make sure that the layout is ok
             obj.slick('slickGoTo', 0, true);
+            holder.find('.slick-prev').attr("aria-label", VuFind.translate("Prev"));
+            holder.find('.slick-next').attr("aria-label", VuFind.translate("Next"));
           }
 
           // Bind lightbox if feed content is shown in modal
