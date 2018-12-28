@@ -3,6 +3,7 @@
     $browse = $browse ?? false;
     $module = $this->layout()->templateDir;
     $action = $this->layout()->templateName;
+    $this->layout()->srmessage = '<a class="sr-only" href="#searchForm_lookfor">' . $this->transEsc('Skip to search') . '</a>';
 
     // Set default value if necessary:
     if (!isset($this->searchClassId)) {

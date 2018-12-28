@@ -208,6 +208,7 @@
           $this->layout()->srmessage = '';
         }
         $this->layout()->srmessage .= ' <a href="#sidebar">' . $this->transEsc('Skip to narrowing options') . '</a>';
+        $this->layout()->srmessage .= ' <a class="sr-only" href="#searchForm_lookfor">' . $this->transEsc('Skip to search') . '</a>';
         $messageAdded = true;
       }?>
     <?php endforeach; ?>

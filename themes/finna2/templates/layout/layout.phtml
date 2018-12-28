@@ -321,7 +321,6 @@ JS;
           <?php if (isset($this->layout()->srmessage)): // message for benefit of screen-reader users ?>
             <span class="sr-only"><?=$this->layout()->srmessage ?></span>
           <?php endif; ?>
-          <a class="sr-only" href="#searchForm_lookfor"><?=$this->transEsc('Skip to search') ?></a>
           <a class="sr-only" href="#content"><?=$this->transEsc('Skip to content') ?></a>
           <?=$this->render('navibar.phtml')?>
         </div>
