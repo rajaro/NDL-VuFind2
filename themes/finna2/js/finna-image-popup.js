@@ -143,6 +143,7 @@ finna.imagePopup = (function finnaImagePopup() {
             var recordIndex = $.magnificPopup.instance.currItem.data.recordInd;
             VuFind.lightbox.bind('.imagepopup-holder');
             $('.imagepopup-holder .image img').one('load', function onLoadImg() {
+              alert(this.width + ' ' + this.height);
               $('.imagepopup-holder .image').addClass('loaded');
               initDimensions();
               $('.imagepopup-zoom-container').addClass('inactive');
@@ -151,7 +152,33 @@ finna.imagePopup = (function finnaImagePopup() {
               if ($('#popup-image-description').length) {
                 $(this).attr('aria-describedby', 'popup-image-description');
               }
-              $(".zoom-in").click(function initPanzoom() {
+              var w = 1200;//this.width;
+              var h = 1200;//this.height;  
+              
+              function initImageMap() {
+              var map = L.map('leaflet-map', {
+                minZoom: 1,
+                maxZoom: 4,
+                center: [0, 0],
+                zoom: 1,
+                crs: L.CRS.Simple
+              });
+              // var img = new Image();
+              // img.src = $('.imagepopup-holder .original-image-url').attr('href');
+              var src = $('.imagepopup-holder .original-image-url').attr('href');
+                // w = this.width;
+                // h = this.height;         
+                var southWest = map.unproject([0, h], map.getMaxZoom()-1);
+                var northEast = map.unproject([w, 0], map.getMaxZoom()-1);
+                var bounds = new L.LatLngBounds(southWest, northEast);
+
+                L.imageOverlay(src, bounds).addTo(map);
+                map.setMaxBounds(bounds);
+              
+              
+            }
+
+              $(".zoom-in").click(initImageMap()/*function initPanzoom() {
                 $(".zoom-in").unbind();
                 $('.imagepopup-zoom-container').removeClass('inactive');
                 var $panZoomImage = $('.imagepopup-holder .image img');
@@ -181,7 +208,7 @@ finna.imagePopup = (function finnaImagePopup() {
                 $(".zoom-out").click(function zoomOut() {
                   $panZoomImage.panzoom("zoom", true);
                 });
-              });
+              }*/);
             }).each(function triggerImageLoad() {
               if (this.complete) {
                 $(this).load();
