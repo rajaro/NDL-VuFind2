@@ -117,29 +117,25 @@
 ?>
 <?php $urlQuery = $results->getUrlQuery(); ?>
 
+<?php if (isset($filterList)) : ?>
 <?php ob_start(); ?>
-  <?php foreach ($filterList as $field => $data): ?>
-    <?php if (is_callable([$params, 'isGeographicFilter']) && $params->isGeographicFilter($data)): ?>
-    <?php $geoFilter = $field; ?>
-    <?php $geoRemoveLink = isset($urlQuery) ? $urlQuery->removeFacet($data[0]['field'], $data[0]['value'], $data[0]['operator']) : '';?>
-    <?php continue; ?>
-    <?php else: ?>
-        <?php foreach ($data as $index => $value): ?>
-          <?php $removeLink = isset($urlQuery) ? $urlQuery->removeFacet($value['field'], $value['value'], $value['operator']) : '';?>
-          <span class="filter-value">
-            <?php // Always handle online_boolean and free_online_boolean even if not configured ?>
-            <?php if ('unrecognized_facet_label' === $field && in_array($value['field'], ['online_boolean', 'free_online_boolean'])): ?>
-              <?=$this->translate('online_boolean' === $value['field'] ? 'online_material_facet_html' : 'free_online_material_facet_html') ?>
-            <?php else: ?>
-              <?=$this->escapeHtml($value['displayText'])?>
-            <?php endif; ?>
-            <?php if($removeLink): ?><a aria-label="<?=$this->translate('Remove filter') ?>" href="<?=$removeLink?>"><i class="fa fa-window-close" aria-hidden="true"></i></a><?php endif; ?>
-          </span>
-        <?php endforeach; ?>
-    <?php endif; ?>
-  <?php endforeach; ?>
-  <?php $filters = ob_get_contents() ?>
-  <?php ob_end_clean(); ?>
+<?php foreach ($filterList as $field => $data): ?>
+  <?php if (is_callable([$params, 'isGeographicFilter']) && $params->isGeographicFilter($data)): ?>
+  <?php $geoFilter = $field; ?>
+  <?php $geoRemoveLink = isset($urlQuery) ? $urlQuery->removeFacet($data[0]['field'], $data[0]['value'], $data[0]['operator']) : '';?>
+  <?php else: ?>
+      <?php foreach ($data as $index => $value): ?>
+        <?php $removeLink = isset($urlQuery) ? $urlQuery->removeFacet($value['field'], $value['value'], $value['operator']) : '';?>
+        <span class="filter-value">
+          <?=$this->escapeHtml($value['displayText'])?>
+          <?php if($removeLink): ?><a aria-label="<?=$this->translate('Remove filter') ?>" href="<?=$removeLink?>"><i class="fa fa-window-close" aria-hidden="true"></i></a><?php endif; ?>
+        </span>
+      <?php endforeach; ?>
+  <?php endif; ?>
+<?php endforeach; ?>
+<?php $filters = ob_get_contents() ?>
+<?php ob_end_clean(); ?>
+<?php endif; ?>
 
 <?php if (($recordTotal = $this->results->getResultTotal()) > 0): // only display these at very top if we have results ?>
     <?php foreach ($this->results->getRecommendations('top') as $current): ?>
@@ -157,22 +153,21 @@
       <?php else: ?>
         <?php $this->layout()->srmessage = $this->translate('nohit_lookfor_html', ['%%lookfor%%' => $this->escapeHtml($lookfor)]); ?>
         <h4 class="no-results"><?=$this->layout()->srmessage ?></h4>
-        <div class="noresults alert alert-info">
-            <p><?= $this->translate('no_search_results_html'); ?></p>
             <?php if (isset($filterList)) : ?>
+            <div class="noresults alert alert-info">
+              <p><?= $this->translate('no_search_results_html'); ?></p>
               <?php if ($geoFilter) : ?>
-              <p><?= $this->translate('no_search_results_geographic_html'); ?></p>
-              <?= $this->translate('try_to_remove_geographical_filters') ?>:
+                <p><?= $this->translate('no_search_results_geographic_html'); ?></p>
+                <?= $this->transEsc('try_to_remove_geographical_filters') ?>:
                 <p class="filter-value">
                 <?=$this->transEsc($geoFilter)?>
                 <a aria-label="<?=$this->translate('Remove filter') ?>" href="<?=$geoRemoveLink?>"><i class="fa fa-window-close" aria-hidden="true"></i></a>
                 </p>
-                <p><?= $this->translate('try_to_remove_other_filters')?>:
-                <?= $filters ?>
+                <?php if(count($filterList) > 1) : ?>
+                  <p><?= $this->transEsc('try_to_remove_other_filters')?>:<?= $filters ?>
+                <?php endif; ?>
               <?php else : ?>
-                <p><?= $this->translate('try_to_remove_filters')?>:
-                <?= $filters; ?>
-                </p>
+                <p><?= $this->transEsc('try_to_remove_filters')?>:<?= $filters; ?></p>
               <?php endif; ?>
             <?php endif; ?> 
         </div>
