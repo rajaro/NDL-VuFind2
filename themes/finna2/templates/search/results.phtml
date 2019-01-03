@@ -172,7 +172,7 @@
             <div class="pagination-container">
                 <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination_simple.phtml', ['results' => $this->results, 'label' => $resultsStr])?>
             </div>
-          <?php $this->layout()->srmessage = $searchType === 'advanced' ? strip_tags($resultsStr) : $this->layout()->srmessage . strip_tags($resultsStr); ?>
+          <?php $this->layout()->srmessage .= strip_tags($resultsStr); ?>
       </div>
     <?php endif; ?>
     <?php if ($this->results->getResultTotal() > 0): ?>
