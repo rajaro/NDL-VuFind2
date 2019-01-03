@@ -128,9 +128,7 @@
         <?php $this->layout()->srmessage = $this->transEsc('primo_no_searchword'); ?>
         <h4 class="no-results"><?=$this->layout()->srmessage ?></h4>
       <?php else: ?>
-        <?php $this->layout()->srmessage = $searchType === 'advanced'
-          ? $this->translate('nohit_lookfor_html', ['%%lookfor%%' => $this->escapeHtml($lookfor)]) 
-          : $this->layout()->srmessage . $this->translate('nohit_lookfor_html', ['%%lookfor%%' => $this->escapeHtml($lookfor)]) ?>
+        <?php $this->layout()->srmessage .= $this->translate('nohit_lookfor_html', ['%%lookfor%%' => $this->escapeHtml($lookfor)]) ?>
         <h4 class="no-results"><?=$this->layout()->srmessage ?></h4>
       <?php endif; ?>
       <?php if (isset($this->parseError)): ?>
