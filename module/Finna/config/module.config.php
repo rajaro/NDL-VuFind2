@@ -474,9 +474,6 @@ $config = [
                     'VuFind\Recommend\CollectionSideFacets' => 'Finna\Recommend\Factory::getCollectionSideFacets',
                     'VuFind\Recommend\SideFacets' => 'Finna\Recommend\Factory::getSideFacets',
                     'Finna\Recommend\SideFacetsDeferred' => 'Finna\Recommend\Factory::getSideFacetsDeferred',
-                    'Finna\Recommend\SwitchType' => 'Zend\ServiceManager\Factory\InvokableFactory',
-                    'Finna\Recommend\SwitchTab' => 'Zend\ServiceManager\Factory\InvokableFactory',
-                    'Finna\Recommend\SwitchQuery' => 'VuFind\Recommend\Factory::getSwitchQuery',
                 ],
                 'aliases' => [
                     'sidefacetsdeferred' => 'Finna\Recommend\SideFacetsDeferred',
