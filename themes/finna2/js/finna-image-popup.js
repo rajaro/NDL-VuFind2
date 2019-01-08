@@ -142,78 +142,52 @@ finna.imagePopup = (function finnaImagePopup() {
             var id = popup.data("id");
             var recordIndex = $.magnificPopup.instance.currItem.data.recordInd;
             VuFind.lightbox.bind('.imagepopup-holder');
-            $('.imagepopup-holder .image img').one('load', function onLoadImg() {
-              alert(this.width + ' ' + this.height);
-              $('.imagepopup-holder .image').addClass('loaded');
-              initDimensions();
-              $('.imagepopup-zoom-container').addClass('inactive');
-              $(this).attr('alt', $('#popup-image-title').html());
-              $(this).attr('aria-labelledby', 'popup-image-title');
-              if ($('#popup-image-description').length) {
-                $(this).attr('aria-describedby', 'popup-image-description');
-              }
-              var w = 1200;//this.width;
-              var h = 1200;//this.height;  
-              
-              function initImageMap() {
-              var map = L.map('leaflet-map', {
-                minZoom: 1,
-                maxZoom: 4,
-                center: [0, 0],
-                zoom: 1,
-                crs: L.CRS.Simple
-              });
-              // var img = new Image();
-              // img.src = $('.imagepopup-holder .original-image-url').attr('href');
-              var src = $('.imagepopup-holder .original-image-url').attr('href');
-                // w = this.width;
-                // h = this.height;         
+            var zoomable = $('#leaflet-map').data('large-image-layout') && $('#leaflet-map').data('enable-image-popup-zoom');
+            if (zoomable) {
+              var img = new Image();
+              img.src = $('.imagepopup-holder .original-image-url').attr('href')
+              var h;
+              var w;
+              img.onload = function onLoadImg() {
+                $('.imagepopup-holder .image').addClass('loaded');
+                $('.leaflet-pane').addClass('loaded');
+                initDimensions();
+                $('.imagepopup-zoom-container').addClass('inactive');
+                $(this).attr('alt', $('#popup-image-title').html());
+                $(this).attr('aria-labelledby', 'popup-image-title');
+                if ($('#popup-image-description').length) {
+                  $(this).attr('aria-describedby', 'popup-image-description');
+                }
+                var map = L.map('leaflet-map', {
+                  minZoom: 1,
+                  maxZoom: 4,
+                  center: [0, 0],
+                  zoom: 1,
+                  crs: L.CRS.Simple,
+                  maxBoundsViscosity: 1.0,
+                  dragging: true,
+                });
+                h = this.naturalHeight;
+                w = this.naturalWidth;
                 var southWest = map.unproject([0, h], map.getMaxZoom()-1);
                 var northEast = map.unproject([w, 0], map.getMaxZoom()-1);
                 var bounds = new L.LatLngBounds(southWest, northEast);
-
-                L.imageOverlay(src, bounds).addTo(map);
+                var overlay = L.imageOverlay(img.src, bounds);
                 map.setMaxBounds(bounds);
-              
-              
-            }
-
-              $(".zoom-in").click(initImageMap()/*function initPanzoom() {
-                $(".zoom-in").unbind();
-                $('.imagepopup-zoom-container').removeClass('inactive');
-                var $panZoomImage = $('.imagepopup-holder .image img');
-                $panZoomImage.attr('src', $('.imagepopup-holder .original-image-url').attr('href'));
-                $panZoomImage.addClass('panzoom-image');
-                $panZoomImage.panzoom({
-                  contain: 'invert',
-                  minScale: 1,
-                  maxScale: 15,
-                  increment: 1,
-                  exponential: false,
-                  $reset: $(".zoom-reset")
-                }).panzoom("zoom");
-                $panZoomImage.parent().on('mousewheel.focal', function mouseWheelZoom( e ) {
-                  e.preventDefault();
-                  var delta = e.delta || e.originalEvent.wheelDelta;
-                  var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
-                  $panZoomImage.panzoom('zoom', zoomOut, {
-                    increment: 0.1,
-                    animate: false,
-                    focal: e
-                  });
-                });
-                $(".zoom-in").click(function zoomIn() {
-                  $panZoomImage.panzoom("zoom");
-                });
-                $(".zoom-out").click(function zoomOut() {
-                  $panZoomImage.panzoom("zoom", true);
-                });
-              }*/);
-            }).each(function triggerImageLoad() {
-              if (this.complete) {
-                $(this).load();
+                overlay.addTo(map);
               }
+            } else {     
+              $('.image img').one('load', function onLoadImg() {
+                $('.imagepopup-holder .image').addClass('loaded');
+                initDimensions();
+                $('.imagepopup-zoom-container').addClass('inactive');
+                $(this).attr('alt', $('#popup-image-title').html());
+                $(this).attr('aria-labelledby', 'popup-image-title');
+                if ($('#popup-image-description').length) {
+                  $(this).attr('aria-describedby', 'popup-image-description');
+                }
             });
+          }
 
             // Prevent navigation button CSS-transitions on touch-devices
             if (finna.layout.isTouchDevice()) {
