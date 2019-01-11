@@ -15,8 +15,8 @@
 <div class="imagepopup-holder <?=$this->escapeHtmlAttr($recordType) ?>" data-type="<?=$this->escapeHtmlAttr($recordType) ?>" data-id="<?=$this->escapeHtmlAttr($this->driver->getUniqueID()) ?>">
   <div class="imagepopup-container">
     <div class="image iconlabel format-<?=$this->record($this->driver)->getFormatClass(end($formats))?>">
-      <div id="leaflet-map" class="image-wrapper" data-large-image-layout="<?=$largeImageLayout?>" data-enable-image-popup-zoom="<?=$enableImagePopupZoom?>" >
-      <?php if (! $enableImagePopupZoom && ! $largeImageLayout) : ?>
+      <div id="leaflet-map-image" class="image-wrapper" data-large-image-layout="<?=$largeImageLayout?>" data-enable-image-popup-zoom="<?=$enableImagePopupZoom?>" >
+      <?php if (! $enableImagePopupZoom) : ?>
         <img src="<?=$largeImage?>" />
       <?php endif; ?>
         </div>

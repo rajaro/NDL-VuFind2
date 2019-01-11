@@ -142,50 +142,22 @@ finna.imagePopup = (function finnaImagePopup() {
             var id = popup.data("id");
             var recordIndex = $.magnificPopup.instance.currItem.data.recordInd;
             VuFind.lightbox.bind('.imagepopup-holder');
-            var zoomable = $('#leaflet-map').data('large-image-layout') && $('#leaflet-map').data('enable-image-popup-zoom');
+            var zoomable = $('#leaflet-map-image').data('large-image-layout') && $('#leaflet-map-image').data('enable-image-popup-zoom');
             if (zoomable) {
-              var img = new Image();
-              img.src = $('.imagepopup-holder .original-image-url').attr('href')
-              var h;
-              var w;
-              img.onload = function onLoadImg() {
-                $('.imagepopup-holder .image').addClass('loaded');
-                $('.leaflet-pane').addClass('loaded');
-                initDimensions();
-                $('.imagepopup-zoom-container').addClass('inactive');
-                $(this).attr('alt', $('#popup-image-title').html());
-                $(this).attr('aria-labelledby', 'popup-image-title');
-                if ($('#popup-image-description').length) {
-                  $(this).attr('aria-describedby', 'popup-image-description');
-                }
-                var map = L.map('leaflet-map', {
-                  minZoom: 1,
-                  maxZoom: 4,
-                  center: [0, 0],
-                  zoom: 1,
-                  crs: L.CRS.Simple,
-                  maxBoundsViscosity: 1.0,
-                  dragging: true,
-                });
-                h = this.naturalHeight;
-                w = this.naturalWidth;
-                var southWest = map.unproject([0, h], map.getMaxZoom()-1);
-                var northEast = map.unproject([w, 0], map.getMaxZoom()-1);
-                var bounds = new L.LatLngBounds(southWest, northEast);
-                var overlay = L.imageOverlay(img.src, bounds);
-                map.setMaxBounds(bounds);
-                overlay.addTo(map);
-              }
-            } else {     
+              initImageZoom();
+            } else {
               $('.image img').one('load', function onLoadImg() {
                 $('.imagepopup-holder .image').addClass('loaded');
                 initDimensions();
-                $('.imagepopup-zoom-container').addClass('inactive');
                 $(this).attr('alt', $('#popup-image-title').html());
                 $(this).attr('aria-labelledby', 'popup-image-title');
                 if ($('#popup-image-description').length) {
                   $(this).attr('aria-describedby', 'popup-image-description');
                 }
+            }).each(function triggerImageLoad() {
+              if (this.complete) {
+                $(this).load();
+              }
             });
           }
 
@@ -340,6 +312,52 @@ finna.imagePopup = (function finnaImagePopup() {
             $('.access-rights > .more-link').hide();
           }
         }
+      });
+    }
+  }
+
+  function initImageZoom() {
+    var img = new Image();
+    img.src = $('.imagepopup-holder .original-image-url').attr('href');
+    img.onload = function onLoadImg() {
+      $('.imagepopup-holder .image').addClass('loaded');
+      initDimensions();
+      $(this).attr('alt', $('#popup-image-title').html());
+      $(this).attr('aria-labelledby', 'popup-image-title');
+      if ($('#popup-image-description').length) {
+        $(this).attr('aria-describedby', 'popup-image-description');
+      }
+      var map = L.map('leaflet-map-image', {
+        minZoom: 1,
+        maxZoom: 4,
+        center: [0, 0],
+        zoom: 1,
+        crs: L.CRS.Simple,
+        maxBoundsViscosity: 0.9,
+        dragging: true,
+      });
+      var h = this.naturalHeight;
+      var w = this.naturalWidth;
+      if (h === 10 && w === 10) {
+        $('#leaflet-map-image').hide();
+        return;
+      }
+      var imageNaturalSizeZoomLevel = 3;
+      if (h < 2000 && w < 2000) {
+        imageNaturalSizeZoomLevel = 2;
+      }
+      if (h < 1000 && w < 1000) {
+        imageNaturalSizeZoomLevel = 1;
+      }
+      var southWest = map.unproject([0, h], imageNaturalSizeZoomLevel);
+      var northEast = map.unproject([w, 0], imageNaturalSizeZoomLevel);
+      var bounds = new L.LatLngBounds(southWest, northEast);
+      var overlay = L.imageOverlay(img.src, bounds);
+      map.setMaxBounds(bounds);
+      overlay.addTo(map);
+      map.invalidateSize();
+      map.on('zoomend', function() {
+        map.invalidateSize();
       });
     }
   }
