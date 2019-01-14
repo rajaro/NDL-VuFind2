@@ -322,6 +322,7 @@ finna.imagePopup = (function finnaImagePopup() {
     img.onload = function onLoadImg() {
       $('.imagepopup-holder .image').addClass('loaded');
       initDimensions();
+      $('.mfp-content').removeClass('full-size');
       $(this).attr('alt', $('#popup-image-title').html());
       $(this).attr('aria-labelledby', 'popup-image-title');
       if ($('#popup-image-description').length) {
@@ -329,7 +330,7 @@ finna.imagePopup = (function finnaImagePopup() {
       }
       var map = L.map('leaflet-map-image', {
         minZoom: 1,
-        maxZoom: 4,
+        maxZoom: 6,
         center: [0, 0],
         zoom: 1,
         crs: L.CRS.Simple,
@@ -357,6 +358,11 @@ finna.imagePopup = (function finnaImagePopup() {
       overlay.addTo(map);
       map.invalidateSize();
       map.on('zoomend', function() {
+        if (map.getZoom() > 1) {
+          $('.mfp-content').addClass('full-size');
+        } else {
+          $('.mfp-content').removeClass('full-size');
+        }
         map.invalidateSize();
       });
     }
