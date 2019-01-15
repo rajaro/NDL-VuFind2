@@ -77,19 +77,20 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
     /**
      * Router object
      *
-     * @var Zend\Router\Http\RouteMatch
+     * @var Zend\Router\Http\TreeRouteStack
      */
     protected $router;
 
     /**
      * Constructor
      *
-     * @param Zend\Config\Config $config           Menu configuration
-     * @param OrganisationInfo   $organisationInfo Organisation info
+     * @param Zend\Config\Config              $config           Menu configuration
+     * @param OrganisationInfo                $organisationInfo Organisation info
+     * @param Zend\Router\Http\TreeRouteStack $router           Route helper
      */
     public function __construct(\Zend\Config\Config $config,
         \Finna\OrganisationInfo\OrganisationInfo $organisationInfo,
-        $router
+        \Zend\Router\Http\TreeRouteStack $router
     ) {
         $this->config = $config;
         $this->organisationInfo = $organisationInfo;
