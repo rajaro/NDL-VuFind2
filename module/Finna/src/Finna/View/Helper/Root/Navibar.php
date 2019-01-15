@@ -27,6 +27,7 @@
  */
 namespace Finna\View\Helper\Root;
 
+use Zend\Http\Request;
 /**
  * Navibar view helper
  *
@@ -74,16 +75,25 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
     protected $language;
 
     /**
+     * Router object
+     *
+     * @var Zend\Router\Http\RouteMatch
+     */
+    protected $router;
+
+    /**
      * Constructor
      *
      * @param Zend\Config\Config $config           Menu configuration
      * @param OrganisationInfo   $organisationInfo Organisation info
      */
     public function __construct(\Zend\Config\Config $config,
-        \Finna\OrganisationInfo\OrganisationInfo $organisationInfo
+        \Finna\OrganisationInfo\OrganisationInfo $organisationInfo,
+        $router
     ) {
         $this->config = $config;
         $this->organisationInfo = $organisationInfo;
+        $this->router = $router;
     }
 
     /**
@@ -224,6 +234,17 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
             }
 
             $data['route'] = true;
+            if (strpos($url, '/') === 0) {
+                $url = $this->view->serverUrl(true) . substr($url, 1);
+                $request = new Request();
+                $request->setUri($url);
+                $routeMatch = $this->router->match($request);
+                if ($routeMatch != null) {
+                    $data['routeParams'] = $routeMatch->getParams();
+                    $data['url'] = $routeMatch->getMatchedRouteName();
+                    return $data;
+                }
+            }
 
             $needle = 'content-';
             if (($pos = strpos($url, $needle)) === 0) {
