@@ -28,6 +28,7 @@
 namespace Finna\View\Helper\Root;
 
 use Zend\Http\Request;
+
 /**
  * Navibar view helper
  *
