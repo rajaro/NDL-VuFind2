@@ -332,10 +332,20 @@ finna.imagePopup = (function finnaImagePopup() {
         minZoom: 1,
         maxZoom: 6,
         center: [0, 0],
+        zoomControl: false,
         zoom: 1,
         crs: L.CRS.Simple,
         maxBoundsViscosity: 0.9,
         dragging: true,
+      });
+      $('.zoom-in').click(function(){
+        map.setZoom(map.getZoom() + 1)
+      });
+      $('.zoom-out').click(function(){
+        map.setZoom(map.getZoom() - 1)
+      });
+      $('.zoom-reset').click(function(){
+        map.setZoom(1)
       });
       var h = this.naturalHeight;
       var w = this.naturalWidth;
