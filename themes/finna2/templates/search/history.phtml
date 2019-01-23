@@ -17,7 +17,7 @@
   <?= $this->context($this)->renderInContext("myresearch/menu.phtml", ['active' => 'history']); ?>
 <?php endif; ?>
 
-<div class="<?=$layoutLoggedIn ? $this->layoutClass('mainbody-myresearch') : 'mainbody myresearch-body'?>">
+<div class="<?=$layoutLoggedIn ? $this->layoutClass('mainbody-myresearch') : $this->layoutClass('mainbody-myresearch-no-menu')?>">
   <div class="history-holder">
     <?php if ($this->alertemail): ?>
       <div class="alert alert-info alert-email-notification hidden">
