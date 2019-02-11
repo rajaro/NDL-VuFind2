@@ -1,4 +1,4 @@
-/*global VuFind, finna, module, videojs */
+/*global VuFind, finna, module, videojs, L */
 finna.imagePopup = (function finnaImagePopup() {
 
   function openPopup(trigger) {
@@ -154,12 +154,12 @@ finna.imagePopup = (function finnaImagePopup() {
                 if ($('#popup-image-description').length) {
                   $(this).attr('aria-describedby', 'popup-image-description');
                 }
-            }).each(function triggerImageLoad() {
-              if (this.complete) {
-                $(this).load();
-              }
-            });
-          }
+              }).each(function triggerImageLoad() {
+                if (this.complete) {
+                  $(this).load();
+                }
+              });
+            }
 
             // Prevent navigation button CSS-transitions on touch-devices
             if (finna.layout.isTouchDevice()) {
@@ -338,13 +338,13 @@ finna.imagePopup = (function finnaImagePopup() {
         maxBoundsViscosity: 0.9,
         dragging: true,
       });
-      $('.zoom-in').click(function(){
+      $('.zoom-in').click(function zoomIn() {
         map.setZoom(map.getZoom() + 1)
       });
-      $('.zoom-out').click(function(){
+      $('.zoom-out').click(function zoomOut() {
         map.setZoom(map.getZoom() - 1)
       });
-      $('.zoom-reset').click(function(){
+      $('.zoom-reset').click(function zoomReset() {
         map.setZoom(1)
       });
       var h = this.naturalHeight;
@@ -367,7 +367,7 @@ finna.imagePopup = (function finnaImagePopup() {
       map.setMaxBounds(bounds);
       overlay.addTo(map);
       map.invalidateSize();
-      map.on('zoomend', function() {
+      map.on('zoomend', function adjustPopupSize() {
         if (map.getZoom() > 1) {
           $('.mfp-content').addClass('full-size');
         } else {
