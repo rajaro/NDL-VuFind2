@@ -364,6 +364,7 @@ finna.imagePopup = (function finnaImagePopup() {
       var northEast = map.unproject([w, 0], imageNaturalSizeZoomLevel);
       var bounds = new L.LatLngBounds(southWest, northEast);
       var overlay = L.imageOverlay(img.src, bounds);
+      map.flyToBounds(bounds, {animate: false});
       map.setMaxBounds(bounds);
       overlay.addTo(map);
       map.invalidateSize();
