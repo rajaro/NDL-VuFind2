@@ -373,6 +373,7 @@ finna.imagePopup = (function finnaImagePopup() {
           $('.mfp-content').addClass('full-size');
         } else {
           $('.mfp-content').removeClass('full-size');
+          map.flyToBounds(bounds, {animate: false});
         }
         map.invalidateSize();
       });
