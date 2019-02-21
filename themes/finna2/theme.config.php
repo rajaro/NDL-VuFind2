@@ -161,6 +161,7 @@ return [
         'finna-image-popup.js',
         'finna-adv-search.js',
         'finna-daterange-vis.js',
+        'finna-facets.js',
         'finna-feed.js',
         'finna-layout.js',
         'finna-openurl.js',
