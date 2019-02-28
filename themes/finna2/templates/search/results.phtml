@@ -35,7 +35,7 @@
 
   // Set up breadcrumbs:
   if (isset($this->overrideTitle)) {
-    $this->layout()->breadcrumbs .= '<li class="active">' . $this->escapeHtml($this->overrideTitle) . '</li>';
+    $this->layout()->breadcrumbs .= '<li class="active">' . $this->transEsc($this->overrideTitle) . '</li>';
   } else {
     $this->layout()->breadcrumbs .= '<li class="active">' . $this->transEsc('Search') . ': ' . $this->escapeHtml($lookfor) . '</li>';
   }
