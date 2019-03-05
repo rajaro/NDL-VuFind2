@@ -69,23 +69,27 @@ class Resource extends \VuFind\Db\Table\Resource
                         ), '*'
                     ]
                 );
-                $s->join(
-                    ['ur' => 'user_resource'], 'resource.id = ur.resource_id',
-                    ['id' => new Expression(
+                $urColumns = $list === null ?
+                    [
+                    'id' => new Expression(
+                        'MAX(?)', ['ur.id'],
+                        [Expression::TYPE_IDENTIFIER]
+                    )
+                    ]
+                    : [
+                    'id' => new Expression(
                         'MAX(?)', ['ur.id'],
                         [Expression::TYPE_IDENTIFIER]
                     ),
-                    ]
+                    'finna_custom_order_index' => new Expression(
+                        'MAX(?)', ['ur.finna_custom_order_index'],
+                        [Expression::TYPE_IDENTIFIER]
+                    )
+                    ];
+                $s->join(
+                    ['ur' => 'user_resource'], 'resource.id = ur.resource_id',
+                    $urColumns
                 );
-                if (null !== $list) {
-                    $s->join(
-                        'user_resource', 'resource.id = user_resource.resource_id',
-                        ['finna_custom_order_index' => new Expression(
-                            'MAX(?)', ['ur.finna_custom_order_index'],
-                            [Expression::TYPE_IDENTIFIER]
-                        )]
-                    );
-                }
                 $s->where->equalTo('ur.user_id', $user);
 
                 // Adjust for list if necessary:
