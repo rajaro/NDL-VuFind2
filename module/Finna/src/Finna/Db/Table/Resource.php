@@ -75,11 +75,17 @@ class Resource extends \VuFind\Db\Table\Resource
                         'MAX(?)', ['ur.id'],
                         [Expression::TYPE_IDENTIFIER]
                     ),
-                    'finna_custom_order_index' => new Expression(
-                        'MAX(?)', ['finna_custom_order_index'],
-                        [Expression::TYPE_IDENTIFIER]
-                    )]
+                    ]
                 );
+                if (null !== $list) {
+                    $s->join(
+                        'user_resource', 'resource.id = user_resource.resource_id',
+                        ['finna_custom_order_index' => new Expression(
+                            'MAX(?)', ['ur.finna_custom_order_index'],
+                            [Expression::TYPE_IDENTIFIER]
+                        )]
+                    );
+                }   
                 $s->where->equalTo('ur.user_id', $user);
 
                 // Adjust for list if necessary:
