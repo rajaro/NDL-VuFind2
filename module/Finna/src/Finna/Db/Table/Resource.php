@@ -85,7 +85,7 @@ class Resource extends \VuFind\Db\Table\Resource
                             [Expression::TYPE_IDENTIFIER]
                         )]
                     );
-                }   
+                }
                 $s->where->equalTo('ur.user_id', $user);
 
                 // Adjust for list if necessary:
