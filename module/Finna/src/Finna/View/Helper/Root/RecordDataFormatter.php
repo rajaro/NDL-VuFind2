@@ -178,7 +178,7 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
      *
      * @return array
      */
-    public function filterForwardFields($coreFields, $onlineAccess = false)
+    public function filterForwardFields($coreFields)
     {
         $filter = [
             'Publisher','Edition', 'Extent', 'Archive', 'Published in', 'Format',
