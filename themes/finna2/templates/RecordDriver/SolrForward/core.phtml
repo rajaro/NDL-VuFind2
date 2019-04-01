@@ -201,9 +201,8 @@
       <?/* Display Main Details */?>
       <?php
         $formatter = $this->recordDataFormatter();
-        $onlineAccess = !empty($videoUrls);
         $coreFields = $formatter->getData(
-            $driver, $formatter->filterForwardFields($formatter->getDefaults('core'), $onlineAccess)
+            $driver, $formatter->filterForwardFields($formatter->getDefaults('core'))
         );
       ?>
       <?php if (!empty($coreFields)): ?>
