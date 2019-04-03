@@ -200,6 +200,7 @@
 
       <?/* Display Main Details */?>
       <?php
+        $this->record($this->driver)->setRenderedUrls($renderedURLs);
         $formatter = $this->recordDataFormatter();
         $coreFields = $formatter->getData(
             $driver, $formatter->filterForwardFields($formatter->getDefaults('core'))
