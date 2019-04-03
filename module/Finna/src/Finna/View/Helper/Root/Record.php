@@ -52,7 +52,7 @@ class Record extends \VuFind\View\Helper\Root\Record
 
     /**
      * Rendered URLs
-     * 
+     *
      * @var array
      */
     protected $renderedUrls;
@@ -414,9 +414,9 @@ class Record extends \VuFind\View\Helper\Root\Record
 
     /**
      * Set rendered URLs
-     * 
+     *
      * @param array $urls Array of rendered URLs
-     * 
+     *
      * @return array
      */
     public function setRenderedUrls($urls)
@@ -426,7 +426,7 @@ class Record extends \VuFind\View\Helper\Root\Record
 
     /**
      * Get rendered URLs
-     * 
+     *
      * @return array|null
      */
     public function getRenderedUrls()
