@@ -4,7 +4,7 @@
   $openUrlActive = $openUrl->isActive();
   // Account for replace_other_urls setting
   $urls = $this->record($this->driver)->getLinkDetails($openUrlActive);
-  $renderedURLs = $this->record($this->driver)->getRenderedUrls() ?? [];
+  $renderedURLs = $this->record($this->driver)->getRenderedUrls();
 ?>
 <?php if (!empty($urls) || $openUrlActive): ?>
   <?php ob_start(); ?>
@@ -22,7 +22,7 @@
   </div>
   <?php $links = ob_get_contents(); ?>
   <?php ob_end_clean(); ?>
-  <?php if ($i > 0): ?>
+  <?php if ($i > 0 || $openUrlActive): ?>
     <?= $links; ?>
   <?php endif; ?>
 <?php endif; ?>
