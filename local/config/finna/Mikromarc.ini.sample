@@ -31,7 +31,7 @@ extraHoldFields = pickUpLocation
 notAllowedForHold = ClaimedReturnedOrNeverBorrowed:Lost:SuppliedReturnNotRequired:MissingOverDue:Withdrawn:Discarded:Other
 
 ; Change this value to true/false to enable visibility of hold button on all copies
-ShowLinkOnCopy = false
+ShowLinkOnCopy = true
 
 [Holdings]
 ; By default the holdings location list is sorted alphabetically. This setting can be
