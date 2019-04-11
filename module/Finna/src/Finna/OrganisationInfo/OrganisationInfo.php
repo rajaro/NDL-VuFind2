@@ -432,7 +432,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             $data = $this->viewRenderer->partial(
                 'Helpers/organisation-page-link.phtml', [
                    'url' => $data, 'label' => 'organisation_info_link',
-                   'logo' => $logo, 'name' => $name
+                   'logo' => $logo ?? null, 'name' => $name
                 ]
             );
             $items[$id] = $data;

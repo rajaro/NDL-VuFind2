@@ -92,12 +92,13 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
     {
         $this->disableSessionWrites();  // avoid session write timing bug
 
-        $parent = $params->fromPost('parent', $params->fromQuery('parent'));
-        if (empty($parent)) {
+        $parents = $params->fromPost('parent', $params->fromQuery('parent'));
+        if (empty($parents)) {
             return $this->handleError('getOrganisationInfo: missing parent');
         }
-        $parent = is_array($parent) ? implode(',', $parent) : $parent;
-
+        //$parent = is_array($parent) ? implode(',', $parent) : $parent;
+        $retVal = [];
+        foreach ($parents as $parent) {
         $reqParams = $params->fromPost('params', $params->fromQuery('params'));
 
         if (empty($reqParams['action'])) {
@@ -168,8 +169,10 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
                 $e->getMessage()
             );
         }
-
-        return $this->formatResponse($response);
+        $retVal[] = $response; 
+        //return $this->formatResponse($response);
+    }
+        return $this->formatResponse($retVal);
     }
 
     /**

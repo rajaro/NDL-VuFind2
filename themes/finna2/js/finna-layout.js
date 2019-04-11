@@ -660,7 +660,7 @@ finna.layout = (function finnaLayout() {
     }
     $.ajax(params)
       .done(function onGetOrganisationInfoDone(response) {
-        callback(response.data.items);
+        callback(response.data);
       })
       .fail(function onGetOrganisationInfoFail() {
         callback(false);
