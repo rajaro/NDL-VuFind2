@@ -106,7 +106,6 @@ trait FinnaRecord
         return $params;
     }
 
-
     /**
      * Get saved time associated with this record in a user list.
      *

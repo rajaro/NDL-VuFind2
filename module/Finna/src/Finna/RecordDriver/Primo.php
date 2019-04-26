@@ -295,7 +295,7 @@ class Primo extends \VuFind\RecordDriver\Primo
 
     /**
      * Get DOI
-     * 
+     *
      * @return string
      */
     public function getCleanDOI()
