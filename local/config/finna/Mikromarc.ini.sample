@@ -33,6 +33,9 @@ notAllowedForHold = ClaimedReturnedOrNeverBorrowed:Lost:SuppliedReturnNotRequire
 ; Change this value to true/false to enable visibility of hold button on all copies
 ShowLinkOnCopy = true
 
+; List of loan type IDs for which hold button is displayed on all copies
+ShowLinkOnLoanTypes = 6
+
 [Holdings]
 ; By default the holdings location list is sorted alphabetically. This setting can be
 ; used to manually set the order by entering location IDs as a colon-separated list.

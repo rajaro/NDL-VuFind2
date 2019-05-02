@@ -109,9 +109,8 @@
   <?php if ($illRequestLink): ?>
     <a class="expandedCheckILLRequest placeILLRequest btn btn-primary hidden-print" data-lightbox href="<?=$this->recordLink()->getRequestUrl($illRequestLink)?>" data-lightbox-title="<?=$this->escapeHtmlAttr($this->translate('ill_request_place_text') . ': ' . $this->driver->getTitle()) ?>"><?=$this->transEsc("ill_request_check_text")?></a>
   <?php endif; ?>
-  <?php $holdingTitleHold = $this->driver->tryMethod('getRealTimeTitleHold'); ?>
   <?php if (!$disableTitleHold): ?>
-    <?php if (!empty($holdingTitleHold)): ?>
+    <?php $holdingTitleHold = $this->driver->tryMethod('getRealTimeTitleHold'); if (!empty($holdingTitleHold)): ?>
       <a class="placehold btn btn-primary hidden-print" data-lightbox data-lightbox-title="<?=$this->escapeHtmlAttr($this->translate('title_hold_place') . ': ' . $this->driver->getTitle()) ?>" href="<?=$this->recordLink()->getRequestUrl($holdingTitleHold)?>"> <?=$this->transEsc('title_hold_place')?></a>
     <?php elseif ($user): ?>
       <?php
@@ -350,7 +349,7 @@
             <?php endif; ?>
             <div class="pull-right">
             <?php if (!$journal): ?>
-              <?php if (!$block && isset($row['link']) && $row['link'] && $holdsAllowed && empty($holdingTitleHold)): ?>
+              <?php if (!$block && isset($row['link']) && $row['link'] && $holdsAllowed): ?>
                 <a class="<?=$check ? "{$holdingsDetails}CheckRequest " : ''?>inlineblock placehold btn btn-primary hidden-print" data-lightbox href="<?=$this->recordLink()->getRequestUrl($row['link'])?>" data-lightbox-title="<?=$this->escapeHtmlAttr($this->translate("Place a Hold") . $dialogTitle); ?>"><?=$this->transEsc($check ? "Check Hold" : "Place a Hold")?></a>
               <?php endif; ?>
               <?php if (!$blockStorageRetrievalRequest && isset($row['storageRetrievalRequestLink']) && $row['storageRetrievalRequestLink']): ?>
