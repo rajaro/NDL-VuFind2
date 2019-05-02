@@ -1521,6 +1521,8 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             if (!empty($item['LocationId'])) {
                 $entry['department'] = $this->getDepartment($item['LocationId']);
             }
+            $showLinkOnLoanTypes
+                = explode(':', $this->config['Holds']['ShowLinkOnLoanTypes']);
 
             if ($this->itemHoldAllowed($item) && $item['PermitLoan']) {
                 $entry['is_holdable'] = true;
@@ -1528,7 +1530,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
                     $entry['level'] = 'copy';
                     $entry['addLink'] = !empty(
                         $this->config['Holds']['ShowLinkOnCopy']
-                    );
+                    ) && in_array($item['LoanTypeId'], $showLinkOnLoanTypes);
                 }
             } else {
                 $entry['is_holdable'] = false;
