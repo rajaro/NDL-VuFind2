@@ -1525,11 +1525,11 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             $showLinkOnLoanTypes 
                 = isset($this->config['Holds']['ShowLinkOnCopyLoanTypes'])
                 ? explode(':', $this->config['Holds']['ShowLinkOnCopyLoanTypes'])
-                : '';
-            $addLink = $showLinkOnLoanTypes
-                ? !empty($this->config['Holds']['ShowLinkOnCopy'])
-                    && in_array($item['LoanTypeId'], $showLinkOnLoanTypes)
-                : !empty($this->config['Holds']['ShowLinkOnCopy']);
+                : [];
+
+            $addLink = !empty($this->config['Holds']['ShowLinkOnCopy'])
+                && (empty($showLinkOnLoanTypes)
+                || in_array($item['LoanTypeId'], $showLinkOnLoanTypes));
 
             if ($this->itemHoldAllowed($item) && $item['PermitLoan']) {
                 $entry['is_holdable'] = true;
