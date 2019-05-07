@@ -9,9 +9,13 @@ finna.organisationList = (function finnaOrganisationList() {
     }
     finna.layout.getOrganisationPageLink(ids, false, false, function onGetOrganisationPageLink(response) {
       if (response) {
-        $.each(response, function handleLink(id, url) {
-          var link = $('.organisations .page-link[data-organisation="' + id + '"]');
-          link.wrap($('<a/>').attr('href', url));
+        $.each(response, function handleLink(id, success) {
+          if (success) {
+            $.each(success.items, function handleLinks(id, url) {
+            var link = $('.organisations .page-link[data-organisation="' + id + '"]');
+            link.wrap($('<a/>').attr('href', url));
+            });
+          }
         });
       }
     });

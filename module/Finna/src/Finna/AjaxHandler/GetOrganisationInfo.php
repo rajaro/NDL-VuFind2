@@ -92,83 +92,87 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
     {
         $this->disableSessionWrites();  // avoid session write timing bug
 
-        $parent = $params->fromPost('parent', $params->fromQuery('parent'));
-        if (empty($parent)) {
+        $parents = $params->fromPost('parent', $params->fromQuery('parent'));
+        if (empty($parents)) {
             return $this->handleError('getOrganisationInfo: missing parent');
         }
-        $parent = is_array($parent) ? implode(',', $parent) : $parent;
+     //   $parent = is_array($parent) ? implode(',', $parent) : $parent;
+        $value = [];
+        $parents = is_array($parents) ? $parents : [$parents];
+        foreach ($parents as $parent) {
+            $reqParams = $params->fromPost('params', $params->fromQuery('params'));
 
-        $reqParams = $params->fromPost('params', $params->fromQuery('params'));
-
-        if (empty($reqParams['action'])) {
-            return $this->handleError('getOrganisationInfo: missing action');
-        }
-
-        $cookieName = 'organisationInfoId';
-        $cookie = $this->cookieManager->get($cookieName);
-        $reqParams['orgType'] = 'library';
-        $museumSource = [
-            'museo', 'museum', 'kansallisgalleria', 'ateneum', 'musee',
-            'nationalgalleri', 'gallery'
-        ];
-        foreach ($museumSource as $source) {
-            $checkName = $this->translate("source_" . strtolower($parent));
-            if (stripos($checkName, $source)) {
-                $reqParams['orgType'] = 'museum';
-                break;
+            if (empty($reqParams['action'])) {
+                return $this->handleError('getOrganisationInfo: missing action');
             }
-        }
-        $action = $reqParams['action'];
-        $buildings = isset($reqParams['buildings'])
-            ? explode(',', $reqParams['buildings']) : null;
 
-        $key = $parent;
-        if ('details' === $action) {
-            if (!isset($reqParams['id'])) {
-                return $this->handleError('getOrganisationInfo: missing id');
+            $cookieName = 'organisationInfoId';
+            $cookie = $this->cookieManager->get($cookieName);
+            $reqParams['orgType'] = 'library';
+            $museumSource = [
+                'museo', 'museum', 'kansallisgalleria', 'ateneum', 'musee',
+                'nationalgalleri', 'gallery'
+            ];
+            foreach ($museumSource as $source) {
+                $checkName = $this->translate("source_" . strtolower($parent));
+                if (stripos($checkName, $source)) {
+                    $reqParams['orgType'] = 'museum';
+                    break;
+                }
             }
-            if (isset($reqParams['id'])) {
-                $id = $reqParams['id'];
-                $expire = time() + 365 * 60 * 60 * 24; // 1 year
-                $this->cookieManager->set($cookieName, $id, $expire);
+            $action = $reqParams['action'];
+            $buildings = isset($reqParams['buildings'])
+                ? explode(',', $reqParams['buildings']) : null;
+
+            $key = $parent;
+            if ('details' === $action) {
+                if (!isset($reqParams['id'])) {
+                    return $this->handleError('getOrganisationInfo: missing id');
+                }
+                if (isset($reqParams['id'])) {
+                    $id = $reqParams['id'];
+                    $expire = time() + 365 * 60 * 60 * 24; // 1 year
+                    $this->cookieManager->set($cookieName, $id, $expire);
+                }
             }
-        }
 
-        if (!isset($reqParams['id']) && $cookie) {
-            $reqParams['id'] = $cookie;
-        }
+            if (!isset($reqParams['id']) && $cookie) {
+                $reqParams['id'] = $cookie;
+            }
 
-        if ('lookup' === $action) {
-            $reqParams['link'] = $params->fromPost(
-                'link', $params->fromQuery('link', false)
-            );
-            $reqParams['parentName'] = $params->fromPost(
-                'parentName', $params->fromQuery('parentName', null)
-            );
-        }
+            if ('lookup' === $action) {
+                $reqParams['link'] = $params->fromPost(
+                    'link', $params->fromQuery('link', false)
+                );
+                $reqParams['parentName'] = $params->fromPost(
+                    'parentName', $params->fromQuery('parentName', null)
+                );
+            }
 
-        $lang = $this->translator->getLocale();
-        $map = ['en-gb' => 'en'];
+            $lang = $this->translator->getLocale();
+            $map = ['en-gb' => 'en'];
 
-        if (isset($map[$lang])) {
-            $lang = $map[$lang];
-        }
-        if (!in_array($lang, ['fi', 'sv', 'en'])) {
-            $lang = 'fi';
-        }
+            if (isset($map[$lang])) {
+                $lang = $map[$lang];
+            }
+            if (!in_array($lang, ['fi', 'sv', 'en'])) {
+                $lang = 'fi';
+            }
 
-        try {
-            $response = $this->organisationInfo->query(
-                $parent, $reqParams, $buildings, $action
-            );
-        } catch (\Exception $e) {
-            return $this->handleError(
-                'getOrganisationInfo: '
-                    . "error reading organisation info (parent $parent)",
-                $e->getMessage()
-            );
+            try {
+                $response = $this->organisationInfo->query(
+                    $parent, $reqParams, $buildings, $action
+                );
+            } catch (\Exception $e) {
+                /*return $this->handleError(
+                        'getOrganisationInfo: '
+                            . "error reading organisation info (parent $parent)",
+                        $e->getMessage()
+                );*/
+            }
+            $value[] = $response;
         }
-
+        return $this->formatResponse($value);
         return $this->formatResponse($response);
     }
 

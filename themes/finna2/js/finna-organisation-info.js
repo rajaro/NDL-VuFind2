@@ -9,7 +9,7 @@ finna.organisationInfo = (function finnaOrganisationInfo() {
     $.getJSON(url, params)
       .done(function onGetOrganisationInfoDone(response) {
         if (response.data) {
-          callback(true, response.data);
+          callback(true, response.data[0]);
           return;
         }
         callback(false, 'Error reading organisation info');

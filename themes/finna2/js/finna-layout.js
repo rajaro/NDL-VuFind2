@@ -635,8 +635,12 @@ finna.layout = (function finnaLayout() {
         getOrganisationPageLink(organisation, organisationName, true, function organisationPageCallback(response) {
           holder.toggleClass('done', true);
           if (response) {
-            var data = response[organisation];
-            holder.html(data).closest('li.record-organisation').toggleClass('organisation-page-link-visible', true);
+            $.each(response[0], function handleLinks(id, item) {
+              if (item[organisation]) {
+                var data = item[organisation];
+                holder.html(data).closest('li.record-organisation').toggleClass('organisation-page-link-visible', true);
+              }
+            });
           }
         });
       });
@@ -660,7 +664,7 @@ finna.layout = (function finnaLayout() {
     }
     $.ajax(params)
       .done(function onGetOrganisationInfoDone(response) {
-        callback(response.data.items);
+        callback(response.data);
       })
       .fail(function onGetOrganisationInfoFail() {
         callback(false);
