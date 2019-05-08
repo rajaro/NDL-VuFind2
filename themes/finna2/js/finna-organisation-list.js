@@ -20,7 +20,7 @@ finna.organisationList = (function finnaOrganisationList() {
                 if (success) {
                   $.each(success.items, function handleLinks(id, url) {
                   var link = $('.organisations .page-link[data-organisation="' + id + '"]');
-                  link.wrap($('<a/>').attr('href', url));
+                  link.wrapInner($('<a/>').attr('href', url));
                   });
                 }
               });
