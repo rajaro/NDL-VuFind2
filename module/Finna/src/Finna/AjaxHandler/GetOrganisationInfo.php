@@ -105,7 +105,7 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
         $action = $reqParams['action'];
 
         $buildings = isset($reqParams['buildings'])
-                ? explode(',', $reqParams['buildings']) : null;
+            ? explode(',', $reqParams['buildings']) : null;
 
         if ('details' === $action) {
             if (!isset($reqParams['id'])) {
@@ -170,6 +170,9 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
             if ($response) {
                 $result[] = $response;
             }
+        }
+        if (empty($result)) {
+            $result = false;
         }
         return $this->formatResponse($result);
     }
