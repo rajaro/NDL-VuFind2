@@ -142,6 +142,8 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
 
         $result = [];
         $parents = is_array($parents) ? $parents : [$parents];
+        $libraries = [];
+        $response = [];
         foreach ($parents as $parent) {
             $reqParams['orgType'] = 'library';
             $museumSource = [
@@ -157,9 +159,13 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
             }
 
             try {
-                $response = $this->organisationInfo->query(
-                    $parent, $reqParams, $buildings, $action
-                );
+                if ($reqParams['orgType'] === 'museum') {
+                    $response = $this->organisationInfo->query(
+                        $parent, $reqParams, $buildings, $action
+                    );
+                } else {
+                    $libraries[] = $parent;
+                }
             } catch (\Exception $e) {
                 $response = $this->handleError(
                     'getOrganisationInfo: '
@@ -171,7 +177,16 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
                 $result[] = $response;
             }
         }
-        if (empty($result)) {
+        if (!empty($libraries)) {
+            $libraries = implode(',', $libraries);
+            $reqParams['orgType'] = 'library';
+            $libraries = $this->organisationInfo->query(
+                $libraries, $reqParams, $buildings, $action
+            );
+
+            $result[] = $libraries;
+        }
+        if (empty($result) || $result[0] == false) {
             $result = false;
         }
         return $this->formatResponse($result);
