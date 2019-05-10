@@ -176,10 +176,10 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
       appendTo: '.autocomplete-container',
       autoFocus: false
     }).data("ui-autocomplete")._renderItem = function addLabels(ul, item) {
-        return $('<li>')
-          .attr('aria-label', item.label)
-          .html(item.label)
-          .appendTo(ul);
+      return $('<li>')
+        .attr('aria-label', item.label)
+        .html(item.label)
+        .appendTo(ul);
     };
     officeSearch.on('click', function onClickSearch() {
       officeSearch.autocomplete('search', $(this).val());
