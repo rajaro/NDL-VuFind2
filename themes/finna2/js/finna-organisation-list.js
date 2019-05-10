@@ -12,8 +12,7 @@ finna.organisationList = (function finnaOrganisationList() {
 
     function getOrganisationLinks() {
       if (!timeout) {
-        timeout = true;
-        setTimeout(function getLinks() {
+        timeout = setTimeout(function getLinks() {
           finna.layout.getOrganisationPageLink(ids, false, false, function onGetOrganisationPageLink(response) {
             if (response) {
               $.each(response, function handleLink(index, success) {
