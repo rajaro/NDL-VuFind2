@@ -57,7 +57,7 @@
         <?=$this->context($this)->renderInContext('librarycards/selectcard.phtml', ['user' => $user, 'label' => 'Library Card'])?>
       </div>
       <div class="useraccount-header">
-        <?=$this->transEsc('Your Fines') . " (" . count($this->fines ?? []) . ")"?>
+        <h2><?=$this->transEsc('Your Fines') . " (" . count($this->fines ?? []) . ")"?></h2>
       </div>
     </div>
     <?=$this->flashmessages()?>
