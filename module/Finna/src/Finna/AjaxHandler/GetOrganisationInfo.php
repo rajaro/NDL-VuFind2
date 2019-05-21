@@ -141,31 +141,21 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
         }
 
         $result = [];
-        $parents = is_array($parents) ? $parents : [$parents];
+        $parents = isset($parents['id']) ? [$parents] : $parents;
         $libraries = [];
+        $museums = [];
         $response = [];
         foreach ($parents as $parent) {
-            $reqParams['orgType'] = 'library';
-            $museumSource = [
-                'museo', 'museum', 'kansallisgalleria', 'ateneum', 'musee',
-                'nationalgalleri', 'gallery'
-            ];
-            foreach ($museumSource as $source) {
-                $checkName = $this->translate("source_" . strtolower($parent));
-                if (stripos($checkName, $source)) {
-                    $reqParams['orgType'] = 'museum';
-                    break;
-                }
+            if ($parent['sector'] !== 'mus') {
+                $libraries[] = $parent['id'];
+                continue;
             }
+            $reqParams['orgType'] = 'museum';
 
             try {
-                if ($reqParams['orgType'] === 'museum') {
-                    $response = $this->organisationInfo->query(
-                        $parent, $reqParams, $buildings, $action
-                    );
-                } else {
-                    $libraries[] = $parent;
-                }
+                $response = $this->organisationInfo->query(
+                    $parent['id'], $reqParams, $buildings, $action
+                );
             } catch (\Exception $e) {
                 $response = $this->handleError(
                     'getOrganisationInfo: '
@@ -174,7 +164,11 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
                 );
             }
             if ($response) {
-                $result[] = $response;
+                if ('lookup' === $action) {
+                    $museums = array_merge($museums, $response['items']);
+                } else {
+                    $museums = array_merge($museums, $response);
+                }
             }
         }
         if (!empty($libraries)) {
@@ -183,10 +177,14 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
             $libraries = $this->organisationInfo->query(
                 $libraries, $reqParams, $buildings, $action
             );
-
-            $result[] = $libraries;
         }
-        if (empty($result) || $result[0] == false) {
+
+        if ('lookup' == $action) {
+            $result = array_merge($museums, $libraries['items']);
+        } else {
+            $result = array_merge($museums, $libraries);
+        }
+        if (empty($result)) {
             $result = false;
         }
         return $this->formatResponse($result);
