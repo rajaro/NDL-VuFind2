@@ -424,17 +424,6 @@ trait SolrFinna
     }
 
     /**
-     * Get sector
-     *
-     * @return string
-     */
-    public function getSector()
-    {
-        $sector = $this->fields['sector_str_mv'][0]->getDisplayString();
-        return $sector;
-    }
-
-    /**
      * Get all authors apart from presenters
      *
      * @return array

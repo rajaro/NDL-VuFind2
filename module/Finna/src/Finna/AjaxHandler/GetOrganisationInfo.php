@@ -47,10 +47,12 @@ use Zend\Mvc\Controller\Plugin\Params;
  * @link     https://vufind.org/wiki/development Wiki
  */
 class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
-    implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface
+    implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface,
+    \VuFindHttp\HttpServiceAwareInterface
 {
     use \VuFind\I18n\Translator\TranslatorAwareTrait;
     use \VuFind\Log\LoggerAwareTrait;
+    use \VuFindHttp\HttpServiceAwareTrait;
 
     /**
      * Cookie manager
@@ -146,6 +148,20 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
         $museums = [];
         $response = [];
         foreach ($parents as $parent) {
+            if (empty($parent['sector'])) {
+                $params = [
+                    'filter[]' => 'building:0/' . $parent['id'] . '/',
+                    'limit' => 1,
+                    'field[]' => 'sectors'
+                ];
+                $url = 'https://api.finna.fi/v1/search?';
+                $client = $this->httpService->createClient($url);
+                $client->setParameterGet($params);
+                $result = $client->send();
+                $response = (array)json_decode($result->getBody(), true);
+                $sector = $response['records'][0]['sectors'][0]['value'];
+                $parent['sector'] = strstr($sector, 'mus') ? 'mus' : 'lib';
+            }
             if ($parent['sector'] !== 'mus') {
                 $libraries[] = $parent['id'];
                 continue;

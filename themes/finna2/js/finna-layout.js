@@ -632,8 +632,7 @@ finna.layout = (function finnaLayout() {
         var holder = $(this);
         var organisationId = $(this).data('organisation');
         var organisationName = $(this).data('organisationName');
-        var organisationSector = $(this).data('organisationSector');
-        var organisation = {'id': organisationId, 'sector': organisationSector}
+        var organisation = {'id': organisationId, 'sector': ''}
         getOrganisationPageLink(organisation, organisationName, true, function organisationPageCallback(response) {
           holder.toggleClass('done', true);
           if (response) {
