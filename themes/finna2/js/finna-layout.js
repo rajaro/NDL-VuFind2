@@ -630,7 +630,7 @@ finna.layout = (function finnaLayout() {
     $('.organisation-page-link').not('.done').map(function setupOrganisationPageLinks() {
       $(this).one('inview', function onInViewLink() {
         var holder = $(this);
-        var organisationId= $(this).data('organisation');
+        var organisationId = $(this).data('organisation');
         var organisationName = $(this).data('organisationName');
         var organisationSector = $(this).data('organisationSector');
         var organisation = {'id': organisationId, 'sector': organisationSector}
