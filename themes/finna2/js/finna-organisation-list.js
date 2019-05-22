@@ -5,8 +5,8 @@ finna.organisationList = (function finnaOrganisationList() {
     var timeout = false;
     $('.page-link').not('.done').map(function setupOrganisationPageLinks() {
       $(this).one('inview', function onInViewLink() {
-        id = $(this).data('organisation');
-        sector = $(this).data('sector');
+        var id = $(this).data('organisation');
+        var sector = $(this).data('sector');
         ids.push({'id': id, 'sector': sector});
         getOrganisationLinks();
       });

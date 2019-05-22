@@ -3,9 +3,9 @@ finna.organisationInfo = (function finnaOrganisationInfo() {
   var organisationList = {};
 
   function query(parentId, queryParams, callback) {
-    getOrganisationSector(parentId, function onGetSectorDone(response) {
-      if (response.status === 'OK' && response.resultCount > 0 && 'sectors' in response.records[0]) {
-        var sector = $(response.records[0].sectors).last()[0].value;
+    getOrganisationSector(parentId, function onGetSectorDone(result) {
+      if (result.status === 'OK' && result.resultCount > 0 && 'sectors' in result.records[0]) {
+        var sector = $(result.records[0].sectors).last()[0].value;
         if (sector.indexOf('mus') !== -1) {
           sector = 'mus';
         } else {
@@ -29,7 +29,7 @@ finna.organisationInfo = (function finnaOrganisationInfo() {
             }
             callback(false, error);
           });
-      };
+      }
     });
   }
 
