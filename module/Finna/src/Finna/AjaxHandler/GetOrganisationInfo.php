@@ -158,7 +158,16 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
                 $client = $this->httpService->createClient($url);
                 $client->setParameterGet($params);
                 $result = $client->send();
-                $response = (array)json_decode($result->getBody(), true);
+                if (!$result->isSuccess()) {
+                    return $this->handleError('API request failed, url: ' . $url);
+                }
+
+                $response = json_decode($result->getBody(), true);
+                if (isset($response['result']) && $response['result'] == 'error') {
+                    return $this->handleError(
+                        'API request failed, message: ' . $response['message']
+                    );
+                }
                 $sector = $response['records'][0]['sectors'][0]['value'];
                 $parent['sector'] = strstr($sector, 'mus') ? 'mus' : 'lib';
             }
