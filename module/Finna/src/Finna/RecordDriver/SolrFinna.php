@@ -425,7 +425,7 @@ trait SolrFinna
 
     /**
      * Get sector
-     * 
+     *
      * @return string
      */
     public function getSector()
