@@ -3,29 +3,34 @@ finna.organisationInfo = (function finnaOrganisationInfo() {
   var organisationList = {};
 
   function query(parentId, queryParams, callback) {
-    var url = VuFind.path + '/AJAX/JSON';
-    for (var k in organisationList) {
-      var sector = k.type;
-      break;
-    }
-    var org = {'id': parentId, 'sector': sector};
-    var params = {method: 'getOrganisationInfo', parent: [org], params: queryParams};
-
-    $.getJSON(url, params)
-      .done(function onGetOrganisationInfoDone(response) {
-        if (response.data) {
-          callback(true, response.data);
-          return;
+    getOrganisationSector(parentId, function onGetSectorDone(response) {
+      if (response.status === 'OK' && response.resultCount > 0 && 'sectors' in response.records[0]) {
+        var sector = $(response.records[0].sectors).last()[0].value;
+        if (sector.indexOf('mus') !== -1) {
+          sector = 'mus';
+        } else {
+          sector = 'lib';
         }
-        callback(false, 'Error reading organisation info');
-      })
-      .fail(function onGetOrganisationInfoFall(response/*, textStatus, err*/) {
-        var error = false;
-        if (typeof response.responseJSON !== 'undefined') {
-          error = response.responseJSON.data;
-        }
-        callback(false, error);
-      });
+        var url = VuFind.path + '/AJAX/JSON';
+        var org = {'id': parentId, 'sector': sector};
+        var params = {method: 'getOrganisationInfo', parent: org, params: queryParams};
+        $.getJSON(url, params)
+          .done(function onGetOrganisationInfoDone(response) {
+            if (response.data) {
+              callback(true, response.data);
+              return;
+            }
+            callback(false, 'Error reading organisation info');
+          })
+          .fail(function onGetOrganisationInfoFall(response/*, textStatus, err*/) {
+            var error = false;
+            if (typeof response.responseJSON !== 'undefined') {
+              error = response.responseJSON.data;
+            }
+            callback(false, error);
+          });
+      };
+    });
   }
 
   function getOrganisations(target, parent, buildings, callbackParams, callback) {
@@ -50,6 +55,23 @@ finna.organisationInfo = (function finnaOrganisationInfo() {
       });
       callback(response, callbackParams);
     });
+  }
+
+  function getOrganisationSector(id, callback) {
+    // Resolve building sector
+    var url = 'https://api.finna.fi/v1/search?';
+    var params = {
+      'filter[]': 'building:0/' + id + '/',
+      'limit': 1,
+      'field[]': 'sectors'
+    };
+    url += $.param(params);
+
+    $.getJSON(url)
+      .done(function onSearchDone(response) {
+        callback(response)
+      })
+      .fail(callback(false));
   }
 
   function getInfo(id) {
