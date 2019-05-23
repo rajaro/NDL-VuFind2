@@ -1,16 +1,16 @@
 <!-- START of: finna - Content/help-tabs.phtml -->
-<div class="finna-main-tabs">
+<div class="finna-main-tabs" role="tablist">
     <ul class="nav nav-tabs help-tabs hidden-xs">
-        <li <?php if($activeTab == "help"): ?> class="active"<?php endif; ?> >
+        <li <?php if($activeTab == "help"): ?> class="active" aria-selected="true" <?php endif; ?> role="tab">
             <a href="<?=$this->url('content-page', ['page' => 'help'])?>"><?=$this->translate('tabs_help');?></a>
         </li>
-        <li <?php if($activeTab == "help-basic"): ?> class="active" <?php endif; ?>>
+        <li <?php if($activeTab == "help-basic"): ?> class="active" aria-selected="true" <?php endif; ?> role="tab">
             <a href="<?=$this->url('content-page', ['page' => 'help-basic'])?>"><?=$this->translate('tabs_help-basic');?></a>
         </li>
-        <li<?php if($activeTab == "help-advanced"): ?> class="active" <?php endif; ?>>
+        <li<?php if($activeTab == "help-advanced"): ?> class="active" aria-selected="true"<?php endif; ?> role="tab">
             <a href="<?=$this->url('content-page', ['page' => 'help-advanced'])?>"><?=$this->translate('tabs_help-advanced');?></a>
         </li>
-        <li<?php if($activeTab == "help-syntax"): ?> class="active" <?php endif; ?>>
+        <li<?php if($activeTab == "help-syntax"): ?> class="active" aria-selected="true"<?php endif; ?> role="tab">
             <a href="<?=$this->url('content-page', ['page' => 'help-syntax'])?>"><?=$this->translate('tabs_help-syntax');?></a>
         </li>
     </ul>
