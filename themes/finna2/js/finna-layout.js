@@ -198,7 +198,7 @@ finna.layout = (function finnaLayout() {
     if ($('.content-navigation-menu')[0]) {
       $('.content-section').each(function initContentSection(index) {
         var link = '#' + $(this).attr('id');
-        $('.content-navigation-menu').append('<h2 class="nav-' + index + '" tabindex="0">' + $('h2', this).text() + '</h2>');
+        $('.content-navigation-menu').append('<h2 class="nav-' + index + '"> <a href=' + link + '>' + $('h2', this).text() + '</a></h2>');
         $('.content-navigation-menu h2.nav-' + index).click(function onMenuClick() {
           $('body, html').animate({
             scrollTop: $(link).offset().top - 5
