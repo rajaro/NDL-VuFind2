@@ -202,13 +202,12 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
             $libraries = $this->organisationInfo->query(
                 $libraries, $reqParams, $buildings, $action
             );
+            if (isset($libraries['items'])) {
+                $libraries = $libraries['items'];
+            }
         }
 
-        if ('lookup' == $action) {
-            $result = array_merge($museums, $libraries['items']);
-        } else {
-            $result = array_merge($museums, $libraries);
-        }
+        $result = array_merge($museums, $libraries);
         if (empty($result)) {
             $result = false;
         }
