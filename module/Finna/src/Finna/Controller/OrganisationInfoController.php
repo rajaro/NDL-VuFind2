@@ -50,7 +50,6 @@ class OrganisationInfoController extends \VuFind\Controller\AbstractBase
 
         $id = $this->params()->fromQuery('id');
         $buildings = $this->params()->fromQuery('buildings');
-        $sector = $this->params()->fromQuery('sector');
 
         if (!$id) {
             if (!isset($config->General->defaultOrganisation)) {
@@ -59,9 +58,6 @@ class OrganisationInfoController extends \VuFind\Controller\AbstractBase
             $id = $config->General->defaultOrganisation;
             if (isset($config->General->buildings)) {
                 $buildings = $config->General->buildings->toArray();
-            }
-            if (isset($config->General->sector)) {
-                $sector = $config->General->sector;
             }
         }
 
@@ -111,7 +107,6 @@ class OrganisationInfoController extends \VuFind\Controller\AbstractBase
 
         $view->title = $title;
         $view->id = $id;
-        $view->sector = $sector;
         if ($buildings) {
             $view->buildings = implode(',', $buildings);
         }

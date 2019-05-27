@@ -69,18 +69,27 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
     protected $organisationInfo;
 
     /**
+     * Cache manager
+     *
+     * @var VuFind\CacheManager
+     */
+    protected $cacheManager;
+
+    /**
      * Constructor
      *
-     * @param SessionSettings  $ss               Session settings
-     * @param CookieManager    $cookieManager    ILS connection
-     * @param OrganisationInfo $organisationInfo Organisation info
+     * @param SessionSettings     $ss               Session settings
+     * @param CookieManager       $cookieManager    ILS connection
+     * @param OrganisationInfo    $organisationInfo Organisation info
+     * @param VuFind\CacheManager $cacheManager     Cache manager
      */
     public function __construct(SessionSettings $ss, CookieManager $cookieManager,
-        OrganisationInfo $organisationInfo
+        OrganisationInfo $organisationInfo, $cacheManager
     ) {
         $this->sessionSettings = $ss;
         $this->cookieManager = $cookieManager;
         $this->organisationInfo = $organisationInfo;
+        $this->cacheManager = $cacheManager;
     }
 
     /**
@@ -149,26 +158,41 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
         $response = [];
         foreach ($parents as $parent) {
             if (empty($parent['sector'])) {
-                $params = [
-                    'filter[]' => 'building:0/' . $parent['id'] . '/',
-                    'limit' => 1,
-                    'field[]' => 'sectors'
-                ];
-                $url = 'https://api.finna.fi/v1/search?';
-                $client = $this->httpService->createClient($url);
-                $client->setParameterGet($params);
-                $result = $client->send();
-                if (!$result->isSuccess()) {
-                    return $this->handleError('API request failed, url: ' . $url);
-                }
+                $cache = $this->cacheManager->getCache('organisation-info');
+                $cacheKey = 'sectors';
+                $sectors = $cache->getItem($cacheKey);
+                if ($sectors && $sectors[$parent['id']]) {
+                    $sector = $sectors[$parent['id']];
+                } else {
+                    $params = [
+                        'filter[]' => 'building:0/' . $parent['id'] . '/',
+                        'limit' => 1,
+                        'field[]' => 'sectors'
+                    ];
+                    $url = 'https://api.finna.fi/v1/search?';
+                    $client = $this->httpService->createClient($url);
+                    $client->setParameterGet($params);
+                    $result = $client->send();
+                    if (!$result->isSuccess()) {
+                        return $this->handleError(
+                            'API request failed, url: ' . $url
+                        );
+                    }
 
-                $response = json_decode($result->getBody(), true);
-                if (isset($response['result']) && $response['result'] == 'error') {
-                    return $this->handleError(
-                        'API request failed, message: ' . $response['message']
-                    );
+                    $response = json_decode($result->getBody(), true);
+                    if (isset($response['result'])
+                        && $response['result'] == 'error'
+                    ) {
+                        return $this->handleError(
+                            'API request failed, message: ' . $response['message']
+                        );
+                    }
+                    $sector = $response['records'][0]['sectors'][0]['value'];
+                    $sectors = $sectors
+                        ? array_merge($sectors, [$parent['id'] => $sector])
+                        : [$parent['id'] => $sector];
+                    $cache->setItem($cacheKey, $sectors);       
                 }
-                $sector = $response['records'][0]['sectors'][0]['value'];
                 $parent['sector'] = strstr($sector, 'mus') ? 'mus' : 'lib';
             }
             if ($parent['sector'] !== 'mus') {
