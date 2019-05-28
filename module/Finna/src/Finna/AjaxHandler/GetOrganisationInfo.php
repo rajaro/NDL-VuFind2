@@ -161,9 +161,8 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
                 $cache = $this->cacheManager->getCache('organisation-info');
                 $cacheKey = 'sectors';
                 $sectors = $cache->getItem($cacheKey);
-                if ($sectors && $sectors[$parent['id']]) {
-                    $sector = $sectors[$parent['id']];
-                } else {
+                $sector = $sectors[$parent['id']] ?? null;
+                if (!$sector) {
                     $params = [
                         'filter[]' => 'building:0/' . $parent['id'] . '/',
                         'limit' => 1,
@@ -188,9 +187,7 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
                         );
                     }
                     $sector = $response['records'][0]['sectors'][0]['value'];
-                    $sectors = $sectors
-                        ? array_merge($sectors, [$parent['id'] => $sector])
-                        : [$parent['id'] => $sector];
+                    $sectors[$parent['id']] = $sector;
                     $cache->setItem($cacheKey, $sectors);
                 }
                 $parent['sector'] = strstr($sector, 'mus') ? 'mus' : 'lib';
