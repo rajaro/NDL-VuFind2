@@ -206,7 +206,7 @@ finna.layout = (function finnaLayout() {
         });
   
         $('.content-navigation-menu h2.nav-' + index).keydown(function onEnterDown(ev) {
-          if (ev.which == 13) {
+          if (ev.which === 13) {
             $('body, html').animate({
               scrollTop: $(link).offset().top - 5
             }, 350);
@@ -235,7 +235,7 @@ finna.layout = (function finnaLayout() {
 
   function initHelpTabs() {
     if ($('.help-tabs')[0]) {
-      $('.help-tab').each(function initHelpTab(index) {
+      $('.help-tab').each(function initHelpTab() {
         if ($(this).hasClass('active')) {
           $(this).focus();
         }
