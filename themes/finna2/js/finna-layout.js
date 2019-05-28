@@ -234,7 +234,22 @@ finna.layout = (function finnaLayout() {
   }
 
   function initHelpTabs() {
-
+    if ($('.help-tabs')[0]) {
+      $('.help-tab').each(function initHelpTab(index) {
+        if ($(this).hasClass('active')) {
+          $(this).focus();
+        }
+        var url = $(this).data('url');
+        $(this).keydown(function onTabEnter(event) {
+          if (event.which === 13) {
+            window.location.href = url;
+          }
+        });
+        $(this).click(function onTabClick() {
+          window.location.href = url;
+        });
+      });
+    }
   }
 
   function initRecordSwipe() {
@@ -1077,6 +1092,7 @@ finna.layout = (function finnaLayout() {
       initTruncatedRecordImageNavi();
       initTruncate();
       initContentNavigation();
+      initHelpTabs();
       initRecordSwipe();
       initMultiSelect();
       initMobileNarrowSearch();
