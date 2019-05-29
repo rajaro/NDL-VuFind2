@@ -108,7 +108,7 @@
         </li>
       <?php if ($this->ils()->checkCapability('getMyTransactionHistory', $capabilityParams)): ?>
         <li role="menuitem" class="menu-historic-loans <?=$this->active == 'historicLoans' ? ' active' : ''?>">
-          <a href="<?=$this->url('myresearch-historicloans')?>" class="list-group-item" aria-current=<?= $this->active == 'historicloans' ? 'page' : false ?>>
+          <a href="<?=$this->url('myresearch-historicloans')?>" class="list-group-item" aria-current=<?= $this->active == 'historicLoans' ? 'page' : false ?>>
             <?=$this->transEsc('Loan History')?>
           </a>
         </li>
