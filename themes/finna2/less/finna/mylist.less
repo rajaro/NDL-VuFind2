@@ -402,7 +402,10 @@ span.caret {
       margin-top: -1px;
       margin-right: 1em;
       @media (max-width: @screen-xxs-max) {
-        max-width: 40%;
+        max-width: 60%;
+        float: none;
+        display: block;
+        margin-bottom: 5px;
       }
     }
     .sort-option-container {
@@ -426,6 +429,8 @@ span.caret {
         }
       }
       @media (max-width: @screen-xxs-max) {
+        float: left;
+        margin-right: 5px;
         .dropdown-menu {
           left: -90px;
         }
@@ -435,6 +440,7 @@ span.caret {
       display: inline-block;
       @media (max-width: @screen-xxs-max) {
         text-align: right;
+        float: left;
         width: 20%;
         div, a {
           width: 100%;
