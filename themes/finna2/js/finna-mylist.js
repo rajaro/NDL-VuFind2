@@ -6,12 +6,17 @@ finna.myList = (function finnaMyList() {
   var save = false;
 
   function onSaveCustomOrder(ev, data) {
+    var url = '';
     data.forEach(function redirectToList(element) {
       if (element.name == 'list_url') {
-        window.location.href = element.value;
+        url = element.value;
       }
     });
-    location.reload();
+    if (url) {
+      window.location.href = url;
+    } else {
+      location.reload();
+    }
   }
 
   // This is duplicated in image-popup.js to avoid dependency
