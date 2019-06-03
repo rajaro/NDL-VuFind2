@@ -11,6 +11,7 @@ finna.myList = (function finnaMyList() {
         window.location.href = element.value;
       }
     });
+    location.reload();
   }
 
   // This is duplicated in image-popup.js to avoid dependency

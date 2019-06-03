@@ -6,14 +6,14 @@
   $user = $this->auth()->isLoggedIn();
 
   // Set up page title:
-  $this->headTitle($this->translate('change_sort_order'));
-  $this->layout()->finnaMainHeader = '<div><h3 class="finna-main-header">' . $this->transEsc('change_sort_order') . '</h3></div>';
+  $this->headTitle($this->translate('Sort manually'));
+  $this->layout()->finnaMainHeader = '<div><h3 class="finna-main-header">' . $this->transEsc('Sort manually') . '</h3></div>';
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('change_sort_order') . '</li>';
+  $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Sort manually') . '</li>';
 ?>
 
-<h2><?=$this->transEsc('change_sort_order') ?></h2>
+<h2><?=$this->transEsc('Sort manually') ?></h2>
 
 <?=$this->flashmessages()?>
 <form method="post" id="sort_form" name="sortForm" data-lightbox-onsubmit="finna.myList.onSaveCustomOrder">
