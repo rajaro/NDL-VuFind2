@@ -5,6 +5,14 @@ finna.myList = (function finnaMyList() {
   var editableSettings = {'minWidth': 200, 'addToHeight': 100};
   var save = false;
 
+  function onSaveCustomOrder(ev, data) {
+    data.forEach(element => {
+      if (element.name == 'list_url') {
+        window.location.href = element.value;
+      }
+    });
+  }
+
   // This is duplicated in image-popup.js to avoid dependency
   function getActiveListId() {
     return $('input[name="listID"]').val();
@@ -472,6 +480,7 @@ finna.myList = (function finnaMyList() {
 
   var my = {
     initFavoriteOrderingFunctionality: initFavoriteOrderingFunctionality,
+    onSaveCustomOrder: onSaveCustomOrder,
     init: function init() {
       initEditComponents();
     }
