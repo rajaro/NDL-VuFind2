@@ -6,7 +6,7 @@ finna.myList = (function finnaMyList() {
   var save = false;
 
   function onSaveCustomOrder(ev, data) {
-    data.forEach(element => {
+    data.forEach(function redirectToList(element) {
       if (element.name == 'list_url') {
         window.location.href = element.value;
       }
