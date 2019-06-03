@@ -204,14 +204,6 @@ finna.layout = (function finnaLayout() {
             scrollTop: $(link).offset().top - 5
           }, 350);
         });
-  
-        $('.content-navigation-menu h2.nav-' + index).keydown(function onEnterDown(ev) {
-          if (ev.which === 13) {
-            $('body, html').animate({
-              scrollTop: $(link).offset().top - 5
-            }, 350);
-          }
-        });
       });
 
       var menuPosition = $('.content-navigation-menu').offset().top;
