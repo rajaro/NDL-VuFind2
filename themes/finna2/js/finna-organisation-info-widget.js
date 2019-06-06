@@ -218,18 +218,21 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
 
             if (currentSelfservice === null || selfservice !== currentSelfservice) {
               var timeRow = timeRowTpl.clone();
-              timeRow.find('.date').text(date);
-              timeRow.find('.name').text(day);
-              timeRow.find('.info').text(info);
+              timeRow.find('.date').text(date + ' ' + day);
 
+              if (info == null) {
+                timeRow.find('.info').hide();
+              } else {
+                timeRow.find('.info').text(info);
+              }
               timeRow.find('.opens').text(timeOpens);
               timeRow.find('.closes').text(timeCloses);
 
               if (selfserviceAvail && selfservice !== currentSelfservice) {
                 timeRow.toggleClass('staff', !selfservice);
               }
-              if ('selfserviceOnly' in time) {
-                timeRow.find('.selfservice-only').removeClass('hide');
+              if (time.selfservice === true) {
+                timeRow.find('.name-staff').hide();
               }
               dayRow.append(timeRow);
               currentTimeRow = timeRow;
@@ -247,7 +250,7 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
           });
         } else {
           var timeRow = timeRowTpl.clone();
-          timeRow.find('.date').text(obj.date);
+          timeRow.find('.date').text(obj.date + ' ' + obj.day);
           timeRow.find('.name').text(obj.day);
           timeRow.find('.info').text(obj.info);
           timeRow.find('.period, .name-staff').hide();
@@ -319,7 +322,7 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
       var links = response.links;
       if (links.length) {
         $.each(links, function handleLink(ind, obj) {
-          if (obj.name === 'Facebook') {
+          if (obj.name.includes('Facebook')) {
             holder.find('.facebook').attr('href', obj.url).show();
           }
         });
@@ -359,9 +362,9 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
       && 'currentWeek' in response.openTimes
       && response.openTimes.currentWeek
     ) {
-      prevBtn.unbind('click').fadeTo(200, 0);
+      prevBtn.css('visibility', 'hidden');
     } else {
-      prevBtn.fadeTo(200, 1);
+      prevBtn.css('visibility', 'visible').fadeTo(200, 1);
       attachWeekNaviListener();
     }
   }
