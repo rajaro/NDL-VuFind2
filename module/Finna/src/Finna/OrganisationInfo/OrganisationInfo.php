@@ -599,9 +599,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
 
         $result['id'] = $id;
         $result['periodStart'] = $startDate;
-        if ($scheduleDescriptions) {
-            $result['scheduleDescriptions'] = $scheduleDescriptions;
-        }
+
         return $result;
     }
 
