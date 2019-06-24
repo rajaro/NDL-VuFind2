@@ -15,10 +15,12 @@
     <input type="email" id="email_from" oninvalid="$('#modal .fa-spinner').remove()" name="from" value="<?=isset($this->from) ? $this->from : ''?>" size="35" class="form-control"/>
   </div>
 <?php endif; ?>
-<div class="form-group">
-  <label class="control-label" for="email_subject"><?=$this->transEsc('email_subject')?>:</label>
-  <input type="text" id="email_subject" oninvalid="$('#modal .fa-spinner').remove()" name="subject" value="<?=isset($this->subject) ? $this->subject : ''?>" size="37" class="form-control"/>
-</div>
+<?php if ($this->editableSubject): ?>
+  <div class="form-group">
+    <label class="control-label" for="email_subject"><?=$this->transEsc('email_subject')?>:</label>
+    <input type="text" id="email_subject" oninvalid="$('#modal .fa-spinner').remove()" name="subject" value="<?=isset($this->subject) ? $this->subject : ''?>" size="37" class="form-control"/>
+  </div>
+<?php endif; ?>
 <div class="form-group">
   <label class="control-label" for="email_message"><?=$this->transEsc('Message')?>:</label>
   <textarea id="email_message" class="form-control" name="message" rows="4" cols="33"><?=isset($this->message) ? $this->message : ''?></textarea>

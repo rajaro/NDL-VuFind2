@@ -30,7 +30,7 @@
       <p class="form-control-static"><?=$this->records[0]->getBreadcrumb() ?></p>
     <?php endif; ?>
   </div>
-  <?=$this->render('Helpers/email-form-fields.phtml')?>
+  <?=$this->render('Helpers/email-form-fields.phtml', ['editableSubject' => true])?>
 </form>
 <?php
   $script = <<<JS
