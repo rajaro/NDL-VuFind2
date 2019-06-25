@@ -463,8 +463,6 @@ disable_from = false
 ; but will only use it as a reply-to address. The address defined here is used as the
 ; actual "from" address.
 ;override_from = "no-reply@myuniversity.edu"
-; Should the user be allowed to edit email subject lines?
-user_editable_subjects = true
 
 ; This section needs to be changed to match your database connection information
 [Database]
