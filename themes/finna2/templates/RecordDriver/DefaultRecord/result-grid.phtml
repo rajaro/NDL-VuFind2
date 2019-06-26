@@ -17,6 +17,12 @@ $urls = $this->record($this->driver)->getLinkDetails($openUrlActive);
   <?php endif; ?>
   <div class="grid-body">
     <div class="text-center grid-image">
+      <?php
+      $list = $this->results->getListObject();
+      $notes = $this->driver->getListNotes($list->id); if (!empty($notes)): ?>
+        <button class="note-image"><i class="fa fa-file-text-o" aria-hidden="true"></i></button>
+        <div class="note-overlay note-hide"></div>
+      <?php endif ?>
       <?php $img = $this->recordImage($this->record($this->driver))?>
       <?=$img->render('list grid', ['small' => ['w' => 100, 'h' => 100], 'medium' => ['w' => 600, 'h' => 600]]) ?>
     </div>

@@ -359,6 +359,26 @@ finna.myList = (function finnaMyList() {
       }
     });
 
+    // add notes to image container
+    $('.notes').each(function initNotes(id, obj) {
+      var data = $(this).data('notes');
+      var imageContainer = $(this).closest('.grid-body').find('.grid-image');
+      if (typeof(data) !== 'undefined') {
+        var noteButton = imageContainer.find('.note-image');
+        var noteOverlay = imageContainer.find('.note-overlay');
+        noteOverlay.html(data);
+        noteButton.click(function onClick(ev) {
+          if (!noteOverlay.hasClass('note-show')) {
+            noteOverlay.addClass('note-show');
+            noteButton.addClass('close-note');
+          } else {
+            noteButton.removeClass('close-note');
+            noteOverlay.removeClass('note-show');
+          }
+        });
+      }
+    });
+
     // Prompt before leaving page if Ajax load is in progress
     window.onbeforeunload = function onBeforeUnloadWindow(/*e*/) {
       if ($('.list-save').length) {

@@ -2,19 +2,18 @@
 <?php
   $list = $this->results->getListObject();
   $notes = $this->driver->getListNotes($list->id); if (!empty($notes)): ?>
-  <div class="notes">
-    <p class="note-heading">
-      <span class="heading"><?=$this->transEsc('Description')?>:</span>
-    </p>
-    <div class="note-rows">
-      <?php
-      $note = implode('', $notes);
-      if ($this->params->getView() == 'list') {
-        $note = $this->markdown()->toHtml($note);
-      }
-      echo $note
-      ?>
-    </div>
+  <?php 
+    $note = implode('', $notes);
+    $note = $this->markdown()->toHtml($note); ?>
+  <div class="notes" data-notes="<span class='heading'><?=$this->transEsc('Note')?>:</span><br><br><?= $note ?>">
+    <?php if ($this->params->getView() == 'list' || $this->params->getView() == 'condensed'): ?>
+      <p class="note-heading">
+        <span class="heading"><i class="fa fa-file-text-o" aria-hidden="true"></i> <?=$this->transEsc('Note')?>:</span>
+      </p>
+      <div class="note-rows">
+        <?php echo $note; ?>
+      </div>
+    <?php endif; ?>
   </div>
 <?php endif; ?>
 <!-- END of: finna - list/list-notes.phtml -->
