@@ -8,7 +8,7 @@ finna.myList = (function finnaMyList() {
   function onSaveCustomOrder(ev, data) {
     var url = '';
     data.forEach(function redirectToList(element) {
-      if (element.name == 'list_url') {
+      if (element.name === 'list_url') {
         url = element.value;
       }
     });
@@ -360,10 +360,10 @@ finna.myList = (function finnaMyList() {
     });
 
     // hide/show notes on images
-    $('.notes').each(function initNotes(id, obj) {
+    $('.notes').each(function initNotes() {
       var noteButton = $(this).closest('.grid-body').find('.note-image');
       var noteOverlay = $(this).closest('.grid-body').find('.note-overlay');
-      noteButton.click(function onClick(ev) {
+      noteButton.click(function onClick() {
         if (!noteOverlay.hasClass('note-show')) {
           noteButton.addClass('note-hide');
           noteOverlay.addClass('note-show');
