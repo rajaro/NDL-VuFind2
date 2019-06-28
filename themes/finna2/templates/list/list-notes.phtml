@@ -2,7 +2,7 @@
 <?php
   $list = $this->results->getListObject();
   $notes = $this->driver->getListNotes($list->id); if (!empty($notes)): ?>
-  <?php 
+  <?php
     $note = implode('', $notes);
     $note = $this->markdown()->toHtml($note); ?>
     <div class="notes">
