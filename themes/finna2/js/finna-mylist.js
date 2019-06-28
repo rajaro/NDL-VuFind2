@@ -359,24 +359,21 @@ finna.myList = (function finnaMyList() {
       }
     });
 
-    // add notes to image container
+    // hide/show notes on images
     $('.notes').each(function initNotes(id, obj) {
-      var data = $(this).data('notes');
-      var imageContainer = $(this).closest('.grid-body').find('.grid-image');
-      if (typeof(data) !== 'undefined') {
-        var noteButton = imageContainer.find('.note-image');
-        var noteOverlay = imageContainer.find('.note-overlay');
-        noteOverlay.html(data);
-        noteButton.click(function onClick(ev) {
-          if (!noteOverlay.hasClass('note-show')) {
-            noteOverlay.addClass('note-show');
-            noteButton.addClass('close-note');
-          } else {
-            noteButton.removeClass('close-note');
-            noteOverlay.removeClass('note-show');
-          }
-        });
-      }
+      var noteButton = $(this).closest('.grid-body').find('.note-image');
+      var noteOverlay = $(this).closest('.grid-body').find('.note-overlay');
+      noteButton.click(function onClick(ev) {
+        if (!noteOverlay.hasClass('note-show')) {
+          noteButton.addClass('note-hide');
+          noteOverlay.addClass('note-show');
+          noteOverlay.removeClass('note-hide');
+        } else {
+          noteButton.removeClass('note-hide');
+          noteOverlay.removeClass('note-show');
+          noteOverlay.addClass('note-hide');
+        }
+      });
     });
 
     // Prompt before leaving page if Ajax load is in progress

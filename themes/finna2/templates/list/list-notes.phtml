@@ -5,15 +5,13 @@
   <?php 
     $note = implode('', $notes);
     $note = $this->markdown()->toHtml($note); ?>
-  <div class="notes" data-notes="<span class='heading'><?=$this->transEsc('Note')?>:</span><br><br><?= $note ?>">
-    <?php if ($this->params->getView() == 'list' || $this->params->getView() == 'condensed'): ?>
+    <div class="notes">
       <p class="note-heading">
         <span class="heading"><i class="fa fa-file-text-o" aria-hidden="true"></i> <?=$this->transEsc('Note')?>:</span>
       </p>
       <div class="note-rows">
         <?php echo $note; ?>
       </div>
-    <?php endif; ?>
-  </div>
+    </div>
 <?php endif; ?>
 <!-- END of: finna - list/list-notes.phtml -->
