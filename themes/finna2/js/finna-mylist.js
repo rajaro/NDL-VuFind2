@@ -361,20 +361,26 @@ finna.myList = (function finnaMyList() {
 
     // hide/show notes on images
     $('.notes').each(function initNotes() {
-      var noteButton = $(this).closest('.grid-body').find('.note-image');
+      var noteButton = $(this).closest('.grid-body').find('.note-button');
       var noteOverlay = $(this).closest('.grid-body').find('.note-overlay');
       noteButton.click(function onClick() {
+        adjustNoteOverlaySize(noteOverlay);
         if (!noteOverlay.hasClass('note-show')) {
-          noteButton.addClass('note-hide');
+          noteButton.addClass('note-show');
           noteOverlay.addClass('note-show');
-          noteOverlay.removeClass('note-hide');
         } else {
-          noteButton.removeClass('note-hide');
+          noteButton.removeClass('note-show');
           noteOverlay.removeClass('note-show');
-          noteOverlay.addClass('note-hide');
         }
       });
     });
+
+    function adjustNoteOverlaySize(noteOverlay) {
+      var imageWidth = noteOverlay.closest('.grid-body').find('.record-image-container').width();
+      var imageHeight = noteOverlay.closest('.grid-body').find('.record-image-container').height();
+      noteOverlay.height(imageHeight);
+      noteOverlay.width(imageWidth);
+    }
 
     // Prompt before leaving page if Ajax load is in progress
     window.onbeforeunload = function onBeforeUnloadWindow(/*e*/) {

@@ -17,13 +17,8 @@ $urls = $this->record($this->driver)->getLinkDetails($openUrlActive);
   <?php endif; ?>
   <div class="grid-body">
     <div class="text-center grid-image">
-      <?php $list = $this->results->getListObject(); ?>
-      <?php $notes = $this->driver->getListNotes($list->id); ?>
-      <?php if ($this->layout()->templateDir === 'list' && $this->params->getView() === 'grid' && !empty($notes)): ?>
-        <div class="note-overlay note-hide">
+      <?php if ($this->layout()->templateDir === 'list' && $this->params->getView() === 'grid'): ?>
           <?=$this->render('list/list-notes.phtml')?>
-        </div>
-        <button class="note-image"><i class="fa fa-file-text-o" aria-hidden="true"></i></button>
       <?php endif ?>
       <?php $img = $this->recordImage($this->record($this->driver))?>
       <?=$img->render('list grid', ['small' => ['w' => 100, 'h' => 100], 'medium' => ['w' => 600, 'h' => 600]]) ?>
