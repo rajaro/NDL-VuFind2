@@ -15,7 +15,7 @@
     <input type="email" id="email_from" oninvalid="$('#modal .fa-spinner').remove()" name="from" value="<?=isset($this->from) ? $this->from : ''?>" size="35" class="form-control"/>
   </div>
 <?php endif; ?>
-<?php if (!empty($this->userEditableSubject)): ?>
+<?php if ($this->editableSubject): ?>
   <div class="form-group">
     <label class="control-label" for="email_subject"><?=$this->transEsc('email_subject')?>:</label>
     <input type="text" id="email_subject" oninvalid="$('#modal .fa-spinner').remove()" name="subject" value="<?=isset($this->subject) ? $this->subject : ''?>" size="37" class="form-control"/>
