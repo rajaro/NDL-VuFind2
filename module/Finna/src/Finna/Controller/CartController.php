@@ -122,9 +122,6 @@ class CartController extends \VuFind\Controller\CartController
                 $view->message = "$listName$listDescription";
             }
         }
-        if (!empty($this->params()->fromPost('subject'))) {
-            $view->subject = $this->params()->fromPost('subject');
-        }
         return $view;
     }
 }
