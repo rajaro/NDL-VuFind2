@@ -384,6 +384,12 @@ finna.myList = (function finnaMyList() {
       noteOverlay.width(imageWidth);
     }
 
+    function adjustOpenedNoteOverlays() {
+      $('.note-overlay.note-show').each(function adjustOverlay() {
+        adjustNoteOverlaySize($(this));
+      });
+    }
+
     // Prompt before leaving page if Ajax load is in progress
     window.onbeforeunload = function onBeforeUnloadWindow(/*e*/) {
       if ($('.list-save').length) {
@@ -394,16 +400,15 @@ finna.myList = (function finnaMyList() {
     // Adjust opened note overlays when Masonry layout has been updated
     var masonryWrapper = $('.result-view-grid .masonry-wrapper');
     function addMasonryLayoutListener() {
-      masonryWrapper.on('layoutComplete', function(event, items) {
-        $('.note-overlay.note-show').each(function() {
-          adjustNoteOverlaySize($(this));
-        });
+      masonryWrapper.on('layoutComplete', function onMasonryLayoutComplete(/*event, items*/) {
+        adjustOpenedNoteOverlays();
       });
     }
     if (finna.layout.getMasonryState()) {
       addMasonryLayoutListener();
     } else {
-      masonryWrapper.on('masonryInited', function() {
+      masonryWrapper.on('masonryInited', function onMasonryInited() {
+        adjustOpenedNoteOverlays();
         addMasonryLayoutListener();
       });
     }
