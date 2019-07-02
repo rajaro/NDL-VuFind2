@@ -51,6 +51,10 @@
         top: 0px;
         padding: 5px;
         font-size: 1.5em;
+        border: 0;
+        &:focus {
+            outline: 0;
+        }
         @media (max-width: @screen-sm) {
             font-size: 2.0em;
         }
@@ -66,10 +70,11 @@
         z-index: 4;
         color: white;
         background-color: rgba(0, 0, 0, 0.7);
-        overflow: scroll;
+        overflow-x: hidden;
+        overflow-y: auto;
         text-align: left;
         .note-heading {
-            padding-top: 20px;
+            padding-top: 4px;
             padding-bottom: 10px;
         }
         p {
@@ -78,14 +83,10 @@
             padding-right: 10px;
         }
         &.note-hide {
-            visibility: hidden;
-            opacity: 0;
-            transition: visibility 0s 0.4s, opacity 0.4s linear;
+            display: none;
         }
         &.note-show {
-            visibility: visible;
-            opacity: 1;
-            transition: opacity 0.4s linear;
+            display: block;
         }
     }
 }
