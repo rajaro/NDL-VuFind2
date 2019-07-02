@@ -374,10 +374,12 @@ finna.myList = (function finnaMyList() {
         }
       });
     });
-
+    
     function adjustNoteOverlaySize(noteOverlay) {
-      var imageWidth = noteOverlay.closest('.grid-body').find('.record-image-container').width();
-      var imageHeight = noteOverlay.closest('.grid-body').find('.record-image-container').height();
+      var container = noteOverlay.closest('.grid-body');
+      var coverContainer = container.find('.grid-image');
+      var imageWidth = coverContainer.width();
+      var imageHeight = Math.min(container.find('.grid-title').position().top, container.find('.recordcover-container').height());
       noteOverlay.height(imageHeight);
       noteOverlay.width(imageWidth);
     }
@@ -388,6 +390,23 @@ finna.myList = (function finnaMyList() {
         return VuFind.translate('loading') + '...';
       }
     };
+
+    // Adjust opened note overlays when Masonry layout has been updated
+    var masonryWrapper = $('.result-view-grid .masonry-wrapper');
+    function addMasonryLayoutListener() {
+      masonryWrapper.on('layoutComplete', function(event, items) {
+        $('.note-overlay.note-show').each(function() {
+          adjustNoteOverlaySize($(this));
+        });
+      });
+    }
+    if (finna.layout.getMasonryState()) {
+      addMasonryLayoutListener();
+    } else {
+      masonryWrapper.on('masonryInited', function() {
+        addMasonryLayoutListener();
+      });
+    }
   }
 
   function initFavoriteOrderingFunctionality() {
