@@ -248,6 +248,7 @@ class Feed implements \VuFind\I18n\Translator\TranslatorAwareInterface,
             ? $config->contentDateFormat : 'j.n.Y';
         $fullDateFormat = isset($config->fullDateFormat)
             ? $config->fullDateFormat : 'j.n.Y';
+        $allowXcal = !empty($config->xCal);
 
         $itemsCnt = isset($config->items) ? $config->items : null;
         $elements = isset($config->content) ? $config->content : [];
@@ -340,7 +341,7 @@ EOT;
                 $channel = Reader::importString($feedStr);
             }
 
-            file_put_contents($localFile, $channel->saveXml());
+          //  file_put_contents($localFile, $channel->saveXml());
         }
 
         if (!$channel) {
@@ -359,6 +360,21 @@ EOT;
 
         $xpathContent = [
             'html' => '//item/content:encoded'
+        ];
+
+        $xcalContent = [
+            'dtstart',
+            'dtend',
+            'location',
+            'featured',
+            'content',
+            'organizer',
+            'location-address',
+            'location-city',
+            'organizer-url',
+            'url',
+            'cost',
+            'categories'
         ];
 
         $items = [];
@@ -446,6 +462,26 @@ EOT;
                     }
                 }
             }
+            if ($xcalContent && $allowXcal) {
+                foreach ($xcalContent as $setting) {
+                    $xcal = $xpath->query('//item/' . $setting)->item(0)->nodeValue;
+                    if (!empty($xcal)) {
+                        $data[$setting] = $xcal;
+                    }
+                }
+            }
+            if (isset($data['dtstart']) && isset($data['dtend'])) {
+                $dateStart = new \DateTime($data['dtstart']);
+                $dateEnd = new \DateTime($data['dtend']);
+                $dStart = $dateStart->format('d.m.Y');
+                $dEnd = $dateEnd->format('d.m.Y');  
+                $data['dtstart'] = $dStart;
+                $data['dtend'] = $dEnd;         
+                if ($dEnd === $dStart) {
+                    $data['timestart'] = $dateStart->format('H:i');
+                    $data['timeend'] = $dateEnd->format('H:i');
+                }
+            };
 
             // Make sure that we have something to display
             $accept = $data['title'] && trim($data['title']) != ''
