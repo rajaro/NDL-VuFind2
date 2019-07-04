@@ -50,7 +50,7 @@
               <?php endif; ?>
               <?php if (isset($item['dtend']) && $item['dtstart'] !== $item['dtend']): ?>
                 - <?= $item['dtend']; ?></p>
-              <?php elseif ($item['dtstart'] === $item['dtend']): ?>
+              <?php elseif (isset($item['dtstart']) && $item['dtstart'] === $item['dtend']): ?>
                 <p><i class="fa fa-clock-o"></i> <?= $item['timestart'] . ' - ' . $item['timeend']; ?>
               <?php endif; ?>
               <?php if (isset($item['location'])): ?>
