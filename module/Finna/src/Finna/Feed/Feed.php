@@ -248,7 +248,7 @@ class Feed implements \VuFind\I18n\Translator\TranslatorAwareInterface,
             ? $config->contentDateFormat : 'j.n.Y';
         $fullDateFormat = isset($config->fullDateFormat)
             ? $config->fullDateFormat : 'j.n.Y';
-        $allowXcal = !empty($config->xCal);
+        $allowXcal = !empty($config->content['xCal']);
 
         $itemsCnt = isset($config->items) ? $config->items : null;
         $elements = isset($config->content) ? $config->content : [];
@@ -464,22 +464,28 @@ EOT;
             }
             if ($xcalContent && $allowXcal) {
                 foreach ($xcalContent as $setting) {
-                    $xcal = $xpath->query('//item/' . $setting)->item(0)->nodeValue;
+                    $xcal = $xpath
+                        ->query('//item/*[local-name()="' . $setting . '"]')
+                        ->item($cnt)->nodeValue;
                     if (!empty($xcal)) {
-                        $data[$setting] = $xcal;
+                        $data['xcal'][$setting] = $xcal;
                     }
                 }
             }
-            if (isset($data['dtstart']) && isset($data['dtend'])) {
-                $dateStart = new \DateTime($data['dtstart']);
-                $dateEnd = new \DateTime($data['dtend']);
+            //Format start/end date and time for xcal events
+            if (isset($data['xcal']['dtstart']) && isset($data['xcal']['dtend'])) {
+                $dateStart = new \DateTime($data['xcal']['dtstart']);
+                $dateEnd = new \DateTime($data['xcal']['dtend']);
                 $dStart = $dateStart->format('d.m.Y');
                 $dEnd = $dateEnd->format('d.m.Y');  
-                $data['dtstart'] = $dStart;
-                $data['dtend'] = $dEnd;         
+                $data['xcal']['dtstart'] = $dStart;
                 if ($dEnd === $dStart) {
-                    $data['timestart'] = $dateStart->format('H:i');
-                    $data['timeend'] = $dateEnd->format('H:i');
+                    $data['xcal']['time']
+                        = $dateStart->format('H:i')
+                        . ' - ' . $dateEnd->format('H:i');
+                } else {
+                    $data['xcal']['dtstart']
+                        = $dStart . ' - ' . $dEnd;
                 }
             };
 

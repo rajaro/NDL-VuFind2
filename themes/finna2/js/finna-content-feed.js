@@ -37,6 +37,17 @@ finna.contentFeed = (function finnaContentFeed() {
               container.find('.date span').text(item.contentDate);
               container.find('.date').css('display', 'inline-block');
             }
+            if (typeof item.xcal != 'undefined') {
+              console.log(item.xcal);
+              $.each(item.xcal, function addXcal(key, value) {
+                if (key === 'organizer-url') {
+                  value = '<a href="' + value + '">' + value + '</a';
+                }
+                container.find('.' + key).append(value);
+                container.find('.' + key).closest('.row').removeClass('hidden');
+                container.find('.' + key).removeClass('hidden');
+              });
+            }
           } else {
             var err = $('<div/>').addClass('alert alert-danger');
             err.append($('<p/>').text(VuFind.translate('rss_article_not_found')));

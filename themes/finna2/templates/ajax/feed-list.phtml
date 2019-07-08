@@ -18,16 +18,14 @@
         <?php endif; ?>
         <span class="title"><?= $item['title']; ?></span>
         <?php if (!isset($this->linkText) && isset($item['link'])):?>
-          <?php if (isset($item['dtstart'])): ?>
-            <span class="text"><i class="fa fa-calendar"></i> <?= $item['dtstart']; ?></span>
-            <?php if (isset($item['dtend']) && $item['dtstart'] !== $item['dtend']): ?>
-            <span class="text">- <?= $item['dtend']; ?></span>
-            <?php elseif (isset($item['dtstart']) && $item['dtstart'] === $item['dtend']): ?>
-              <span class="text"><i class="fa fa-clock-o"></i> <?= $item['timestart'] . ' - ' . $item['timeend']; ?></span>
+          <?php if (isset($item['xcal']['dtstart'])): ?>
+            <p class="xcal"><i class="fa fa-calendar"></i><?= $item['xcal']['dtstart']; ?></p>
+            <?php if (isset($item['xcal']['time'])): ?>
+              <p class="xcal"><i class="fa fa-clock-o"></i><?= $item['xcal']['time']; ?></p>
             <?php endif; ?>
           <?php endif; ?>
-        <?php if (isset($item['location'])): ?>
-          <span class="text"><i class="fa fa-map-marker"></i> <?= $item['location']; ?></span>
+        <?php if (isset($item['xcal']['location'])): ?>
+          <p class="xcal"><i class="fa fa-map-marker"></i><?= $item['xcal']['location']; ?></p>
         <?php endif; ?>
         <?php if (isset($item['text'])): ?><span class="text"><?= $item['text']; ?></span><?php endif; ?>
       </a><?php endif; ?>

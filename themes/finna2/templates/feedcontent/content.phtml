@@ -32,6 +32,48 @@ JS;
     <div>
       <div class="mainbody left">
         <div class="date"><?=$this->transEsc('Published');?>: <span></span></div>
+        <div class="xcal row">
+          <span class="dtstart hidden"><i class="fa fa-calendar"></i> </span>
+          <span class="time hidden"><i class="fa fa-clock-o"></i> </span>
+          <span class="location hidden"><i class="fa fa-map-marker"></i> </span>
+        </div>
+        <div class="featured"></div>
+        <div class="row hidden">
+          <div class="col-xs-4 col-md-2"><?= $this->transEsc('Date')?></div>
+          <div class="col-xs-8 dtstart"></div>
+        </div>
+        <div class="row hidden">
+          <div class="col-xs-4 col-md-2"><?= $this->transEsc('Location')?></div>
+          <div class="col-xs-8 location"></div>
+        </div>
+        <div class="row hidden">
+          <div class="col-xs-4 col-md-2"></div>
+          <div class="col-xs-8 location-address"></div>
+        </div>
+        <div class="row hidden">
+          <div class="col-xs-4 col-md-2"></div>
+          <div class="col-xs-8 location-city"></div>
+        </div>
+        <div class="row hidden">
+          <div class="col-xs-4 col-md-2"><?= $this->transEsc('Organizer')?></div>
+          <div class="col-xs-8 organizer"></div>
+        </div>
+        <div class="row hidden">
+          <div class="col-xs-4 col-md-2"><?= $this->transEsc('websites')?></div>
+          <div class="col-xs-8 organizer-url"></div>
+        </div>
+        <div class="row hidden">
+          <div class="col-xs-4 col-md-2"><?= $this->transEsc('Cost')?> (€)</div>
+          <div class="col-xs-8 cost"></div>
+        </div>
+        <div class="row hidden">
+          <div class="col-xs-4 col-md-2"><?= $this->transEsc('Category')?></div>
+          <div class="col-xs-8 categories"></div>
+        </div>
+        <div class="row hidden">
+          <br>
+          <div class="col-xs-12 content"></div>
+        </div>
         <div class="holder"></div>
       </div>
     </div>

@@ -118,7 +118,10 @@
             
             word-break: break-word;
             word-wrap: break-word;
-        }   
+        }
+        p.xcal {
+            padding: 0px;
+        }
         span.carousel-description {
             position: absolute;
             text-decoration: underline;
@@ -331,6 +334,19 @@
         .text {
             padding-bottom: 15px;
         }
+        p {
+            &.xcal {
+                color: @gray;
+                margin-bottom: 0;
+                vertical-align: top;
+                float: right;
+                width: 55%
+            }
+            i {
+                display: inline;
+                padding-right: 5px
+            }
+        }
         .more-link {
             display: block;
             text-align: center;
@@ -363,6 +379,12 @@
             margin-bottom: 10px;
             display: none;
             font-size: .9em;
+        }
+        .xcal{
+            padding-bottom: 20px;
+            span {
+                padding: 0px 0px 20px 20px;
+            }
         }
     }
     .article-navigation-header {

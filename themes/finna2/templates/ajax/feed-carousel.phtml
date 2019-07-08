@@ -45,17 +45,17 @@
               <?php if (isset($item['title'])): ?>
                 <p class="carousel-hover-title"><?= $this->truncate($item['title'], 70); ?></p>
               <?php endif; ?>
-              <?php if (isset($item['dtstart'])): ?>
-                <p><i class="fa fa-calendar"></i> <?= $item['dtstart']; ?>
+              <span class="text">
+              <?php if (isset($item['xcal']['dtstart'])): ?>
+                <p class="xcal"><i class="fa fa-calendar"></i> <?= $item['xcal']['dtstart']; ?></p>
               <?php endif; ?>
-              <?php if (isset($item['dtend']) && $item['dtstart'] !== $item['dtend']): ?>
-                - <?= $item['dtend']; ?></p>
-              <?php elseif (isset($item['dtstart']) && $item['dtstart'] === $item['dtend']): ?>
-                <p><i class="fa fa-clock-o"></i> <?= $item['timestart'] . ' - ' . $item['timeend']; ?>
+              <?php if (isset($item['xcal']['time'])): ?>
+              <p class="xcal"><i class="fa fa-clock-o"></i> <?= $item['xcal']['time']; ?></p>
               <?php endif; ?>
-              <?php if (isset($item['location'])): ?>
-                <p><i class="fa fa-map-marker"></i> <?= $item['location']; ?></p>
+              <?php if (isset($item['xcal']['location'])): ?>
+                <p class="xcal"><i class="fa fa-map-marker"></i> <?= $item['xcal']['location']; ?></p>
               <?php endif; ?>
+              </span>
               <p><?= $item['text']; ?></p>
               <?php if ($clickableLink): ?>
                 <span class="carousel-description"><?= $linkText ?></span>
