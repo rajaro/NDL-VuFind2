@@ -171,6 +171,14 @@ finna.record = (function finnaRecord() {
     $('.record-accordions .accordion-toggle').click(function accordionClicked(e) {
       return _toggleAccordion($(e.target).closest('.accordion'));
     });
+    if ($('.mobile-toolbar').length > 0 && $('.accordion-holdings').length > 0) {
+      $('.mobile-toolbar .library-link li').removeClass('hidden');
+      $('.mobile-toolbar .library-link li').click(function onLinkClick(e) {
+        e.stopPropagation();
+        $('html, body').animate({scrollTop: $('#tabnav').offset().top - 64}, 150);
+        _toggleAccordion($('.accordion-holdings'));
+      });
+    }
   }
 
   function applyRecordAccordionHash(callback) {
