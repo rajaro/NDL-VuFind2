@@ -38,13 +38,12 @@ finna.contentFeed = (function finnaContentFeed() {
               container.find('.date').css('display', 'inline-block');
             }
             if (typeof item.xcal != 'undefined') {
-              console.log(item.xcal);
               $.each(item.xcal, function addXcal(key, value) {
                 if (key === 'organizer-url') {
                   value = '<a href="' + value + '">' + value + '</a';
                 }
-                container.find('.' + key).append(value);
-                container.find('.' + key).closest('.row').removeClass('hidden');
+                value = '<span>' + value + '</span>'
+                container.find('.' + key).after(value);
                 container.find('.' + key).removeClass('hidden');
               });
             }
