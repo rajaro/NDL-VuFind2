@@ -463,10 +463,11 @@ EOT;
                 }
             }
             if ($xcalContent && $allowXcal) {
+                $xpathItem = $xpath->query('//item')->item($cnt);
                 foreach ($xcalContent as $setting) {
                     $xcal = $xpath
-                        ->query('//item/*[local-name()="' . $setting . '"]')
-                        ->item($cnt)->nodeValue;
+                        ->query('.//*[local-name()="' . $setting . '"]', $xpathItem)
+                        ->item(0)->nodeValue;
                     if (!empty($xcal)) {
                         $data['xcal'][$setting] = $xcal;
                     }

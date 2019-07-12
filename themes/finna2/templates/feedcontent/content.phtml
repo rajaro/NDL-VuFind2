@@ -23,7 +23,7 @@ JS;
 <div>
   <div class="<?= $this->modal ? '' : 'page-content'?> feed-content" data-feed="<?=$this->escapeHtmlAttr($this->feed)?>" data-element="<?=$this->escapeHtmlAttr($this->element)?>" data-feed-url="<?=$this->escapeHtmlAttr($this->feedUrl)?>">
 
-  <?php if (! $this->modal): ?>
+  <?php if (!$this->modal): ?>
     <div class="mainbody left">
   <?php endif ?>
     <div class="date"><?=$this->transEsc('Published');?>: <span></span></div>
@@ -43,7 +43,7 @@ JS;
       <div class="cost hidden"><?= $this->transEsc('Cost')?></div>
     </div>
     <div class="holder"></div>
-  <?php if (! $this->modal): ?>
+  <?php if (!$this->modal): ?>
     </div>
     <div class="sidebar right">
       <div><h3 class="article-navigation-header"><?=$this->translate('content-feed-navigation')?></h3></div>
