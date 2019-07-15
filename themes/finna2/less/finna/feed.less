@@ -394,8 +394,13 @@
             div {
                 flex-basis: 20%;
             }
-            span {
+            span, a {
                 flex-basis: 80%;
+            }
+            @media (max-width: @screen-xs) {
+                a {
+                    flex-basis: 100%;
+                }
             }
         }
     }

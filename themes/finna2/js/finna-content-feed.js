@@ -41,8 +41,9 @@ finna.contentFeed = (function finnaContentFeed() {
               $.each(item.xcal, function addXcal(key, value) {
                 if (key === 'organizer-url') {
                   value = '<a href="' + value + '">' + value + '</a';
+                } else {
+                  value = '<span>' + value + '</span>';
                 }
-                value = '<span>' + value + '</span>'
                 container.find('.' + key).after(value);
                 container.find('.' + key).removeClass('hidden');
               });
