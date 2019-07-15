@@ -363,6 +363,7 @@ EOT;
         ];
 
         $xcalContent = [
+            'title',
             'dtstart',
             'dtend',
             'location',
@@ -477,8 +478,8 @@ EOT;
             if (isset($data['xcal']['dtstart']) && isset($data['xcal']['dtend'])) {
                 $dateStart = new \DateTime($data['xcal']['dtstart']);
                 $dateEnd = new \DateTime($data['xcal']['dtend']);
-                $dStart = $dateStart->format('d.m.Y');
-                $dEnd = $dateEnd->format('d.m.Y');  
+                $dStart = $dateStart->format($fullDateFormat);
+                $dEnd = $dateEnd->format($fullDateFormat);  
                 $data['xcal']['dtstart'] = $dStart;
                 if ($dEnd === $dStart) {
                     $data['xcal']['time']
