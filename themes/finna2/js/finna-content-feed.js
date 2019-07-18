@@ -41,7 +41,9 @@ finna.contentFeed = (function finnaContentFeed() {
               $.each(item.xcal, function addXcal(key, value) {
                 var xcalEl = '';
                 if (key === 'organizer-url') {
-                  xcalEl = '<a href="' + value + '">' + value + '</a';
+                  xcalEl = '<a href="' + value + '">' + value + '</a>';
+                } else if (key === 'featured') {
+                  xcalEl = '<img src="' + value + ' alt="" />'
                 } else {
                   xcalEl = '<span>' + value + '</span>';
                 }

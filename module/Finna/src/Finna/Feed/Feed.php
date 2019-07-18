@@ -181,6 +181,30 @@ class Feed implements \VuFind\I18n\Translator\TranslatorAwareInterface,
     }
 
     /**
+     * Check for a local file and create a timestamped link if found
+     *
+     * @param string $url url
+     *
+     * @return mixed null|string
+     */
+    protected function checkLocalFile($url)
+    {
+        $urlParts = parse_url($url);
+        $imgLink = null;
+        if (empty($urlParts['host'])) {
+            $file = preg_replace(
+                '/^\/?themes\/[^\/]+\/images\//',
+                '',
+                $url
+            );
+            $imgLink = call_user_func(
+                $this->imageLinkHelper, $file
+            );
+        }
+        return $imgLink;
+    }
+
+    /**
      * Return feed content and settings in an array with the keys:
      *   - 'channel' Zend\Feed\Reader\Feed\Rss Feed
      *   - 'items'   array                     Feed item data
@@ -404,22 +428,9 @@ EOT;
                             }
                         }
                         if (!empty($value['url'])) {
-                            // Check for a local file and create timestamped link if
-                            // found
-                            $urlParts = parse_url($value['url']);
-                            if (empty($urlParts['host'])) {
-                                $file = preg_replace(
-                                    '/^\/?themes\/[^\/]+\/images\//',
-                                    '',
-                                    $value['url']
-                                );
-
-                                $imgLink = call_user_func(
-                                    $this->imageLinkHelper, $file
-                                );
-                                if (null !== $imgLink) {
-                                    $value['url'] = $imgLink;
-                                }
+                            $imgLink = $this->checkLocalFile($value['url']);
+                            if (null !== $imgLink) {
+                                $value['url'] = $imgLink;
                             }
                         }
                     } elseif ($setting == 'date') {
@@ -470,7 +481,11 @@ EOT;
                         ->item(0)->nodeValue;
                     if (!empty($xcal)) {
                         if ($setting === 'featured') {
-                            $data['image']['url'] = $this->extractImage($xcal);
+                            if (!empty($imgLink = $this->extractImage($xcal))) {
+                                $localFile = $this->checkLocalFile($imgLink);
+                                $xcal = $localFile ? $localFile : $imgLink;
+                                $data['image']['url'] = $xcal;
+                            }
                         }
                         $data['xcal'][$setting] = $xcal;
                     }
