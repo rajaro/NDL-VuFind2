@@ -248,7 +248,7 @@ class Feed implements \VuFind\I18n\Translator\TranslatorAwareInterface,
             ? $config->contentDateFormat : 'j.n.Y';
         $fullDateFormat = isset($config->fullDateFormat)
             ? $config->fullDateFormat : 'j.n.Y';
-        $allowXcal = !empty($config->content['xCal']);
+        $allowXcal = true; //TODO: make this configurable through rss.ini
 
         $itemsCnt = isset($config->items) ? $config->items : null;
         $elements = isset($config->content) ? $config->content : [];
@@ -341,7 +341,7 @@ EOT;
                 $channel = Reader::importString($feedStr);
             }
 
-          //  file_put_contents($localFile, $channel->saveXml());
+            file_put_contents($localFile, $channel->saveXml());
         }
 
         if (!$channel) {
@@ -363,7 +363,6 @@ EOT;
         ];
 
         $xcalContent = [
-            'title',
             'dtstart',
             'dtend',
             'location',
@@ -470,6 +469,9 @@ EOT;
                         ->query('.//*[local-name()="' . $setting . '"]', $xpathItem)
                         ->item(0)->nodeValue;
                     if (!empty($xcal)) {
+                        if ($setting === 'featured') {
+                            $data['image']['url'] = $this->extractImage($xcal);
+                        }
                         $data['xcal'][$setting] = $xcal;
                     }
                 }
@@ -479,7 +481,7 @@ EOT;
                 $dateStart = new \DateTime($data['xcal']['dtstart']);
                 $dateEnd = new \DateTime($data['xcal']['dtend']);
                 $dStart = $dateStart->format($fullDateFormat);
-                $dEnd = $dateEnd->format($fullDateFormat);  
+                $dEnd = $dateEnd->format($fullDateFormat);
                 $data['xcal']['dtstart'] = $dStart;
                 if ($dEnd === $dStart) {
                     $data['xcal']['time']
@@ -489,7 +491,7 @@ EOT;
                     $data['xcal']['dtstart']
                         = $dStart . ' - ' . $dEnd;
                 }
-            };
+            }
 
             // Make sure that we have something to display
             $accept = $data['title'] && trim($data['title']) != ''

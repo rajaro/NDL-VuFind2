@@ -39,12 +39,13 @@ finna.contentFeed = (function finnaContentFeed() {
             }
             if (typeof item.xcal != 'undefined') {
               $.each(item.xcal, function addXcal(key, value) {
+                var xcalEl = '';
                 if (key === 'organizer-url') {
-                  value = '<a href="' + value + '">' + value + '</a';
+                  xcalEl = '<a href="' + value + '">' + value + '</a';
                 } else {
-                  value = '<span>' + value + '</span>';
+                  xcalEl = '<span>' + value + '</span>';
                 }
-                container.find('.' + key).after(value);
+                container.find('.' + key).after(xcalEl);
                 container.find('.' + key).removeClass('hidden');
               });
             }
