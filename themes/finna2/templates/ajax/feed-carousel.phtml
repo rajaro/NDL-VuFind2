@@ -46,8 +46,8 @@
                 <p class="carousel-hover-title"><?= $this->truncate($item['title'], 70); ?></p>
               <?php endif; ?>
               <span class="text">
-                <?php if (isset($item['xcal']['dtstart'])): ?>
-                  <p class="xcal"><i class="fa fa-calendar"></i> <?= $item['xcal']['dtstart']; ?></p>
+                <?php if (isset($item['xcal']['xdate'])): ?>
+                  <p class="xcal"><i class="fa fa-calendar"></i> <?= $item['xcal']['xdate']; ?></p>
                 <?php endif; ?>
                 <?php if (isset($item['xcal']['time'])): ?>
                   <p class="xcal"><i class="fa fa-clock-o"></i> <?= $item['xcal']['time']; ?></p>

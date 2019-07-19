@@ -28,13 +28,13 @@ JS;
   <?php endif ?>
     <div class="date"><?=$this->transEsc('Published');?>: <span></span></div>
     <div class="xcal">
-      <span class="dtstart hidden"><i class="fa fa-calendar"></i> </span>
+      <span class="xdate hidden"><i class="fa fa-calendar"></i> </span> 
       <span class="time hidden"><i class="fa fa-clock-o"></i> </span>
       <span class="location hidden"><i class="fa fa-map-marker"></i> </span>
     </div>
     <div class="featured"></div>
     <div class="xcal-fields">
-      <div class="dtstart hidden"><?= $this->transEsc('Date')?></div>
+      <div class="xdate hidden"><?= $this->transEsc('Date')?></div>
       <div class="location hidden"><?= $this->transEsc('Location')?></div>
       <div class="location-address hidden"><?= $this->transEsc('Address')?></div>
       <div class="location-city hidden"><?= $this->transEsc('City')?></div>
@@ -45,6 +45,7 @@ JS;
     <div class="holder"></div>
   <?php if (!$this->modal): ?>
     </div>
+  </div>
     <div class="sidebar right">
       <div><h3 class="article-navigation-header"><?=$this->translate('content-feed-navigation')?></h3></div>
       <div class="article-navigation-wrapper"></div>

@@ -495,16 +495,15 @@ EOT;
             if (isset($data['xcal']['dtstart']) && isset($data['xcal']['dtend'])) {
                 $dateStart = new \DateTime($data['xcal']['dtstart']);
                 $dateEnd = new \DateTime($data['xcal']['dtend']);
-                $dStart = $dateStart->format($fullDateFormat);
-                $dEnd = $dateEnd->format($fullDateFormat);
-                $data['xcal']['dtstart'] = $dStart;
-                if ($dEnd === $dStart) {
+                if ($dateStart->format('j.n.Y') === $dateEnd->format('j.n.Y')) {
                     $data['xcal']['time']
                         = $dateStart->format('H:i')
                         . ' - ' . $dateEnd->format('H:i');
+                    $data['xcal']['xdate'] = $dateStart->format($fullDateFormat);
                 } else {
-                    $data['xcal']['dtstart']
-                        = $dStart . ' - ' . $dEnd;
+                    $data['xcal']['xdate']
+                        = $dateStart->format($fullDateFormat)
+                        . ' - ' . $dateEnd->format($fullDateFormat);
                 }
             }
 
