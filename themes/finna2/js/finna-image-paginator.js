@@ -196,6 +196,22 @@ finna.imagePaginator = (function imagePaginator() {
     }
   }
 
+  FinnaPaginator.prototype.unVeilNextAndPrev = function unVeilNextAndPrev(limit) {
+    var _ = this;
+    var i = 0 - limit;
+
+    for (;i <= limit; i++) {
+      var current = +_.paginatorIndex + i;
+      if (current === _.paginatorIndex) {
+        continue;
+      }
+      var found = $('.image-popup-trigger[paginator-index="' + current + '"]');
+      if (found.length) {
+        found.find('img').trigger('unveil');
+      }
+    }
+  }
+
   /**
    * Function which is executed after nonzoomable image has been opened to a popup
    * 
@@ -730,7 +746,11 @@ finna.imagePaginator = (function imagePaginator() {
    * Function to set image dimensions to download image link
    */
   FinnaPaginator.prototype.setDimensions = function setDimensions() {
-    var openLink = $('.open-link a').attr('href');
+    var popupHidden = $('.mfp-content').length === 0;
+    var container = popupHidden
+      ? $('.image-details-container').not('.hidden')
+      : $('.image-information-holder');
+    var openLink = container.find('.open-link a').attr('href');
     if (typeof openLink !== 'undefined') {
       var img = new Image();
       img.src = openLink;
@@ -741,7 +761,7 @@ finna.imagePaginator = (function imagePaginator() {
           $('.open-link').hide();
         }
         else {
-          $('.open-link .image-dimensions').text( '(' + width + ' X ' + height + ')')
+          container.find('.open-link .image-dimensions').text( '(' + width + ' X ' + height + ')')
         }
       }
     }
@@ -766,6 +786,11 @@ finna.imagePaginator = (function imagePaginator() {
       fixedContentPos: true,
       tClose: VuFind.translate('close'),
       callbacks: {
+        beforeOpen: function unveilClosest() {
+          if (_.isList) {
+            _.unVeilNextAndPrev(2);
+          }
+        },
         open: function onPopupOpen() {
           var mfpContainer = $(this)[0].container;
           mfpContainer.find('.leaflet-map-image').attr('id', 'leaflet-map-image');
@@ -786,10 +811,12 @@ finna.imagePaginator = (function imagePaginator() {
 
           previousRecord.off('click').click(function loadNextPaginator(e){
             e.preventDefault();
+            e.stopPropagation();
             _.getNextPaginator(-1);
           });
           nextRecord.off('click').click(function loadNextPaginator(e){
             e.preventDefault();
+            e.stopPropagation();
             _.getNextPaginator(1);
           });
           
