@@ -272,10 +272,13 @@ class Feed implements \VuFind\I18n\Translator\TranslatorAwareInterface,
             ? $config->contentDateFormat : 'j.n.Y';
         $fullDateFormat = isset($config->fullDateFormat)
             ? $config->fullDateFormat : 'j.n.Y';
-        $allowXcal = true; //TODO: make this configurable through rss.ini
 
         $itemsCnt = isset($config->items) ? $config->items : null;
         $elements = isset($config->content) ? $config->content : [];
+
+        //TODO: Make this configurable through admin interface, for now
+        // defaults to true
+        $allowXcal = $elements['xcal'] ?? true;
 
         $channel = null;
 
@@ -484,7 +487,11 @@ EOT;
                             if (!empty($imgLink = $this->extractImage($xcal))) {
                                 $localFile = $this->checkLocalFile($imgLink);
                                 $xcal = $localFile ? $localFile : $imgLink;
-                                $data['image']['url'] = $xcal;
+                                if ($elements['image'] != 0
+                                    || !isset($elements['image'])
+                                ) {
+                                    $data['image']['url'] = $xcal;
+                                }
                             }
                         }
                         $data['xcal'][$setting] = $xcal;
