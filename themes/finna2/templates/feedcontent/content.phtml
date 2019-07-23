@@ -28,19 +28,19 @@ JS;
   <?php endif ?>
     <div class="date"><?=$this->transEsc('Published');?>: <span></span></div>
     <div class="xcal">
-      <span class="xdate hidden"><i class="fa fa-calendar"></i> </span> 
-      <span class="time hidden"><i class="fa fa-clock-o"></i> </span>
-      <span class="location hidden"><i class="fa fa-map-marker"></i> </span>
+      <span class="xcal-date hidden"><i class="fa fa-calendar"></i> </span> 
+      <span class="xcal-time hidden"><i class="fa fa-clock-o"></i> </span>
+      <span class="xcal-location hidden"><i class="fa fa-map-marker"></i> </span>
     </div>
     <div class="featured"></div>
     <div class="xcal-fields">
-      <div class="xdate hidden"><?= $this->transEsc('Date')?></div>
-      <div class="location hidden"><?= $this->transEsc('Location')?></div>
-      <div class="location-address hidden"><?= $this->transEsc('Address')?></div>
-      <div class="location-city hidden"><?= $this->transEsc('City')?></div>
-      <div class="organizer hidden"><?= $this->transEsc('Organizer')?></div>
-      <div class="organizer-url hidden"><?= $this->transEsc('websites')?></div>
-      <div class="cost hidden"><?= $this->transEsc('Cost')?></div>
+      <div class="xcal-date hidden"><?= $this->transEsc('Date')?></div>
+      <div class="xcal-location hidden"><?= $this->transEsc('Location')?></div>
+      <div class="xcal-location-address hidden"><?= $this->transEsc('Address')?></div>
+      <div class="xcal-location-city hidden"><?= $this->transEsc('City')?></div>
+      <div class="xcal-organizer hidden"><?= $this->transEsc('Organizer')?></div>
+      <div class="xcal-organizer-url hidden"><?= $this->transEsc('websites')?></div>
+      <div class="xcal-cost hidden"><?= $this->transEsc('Cost')?></div>
     </div>
     <div class="holder"></div>
   <?php if (!$this->modal): ?>

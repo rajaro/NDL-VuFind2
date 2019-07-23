@@ -47,8 +47,8 @@ finna.contentFeed = (function finnaContentFeed() {
                 } else {
                   xcalEl = '<span>' + value + '</span>';
                 }
-                container.find('.' + key).after(xcalEl);
-                container.find('.' + key).removeClass('hidden');
+                container.find('.xcal-' + key).after(xcalEl);
+                container.find('.xcal-' + key).removeClass('hidden');
               });
             }
           } else {

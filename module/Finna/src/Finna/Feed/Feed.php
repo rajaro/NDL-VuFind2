@@ -136,7 +136,7 @@ class Feed implements \VuFind\I18n\Translator\TranslatorAwareInterface,
             return false;
         }
 
-        $language   = $this->translator->getLocale();
+        $language = $this->translator->getLocale();
 
         $url = $result->url;
         if (isset($url[$language])) {
@@ -275,10 +275,8 @@ class Feed implements \VuFind\I18n\Translator\TranslatorAwareInterface,
 
         $itemsCnt = isset($config->items) ? $config->items : null;
         $elements = isset($config->content) ? $config->content : [];
-
-        //TODO: Make this configurable through admin interface, for now
-        // defaults to true
         $allowXcal = $elements['xcal'] ?? true;
+        $timeRegex = '/^(.*?)([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/';
 
         $channel = null;
 
@@ -485,16 +483,19 @@ EOT;
                     if (!empty($xcal)) {
                         if ($setting === 'featured') {
                             if (!empty($imgLink = $this->extractImage($xcal))) {
-                                $localFile = $this->checkLocalFile($imgLink);
-                                $xcal = $localFile ? $localFile : $imgLink;
+                                if ($localFile = $this->checkLocalFile($imgLink)) {
+                                    $imgLink = $localFile;
+                                }
+                                $data['xcal']['featured'] = $imgLink;
                                 if ($elements['image'] != 0
                                     || !isset($elements['image'])
                                 ) {
-                                    $data['image']['url'] = $xcal;
+                                    $data['image']['url'] = $imgLink;
                                 }
                             }
+                        } else {
+                            $data['xcal'][$setting] = htmlspecialchars($xcal);
                         }
-                        $data['xcal'][$setting] = $xcal;
                     }
                 }
             }
@@ -502,13 +503,17 @@ EOT;
             if (isset($data['xcal']['dtstart']) && isset($data['xcal']['dtend'])) {
                 $dateStart = new \DateTime($data['xcal']['dtstart']);
                 $dateEnd = new \DateTime($data['xcal']['dtend']);
-                if ($dateStart->format('j.n.Y') === $dateEnd->format('j.n.Y')) {
+                $timeStart = preg_match($timeRegex, $data['xcal']['dtstart']);
+                $timeEnd = preg_match($timeRegex, $data['xcal']['dtend']);
+                if ($timeStart === 1 && $timeEnd === 1) {
                     $data['xcal']['time']
                         = $dateStart->format('H:i')
                         . ' - ' . $dateEnd->format('H:i');
-                    $data['xcal']['xdate'] = $dateStart->format($fullDateFormat);
+                }
+                if ($dateStart->format('Y.m.d') === $dateEnd->format('Y.m.d')) {
+                    $data['xcal']['date'] = $dateStart->format($fullDateFormat);
                 } else {
-                    $data['xcal']['xdate']
+                    $data['xcal']['date']
                         = $dateStart->format($fullDateFormat)
                         . ' - ' . $dateEnd->format($fullDateFormat);
                 }
