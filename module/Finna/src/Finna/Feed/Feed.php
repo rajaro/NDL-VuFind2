@@ -295,7 +295,7 @@ class Feed implements \VuFind\I18n\Translator\TranslatorAwareInterface,
             if (is_readable($localFile)
                 && time() - filemtime($localFile) < $maxAge * 60
             ) {
-                $channel = Reader::importFile($localFile);
+         //       $channel = Reader::importFile($localFile);
             }
         }
 
@@ -501,20 +501,14 @@ EOT;
             if (isset($data['xcal']['dtstart']) && isset($data['xcal']['dtend'])) {
                 $dateStart = new \DateTime($data['xcal']['dtstart']);
                 $dateEnd = new \DateTime($data['xcal']['dtend']);
-                $timeStart = preg_match($timeRegex, $data['xcal']['dtstart']);
-                $timeEnd = preg_match($timeRegex, $data['xcal']['dtend']);
-                if ($timeStart === 1 && $timeEnd === 1) {
-                    $data['xcal']['time']
-                        = $dateStart->format('H:i')
-                        . ' - ' . $dateEnd->format('H:i');
+                if (preg_match($timeRegex, $data['xcal']['dtstart']) === 1) {
+                    $data['xcal']['startTime'] = $dateStart->format('H:i');
                 }
-                if ($dateStart->format('Y.m.d') === $dateEnd->format('Y.m.d')) {
-                    $data['xcal']['date'] = $dateStart->format($fullDateFormat);
-                } else {
-                    $data['xcal']['date']
-                        = $dateStart->format($fullDateFormat)
-                        . ' - ' . $dateEnd->format($fullDateFormat);
+                if (preg_match($timeRegex, $data['xcal']['dtend']) === 1) {
+                    $data['xcal']['endTime'] = $dateEnd->format('H:i');
                 }
+                $data['xcal']['startDate'] = $dateStart->format($fullDateFormat);
+                $data['xcal']['endDate'] = $dateEnd->format($fullDateFormat); 
             }
 
             // Make sure that we have something to display

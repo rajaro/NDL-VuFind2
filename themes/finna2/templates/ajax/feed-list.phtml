@@ -18,10 +18,13 @@
         <?php endif; ?>
         <span class="title"><?= $item['title']; ?></span>
         <?php if (!isset($this->linkText) && isset($item['link'])):?>
-          <?php if (isset($item['xcal']['date'])): ?>
-            <p class="xcal"><i class="fa fa-calendar"></i><?= $item['xcal']['date']; ?></p>
-            <?php if (isset($item['xcal']['time'])): ?>
-              <p class="xcal"><i class="fa fa-clock-o"></i><?= $item['xcal']['time']; ?></p>
+          <?php if (isset($item['xcal']['startDate'])): ?>
+            <p class="xcal"><i class="fa fa-calendar"></i><?= $item['xcal']['startDate']; ?>
+            <?php if($item['xcal']['startDate'] !== $item['xcal']['endDate']): ?>
+              - <?= $item['xcal']['endDate'] ?>
+            </p>
+            <?php if (isset($item['xcal']['startTime'])): ?>
+              <p class="xcal"><i class="fa fa-clock-o"></i><?= $item['xcal']['startTime']; ?> - <?= $item['xcal']['endTime'] ?></p>
             <?php endif; ?>
           <?php endif; ?>
         <?php if (isset($item['xcal']['location'])): ?>

@@ -39,15 +39,14 @@ finna.contentFeed = (function finnaContentFeed() {
             }
             if (typeof item.xcal != 'undefined') {
               $.each(item.xcal, function addXcal(key, value) {
-                var xcalEl = '';
                 if (key === 'organizer-url') {
-                  xcalEl = '<a href="' + value + '">' + value + '</a>';
+                  container.find('.xcal-organizer-url').attr('href', value);
                 } else if (key === 'featured') {
-                  xcalEl = '<img src="' + value + ' alt="" />'
-                } else {
-                  xcalEl = '<span>' + value + '</span>';
+                  container.find('.xcal-featured').attr('src', value);
+                } else if (key === 'endDate' && value === item.xcal.startDate) {
+                  return true;
                 }
-                container.find('.xcal-' + key).after(xcalEl);
+                container.find('.xcal-' + key).not('div').html(value);
                 container.find('.xcal-' + key).removeClass('hidden');
               });
             }
