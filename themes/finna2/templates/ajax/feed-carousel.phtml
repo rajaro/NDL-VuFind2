@@ -47,10 +47,10 @@
               <?php endif; ?>
               <span class="text">
                 <?php if (isset($item['xcal']['startDate'])): ?>
-                  <p class="xcal"><i class="fa fa-calendar"></i> <?= $item['xcal']['startDate']; ?><?php if ($item['xcal']['startDate'] !== $item['xcal']['endDate']): ?>&ndash;<?= $item['xcal']['endDate'] ?><?php endif; ?></p>
+                  <p class="xcal"><i class="fa fa-calendar"></i> <?= $item['xcal']['startDate']; ?><?php if ($item['xcal']['startDate'] !== $item['xcal']['endDate']): ?>&nbsp;&ndash;&nbsp;<?= $item['xcal']['endDate'] ?><?php endif; ?></p>
                 <?php endif; ?>
                 <?php if (isset($item['xcal']['startTime'])): ?>
-                  <p class="xcal"><i class="fa fa-clock-o"></i> <?= $item['xcal']['startTime']; ?>&ndash;<?= $item['xcal']['endTime'] ?></p>
+                  <p class="xcal"><i class="fa fa-clock-o"></i> <?= $item['xcal']['startTime']; ?>&nbsp;&ndash;&nbsp;<?= $item['xcal']['endTime'] ?></p>
                 <?php endif; ?>
                 <?php if (isset($item['xcal']['location'])): ?>
                   <p class="xcal"><i class="fa fa-map-marker"></i> <?= $item['xcal']['location']; ?></p>

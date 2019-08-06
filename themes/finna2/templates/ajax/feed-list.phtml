@@ -19,12 +19,9 @@
         <span class="title"><?= $item['title']; ?></span>
         <?php if (!isset($this->linkText) && isset($item['link'])):?>
           <?php if (isset($item['xcal']['startDate'])): ?>
-            <p class="xcal"><i class="fa fa-calendar"></i><?= $item['xcal']['startDate']; ?>
-            <?php if($item['xcal']['startDate'] !== $item['xcal']['endDate']): ?>
-              - <?= $item['xcal']['endDate'] ?>
-            </p>
+            <p class="xcal"><i class="fa fa-calendar"></i><?= $item['xcal']['startDate']; ?><?php if($item['xcal']['startDate'] !== $item['xcal']['endDate']): ?>&nbsp;&ndash;&nbsp;<?= $item['xcal']['endDate'] ?><?php endif;?></p>
             <?php if (isset($item['xcal']['startTime'])): ?>
-              <p class="xcal"><i class="fa fa-clock-o"></i><?= $item['xcal']['startTime']; ?> - <?= $item['xcal']['endTime'] ?></p>
+              <p class="xcal"><i class="fa fa-clock-o"></i><?= $item['xcal']['startTime']; ?>&nbsp;&ndash;&nbsp;<?= $item['xcal']['endTime'] ?></p>
             <?php endif; ?>
           <?php endif; ?>
         <?php if (isset($item['xcal']['location'])): ?>

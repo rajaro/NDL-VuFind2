@@ -45,8 +45,14 @@ finna.contentFeed = (function finnaContentFeed() {
                   container.find('.xcal-featured').attr('src', value);
                 } else if (key === 'endDate' && value === item.xcal.startDate) {
                   return true;
+                } else if (key === 'endDate' || key === 'endTime') {
+                  container.find('.xcal-' + key).append(value);
+                  container.find('.xcal-' + key).removeClass('hidden');
+                  return true;
+                } else if (key === 'startDate') {
+                  container.find('.xcal-date').removeClass('hidden');
                 }
-                container.find('.xcal-' + key).not('div').html(value);
+                container.find('.xcal-' + key).not('div, i').text(value);
                 container.find('.xcal-' + key).removeClass('hidden');
               });
             }
