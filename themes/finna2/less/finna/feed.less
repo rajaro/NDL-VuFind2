@@ -127,6 +127,9 @@
                 padding-top: 3px;
             }
         }
+        .text {
+            padding-top: 5px;
+        }
         span.carousel-description {
             position: absolute;
             text-decoration: underline;
@@ -320,7 +323,7 @@
         margin-bottom: 0px;
         color: @gray;
         i {
-            padding-left: 0px;
+            padding-right: 5px;
         }
     }
 
@@ -442,23 +445,13 @@
 }
 
 // xCal fields
-.xcal {
-    display: flex;
-    padding-bottom: 20px;
-    i {
-        padding-left: 20px;
-        padding-right: 5px;
-        padding-top: 3px
-    }
-}
 .xcal-fields {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-    div {
-        flex-basis: 30%;
-    }
-    span, a {
-        flex-basis: 60%;
-    }
+   .xcal-value {
+       float: right;
+       width: 70%;
+   }
+   div {
+       display: inline-block;
+       width: 100%;
+   }
 }
