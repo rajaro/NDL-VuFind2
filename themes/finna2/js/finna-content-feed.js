@@ -39,21 +39,21 @@ finna.contentFeed = (function finnaContentFeed() {
             }
             if (typeof item.xcal != 'undefined') {
               $.each(item.xcal, function addXcal(key, value) {
+                var field = container.find('.xcal-' + key);
                 if (key === 'organizer-url') {
-                  container.find('.xcal-organizer-url').attr('href', value);
+                  field.find('xcal-value').attr('href', value);
                 } else if (key === 'featured') {
                   container.find('.xcal-featured').attr('src', value);
                 } else if (key === 'endDate' && value === item.xcal.startDate) {
                   return true;
-                } else if (key === 'endDate' || key === 'endTime') {
-                  container.find('.xcal-' + key).append(value);
-                  container.find('.xcal-' + key).removeClass('hidden');
+                } else if (key === 'startDate' || key === 'startTime' || key === 'endDate' || key === 'endTime') {
+                  field.find('.xcal-value .xcal-' + key).append(value);
+                  field.find('.xcal-value .xcal-' + key).removeClass('hidden');
+                  field.removeClass('hidden');
                   return true;
-                } else if (key === 'startDate') {
-                  container.find('.xcal-date').removeClass('hidden');
                 }
-                container.find('.xcal-' + key).not('div, i').text(value);
-                container.find('.xcal-' + key).removeClass('hidden');
+                field.find('.xcal-value').text(value);
+                field.removeClass('hidden');
               });
             }
           } else {

@@ -295,7 +295,7 @@ class Feed implements \VuFind\I18n\Translator\TranslatorAwareInterface,
             if (is_readable($localFile)
                 && time() - filemtime($localFile) < $maxAge * 60
             ) {
-         //       $channel = Reader::importFile($localFile);
+                $channel = Reader::importFile($localFile);
             }
         }
 
@@ -508,7 +508,7 @@ EOT;
                     $data['xcal']['endTime'] = $dateEnd->format('H:i');
                 }
                 $data['xcal']['startDate'] = $dateStart->format($fullDateFormat);
-                $data['xcal']['endDate'] = $dateEnd->format($fullDateFormat); 
+                $data['xcal']['endDate'] = $dateEnd->format($fullDateFormat);
             }
 
             // Make sure that we have something to display
