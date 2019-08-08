@@ -46,6 +46,8 @@ finna.contentFeed = (function finnaContentFeed() {
                   container.find('.xcal-featured').attr('src', value);
                 } else if (key === 'endDate' && value === item.xcal.startDate) {
                   return true;
+                } else if ((key === 'startTime' || key === 'endTime') && item.xcal.startDate !== item.xcal.endDate) {
+                  return true;
                 } else if (key === 'startDate' || key === 'startTime' || key === 'endDate' || key === 'endTime') {
                   field.find('.xcal-value .xcal-' + key).append(value);
                   field.find('.xcal-value .xcal-' + key).removeClass('hidden');
