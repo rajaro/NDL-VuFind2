@@ -1,6 +1,6 @@
 <!-- START of: finna - ajax/feed-grid.phtml -->
 <div class="feed-grid<?= $this->images ? ' with-image' : ''; ?>">
-  <?php 
+  <?php
     $itemCount = 0;
   ?>
   <?php foreach($items as $item): ?>
@@ -38,7 +38,7 @@
             <?php endif; ?>
             <?php if (isset($item['text'])): ?>
               <div class="feed-text"><?= $item['text'] ?></div>
-             <? endif; ?>
+             <?php endif; ?>
           </span>
           <?php if (isset($item['link'])):?>
             </a>
