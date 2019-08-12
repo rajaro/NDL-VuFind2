@@ -27,9 +27,9 @@
           <?php if (isset($item['dateFull'])): ?>
             <div><?= $item['dateFull'] ?></div>
           <?php endif; ?>
-          <div class="title"><?= $item['title']; ?></div>
+          <div class="title"><?= $this->truncate($item['title'], 40); ?></div>
           <?php if (isset($item['text'])): ?>
-            <div class="feed-text"><?= $item['text'] ?></div>
+            <div class="feed-text"><?= $this->truncate($item['text'], 80); ?></div>
           <?php endif; ?>
         </span>
       </a>
