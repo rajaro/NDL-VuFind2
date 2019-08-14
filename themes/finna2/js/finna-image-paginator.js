@@ -514,10 +514,7 @@ finna.imagePaginator = (function imagePaginator() {
       $('.image-details-container[data-img-index="' + imagePopup.attr('index') + '"]').removeClass('hidden');
     }
     _.imageDetail.html(imagePopup.data('description'));
-
-    if (!_.isList) {
-      img.unveil();
-    }
+    img.unveil();
   };
 
   /**
