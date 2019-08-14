@@ -1,7 +1,6 @@
 /*global VuFind, checkSaveStatuses, action, finna, initFacetTree, priorityNav */
 finna.layout = (function finnaLayout() {
   var _fixFooterTimeout = null;
-  var masonryInitialized = false;
 
   function initResizeListener() {
     var intervalId = false;
@@ -596,29 +595,6 @@ finna.layout = (function finnaLayout() {
     });
   }
 
-  function initLoadMasonry() {
-    var ie = detectIe();
-    // do not execute on ie8 or lower as they are not supported by masonry
-    if (ie > 8 || ie == null) {
-      $('.result-view-grid .masonry-wrapper').waitForImages(function imageCallback() {
-        // init Masonry after all images have loaded
-        $('.result-view-grid .masonry-wrapper').masonry({
-          fitWidth: false,
-          itemSelector: '.result.grid',
-          columnWidth: '.result.grid',
-          isResizeBound: 'true',
-          horizontalOrder: 'true'
-        });
-        $(this).trigger('masonryInited');
-        masonryInitialized = true;
-      });
-    }
-  }
-
-  function getMasonryState() {
-    return masonryInitialized;
-  }
-
   function getOrganisationPageLink(organisation, organisationName, link, callback) {
     var params = {
       url: VuFind.path + '/AJAX/JSON?method=getOrganisationInfo',
@@ -842,7 +818,6 @@ finna.layout = (function finnaLayout() {
     initILSPasswordRecoveryLink: initILSPasswordRecoveryLink,
     initLoginTabs: initLoginTabs,
     loadScripts: loadScripts,
-    getMasonryState: getMasonryState,
     init: function init() {
       initScrollRecord();
       initJumpMenus();
@@ -867,7 +842,6 @@ finna.layout = (function finnaLayout() {
       initAutoScrollTouch();
       initIpadCheck();
       initLightboxLogin();
-      initLoadMasonry();
       initOrganisationInfoWidgets();
       initOrganisationPageLinks();
       initVideoButtons();

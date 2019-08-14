@@ -515,15 +515,7 @@ finna.imagePaginator = (function imagePaginator() {
     }
     _.imageDetail.html(imagePopup.data('description'));
 
-    if (_.isList) {
-      img.unveil(100, function tryMasonry(){
-        $(this).load(function rearrange(){
-          if (finna.layout.getMasonryState()) {
-            $('.result-view-grid .masonry-wrapper').masonry('layout');
-          }
-        });
-      });
-    } else {
+    if (!_.isList) {
       img.unveil();
     }
   };

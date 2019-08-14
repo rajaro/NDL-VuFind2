@@ -473,22 +473,6 @@ finna.myList = (function finnaMyList() {
         return VuFind.translate('loading') + '...';
       }
     };
-
-    // Adjust opened note overlays when Masonry layout has been updated
-    var masonryWrapper = $('.result-view-grid .masonry-wrapper');
-    function addMasonryLayoutListener() {
-      masonryWrapper.on('layoutComplete', function onMasonryLayoutComplete(/*event, items*/) {
-        adjustOpenedNoteOverlays();
-      });
-    }
-    if (finna.layout.getMasonryState()) {
-      addMasonryLayoutListener();
-    } else {
-      masonryWrapper.on('masonryInited', function onMasonryInited() {
-        adjustOpenedNoteOverlays();
-        addMasonryLayoutListener();
-      });
-    }
   }
 
   refreshLists = function refreshListsFunc(/*data*/) {
