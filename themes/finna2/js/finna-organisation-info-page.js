@@ -344,6 +344,13 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
             staffTimes.find('.opens').text(staffSchedule.opens);
             staffTimes.find('.closes').text(staffSchedule.closes);
             staffTimes.removeClass('hide');
+            if (obj.times[2]) {
+              var staffShiftSchedule = obj.times[2];
+              var staffShift = staffTimes.find('.staff-times-shift');
+              staffShift.find('.shift-opens').text(staffShiftSchedule.opens);
+              staffShift.find('.shift-closes').text(staffShiftSchedule.closes);
+              staffShift.removeClass('hide');
+            }
           } else {
             staffTimes = timeOpen.find('.staff-times');
             staffTimes.addClass('hide');
