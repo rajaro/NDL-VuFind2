@@ -440,15 +440,9 @@ finna.myList = (function finnaMyList() {
       var container = noteOverlay.closest('.grid-body');
       var coverContainer = container.find('.grid-image');
       var imageWidth = coverContainer.width();
-      var imageHeight = Math.min(container.find('.grid-title').position().top, container.find('.recordcover-container').height());
+      var imageHeight = Math.min(container.find('.grid-title').position().top, container.find('.record-image-container').height());
       noteOverlay.height(imageHeight);
       noteOverlay.width(imageWidth);
-    }
-
-    function adjustOpenedNoteOverlays() {
-      $('.note-overlay.note-show').each(function adjustOverlay() {
-        adjustNoteOverlaySize($(this));
-      });
     }
 
     // hide/show notes on images
