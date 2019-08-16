@@ -344,12 +344,15 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
             staffTimes.find('.opens').text(staffSchedule.opens);
             staffTimes.find('.closes').text(staffSchedule.closes);
             staffTimes.removeClass('hide');
-            if (obj.times[2]) {
-              var staffShiftSchedule = obj.times[2];
-              var staffShift = staffTimes.find('.staff-times-shift');
-              staffShift.find('.shift-opens').text(staffShiftSchedule.opens);
-              staffShift.find('.shift-closes').text(staffShiftSchedule.closes);
-              staffShift.removeClass('hide');
+            var shiftSchedule;
+            var shift;
+            staffTimes.find('.shift').remove();
+            for (var i = 2; i < obj.times.length; i++) {
+              shiftSchedule = obj.times[i];
+              shift = staffTimes.find('.shift-template').clone().addClass('shift').removeClass('shift-template hide');
+              shift.find('.shift-opens').text(shiftSchedule.opens);
+              shift.find('.shift-closes').text(shiftSchedule.closes);
+              staffTimes.find('.shift-template').before(shift);
             }
           } else {
             staffTimes = timeOpen.find('.staff-times');
