@@ -22,18 +22,6 @@ finna.layout = (function finnaLayout() {
       || (navigator.msMaxTouchPoints > 0)); // IE10, IE11, Edge
   }
 
-  function detectIe() {
-    var undef,
-      v = 3,
-      div = document.createElement('div'),
-      all = div.getElementsByTagName('i');
-    while (
-      div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->',
-      all[0]
-    );
-    return v > 4 ? v : undef;
-  }
-
   // Append current anchor (location.hash) to selected links
   // in order to preserve the anchor when the link is clicked.
   // This is used in top header language links.
