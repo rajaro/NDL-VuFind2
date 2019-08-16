@@ -341,17 +341,17 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
           var staffTimes;
           if (staffSchedule) {
             staffTimes = timeOpen.find('.staff-times');
-            staffTimes.find('.opens').text(staffSchedule.opens);
-            staffTimes.find('.closes').text(staffSchedule.closes);
-            staffTimes.removeClass('hide');
-            var shiftSchedule;
             var shift;
             staffTimes.find('.shift').remove();
-            for (var i = 2; i < obj.times.length; i++) {
-              shiftSchedule = obj.times[i];
+            staffTimes.removeClass('hide');
+            for (var i = 1; i < obj.times.length; i++) {
+              staffSchedule = obj.times[i];
               shift = staffTimes.find('.shift-template').clone().addClass('shift').removeClass('shift-template hide');
-              shift.find('.shift-opens').text(shiftSchedule.opens);
-              shift.find('.shift-closes').text(shiftSchedule.closes);
+              shift.find('.opens').text(staffSchedule.opens);
+              shift.find('.closes').text(staffSchedule.closes);
+              if (i > 1) {
+                shift.prepend(', ');
+              }
               staffTimes.find('.shift-template').before(shift);
             }
           } else {
