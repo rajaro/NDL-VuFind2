@@ -1,14 +1,14 @@
 /* ------ GRID VIEW ------ */
-.search-grid::after {
-  display: table;
-  clear: both;
-  content: '';
-}
-.masonry-wrapper {
+.search-grid {
   display: flex;
   flex-wrap: wrap;
-  //grid-template-columns: repeat(3, 1fr);
+  &::after {
+    display: table;
+    clear: both;
+    content: '';
+  }
 }
+
 .grid.result {
   display: flex;
   float: left;
@@ -53,8 +53,7 @@
       flex-direction: column;
     }
     .grid-title {
-      flex-basis: 30%;
-      padding: 10px 5px 4px;
+      padding: 6px 5px 4px;
       width: 100%;
       top: ~"-webkit-calc(100% - 22px)";
       top: ~"-moz-calc(100% - 22px)";
@@ -65,8 +64,11 @@
       z-index: 10;
       background: transparent;
     }
-    .dateyeartype p {
-      margin-bottom: 0px;
+    .dateyeartype {
+      margin-top: -4px;
+      p {
+        margin-bottom: 0px;
+      }
     }
     .grid-image {
       overflow: hidden;
@@ -197,7 +199,6 @@
   .grid {
     .grid-title {
       .opacity(.9);
-      position: relative;
       max-height: 200px;
       top: 100%;
       box-shadow: none;
