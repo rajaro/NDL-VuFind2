@@ -1,7 +1,11 @@
 /* ------ GRID VIEW ------ */
 .search-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  overflow: hidden;
+  grid-template-columns: repeat(3, 33%);
+  grid-auto-rows: 1fr;
+  grid-column-gap: 5px;
+  grid-row-gap: 5px;
   &::after {
     display: table;
     clear: both;
@@ -44,6 +48,7 @@
   .grid:not(.recordcovers) {
     padding: 0px 5px 10px;
     margin-bottom: 0px;
+    width: 100%;
     &:focus {
       outline: none;
     }
