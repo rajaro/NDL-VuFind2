@@ -15,9 +15,11 @@
     <?php $items = isset($this->visualItems) ? array_splice($this->items, 0, $this->visualItems) : $this->items; ?>
     <?php foreach($items as $item): ?>
     <?php
-    $linkElement = [
-      'href' => $item['link'],
-    ];
+    if (isset($item['link'])) {
+      $linkElement = [
+        'href' => $item['link'],
+      ];
+    }
     if ($this->linkTarget) {
       $linkElement['target'] = $this->linkTarget;
     }
@@ -41,7 +43,7 @@
                 <span class="carousel-description"><?= $linkText ?></span>
               <?php endif; ?>
             </div>
-            <?php endif; ?>
+          <?php endif; ?>
           <div class="carousel-text" aria-hidden="true">
             <?php if (isset($item['title'])): ?>
               <p class="carousel-hover-title"><?= $this->truncate($item['title'], 70); ?></p>
