@@ -17,9 +17,7 @@
     <?php
     $linkElement = [];
     if (isset($item['link'])) {
-      $linkElement = [
-        'href' => $item['link'],
-      ];
+      $linkElement['href'] = $item['link'];
     }
     if ($this->linkTarget) {
       $linkElement['target'] = $this->linkTarget;
