@@ -70,7 +70,7 @@
               <img data-lazy="<?= $item['image']['url']; ?>" alt="<?=$this->transEsc("Image");?>: <?php if (isset($item['title'])): ?><?= $item['title']; ?><?php endif; ?>" />
             </div>
           <?php endif; ?>
-          <?php if ($linkElement): ?>
+          <?php if (isset($item['link'])): ?>
             </a>
           <?php endif; ?> 
       </div>
