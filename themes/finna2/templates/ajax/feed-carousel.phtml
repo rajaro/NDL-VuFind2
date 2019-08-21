@@ -29,7 +29,9 @@
     $linkText = $this->transEsc($this->linkText ? $this->linkText : 'To the record');
     ?>
       <div>
-        <a <?= $linkElement ? $this->htmlElement()->getAttributes($linkElement) : '' ?>>
+        <?php if (isset($item['link'])): ?>
+          <a <?= $this->htmlElement()->getAttributes($linkElement)?>>
+        <?php endif; ?>
           <?php if (isset($item['title'])): ?>
             <div class="carousel-slide-header">
               <p><?= $this->truncate($item['title'], 70); ?></p>
@@ -68,7 +70,9 @@
               <img data-lazy="<?= $item['image']['url']; ?>" alt="<?=$this->transEsc("Image");?>: <?php if (isset($item['title'])): ?><?= $item['title']; ?><?php endif; ?>" />
             </div>
           <?php endif; ?>
-        </a>
+          <?php if ($linkElement): ?>
+            </a>
+          <?php endif; ?> 
       </div>
     <?php endforeach; ?>
   </div>
