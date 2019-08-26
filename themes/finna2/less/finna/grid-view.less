@@ -6,6 +6,10 @@
   grid-auto-rows: 1fr;
   grid-column-gap: 5px;
   padding-top: 10px;
+  @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {  
+    display: flex;
+    flex-wrap: wrap;
+  }
   &::after {
     display: table;
     clear: both;
@@ -49,6 +53,10 @@
     padding: 0px 5px 10px;
     margin-bottom: 0px;
     width: 100%;
+    @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {  
+      width: 33%;
+      height: 300px;
+    }
     &:focus {
       outline: none;
     }
