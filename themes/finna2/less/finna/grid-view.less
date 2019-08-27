@@ -3,10 +3,21 @@
   display: grid;
   overflow: hidden;
   grid-template-columns: repeat(3, 33%);
+  @media (max-width: @screen-md-min) {
+    grid-template-columns: repeat(2, 50%);
+  }
+  @media (max-width: @screen-xs-min) {
+    grid-template-columns: repeat(1, 100%);
+  }
   grid-auto-rows: 1fr;
   grid-column-gap: 5px;
   padding-top: 10px;
-  @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {  
+  @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {  // IE 11
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  @supports not (display: grid) { // Edge
     display: flex;
     flex-wrap: wrap;
   }
@@ -53,7 +64,12 @@
     padding: 0px 5px 10px;
     margin-bottom: 0px;
     width: 100%;
-    @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {  
+    max-height: 350px;
+    @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) { // IE 11
+      width: 33%;
+      height: 300px;
+    }
+    @supports not (display: grid) { // Edge
       width: 33%;
       height: 300px;
     }
