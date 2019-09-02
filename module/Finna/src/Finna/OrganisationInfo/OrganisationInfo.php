@@ -30,8 +30,6 @@
  */
 namespace Finna\OrganisationInfo;
 
-use Zend\View\Renderer\RendererInterface;
-
 /**
  * Service for querying Kirjastohakemisto database.
  * See: https://api.kirjastot.fi/
@@ -62,16 +60,23 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
     /**
      * Cache manager
      *
-     * @var VuFind\CacheManager
+     * @var \VuFind\CacheManager
      */
     protected $cacheManager;
 
     /**
      * View Renderer
      *
-     * @var RendererInterface
+     * @var \Zend\View\Renderer\PhpRenderer
      */
     protected $viewRenderer;
+
+    /**
+     * Date converter
+     *
+     * @var \VuFind\Date\Converter
+     */
+    protected $dateConverter;
 
     /**
      * Language (use getLanguage())
@@ -90,15 +95,20 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
     /**
      * Constructor.
      *
-     * @param Zend\Config\Config  $config       Configuration
-     * @param VuFind\CacheManager $cacheManager Cache manager
-     * @param RendererInteface    $viewRenderer View renderer
+     * @param \Zend\Config\Config             $config        Configuration
+     * @param \VuFind\Cache\Manager           $cacheManager  Cache manager
+     * @param \Zend\View\Renderer\PhpRenderer $viewRenderer  View renderer
+     * @param \VuFind\Date\Converter          $dateConverter Date converter
      */
-    public function __construct($config, $cacheManager, $viewRenderer)
-    {
+    public function __construct(\Zend\Config\Config $config,
+        \VuFind\Cache\Manager $cacheManager,
+        \Zend\View\Renderer\PhpRenderer $viewRenderer,
+        \VuFind\Date\Converter $dateConverter
+    ) {
         $this->config = $config;
         $this->cacheManager = $cacheManager;
         $this->viewRenderer = $viewRenderer;
+        $this->dateConverter = $dateConverter;
     }
 
     /**
@@ -200,7 +210,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
      * @param array  $buildings List of building id's to include in the
      * consortium-query
      *
-     * @return mixed array of results or false on error.
+     * @return array|bool array of results or false on error.
      */
     public function query($parent, $params, $buildings = null)
     {
@@ -245,7 +255,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
      * @param array  $buildings List of building id's to include in the
      * consortium-query
      *
-     * @return mixed array of results or false on error.
+     * @return array|bool array of results or false on error.
      */
     protected function queryLibrary($parent, $params, $buildings = null)
     {
@@ -324,7 +334,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
      * @param string $parent Parent organisation
      * @param array  $params Query parameters
      *
-     * @return mixed array of results or false on error.
+     * @return array|bool array of results or false on error.
      */
     protected function queryMuseum($parent, $params)
     {
@@ -350,7 +360,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
      * Oherwise only the link URL is outputted.
      * @param string  $parentName Translated consortium display name.
      *
-     * @return mixed array of results or false on error.
+     * @return array|bool array of results or false on error.
      */
     protected function lookupLibraryAction($parent, $link = false, $parentName = null
     ) {
@@ -403,7 +413,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
      * Oherwise only the link URL is outputted.
      * @param string  $parentName Translated consortium display name.
      *
-     * @return mixed array of results or false on error.
+     * @return array|bool array of results or false on error.
      */
     protected function lookupMuseumAction($parent, $link = false,
         $parentName = null
@@ -449,7 +459,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
      * @param string $startDate Start date (YYYY-MM-DD) of opening times
      * @param string $endDate   End date (YYYY-MM-DD) of opening times
      *
-     * @return mixed array of results or false on error.
+     * @return array|bool array of results or false on error.
      */
     protected function consortiumAction(
         $parent, $buildings, $target, $startDate, $endDate
@@ -553,7 +563,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
      * @param boolean $fullDetails Include full details.
      * @param boolean $allServices Include full list of services.
      *
-     * @return mixed array of results or false on error.
+     * @return array|bool array of results or false on error.
      */
     protected function detailsAction(
         $id, $target, $schedules, $startDate, $endDate, $fullDetails, $allServices
@@ -610,7 +620,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
      * @param array   $params Query parameters
      * @param boolean $museum If organisation type is museum
      *
-     * @return mixed array of results or false on error.
+     * @return array|bool array of results or false on error.
      */
     protected function fetchData($action, $params, $museum = false)
     {
@@ -1031,7 +1041,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
         if (!isset($parts[1]) || $parts[1] == '00') {
             return $parts[0];
         }
-        return $parts[0] . ':' . $parts[1];
+        return $this->dateConverter->convertToDisplayTime('H:i', $time);
     }
 
     /**
@@ -1039,7 +1049,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
      *
      * @param array $params Query parameters
      *
-     * @return mixed array of results or false if no data available
+     * @return array|bool array of results or false if no data available
      */
     protected function museumAction($params)
     {
@@ -1049,7 +1059,6 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
         }
         $language = $this->getLanguage();
         $json = $response['museot'][0];
-        $consortium = [];
         $publish = $json['finna_publish'];
         if (!$publish) {
             return false;
@@ -1095,8 +1104,6 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             'type' => 'museum',
         ];
         // Date handling
-        $today = date('d.m');
-        $currentHour = date('H:i');
         $days = [
             0 => 'monday', 1 => 'tuesday', 2 => 'wednesday',
             3 => 'thursday', 4 => 'friday', 5 => 'saturday', 6 => 'sunday'
@@ -1187,17 +1194,17 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
     }
 
     /**
-     * Date-data handling function for museums
+     * Date data handling function for museums
      *
-     * @param string $day         weekday
-     * @param array  $json        data from museum api
-     * @param string $today       current date
-     * @param string $currentHour current hour
+     * @param string $day  Weekday
+     * @param array  $json Data from museum api
      *
      * @return array
      */
-    protected function getMuseumDaySchedule($day, $json, $today, $currentHour)
+    protected function getMuseumDaySchedule($day, $json)
     {
+        $today = date('d.m');
+        $currentHour = date('H:i');
         $return = [];
         $dayShortcode = substr($day, 0, 3);
         if (empty($json['opening_time']["{$dayShortcode}_start"])
