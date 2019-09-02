@@ -11,17 +11,6 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
   var consortiumInfo = false;
   var consortium = false;
 
-  function loadOrganisationList(buildings, orgId) {
-    service.getOrganisations('page', parent, buildings, {id: orgId}, function onGetOrganisation(response, params) {
-      if (response) {
-        var id = params.id;
-        holder.find('.loading').toggleClass('loading', false);
-
-        var cnt = 0;
-        $.each(response.list, function countItem(ind, obj) {
-          organisationList[obj.id] = obj;
-          cnt++;
-        });
   function err() {
     holder.find('.no-information').removeClass('hidden');
     holder.find('.organisation-info-page').html('');
@@ -220,7 +209,7 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
         $.each(response.list, function countItem(ind, obj) {
           organisationList[obj.id] = obj;
           if (obj.type === 'library' || obj.type === 'other'
-            || obj.type === 'museum') {
+            || obj.type === 'museum' || obj.type === 'municipal') {
             cnt++;
           }
         });
@@ -365,15 +354,17 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
             var shift;
             staffTimes.find('.shift').remove();
             staffTimes.removeClass('hide');
-            for (var i = 1; i < obj.times.length; i++) {
+            for (var i = 0; i < obj.times.length; i++) {
               staffSchedule = obj.times[i];
-              shift = staffTimes.find('.shift-template').clone().addClass('shift').removeClass('shift-template hide');
-              shift.find('.opens').text(staffSchedule.opens);
-              shift.find('.closes').text(staffSchedule.closes);
-              if (i > 1) {
-                shift.prepend(', ');
+              if (staffSchedule.selfservice == false) {
+                shift = staffTimes.find('.shift-template').clone().addClass('shift').removeClass('shift-template hide');
+                shift.find('.opens').text(staffSchedule.opens);
+                shift.find('.closes').text(staffSchedule.closes);
+                if (i > 1) {
+                  shift.prepend(', ');
+                }
+                staffTimes.find('.shift-template').before(shift);
               }
-              staffTimes.find('.shift-template').before(shift);
             }
           } else {
             staffTimes = timeOpen.find('.staff-times');
