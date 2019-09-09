@@ -17,7 +17,7 @@ $urls = $this->record($this->driver)->getLinkDetails($openUrlActive);
   <?php endif; ?>
   <div class="grid-body">
     <div class="text-center grid-image">
-      <?php if ($this->layout()->templateDir === 'list' && $this->params->getView() === 'grid'): ?>
+      <?php if ($this->params->getView() === 'grid' && $this->layout()->templateDir === 'list' || $this->layout()->templateDir === 'content' || $this->layout()->templateDir === 'search' && $this->layout()->templateName !== 'results'): ?>
           <?=$this->render('list/list-notes.phtml')?>
       <?php endif ?>
       <?php $img = $this->recordImage($this->record($this->driver))?>

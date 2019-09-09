@@ -123,7 +123,7 @@
     <?php endif; ?>
     <div class="clearfix visible-xs"></div>
     <?=$this->record($this->driver)->getPreviews()?>
-    <?php if ($this->layout()->templateDir === 'list'): ?>
+    <?php if ($this->layout()->templateDir === 'list' || $this->layout()->templateDir === 'content' || $this->layout()->templateDir === 'search' && $this->layout()->templateName !== 'results'): ?>
       <?=$this->render('list/list-notes.phtml')?>
     <?php endif; ?>
   </div>
