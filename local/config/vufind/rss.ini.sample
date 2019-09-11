@@ -15,7 +15,7 @@
 ; linkTo = "content-page" is set, to limit the number of items displayed in the
 ; carousel/list while displaying up to <items> items in the content page. If not set,
 ; up to <items> items are displayed. In grid visualItems determines the amount of items
-; displayed before "more" link.
+; displayed before a "more" button. "More" button displays up to <items> items in the grid.
 ; title = "[rss|<translation-key>]" Feed title:
 ;    'rss' = Use <title> element from feed
 ;    '<translation-key>' = Use local translation
