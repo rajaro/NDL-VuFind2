@@ -231,8 +231,8 @@ class GetOrganisationInfo extends \VuFind\AjaxHandler\AbstractBase
             if (isset($libraries['items'])) {
                 $libraries = $libraries['items'];
             }
+            $libraries = is_array($libraries) ? $libraries : [];
         }
-
         $result = array_merge($museums, $libraries);
         if (empty($result)) {
             $result = false;

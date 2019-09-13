@@ -465,7 +465,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
         $parent, $buildings, $target, $startDate, $endDate
     ) {
         $params = [
-            'finna:id' => ucfirst($parent),
+            'finna:id' => $parent,
             'with' => 'links',
             'lang' => $this->language
         ];
@@ -474,7 +474,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
         }
 
         $response = $this->fetchData('finna_organisation', $params);
-        $orgId = $response['items'][0]['id'];
+
         if (!$response
             || !$response['total'] || !isset($response['items'][0]['id'])
         ) {
@@ -529,9 +529,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             'with' => 'schedules,primaryContactInfo',
             'period.start' => $startDate,
             'period.end' => $endDate,
-            'refs' => 'period',
             'lang' => $this->language,
-            'status' => ''
         ];
         if (!$this->getFallbackLanguage()) {
             $params['lang'] = $this->getLanguage();
@@ -542,7 +540,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             }
         }
 
-        $response = $this->fetchData('library', $params);
+        $response = $this->fetchData('service_point', $params);
         if (!$response) {
             return false;
         }
@@ -575,7 +573,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
 
         $with = 'schedules';
         if ($fullDetails) {
-            $with .= 
+            $with .=
                 ',phoneNumbers,mailAddress,pictures,links,services,customData,
                 schedules';
         }
@@ -585,14 +583,13 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             'with' => $with,
             'period.start' => $startDate,
             'period.end' => $endDate,
-            'status' => '',
             'lang' => $this->language,
         ];
         if (!$this->getFallbackLanguage()) {
             $params['lang'] = $this->getLanguage();
         }
 
-        $response = $this->fetchData('library', $params);
+        $response = $this->fetchData('service_point', $params);
         if (!$response) {
             return false;
         }
@@ -982,7 +979,6 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             $now = time();
             $closed = $day['closed'];
 
-
             // Staff times
             foreach ($day['times'] as $time) {
                 if (!empty($day['info'])) {
@@ -993,7 +989,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
                 $result['selfservice'] = $time['status'] === 2 ? true : false;
                 $times[] = $result;
             }
- 
+
             if ($today && !empty($times)) {
                 $openToday = $times;
             }
@@ -1017,7 +1013,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             if ($today) {
                 $currentWeek = true;
             }
-            $openNow = $data['status'] >= 1 ? true : false;
+            $openNow = $data['times']['status'] >= 1 ? true : false;
         }
 
         $result = compact('schedules', 'openToday', 'currentWeek');

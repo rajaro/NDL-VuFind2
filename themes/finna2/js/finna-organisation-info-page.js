@@ -199,6 +199,15 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
     });
   }
 
+  function updateConsortiumNotification(data) {
+    if ('consortium' in data) {
+      if (data.consortium.finna.notification) {
+        holder.find('.consortium-notification')
+          .html(data.consortium.finna.notification).removeClass('hide');
+      }
+    }
+  }
+
   function loadOrganisationList(buildings, orgId) {
     service.getOrganisations('page', parent, buildings, {id: orgId}, function onGetOrganisation(response, params) {
       if (response) {
@@ -209,19 +218,11 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
         $.each(response.list, function countItem(ind, obj) {
           organisationList[obj.id] = obj;
           if (obj.type === 'library' || obj.type === 'other'
-            || obj.type === 'museum' || obj.type === 'municipal') {
+            || obj.type === 'museum' || obj.type === 'municipal'
+            || obj.type === 'polytechnic' || obj.type === 'archive') {
             cnt++;
           }
         });
-
-        function updateConsortiumNotification(data) {
-          if ('consortium' in data) {
-            if (data.consortium.finna.notification) {
-              holder.find('.consortium-notification')
-                .html(data.consortium.finna.notification).removeClass('hide');
-            }
-          }
-        }
 
         infoWidget.organisationListLoaded(response);
         if (cnt > 0) {
@@ -340,7 +341,7 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
           timeOpen.show();
           var staffSchedule = [];
           $.each(obj.times, function isSelfservice(index, object) {
-            if (object.selfservice == false) {
+            if (object.selfservice === false) {
               staffSchedule = {
                 opens: object.opens,
                 closes: object.closes
@@ -356,7 +357,7 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
             staffTimes.removeClass('hide');
             for (var i = 0; i < obj.times.length; i++) {
               staffSchedule = obj.times[i];
-              if (staffSchedule.selfservice == false) {
+              if (staffSchedule.selfservice === false) {
                 shift = staffTimes.find('.shift-template').clone().addClass('shift').removeClass('shift-template hide');
                 shift.find('.opens').text(staffSchedule.opens);
                 shift.find('.closes').text(staffSchedule.closes);
