@@ -86,13 +86,6 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
     protected $language = null;
 
     /**
-     * Fallback language (use getFallbackLanguage())
-     *
-     * @var string
-     */
-    protected $fallbackLanguage = null;
-
-    /**
      * Constructor.
      *
      * @param \Zend\Config\Config             $config        Configuration
@@ -151,25 +144,6 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             $this->language = $this->validateLanguage($language, $allLanguages);
         }
         return $this->language;
-    }
-
-    /**
-     * Get the fallback language to use if there are no results in active language
-     *
-     * @return string
-     */
-    protected function getFallbackLanguage()
-    {
-        if (null === $this->fallbackLanguage) {
-            $allLanguages = isset($this->config->General->languages)
-                ? $this->config->General->languages->toArray() : [];
-
-            $fallback = $this->config->General->fallbackLanguage ?? '';
-            $fallback = $this->validateLanguage($fallback, $allLanguages);
-            $this->fallbackLanguage = $fallback !== $this->getLanguage() ?
-                $fallback : '';
-        }
-        return $this->fallbackLanguage;
     }
 
     /**
@@ -467,11 +441,8 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
         $params = [
             'finna:id' => $parent,
             'with' => 'links',
-            'lang' => $this->language
+            'lang' => $this->getLanguage()
         ];
-        if (!$this->getFallbackLanguage()) {
-            $params['lang'] = $this->getLanguage();
-        }
 
         $response = $this->fetchData('finna_organisation', $params);
 
@@ -529,11 +500,9 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             'with' => 'schedules,primaryContactInfo',
             'period.start' => $startDate,
             'period.end' => $endDate,
-            'lang' => $this->language,
+            'lang' => $this->getLanguage(),
         ];
-        if (!$this->getFallbackLanguage()) {
-            $params['lang'] = $this->getLanguage();
-        }
+
         if (!empty($buildings)) {
             if (($buildings = implode(',', $buildings)) != '') {
                 $params['id'] = $buildings;
@@ -583,11 +552,8 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             'with' => $with,
             'period.start' => $startDate,
             'period.end' => $endDate,
-            'lang' => $this->language,
+            'lang' => $this->getLanguage(),
         ];
-        if (!$this->getFallbackLanguage()) {
-            $params['lang'] = $this->getLanguage();
-        }
 
         $response = $this->fetchData('service_point', $params);
         if (!$response) {
