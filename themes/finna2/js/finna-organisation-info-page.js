@@ -217,11 +217,7 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
         var cnt = 0;
         $.each(response.list, function countItem(ind, obj) {
           organisationList[obj.id] = obj;
-          if (obj.type === 'library' || obj.type === 'other'
-            || obj.type === 'museum' || obj.type === 'municipal'
-            || obj.type === 'polytechnic' || obj.type === 'archive') {
-            cnt++;
-          }
+          cnt++;
         });
 
         infoWidget.organisationListLoaded(response);
