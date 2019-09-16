@@ -500,6 +500,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             'with' => 'schedules,primaryContactInfo',
             'period.start' => $startDate,
             'period.end' => $endDate,
+            'status' => '',
             'lang' => $this->getLanguage(),
         ];
 
@@ -552,6 +553,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             'with' => $with,
             'period.start' => $startDate,
             'period.end' => $endDate,
+            'status' => '',
             'lang' => $this->getLanguage(),
         ];
 
@@ -979,7 +981,6 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             if ($today) {
                 $currentWeek = true;
             }
-            $openNow = $data['times']['status'] >= 1 ? true : false;
         }
 
         $result = compact('schedules', 'openToday', 'currentWeek');
