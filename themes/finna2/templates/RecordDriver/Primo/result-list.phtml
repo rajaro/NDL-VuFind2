@@ -203,7 +203,7 @@
               <strong><?=$this->transEsc("Saved in")?>:</strong>
             </div>
         <?php endif; ?>
-        <?php if ($this->layout()->templateDir === 'list' || $this->layout()->templateDir === 'content' || $this->layout()->templateDir === 'search' && $this->layout()->templateName !== 'results'): ?>
+        <?php if ($this->layout()->templateDir === 'list' || $this->layout()->templateDir === 'content' || ($this->layout()->templateDir === 'search' && $this->layout()->templateName !== 'results')): ?>
         <div class="">
           <div class="">
             <?=$this->render('list/list-notes.phtml')?>

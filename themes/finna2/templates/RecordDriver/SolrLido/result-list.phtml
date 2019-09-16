@@ -72,7 +72,7 @@ if ($img):
         <?php endif; ?>
         <?=$this->record($this->driver)->getOnlineUrls('results')?>
         <?=$this->record($this->driver)->getPreviews()?>
-        <?php if ($this->layout()->templateDir === 'list' || $this->layout()->templateDir === 'content' || $this->layout()->templateDir === 'search' && $this->layout()->templateName !== 'results'): ?>
+        <?php if ($this->layout()->templateDir === 'list' || $this->layout()->templateDir === 'content' || ($this->layout()->templateDir === 'search' && $this->layout()->templateName !== 'results')): ?>
           <?=$this->render('list/list-notes.phtml')?>
         <?php endif; ?>
 
