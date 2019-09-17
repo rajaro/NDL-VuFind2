@@ -916,7 +916,6 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             'friday', 'saturday', 'sunday'
         ];
 
-        $openNow = null;
         $openToday = false;
         $currentWeek = false;
         foreach ($data['schedule'] as $day) {
@@ -984,7 +983,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
         }
 
         $result = compact('schedules', 'openToday', 'currentWeek');
-        $result['openNow'] = $openNow;
+        $result['openNow'] = $data['status'];
         return $result;
     }
 
