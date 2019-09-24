@@ -361,7 +361,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
                     $logos = $response['items'][0]['logo'];
                     foreach (['small', 'medium'] as $size) {
                         if (isset($logos[$size])) {
-                            $logo = $logos[$size];
+                            $logo = $logos[$size]['url'];
                             break;
                         }
                     }

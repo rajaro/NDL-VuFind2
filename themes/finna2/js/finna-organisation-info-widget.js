@@ -107,7 +107,14 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
             if (currentSelfservice === null || selfservice !== currentSelfservice) {
               var timeRow = timeRowTpl.clone();
               timeRow.find('.date').text(date + ' ' + day);
-
+              if (tind === 0 && obj.times.length > 1) {
+                var firstElement = obj.times[0];
+                var lastElement = obj.times[obj.times.length - 1];
+                timeRow.find('.opens').text(firstElement.opens);
+                timeRow.find('.closes').text(lastElement.closes);
+                dayRow.append(timeRow);
+                timeRow = timeRowTpl.clone();
+              }
               if (info == null) {
                 timeRow.find('.info').hide();
               } else {
