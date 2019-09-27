@@ -161,9 +161,7 @@ if ($img):
         <?=$recordHelper->getOnlineUrls('results');?>
         <?=$recordHelper->getPreviews();?>
 
-        <?php if ($this->layout()->templateDir === 'list' || $this->layout()->templateDir === 'content' || ($this->layout()->templateDir === 'search' && $this->layout()->templateName !== 'results')): ?>
-            <?=$this->render('list/list-notes.phtml')?>
-        <?php endif; ?>
+        <?=$this->render('list/list-notes.phtml')?>
 
         <div class="clearfix"></div>
         <?php if ($this->userlist()->getMode() !== 'disabled'): ?>
