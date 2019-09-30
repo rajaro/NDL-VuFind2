@@ -482,6 +482,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
                 'usage_info' => $response['usageInfo'],
                 'notification' => $response['notification'],
                 'finna_coverage' => $response['finnaCoverage'],
+                'usage_perc' => $response['finnaCoverage'],
             ];
 
             if (isset($response['links'])) {
