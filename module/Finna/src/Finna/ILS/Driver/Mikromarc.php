@@ -152,6 +152,9 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
                 'default_sort' => 'everything desc',
             ];
         }
+        if ('getTitleHoldBibLevels' === $function) {
+            return $this->getTitleHoldBibLevels();
+        }
         $functionConfig = $this->config[$function] ?? false;
         if ($functionConfig && 'onlinePayment' === $function) {
             $functionConfig['exactBalanceRequired'] = true;
@@ -1456,6 +1459,43 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
         return $checkRequired(
             $config['registrationParams'], $registrationParams, $throwException
         );
+    }
+
+    /**
+     * Get bibliograpcic levels for which title hold is allowed from ini file
+     *
+     * @return array|boolean array of bibliographic levels or false if not configured
+     */
+    public function getTitleHoldBibLevels()
+    {
+        if (isset($this->config['Holds']['titleHoldBibLevels'])) {
+            $itemTypes = explode(':', $this->config['Holds']['titleHoldBibLevels']);
+            $result = [];
+            foreach ($itemTypes as $type) {
+                switch (strtoupper($type)) {
+                case 'M': // Monograph
+                    $result[] = "monograph";
+                    break;
+                case 'S': // Serial
+                    $result[] = "serial";
+                    break;
+                case 'A': // Monograph Part
+                    $result[] = "monographpart";
+                    break;
+                case 'B': // Serial Part
+                    $result[] = "serialpart";
+                    break;
+                case 'C': // Collection
+                    $result[] = "collection";
+                    break;
+                case 'D': // Collection Part
+                    $result[] = "collectionpart";
+                    break;
+                }
+            }
+            return $result;
+        }
+        return false;
     }
 
     /**

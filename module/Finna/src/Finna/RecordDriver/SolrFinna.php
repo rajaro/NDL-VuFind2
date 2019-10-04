@@ -43,7 +43,7 @@ namespace Finna\RecordDriver;
 trait SolrFinna
 {
     use FinnaRecord;
-
+    use IlsAwareTrait;
     /**
      * Search settings
      *
