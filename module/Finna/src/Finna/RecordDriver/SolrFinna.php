@@ -43,7 +43,6 @@ namespace Finna\RecordDriver;
 trait SolrFinna
 {
     use FinnaRecord;
-    use IlsAwareTrait;
     /**
      * Search settings
      *
@@ -985,5 +984,29 @@ trait SolrFinna
     public function getMusicBrainzIdentifiers()
     {
         return $this->fields['mbid_str_mv'] ?? [];
+    }
+
+    /**
+     * Get a link for placing a title level hold.
+     *
+     * @return mixed A url if a hold is possible, boolean false if not
+     */
+    public function getRealTimeTitleHold()
+    {
+        $biblioLevel = strtolower($this->tryMethod('getBibliographicLevel'));
+        if ($this->hasILS()) {
+            if ($bibLevels = $this->ils->getConfig('getTitleHoldBibLevels')) {
+                if (in_array($biblioLevel, $bibLevels)) {
+                    if ($this->ils->getTitleHoldsMode() != "disabled") {
+                        return $this->titleHoldLogic->getHold($this->getUniqueID());
+                    }
+                }
+            } elseif ("monograph" == $biblioLevel || strstr($biblioLevel, "part")) {
+                if ($this->ils->getTitleHoldsMode() != "disabled") {
+                    return $this->titleHoldLogic->getHold($this->getUniqueID());
+                }
+            }
+        }
+        return false;
     }
 }

@@ -34,7 +34,7 @@ notAllowedForHold = ClaimedReturnedOrNeverBorrowed:Lost:SuppliedReturnNotRequire
 ShowLinkOnCopy = false
 
 ; List of bibliographic levels for which title hold is allowed
-;titleHoldBibLevels =
+titleHoldBibLevels = m:a:b:d:s
 
 [Holdings]
 ; By default the holdings location list is sorted alphabetically. This setting can be
