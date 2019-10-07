@@ -1469,31 +1469,8 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
     public function getTitleHoldBibLevels()
     {
         if (isset($this->config['Holds']['titleHoldBibLevels'])) {
-            $itemTypes = explode(':', $this->config['Holds']['titleHoldBibLevels']);
-            $result = [];
-            foreach ($itemTypes as $type) {
-                switch (strtoupper($type)) {
-                case 'M': // Monograph
-                    $result[] = "monograph";
-                    break;
-                case 'S': // Serial
-                    $result[] = "serial";
-                    break;
-                case 'A': // Monograph Part
-                    $result[] = "monographpart";
-                    break;
-                case 'B': // Serial Part
-                    $result[] = "serialpart";
-                    break;
-                case 'C': // Collection
-                    $result[] = "collection";
-                    break;
-                case 'D': // Collection Part
-                    $result[] = "collectionpart";
-                    break;
-                }
-            }
-            return $result;
+            $bibLevels = explode(':', $this->config['Holds']['titleHoldBibLevels']);
+            return $bibLevels;
         }
         return false;
     }
@@ -1547,7 +1524,14 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             ];
 
             $unit = $this->getLibraryUnit($unitId);
+            $number = '';
 
+            // Special case: detect if Shelf field has issue number information
+            // (e.g. 2018: 4) and put the info into number field instead
+            if (preg_match('/^\d{4}:\d+$/', $item['Shelf']) === 1) {
+                $number = $item['Shelf'];
+                $item['Shelf'] = '';
+            }
             $entry = [
                 'id' => $id,
                 'item_id' => $item['Id'],
@@ -1563,6 +1547,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
                 'duedate' => null,
                 'barcode' => $item['Barcode'],
                 'item_notes' => [isset($items['notes']) ? $item['notes'] : null],
+                'number' => $number,
             ];
 
             if (!empty($item['LocationId'])) {
@@ -1610,6 +1595,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
     protected function getHoldingsSummary($holdings)
     {
         $holdable = false;
+        $titleHold = true;
         $availableTotal = $itemsTotal = $orderedTotal = $reservationsTotal = 0;
         $locations = [];
         foreach ($holdings as $item) {
@@ -1625,6 +1611,9 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
 
             if ($item['is_holdable']) {
                 $holdable = true;
+            }
+            if (!empty($item['number'])) {
+                $titleHold = false;
             }
             $itemsTotal++;
         }
@@ -1642,7 +1631,8 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
            'availability' => null,
            'callnumber' => null,
            'location' => null,
-           'groupBranches' => false
+           'groupBranches' => false,
+           'titleHold' => $titleHold
         ];
     }
 
@@ -2138,5 +2128,26 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             return $this->holdError($code, $result);
         }
         return ['success' => true];
+    }
+
+    /**
+     * Check if request is valid
+     *
+     * This is responsible for determining if an item is requestable
+     *
+     * @param string $id     The Bib ID
+     * @param array  $data   An Array of item data
+     * @param patron $patron An array of patron data
+     *
+     * @return bool True if request is valid, false if not
+     */
+    public function checkRequestIsValid($id, $data, $patron)
+    {
+        $items = $this->getStatus($id);
+        $summary = $items[count($items) - 1];
+        if (!$summary['titleHold']) {
+            return false;
+        }
+        return true;
     }
 }
