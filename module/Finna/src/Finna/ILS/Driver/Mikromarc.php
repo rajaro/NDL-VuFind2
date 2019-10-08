@@ -2144,8 +2144,8 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
     public function checkRequestIsValid($id, $data, $patron)
     {
         $items = $this->getStatus($id);
-        $summary = $items[count($items) - 1];
-        if (!$summary['titleHold']) {
+        $summary = array_pop($items);
+        if (isset($summary['titleHold']) && $summary['titleHold'] === false) {
             return false;
         }
         return true;
