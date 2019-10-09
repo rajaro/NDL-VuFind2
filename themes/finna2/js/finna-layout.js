@@ -655,6 +655,7 @@ finna.layout = (function finnaLayout() {
   function initVideoButtons() {
     finna.videoPopup.initVideoPopup($('body'));
     finna.videoPopup.initIframeEmbed($('body'));
+    finna.videoPopup.initVideoInline($('body'));
   }
 
   function loadScripts(scripts, callback) {

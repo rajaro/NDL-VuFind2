@@ -137,6 +137,41 @@ finna.videoPopup = (function finnaVideoPopup() {
       });
   }
 
+  function initVideoInline(_container) {
+    var container = typeof _container === 'undefined' ? $('body') : $(_container);
+
+    function changeCurrentVideo(video) {
+      var videoSources = video.data('videoSources');
+      var scripts = video.data('scripts');
+      var posterUrl = video.data('posterUrl');
+      var videoPlayer = "<video id='video-player' class='video-js vjs-big-play-centered' controls></video>"
+      $('.inline-video').html(videoPlayer);
+      $(this).css('border', '3px solid black');
+      finna.layout.loadScripts(scripts, function onScriptsLoaded() {
+        initVideoJs('.inline-video', videoSources, posterUrl);
+      });
+    }
+    function updateVideoButtons(activeVideo) {
+      container.find('[data-inline]').each(function updateButtons() {
+        $(this).removeClass('active-video');
+      });
+      activeVideo.addClass('active-video');
+    }
+    if (container.find('[data-inline]').length > 0) {
+      var defaultVideo = container.find('[data-inline]').first();
+      if (container.find('[data-inline]').length < 2 ) {
+        container.find('[data-inline]').addClass('hidden');
+      }
+      changeCurrentVideo(defaultVideo);
+      updateVideoButtons(defaultVideo);
+    }
+
+    container.find('[data-inline]').click(function onClickVideo(/*e*/) {
+      changeCurrentVideo($(this));
+      updateVideoButtons($(this));
+    });
+  }
+
   function initVideoPopup(_container) {
     var container = typeof _container === 'undefined' ? $('body') : $(_container);
 
@@ -217,6 +252,7 @@ finna.videoPopup = (function finnaVideoPopup() {
 
   var my = {
     initVideoPopup: initVideoPopup,
+    initVideoInline: initVideoInline,
     initVideoJs: initVideoJs,
     initIframeEmbed: initIframeEmbed,
   };

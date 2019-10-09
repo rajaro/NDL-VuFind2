@@ -1110,7 +1110,7 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
                 if ($this->urlBlacklisted($url, $description)) {
                     continue;
                 }
-
+                $modal = $this->recordConfig->Record->modal ?? '';
                 $videoUrls[] = [
                     'url' => $url,
                     'posterUrl' => $poster,
@@ -1119,7 +1119,8 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
                     'text' => $description ? $description : $videoType,
                     'desc' => $description ? $description : $videoType,
                     'source' => $source,
-                    'embed' => 'video'
+                    'embed' => 'video',
+                    'modal' => $modal
                 ];
             }
         }

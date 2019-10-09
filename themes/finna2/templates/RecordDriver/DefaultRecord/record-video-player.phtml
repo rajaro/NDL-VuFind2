@@ -37,7 +37,12 @@
     }
 
     if (!empty($url['embed']) && $url['embed'] === 'video') {
-      $currentVideo['data-embed-video'] = '';
+      if (isset($this->modal) && $this->modal === false) {
+        $currentVideo['data-inline'] = '';
+      } else {
+        $currentVideo['data-embed-video'] = '';
+      }
+
     }
     ?>
     <div class="video-link-container">
