@@ -7,7 +7,7 @@
   $this->htmlElement()->addAttributeTemplate('video-base', $videoElementBase);
   $videoScripts = $this->partial('Helpers/videojs-urls.phtml');
 ?>
-<div class="video-accordion">
+<div class="video-accordion accordion">
   <?php foreach ($videoUrls as $url): ?>
     <?php
     $embeddedVideo = $this->recordLink()->getEmbeddedVideo($url['url']);
@@ -37,19 +37,16 @@
     }
 
     if (!empty($url['embed']) && $url['embed'] === 'video') {
-      if (isset($this->modal) && $this->modal === false) {
+      if (isset($this->videoPopup) && $this->videoPopup === false) {
         $currentVideo['data-inline'] = '';
       } else {
         $currentVideo['data-embed-video'] = '';
       }
-
     }
     ?>
-    <div class="video-link-container">
-      <button <?=$this->htmlElement()->getAttributes($currentVideo, 'video-base');?>>
+    <div class="video-link-container accordion-toggle <?=$this->htmlElement()->getAttributes($currentVideo);?>">
         <i class="fa fa-play-circle"></i>
-        <?=$description?>
-      </button>
+        <?=ucfirst($description)?>
     </div>
   <?php endforeach; ?>
 </div>

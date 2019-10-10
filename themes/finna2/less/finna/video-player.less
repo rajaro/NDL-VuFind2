@@ -28,6 +28,16 @@
   height: 400px;
   position: absolute;
 }
-.active-video {
-  border: 3px solid darkblue;
+.video-accordion {
+  margin-bottom: 5px;
+  .accordion-toggle {
+    display: block;
+    margin-bottom: 0px;
+  }
+  .active-video {
+    background-color: @brand-primary;
+    color: white;
+    border-left: 4px solid @action-link-color;
+
+  }
 }

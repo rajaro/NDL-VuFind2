@@ -13,12 +13,12 @@
     if (!empty($urls)){
       $videoUrls = [];
       $otherUrls = [];
-      $modal = false;
+      $videoPopup = false;
       foreach ($urls as $url) {
         if(!empty($url['videoSources']) || !empty($url['embed']) && $url['embed'] == 'video' || $this->recordLink()->getEmbeddedVideo($url['url']) == 'data-embed-iframe'){
           array_push($videoUrls, $url);
-          if ($url['modal']) {
-            $modal = true;
+          if (!empty($url['videoPopup'])) {
+            $videoPopup = true;
           }
           $renderedURLs[] = $url['url'];
         }
@@ -41,7 +41,7 @@
   <div class="media-<?=$thumbnailAlignment ?>">
 
     <?php if (!empty($videoUrls)): ?>
-      <?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward', 'modal' => $modal]);?>
+      <?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward', 'videoPopup' => $videoPopup]);?>
     <?php endif; ?>
 
     <?=$this->record($this->driver)->renderTemplate('record-image-information.phtml', ['img' => $img, 'sizes' => ['small' => ['w' => 100, 'h' => 100], 'medium' => ['w' => 1200, 'h' => 1200]]]);?>
@@ -57,7 +57,7 @@
   <?php $thumbnail = ob_get_contents(); ?>
 <?php ob_end_clean(); ?>
 <?php $this->headScript()->appendFile("finna-record.js"); ?>
-<?php if (!empty($videoUrls) && !$modal): ?>
+<?php if (!empty($videoUrls) && !$videoPopup): ?>
   <div class="inline-video-container">
     <div class="inline-video"></div>
   </div>
