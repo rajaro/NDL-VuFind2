@@ -70,4 +70,19 @@
     </div>
   </div>
 </div>
+<div class="clearfix"></div>
+<div><?= $this->feed("carousel"); ?></div>
+<div><?= $this->feed("carousel-small"); ?></div>
+<div>
+  <div class="home-column"><?= $this->feed("news"); ?></div>
+  <?=$this->render("Helpers/login-helper.phtml");?>
+  <div class="home-column"><?= $this->feed("carousel-vertical"); ?></div>
+</div>
+<div>
+  <h3><?=$this->transEsc('most_popular_searches_heading')?></h3>
+  <div class="piwik-popular-searches popular-search-col">
+    <span class="load-indicator hidden"><i class="fa fa-spinner fa-spin"></i> <?=$this->transEsc('Loading')?>...</span>
+    <span class="load-failed hidden"> <?=$this->transEsc('An error occurred during execution; please try again later.')?></span>
+  </div>
+</div>
 <!-- END of: finna - search/home/home-1.phtml -->
