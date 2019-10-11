@@ -46,7 +46,7 @@
     ?>
     <div class="video-link-container accordion-toggle <?=$this->htmlElement()->getAttributes($currentVideo);?>">
         <i class="fa fa-play-circle"></i>
-        <?=ucfirst($description)?>
+        <span class="video-desc"><?=ucfirst($description)?></span>
     </div>
   <?php endforeach; ?>
 </div>

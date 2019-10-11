@@ -146,16 +146,11 @@ finna.videoPopup = (function finnaVideoPopup() {
       var posterUrl = video.data('posterUrl');
       var videoPlayer = "<video id='video-player' class='video-js vjs-big-play-centered' controls></video>"
       $('.inline-video').html(videoPlayer);
-      $(this).css('border', '3px solid black');
+      container.find('[data-inline].active-video').removeClass('active-video');
+      video.addClass('active-video');
       finna.layout.loadScripts(scripts, function onScriptsLoaded() {
         initVideoJs('.inline-video', videoSources, posterUrl);
       });
-    }
-    function updateVideoButtons(activeVideo) {
-      container.find('[data-inline]').each(function updateButtons() {
-        $(this).removeClass('active-video');
-      });
-      activeVideo.addClass('active-video');
     }
     if (container.find('[data-inline]').length > 0) {
       var defaultVideo = container.find('[data-inline]').first();
@@ -163,12 +158,10 @@ finna.videoPopup = (function finnaVideoPopup() {
         container.find('[data-inline]').addClass('hidden');
       }
       changeCurrentVideo(defaultVideo);
-      updateVideoButtons(defaultVideo);
     }
 
     container.find('[data-inline]').click(function onClickVideo(/*e*/) {
       changeCurrentVideo($(this));
-      updateVideoButtons($(this));
     });
   }
 
