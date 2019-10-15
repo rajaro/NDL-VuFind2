@@ -7,7 +7,7 @@
   $this->htmlElement()->addAttributeTemplate('video-base', $videoElementBase);
   $videoScripts = $this->partial('Helpers/videojs-urls.phtml');
 ?>
-<div class="video-accordion accordion">
+<div class="video-accordion">
   <?php foreach ($videoUrls as $url): ?>
     <?php
     $embeddedVideo = $this->recordLink()->getEmbeddedVideo($url['url']);
@@ -37,17 +37,17 @@
     }
 
     if (!empty($url['embed']) && $url['embed'] === 'video') {
-      if (isset($this->videoPopup) && $this->videoPopup === false) {
+      if (!empty($this->embedVideo)) {
         $currentVideo['data-inline'] = '';
       } else {
         $currentVideo['data-embed-video'] = '';
       }
     }
     ?>
-    <div class="video-link-container accordion-toggle <?=$this->htmlElement()->getAttributes($currentVideo);?>">
+    <button class="video-link-container <?= empty($embedVideo) ? 'active-video' : ''?> <?=$this->htmlElement()->getAttributes($currentVideo, 'video-base');?>">
         <i class="fa fa-play-circle"></i>
-        <span class="video-desc"><?=ucfirst($description)?></span>
-    </div>
+        <span class="video-desc"><?=$this->truncate(ucfirst($description) . 'asdasd asdasd dasd asda s', 25)?></span>
+  </button>
   <?php endforeach; ?>
 </div>
 <!-- END of: finna - RecordDriver/DefaultRecord/record-video-player.phtml -->

@@ -9,17 +9,14 @@
   $onlineURLs = $this->driver->getOnlineURLs();
   $mergedData = $this->driver->tryMethod('getMergedRecordData');
   $renderedURLs = [];
+  $embedVideo = $this->driver->tryMethod('getEmbedVideoConfig');
   if (!empty($urls) || $openUrlActive || !empty($onlineURLs) || !empty($mergedData['urls'])){
     if (!empty($urls)){
       $videoUrls = [];
       $otherUrls = [];
-      $videoPopup = false;
       foreach ($urls as $url) {
         if(!empty($url['videoSources']) || !empty($url['embed']) && $url['embed'] == 'video' || $this->recordLink()->getEmbeddedVideo($url['url']) == 'data-embed-iframe'){
           array_push($videoUrls, $url);
-          if (!empty($url['videoPopup'])) {
-            $videoPopup = true;
-          }
           $renderedURLs[] = $url['url'];
         }
         else {
@@ -40,8 +37,8 @@
   ob_start(); ?>
   <div class="media-<?=$thumbnailAlignment ?>">
 
-    <?php if (!empty($videoUrls)): ?>
-      <?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward', 'videoPopup' => $videoPopup]);?>
+    <?php if (!empty($videoUrls) && empty($embedVideo)): ?>
+      <?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward', 'embedVideo' => $embedVideo]);?>
     <?php endif; ?>
 
     <?=$this->record($this->driver)->renderTemplate('record-image-information.phtml', ['img' => $img, 'sizes' => ['small' => ['w' => 100, 'h' => 100], 'medium' => ['w' => 1200, 'h' => 1200]]]);?>
@@ -57,9 +54,13 @@
   <?php $thumbnail = ob_get_contents(); ?>
 <?php ob_end_clean(); ?>
 <?php $this->headScript()->appendFile("finna-record.js"); ?>
-<?php if (!empty($videoUrls) && !$videoPopup): ?>
+<?php if (!empty($videoUrls) && !empty($embedVideo)): ?>
   <div class="inline-video-container">
     <div class="inline-video"></div>
+    <div class="video-buttons"><?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward', 'embedVideo' => $embedVideo]);?></div>
+  </div>
+  <div>
+    <?=$this->record($this->driver)->getToolbar()?>
   </div>
 <?php endif; ?>
 <div class="media" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">

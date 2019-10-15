@@ -1110,7 +1110,6 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
                 if ($this->urlBlacklisted($url, $description)) {
                     continue;
                 }
-                $videoPopup = $this->recordConfig->Record->videoPopup ?? '';
                 $videoUrls[] = [
                     'url' => $url,
                     'posterUrl' => $poster,
@@ -1120,11 +1119,20 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
                     'desc' => $description ? $description : $videoType,
                     'source' => $source,
                     'embed' => 'video',
-                    'videoPopup' => $videoPopup
                 ];
             }
         }
         return $videoUrls;
+    }
+
+    /**
+     * Return embed video config
+     *
+     * @return boolean
+     */
+    public function getEmbedVideoConfig()
+    {
+        return !empty($this->recordConfig->Record->embed_video);
     }
 
     /**

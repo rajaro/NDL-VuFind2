@@ -70,14 +70,18 @@
       $this->layout()->userLang, $params
   );
   $noImage = empty($images[0]['urls']['medium']) && empty($images[0]['urls']['large']);
-  $largeImageLayout = !$noImage && in_array($this->driver->tryMethod('getRecordType'), ['lido', 'forward', 'ead']);
+  $recordType = $this->driver->tryMethod('getRecordType');
+  $largeImageLayout = !$noImage && in_array($recordType, ['lido', 'forward', 'ead']);
+  $inlineVideo = $this->driver->tryMethod('getEmbedVideoConfig') === true && $recordType === 'forward';
 ?>
 </div>
 <div class="container">
 <div class="record source<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?> record-row <?= $largeImageLayout ? 'large-image-layout' : '' ?>">
-  <div>
+  <?php if (!$inlineVideo): ?>
+    <div>
       <?=$this->record($this->driver)->getToolbar()?>
-  </div>
+    </div>
+  <?php endif; ?>
   <div class="record-main <?= !$largeImageLayout ? 'mainbody left' : ''?>">
     <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" class="hiddenId" />
     <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier()) ?>" class="hiddenSource" />
