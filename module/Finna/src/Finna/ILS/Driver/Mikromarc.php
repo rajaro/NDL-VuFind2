@@ -1525,12 +1525,13 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
 
             $unit = $this->getLibraryUnit($unitId);
             $number = '';
+            $shelf = $item['Shelf'];
 
             // Special case: detect if Shelf field has issue number information
             // (e.g. 2018: 4) and put the info into number field instead
-            if (preg_match('/^\d{4}:\d+$/', $item['Shelf']) === 1) {
-                $number = $item['Shelf'];
-                $item['Shelf'] = '';
+            if (preg_match('/^\d{4}:\d+$/', $shelf) === 1) {
+                $number = $shelf;
+                $shelf = '';
             }
             $entry = [
                 'id' => $id,
@@ -1543,7 +1544,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
                 'availability' => $available,
                 'status' => $statusCode,
                 'reserve' => 'N',
-                'callnumber' => $item['Shelf'],
+                'callnumber' => $shelf,
                 'duedate' => null,
                 'barcode' => $item['Barcode'],
                 'item_notes' => [isset($items['notes']) ? $item['notes'] : null],
@@ -2143,10 +2144,14 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function checkRequestIsValid($id, $data, $patron)
     {
-        $items = $this->getStatus($id);
-        $summary = array_pop($items);
-        if (isset($summary['titleHold']) && $summary['titleHold'] === false) {
-            return false;
+        if ('title' === $data['level']) {
+            $items = $this->getStatus($id);
+            $summary = array_pop($items);
+            if ((isset($summary['titleHold']) && $summary['titleHold'] === false)
+                || !$summary['holdable']
+            ) {
+                return false;
+            }
         }
         return true;
     }
