@@ -1528,7 +1528,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             $shelf = $item['Shelf'];
 
             // Special case: detect if Shelf field has issue number information
-            // (e.g. 2018: 4) and put the info into number field instead
+            // (e.g. 2018:4) and put the info into number field instead
             if (preg_match('/^\d{4}:\d+$/', $shelf) === 1) {
                 $number = $shelf;
                 $shelf = '';
