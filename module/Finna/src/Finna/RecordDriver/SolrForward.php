@@ -1126,16 +1126,6 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
     }
 
     /**
-     * Return embed video config
-     *
-     * @return boolean
-     */
-    public function getEmbedVideoConfig()
-    {
-        return !empty($this->recordConfig->Record->embed_video);
-    }
-
-    /**
      * Return production cost
      *
      * @return string

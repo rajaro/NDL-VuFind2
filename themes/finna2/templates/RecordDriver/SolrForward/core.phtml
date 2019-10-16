@@ -9,7 +9,7 @@
   $onlineURLs = $this->driver->getOnlineURLs();
   $mergedData = $this->driver->tryMethod('getMergedRecordData');
   $renderedURLs = [];
-  $embedVideo = $this->driver->tryMethod('getEmbedVideoConfig');
+  $embedVideo = $this->record($this->driver)->getEmbedVideo();
   if (!empty($urls) || $openUrlActive || !empty($onlineURLs) || !empty($mergedData['urls'])){
     if (!empty($urls)){
       $videoUrls = [];

@@ -72,7 +72,8 @@
   $noImage = empty($images[0]['urls']['medium']) && empty($images[0]['urls']['large']);
   $recordType = $this->driver->tryMethod('getRecordType');
   $largeImageLayout = !$noImage && in_array($recordType, ['lido', 'forward', 'ead']);
-  $inlineVideo = $this->driver->tryMethod('getEmbedVideoConfig') === true && $recordType === 'forward';
+  $urls = $this->driver->tryMethod('getURLs');
+  $inlineVideo = $this->record($this->driver)->getEmbedVideo() && $recordType === 'forward' && !empty($urls);
 ?>
 </div>
 <div class="container">

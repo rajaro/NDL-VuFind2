@@ -7,7 +7,7 @@
   $this->htmlElement()->addAttributeTemplate('video-base', $videoElementBase);
   $videoScripts = $this->partial('Helpers/videojs-urls.phtml');
 ?>
-<div class="video-accordion">
+<div class="video-accordion <?= !empty($this->embedVideo) ? 'container' : ''?>">
   <?php foreach ($videoUrls as $url): ?>
     <?php
     $embeddedVideo = $this->recordLink()->getEmbeddedVideo($url['url']);
@@ -44,9 +44,9 @@
       }
     }
     ?>
-    <button class="video-link-container <?= empty($embedVideo) ? 'active-video' : ''?> <?=$this->htmlElement()->getAttributes($currentVideo, 'video-base');?>">
+    <button class="video-link-container <?= empty($this->embedVideo) ? 'active-video' : ''?> <?=$this->htmlElement()->getAttributes($currentVideo, 'video-base');?>">
         <i class="fa fa-play-circle"></i>
-        <span class="video-desc"><?=$this->truncate(ucfirst($description) . 'asdasd asdasd dasd asda s', 25)?></span>
+        <span class="video-desc"><?=$this->truncate(ucfirst($description), 30)?></span>
   </button>
   <?php endforeach; ?>
 </div>

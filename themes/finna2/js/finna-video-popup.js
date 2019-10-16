@@ -140,7 +140,7 @@ finna.videoPopup = (function finnaVideoPopup() {
   function initVideoInline(_container) {
     var container = typeof _container === 'undefined' ? $('body') : $(_container);
 
-    function changeCurrentVideo(video) {
+    var changeCurrentVideo = function changeCurrentVideo(video) {
       var videoSources = video.data('videoSources');
       var scripts = video.data('scripts');
       var posterUrl = video.data('posterUrl');
