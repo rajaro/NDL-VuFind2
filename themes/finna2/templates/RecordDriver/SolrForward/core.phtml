@@ -9,7 +9,7 @@
   $onlineURLs = $this->driver->getOnlineURLs();
   $mergedData = $this->driver->tryMethod('getMergedRecordData');
   $renderedURLs = [];
-  $embedVideo = $this->record($this->driver)->getEmbedVideo();
+  $inlineVideo = $this->record($this->driver)->getInlineVideo();
   if (!empty($urls) || $openUrlActive || !empty($onlineURLs) || !empty($mergedData['urls'])){
     if (!empty($urls)){
       $videoUrls = [];
@@ -37,8 +37,8 @@
   ob_start(); ?>
   <div class="media-<?=$thumbnailAlignment ?>">
 
-    <?php if (!empty($videoUrls) && empty($embedVideo)): ?>
-      <?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward', 'embedVideo' => $embedVideo]);?>
+    <?php if (!empty($videoUrls) && empty($inlineVideo)): ?>
+      <?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward', 'inlineVideo' => $inlineVideo]);?>
     <?php endif; ?>
 
     <?=$this->record($this->driver)->renderTemplate('record-image-information.phtml', ['img' => $img, 'sizes' => ['small' => ['w' => 100, 'h' => 100], 'medium' => ['w' => 1200, 'h' => 1200]]]);?>
@@ -54,10 +54,10 @@
   <?php $thumbnail = ob_get_contents(); ?>
 <?php ob_end_clean(); ?>
 <?php $this->headScript()->appendFile("finna-record.js"); ?>
-<?php if (!empty($videoUrls) && !empty($embedVideo)): ?>
+<?php if (!empty($videoUrls) && !empty($inlineVideo)): ?>
   <div class="inline-video-container">
     <div class="inline-video"></div>
-    <div class="video-buttons"><?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward', 'embedVideo' => $embedVideo]);?></div>
+    <div class="video-buttons"><?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward', 'inlineVideo' => $inlineVideo]);?></div>
   </div>
   <div>
     <?=$this->record($this->driver)->getToolbar()?>

@@ -773,6 +773,9 @@ recordMap = openlayers
 ; layout. Disabled by default.
 ; enableImagePopupZoom = true
 
+; Whether to embed video in the record page. Only applies to forward records.
+;inlineVideo = true
+
 [QRCode]
 ; This setting controls the image to display when no qrcode is available.
 ; The path is relative to the base of your theme directory.

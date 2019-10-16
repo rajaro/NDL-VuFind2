@@ -520,13 +520,13 @@ class Record extends \VuFind\View\Helper\Root\Record
     }
 
     /**
-     * Return if video embedding is enabled in config
+     * Is video embedding on record page is enabled in config
      *
      * @return boolean
      */
-    public function getEmbedVideo()
+    public function getInlineVideo()
     {
-        return isset($this->config->Content->embedVideo)
-            && $this->config->Content->embedVideo === '1';
+        return isset($this->config->Content->inlineVideo)
+            && $this->config->Content->inlineVideo === '1';
     }
 }
