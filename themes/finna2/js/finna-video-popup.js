@@ -146,11 +146,12 @@ finna.videoPopup = (function finnaVideoPopup() {
       var posterUrl = video.data('posterUrl');
       var videoPlayer = "<video id='video-player' class='video-js vjs-big-play-centered' controls></video>"
       $('.inline-video').html(videoPlayer);
-      container.find('[data-inline].active-video').removeClass('active-video');
-      video.addClass('active-video');
+      container.find('[data-inline].active-video').removeClass('active-video').attr('aria-selected', false);
+      video.addClass('active-video').attr('aria-selected', true);
       finna.layout.loadScripts(scripts, function onScriptsLoaded() {
         initVideoJs('.inline-video', videoSources, posterUrl);
       });
+      $('.vjs-big-play-button').focus();
     }
     if (container.find('[data-inline]').length > 0) {
       var defaultVideo = container.find('[data-inline]').first();

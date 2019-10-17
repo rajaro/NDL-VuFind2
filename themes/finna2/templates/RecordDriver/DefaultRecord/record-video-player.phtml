@@ -44,7 +44,8 @@
       }
     }
     ?>
-    <button class="video-link-container <?= empty($this->inlineVideo) ? 'active-video' : ''?> <?=$this->htmlElement()->getAttributes($currentVideo, 'video-base');?>">
+    <button class="video-link-container <?= empty($this->inlineVideo) ? 'active-video' : ''?> <?=$this->htmlElement()->getAttributes($currentVideo, 'video-base');?>"
+      aria-label="<?= $this->transEsc('Link to video') . ' ' . $description ?>">
         <i class="fa fa-play-circle"></i>
         <span class="video-desc"><?=$this->truncate(ucfirst($description), 30)?></span>
   </button>
