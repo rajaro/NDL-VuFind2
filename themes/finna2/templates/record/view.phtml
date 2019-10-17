@@ -76,7 +76,7 @@
 <div class="container">
 <div class="record source<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?> record-row <?= $largeImageLayout ? 'large-image-layout' : '' ?>">
   <div>
-    <?=$this->record($this->driver)->getToolbar()?>
+      <?=$this->record($this->driver)->getToolbar()?>
   </div>
   <div class="record-main <?= !$largeImageLayout ? 'mainbody left' : ''?>">
     <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" class="hiddenId" />
