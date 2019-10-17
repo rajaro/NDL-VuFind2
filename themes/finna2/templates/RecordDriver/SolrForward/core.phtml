@@ -38,7 +38,7 @@
   <div class="media-<?=$thumbnailAlignment ?>">
 
     <?php if (!empty($videoUrls) && empty($inlineVideo)): ?>
-      <?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward', 'inlineVideo' => $inlineVideo]);?>
+      <?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward']);?>
     <?php endif; ?>
 
     <?=$this->record($this->driver)->renderTemplate('record-image-information.phtml', ['img' => $img, 'sizes' => ['small' => ['w' => 100, 'h' => 100], 'medium' => ['w' => 1200, 'h' => 1200]]]);?>
@@ -55,12 +55,9 @@
 <?php ob_end_clean(); ?>
 <?php $this->headScript()->appendFile("finna-record.js"); ?>
 <?php if (!empty($videoUrls) && !empty($inlineVideo)): ?>
-  <div class="inline-video-container">
+  <div class="inline-video-container hidden">
     <div class="inline-video"></div>
     <div class="video-buttons"><?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward', 'inlineVideo' => $inlineVideo]);?></div>
-  </div>
-  <div>
-    <?=$this->record($this->driver)->getToolbar()?>
   </div>
 <?php endif; ?>
 <div class="media" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">

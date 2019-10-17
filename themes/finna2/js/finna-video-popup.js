@@ -154,7 +154,8 @@ finna.videoPopup = (function finnaVideoPopup() {
     }
     if (container.find('[data-inline]').length > 0) {
       var defaultVideo = container.find('[data-inline]').first();
-      $('.record-row').css('margin-top', 0);
+      $('.inline-video-container').insertAfter($('.search-form-container'));
+      $('.inline-video-container').removeClass('hidden');
       if (container.find('[data-inline]').length < 2 ) {
         container.find('[data-inline]').addClass('hidden');
       }
