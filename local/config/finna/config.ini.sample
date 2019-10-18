@@ -773,7 +773,7 @@ recordMap = openlayers
 ; layout. Disabled by default.
 ; enableImagePopupZoom = true
 
-; Whether to embed video in the record page. Only applies to forward records.
+; Whether to embed video in the record page.
 ;inlineVideo = true
 
 [QRCode]
