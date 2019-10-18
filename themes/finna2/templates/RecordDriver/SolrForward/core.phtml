@@ -9,7 +9,6 @@
   $onlineURLs = $this->driver->getOnlineURLs();
   $mergedData = $this->driver->tryMethod('getMergedRecordData');
   $renderedURLs = [];
-  $inlineVideo = $this->record($this->driver)->getInlineVideo();
   if (!empty($urls) || $openUrlActive || !empty($onlineURLs) || !empty($mergedData['urls'])){
     if (!empty($urls)){
       $videoUrls = [];
@@ -37,7 +36,7 @@
   ob_start(); ?>
   <div class="media-<?=$thumbnailAlignment ?>">
 
-    <?php if (!empty($videoUrls) && empty($inlineVideo)): ?>
+    <?php if (!empty($videoUrls)): ?>
       <?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward']);?>
     <?php endif; ?>
 
@@ -54,12 +53,6 @@
   <?php $thumbnail = ob_get_contents(); ?>
 <?php ob_end_clean(); ?>
 <?php $this->headScript()->appendFile("finna-record.js"); ?>
-<?php if (!empty($videoUrls) && !empty($inlineVideo)): ?>
-  <div class="inline-video-container hidden">
-    <div class="inline-video"></div>
-    <div class="video-buttons"><?=$this->record($this->driver)->renderTemplate('record-video-player.phtml', ['videoUrls' => $videoUrls, 'type' => 'SolrForward', 'inlineVideo' => $inlineVideo]);?></div>
-  </div>
-<?php endif; ?>
 <div class="media" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
   <h1 property="name" class="record-title visible-xs"><?=$this->escapeHtml($this->driver->getShortTitle())?><?php if ($subtitle = $this->driver->getSubtitle()): ?>&nbsp;: <?=$this->escapeHtml($subtitle) ?><?php endif; ?></h1>
   <?php if ($thumbnail && $thumbnailAlignment == 'left'): ?>

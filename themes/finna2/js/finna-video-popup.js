@@ -230,6 +230,11 @@ finna.videoPopup = (function finnaVideoPopup() {
               index: 'youtu.be/',
               id: 'youtu.be/',
               src: '//www.youtube.com/embed/%id%?autoplay=1'
+            },
+            vimeo: {
+              index: 'vimeo.com/',
+              id: '/',
+              src: '//player.vimeo.com/video/%id%',
             }
           }
         },
@@ -245,12 +250,38 @@ finna.videoPopup = (function finnaVideoPopup() {
       return false;
     });
   }
+  function initIframeInline(_container) {
+    var container = typeof _container === 'undefined' ? $('body') : _container;
+
+    var changeCurrentVideo = function changeCurrentVideo(video) {
+      var source = video.is('a') ? video.attr('href') : video.data('link');
+      var videoId = source.split('youtu.be/').pop();
+      var sourceUrl = 'https://www.youtube.com/embed/' + videoId;
+      var player = '<iframe class="embed-responsive-item" src="' + sourceUrl + '" allowfullscreen>';
+      $('.inline-video').html(player);
+      container.find('[data-inline-iframe].active-video').removeClass('active-video').attr('aria-selected', false);
+      video.addClass('active-video').attr('aria-selected', true);
+    }
+    if (container.find('[data-inline-iframe]').length > 0) {
+      var defaultVideo = container.find('[data-inline-iframe]').first();
+      $('.inline-video-container').insertAfter($('.search-form-container'));
+      $('.inline-video-container').removeClass('hidden');
+      if (container.find('[data-inline-iframe]').length < 2 ) { 
+        container.find('[data-inline-iframe]').addClass('hidden');
+      }
+      changeCurrentVideo(defaultVideo);
+    }
+    container.find('[data-inline-iframe]').click(function onClickIframeVideo(/*e*/) {
+      changeCurrentVideo($(this));
+    });
+  }
 
   var my = {
     initVideoPopup: initVideoPopup,
     initVideoInline: initVideoInline,
     initVideoJs: initVideoJs,
     initIframeEmbed: initIframeEmbed,
+    initIframeInline: initIframeInline,
   };
 
   return my;
