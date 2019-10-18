@@ -255,8 +255,17 @@ finna.videoPopup = (function finnaVideoPopup() {
 
     var changeCurrentVideo = function changeCurrentVideo(video) {
       var source = video.is('a') ? video.attr('href') : video.data('link');
-      var videoId = source.split('youtu.be/').pop();
-      var sourceUrl = 'https://www.youtube.com/embed/' + videoId;
+      var videoId = '';
+      var sourceUrl = '';
+      var vimeoVideo = source.indexOf('vimeo.com') !== -1;
+      if (vimeoVideo) {
+        videoId = source.split('vimeo.com/').pop();
+        sourceUrl = 'https://player.vimeo.com/video/' + videoId;
+      } else {
+        videoId = source.split('youtu.be/').pop();
+        sourceUrl = 'https://www.youtube.com/embed/' + videoId;
+      }
+
       var player = '<iframe class="embed-responsive-item" src="' + sourceUrl + '" allowfullscreen>';
       $('.inline-video').html(player);
       container.find('[data-inline-iframe].active-video').removeClass('active-video').attr('aria-selected', false);
