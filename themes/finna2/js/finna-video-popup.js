@@ -146,8 +146,8 @@ finna.videoPopup = (function finnaVideoPopup() {
       var posterUrl = video.data('posterUrl');
       var videoPlayer = "<video id='video-player' class='video-js vjs-big-play-centered' controls></video>"
       $('.inline-video').html(videoPlayer);
-      container.find('[data-inline].active-video').removeClass('active-video').attr('aria-selected', false);
-      video.addClass('active-video').attr('aria-selected', true);
+      container.find('[data-inline].active-video').removeClass('active-video');
+      video.addClass('active-video');
       finna.layout.loadScripts(scripts, function onScriptsLoaded() {
         initVideoJs('.inline-video', videoSources, posterUrl);
       });
@@ -230,11 +230,6 @@ finna.videoPopup = (function finnaVideoPopup() {
               index: 'youtu.be/',
               id: 'youtu.be/',
               src: '//www.youtube.com/embed/%id%?autoplay=1'
-            },
-            vimeo: {
-              index: 'vimeo.com/',
-              id: '/',
-              src: '//player.vimeo.com/video/%id%',
             }
           }
         },
@@ -268,8 +263,12 @@ finna.videoPopup = (function finnaVideoPopup() {
 
       var player = '<iframe class="embed-responsive-item" src="' + sourceUrl + '" allowfullscreen>';
       $('.inline-video').html(player);
-      container.find('[data-inline-iframe].active-video').removeClass('active-video').attr('aria-selected', false);
-      video.addClass('active-video').attr('aria-selected', true);
+
+      // If using Chrome + VoiceOver, Chrome crashes if video settings button has aria-haspopup=true
+      $('.vp-prefs .js-prefs').attr('aria-haspopup', false);
+
+      container.find('[data-inline-iframe].active-video').removeClass('active-video').attr('aria-pressed', false);
+      video.addClass('active-video').attr('aria-pressed', true);
     }
     if (container.find('[data-inline-iframe]').length > 0) {
       var defaultVideo = container.find('[data-inline-iframe]').first();

@@ -520,7 +520,7 @@ class Record extends \VuFind\View\Helper\Root\Record
     }
 
     /**
-     * Is video embedding on record page is enabled in config
+     * Is video embedding on record page enabled
      *
      * @return boolean
      */
