@@ -144,7 +144,7 @@ finna.videoPopup = (function finnaVideoPopup() {
       var videoSources = video.data('videoSources');
       var scripts = video.data('scripts');
       var posterUrl = video.data('posterUrl');
-      var videoPlayer = "<video id='video-player' class='video-js vjs-big-play-centered' controls></video>"
+      var videoPlayer = "<video id='video-player' class='video-js vjs-big-play-centered' controls></video>";
       $('.inline-video').html(videoPlayer);
       container.find('[data-inline].active-video').removeClass('active-video');
       video.addClass('active-video');
@@ -152,7 +152,7 @@ finna.videoPopup = (function finnaVideoPopup() {
         initVideoJs('.inline-video', videoSources, posterUrl);
       });
       $('.vjs-big-play-button').focus();
-    }
+    };
     if (container.find('[data-inline]').length > 0) {
       var defaultVideo = container.find('[data-inline]').first();
       $('.inline-video-container').insertAfter($('.search-form-container'));
@@ -270,7 +270,7 @@ finna.videoPopup = (function finnaVideoPopup() {
 
       container.find('[data-inline-iframe].active-video').removeClass('active-video').attr('aria-pressed', false);
       video.addClass('active-video').attr('aria-pressed', true);
-    }
+    };
 
     if (container.find('[data-inline-iframe]').length > 0) {
       var defaultVideo = container.find('[data-inline-iframe]').first();
