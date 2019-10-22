@@ -257,19 +257,21 @@ finna.videoPopup = (function finnaVideoPopup() {
         videoId = source.split('vimeo.com/').pop();
         sourceUrl = 'https://player.vimeo.com/video/' + videoId;
       } else {
-        videoId = source.split('youtu.be/').pop();
+        var youtubeFormat = source.indexOf('youtube.com') !== -1 ? 'youtube.com/watch?v=' : 'youtu.be/';
+        videoId = source.split(youtubeFormat).pop();
         sourceUrl = 'https://www.youtube.com/embed/' + videoId;
       }
 
       var player = '<iframe class="embed-responsive-item" src="' + sourceUrl + '" allowfullscreen>';
       $('.inline-video').html(player);
 
-      // If using Chrome + VoiceOver, Chrome crashes if video settings button has aria-haspopup=true
+      // If using Chrome + VoiceOver, Chrome crashes if vimeo player video settings button has aria-haspopup=true
       $('.vp-prefs .js-prefs').attr('aria-haspopup', false);
 
       container.find('[data-inline-iframe].active-video').removeClass('active-video').attr('aria-pressed', false);
       video.addClass('active-video').attr('aria-pressed', true);
     }
+
     if (container.find('[data-inline-iframe]').length > 0) {
       var defaultVideo = container.find('[data-inline-iframe]').first();
       $('.inline-video-container').insertAfter($('.search-form-container'));

@@ -1,7 +1,7 @@
 <!-- START of: finna - RecordDriver/DefaultRecord/record-video-player.phtml -->
 <?php
   $videoElementBase = [
-    'class' => 'videourl fulltext btn btn-primary',
+    'class' => 'video-link-container active-video',
     'type' => 'button'
   ];
   $this->htmlElement()->addAttributeTemplate('video-base', $videoElementBase);
@@ -54,7 +54,7 @@
         }
       }
       ?>
-      <button class="video-link-container <?= empty($inlineVideo) ? 'active-video' : ''?> <?=$this->htmlElement()->getAttributes($currentVideo, 'video-base');?>"
+      <button <?=$this->htmlElement()->getAttributes($currentVideo, 'video-base');?>
         aria-label="<?= $this->transEsc('Link to video') . ' ' . $description ?>" aria-haspopup="<?= $inlineVideo ? 'false' : 'true'?>"
       >
         <i class="fa fa-play-circle"></i>
