@@ -36,9 +36,8 @@
       if (!empty($embeddedVideo)) {
         if ($inlineVideo) {
           $currentVideo['data-inline-iframe'] = '';
-        } else {
-          $currentVideo[$embeddedVideo] = '';
         }
+        $currentVideo[$embeddedVideo] = '';
       }
 
       if (!empty($url['videoSources'])) {
@@ -49,9 +48,8 @@
       if (!empty($url['embed']) && $url['embed'] === 'video') {
         if (!empty($inlineVideo)) {
           $currentVideo['data-inline'] = '';
-        } else {
-          $currentVideo['data-embed-video'] = '';
         }
+        $currentVideo['data-embed-video'] = '';
       }
       ?>
       <button <?=$this->htmlElement()->getAttributes($currentVideo, 'video-base');?>
