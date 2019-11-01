@@ -570,7 +570,7 @@ $config = [
 
                     // Counterpart for EmptySet Params:
                     'Finna\Search\EmptySet\Options' => 'VuFind\Search\EmptySet\Options',
-
+                    'Finna\Search\MixedList\Options' => 'VuFind\Search\MixedList\Options',
                     'Blender' => 'Finna\Search\Blender\Options',
                 ]
             ],
@@ -735,7 +735,6 @@ $config = [
 
 $recordRoutes = [
    'metalibrecord' => 'MetaLibRecord',
-   'solrrecord' => 'Record',
 ];
 
 // Define dynamic routes -- controller => [route name => action]
