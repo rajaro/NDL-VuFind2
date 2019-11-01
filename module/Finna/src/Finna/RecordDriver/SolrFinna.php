@@ -1021,4 +1021,34 @@ trait SolrFinna
         }
         return false;
     }
+
+    /**
+     * Get the bibliographic level of the current record.
+     *
+     * @return string
+     */
+    public function getBibliographicLevel()
+    {
+        $leader = $this->getMarcRecord()->getLeader();
+        $biblioLevel = strtoupper($leader[7]);
+
+        switch ($biblioLevel) {
+        case 'M': // Monograph
+            return "Monograph";
+        case 'S': // Serial
+            return "Serial";
+        case 'A': // Monograph Part
+            return "MonographPart";
+        case 'B': // Serial Part
+            return "SerialPart";
+        case 'C': // Collection
+            return "Collection";
+        case 'D': // Collection Part
+            return "CollectionPart";
+        case 'I': // Integrating Resource
+            return 'IntegratingResource';
+        default:
+            return "Unknown";
+        }
+    }
 }
