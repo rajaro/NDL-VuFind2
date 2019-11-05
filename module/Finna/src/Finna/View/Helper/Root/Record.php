@@ -518,15 +518,4 @@ class Record extends \VuFind\View\Helper\Root\Record
     {
         return $this->renderedUrls;
     }
-
-    /**
-     * Is video embedding on record page enabled
-     *
-     * @return boolean
-     */
-    public function getInlineVideo()
-    {
-        return isset($this->config->Content->inlineVideo)
-            && $this->config->Content->inlineVideo === '1';
-    }
 }

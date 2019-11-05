@@ -6,14 +6,14 @@
   ];
   $this->htmlElement()->addAttributeTemplate('video-base', $videoElementBase);
   $videoScripts = $this->partial('Helpers/videojs-urls.phtml');
-  $inlineVideo = $this->record($this->driver)->getInlineVideo();
+  $inlineVideo = $this->config()->inlineVideoEnabled();
 ?>
 <?php if ($inlineVideo): ?>
 <div class="inline-video-container hidden">
   <div class="inline-video"></div>
 <?php endif; ?>
 <div class="video-buttons">
-  <div class="video-accordion <?= !empty($inlineVideo) ? 'container' : ''?>">
+  <div class="video-accordion <?= $inlineVideo ? 'container' : ''?>">
     <?php foreach ($videoUrls as $url): ?>
       <?php
       $embeddedVideo = $this->recordLink()->getEmbeddedVideo($url['url']);
@@ -46,7 +46,7 @@
       }
 
       if (!empty($url['embed']) && $url['embed'] === 'video') {
-        if (!empty($inlineVideo)) {
+        if ($inlineVideo) {
           $currentVideo['data-inline'] = '';
         }
         $currentVideo['data-embed-video'] = '';
