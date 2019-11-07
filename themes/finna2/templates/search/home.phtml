@@ -26,16 +26,13 @@
     </div>
   </div>
 </div>
-<!-- Create different sections for home page (home-1 - home-10) -->
-<?php for ($i = 1; $i <= 10; $i++): ?>
-<?php if ($template = $this->content()->findTemplateForLng("search/home/home-$i")): ?>
-<div class="container-fluid home-<?=$i; ?>">
-  <div class="container">
-    <?=$this->render($template)?>
-  </div>
+<?php if ($homePage = $this->content()->findTemplateForLng("search/home/home-page")): ?>
+<div class="container">
+  <?=$this->render($homePage)?>
 </div>
+<?php else: ?>
+<?=$this->render($this->content()->findTemplateForLng("search/home/home-structured"))?>
 <?php endif; ?>
-<?php endfor; ?>
 <!-- reopen container -->
 <div class="container">
 <!-- END of: finna - search/home.phtml -->
