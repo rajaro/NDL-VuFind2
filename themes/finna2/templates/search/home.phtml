@@ -26,12 +26,13 @@
     </div>
   </div>
 </div>
-<?php if ($homePage = $this->content()->findTemplateForLng("search/home/home-page")): ?>
+<?php if ($this->templateSrc('search/home/home-1')): ?>
+<?=$this->render($this->content()->findTemplateForLng("search/home/home-structured"))?>
+<?php else: ?>
+<?php $homePage = $this->content()->findTemplateForLng("search/home/home-page") ?>
 <div class="container">
   <?=$this->render($homePage)?>
 </div>
-<?php else: ?>
-<?=$this->render($this->content()->findTemplateForLng("search/home/home-structured"))?>
 <?php endif; ?>
 <!-- reopen container -->
 <div class="container">
