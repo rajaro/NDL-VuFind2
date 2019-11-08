@@ -1,6 +1,6 @@
 <?php
 /**
- * Resolve path to a resource in theme 'files' directory.
+ * Resolve path to a resource in theme 'templates' directory.
  *
  * PHP version 7
  *
