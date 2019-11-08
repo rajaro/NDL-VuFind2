@@ -26,7 +26,16 @@
     </div>
   </div>
 </div>
-<?php if ($this->templateSrc('search/home/home-1')): ?>
+<?php
+  $renderStructured = false;
+  for ($i = 1; $i <= 10; $i++) {
+    if ($this->templateSrc("search/home/home-$i")) {
+      $renderStructured = true;
+      break;
+    }
+  }
+?>
+<?php if ($renderStructured): ?>
 <?=$this->render($this->content()->findTemplateForLng("search/home/home-structured"))?>
 <?php else: ?>
 <?php $homePage = $this->content()->findTemplateForLng("search/home/home-page") ?>
