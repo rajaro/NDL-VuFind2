@@ -39,6 +39,12 @@
   overflow: visible;
 }
 
+@media (max-width: @screen-xs-max) {
+  .media-left, .media-right, .media-body {
+    display: block;
+  }
+}
+
 .popover {
   min-width: min(200px, @popover-max-width);
 }
@@ -279,7 +285,7 @@ ol {
 .list-numbers {
   font-size: @content-font-size-base;
   line-height: @content-line-height-base;
-  padding-left: 1.2em;
+  padding-left: 1.5em;
   padding-bottom: 0.9em;
 
   > li {

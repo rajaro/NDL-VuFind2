@@ -38,9 +38,6 @@
 .groupCallnumber {
     color: @gray-light;
     display: inline;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
     margin-left: 15px;
 }
 .branchInfo {
@@ -89,16 +86,17 @@
 
 // Record view holdings styles
 .holdings-tab {
-    & .library_card, .placehold.btn, .placeStorageRetrievalRequest.btn, .placeILLRequest.btn {
+    .library_card, .placehold.btn, .placeStorageRetrievalRequest.btn, .placeILLRequest.btn {
         margin-bottom: 5px;
         margin-left: 5px;
     }
-    & .placehold.btn {
+    .placehold.btn, .placeStorageRetrievalRequest.btn, .placeILLRequest.btn  {
         white-space: normal;
         height: auto;
+        margin-top: 2px;
     }
-    & .place-hold-wrapper {
-        & p {
+    .place-hold-wrapper {
+        p {
             margin-top: 5px;
         }
         a {
@@ -108,7 +106,7 @@
             margin-top: 7px;
         }
     }
-    & .borrowing-block-container {
+    .borrowing-block-container {
         margin-top: 20px;
     }
 }
@@ -165,9 +163,11 @@
             float: left;
             padding-left: 15px;
             padding-right: 15px;
-            font-weight: bold;
-            font-size: .92em;
-            text-transform: uppercase;
+            &:not(.electronic) {
+                text-transform: uppercase;
+                font-weight: bold;
+                font-size: .92em;
+            }
             & > i {
                 margin-left: -11px;
             }
@@ -189,8 +189,13 @@
         }
         & .holdings-details {
             padding-right: 15px;
-            font-weight: bold;
-            width: 25%;
+            &.electronic {
+                width: 50%;
+            }
+            &:not(.electronic) {
+                font-weight: bold;
+                width: 25%;
+            }
             float: left;
             .clearfix();
             @media (max-width: @screen-xs-max) {
@@ -313,6 +318,7 @@
         }
         & .total-container, .reservations-container {
             margin-top: 14px;
+            margin-left: 8px;
         }
     }
     & .dedup-select {
@@ -365,6 +371,9 @@
         @media (max-width: @screen-sm-max) {
             padding: 3px 0px;
         }
+    }
+    .holdings-container .right {
+        display: inline;
     }
     & .header {
         margin-bottom: 6px;
@@ -447,6 +456,9 @@
             }
             & .title-hold {
                 float: left;
+                a.btn {
+                    white-space: pre-wrap;
+                }
             }
         }
     }

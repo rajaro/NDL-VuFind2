@@ -104,6 +104,25 @@ class Bootstrapper
     }
 
     /**
+     * Set up cookie to flag test mode.
+     *
+     * @return void
+     */
+    protected function initTestMode()
+    {
+        // If we're in test mode (as determined by the config.ini property installed
+        // by the build.xml startup process), set a cookie so the front-end code can
+        // act accordingly. (This is needed to work around a problem where opening
+        // print dialogs during testing stalls the automated test process).
+        if ($this->config->System->runningTestSuite ?? false) {
+            $app = $this->event->getApplication();
+            $sm = $app->getServiceManager();
+            $cm = $sm->get(\VuFind\Cookie\CookieManager::class);
+            $cm->set('VuFindTestSuiteRunning', '1', 0, false);
+        }
+    }
+
+    /**
      * Initialize dynamic debug mode (debug initiated by a ?debug=true parameter).
      *
      * @return void
@@ -354,6 +373,14 @@ class Bootstrapper
                     );
                 }
             }
+
+            // Store last selected language in user account, if applicable:
+            if (($user = $sm->get(\VuFind\Auth\Manager::class)->isLoggedIn())
+                && $user->last_language != $language
+            ) {
+                $user->updateLastLanguage($language);
+            }
+
             // Send key values to view:
             $viewModel = $sm->get('ViewManager')->getViewModel();
             $viewModel->setVariable('userLang', $language);
@@ -379,11 +406,6 @@ class Bootstrapper
         if (Console::isConsole()) {
             return;
         }
-
-        // Attach template injection configuration to the route event:
-        $this->events->attach(
-            'route', ['VuFindTheme\Initializer', 'configureTemplateInjection']
-        );
 
         // Attach remaining theme configuration to the dispatch event at high
         // priority (TODO: use priority constant once defined by framework):

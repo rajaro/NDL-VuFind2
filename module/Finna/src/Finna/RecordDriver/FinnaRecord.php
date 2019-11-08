@@ -65,6 +65,21 @@ trait FinnaRecord
     }
 
     /**
+     * Get OpenURL parameters for a book.
+     *
+     * @return array
+     */
+    protected function getBookOpenUrlParams()
+    {
+        $params = parent::getBookOpenUrlParams();
+        if ($mmsId = $this->tryMethod('getAlmaMmsId')) {
+            $params['rft.mms_id'] = $mmsId;
+        }
+
+        return $params;
+    }
+
+    /**
      * Get OpenURL parameters for a book section.
      *
      * @return array
@@ -78,6 +93,9 @@ trait FinnaRecord
         unset($params['rft.title']);
         $params['rft.btitle'] = $this->getContainerTitle();
         $params['rft.atitle'] = $this->getTitle();
+        if ($mmsId = $this->tryMethod('getAlmaMmsId')) {
+            $params['rft.mms_id'] = $mmsId;
+        }
 
         return $params;
     }
@@ -93,6 +111,9 @@ trait FinnaRecord
         if ($objectId = $this->tryMethod('getSfxObjectId')) {
             $params['rft.object_id'] = $objectId;
         }
+        if ($mmsId = $this->tryMethod('getAlmaMmsId')) {
+            $params['rft.mms_id'] = $mmsId;
+        }
         return $params;
     }
 
@@ -106,6 +127,9 @@ trait FinnaRecord
         $params = parent::getArticleOpenUrlParams();
         if ($doi = $this->tryMethod('getCleanDOI')) {
             $params['rft.doi'] = $doi;
+        }
+        if ($mmsId = $this->tryMethod('getAlmaMmsId')) {
+            $params['rft.mms_id'] = $mmsId;
         }
         return $params;
     }
@@ -147,9 +171,9 @@ trait FinnaRecord
      *
      * @param int $user_id user user_id
      *
-     * @return User
+     * @return User|boolean
      */
-    public function getUserById($user_id): User
+    public function getUserById($user_id)
     {
         return $this->getDbTable('User')->getById($user_id);
     }

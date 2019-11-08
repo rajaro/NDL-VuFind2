@@ -13,12 +13,21 @@
     try {
         $holdings = $this->driver->getRealTimeHoldings();
     } catch (\VuFind\Exception\ILS $e) {
-        $holdings = [];
+        $holdings = [
+          'holdings' => [],
+          'electronic_holdings' => [],
+          'total' => 0,
+          'page' => 0,
+          'itemLimit' => 0
+        ];
         $offlineMode = 'ils-offline';
     }
     $holdsAllowed = $this->driver->tryMethod('getHoldsAllowed');
     if (!isset($holdings['holdings'])) {
         $holdings['holdings'] = [];
+        $holdings['total'] = 0;
+        $holdings['page'] = 1;
+        $holdings['itemLimit'] = 10;
     }
 
     $illRequestLink = false;
@@ -71,6 +80,7 @@
 ?>
 
 <?=($offlineMode == "ils-offline") ? $this->render('Helpers/ils-offline.phtml', ['offlineModeMsg' => 'ils_offline_holdings_message']) : ''?>
+
 <?php if ($holdsAllowed && !$disableTitleHold && (($this->ils()->getHoldsMode() == 'driver' && !empty($holdings['holdings'])) || $this->ils()->getTitleHoldsMode() == 'driver')): ?>
   <?php if ($account->loginEnabled() && $offlineMode != 'ils-offline' && $ilsLoginAvailable): ?>
     <?php if (!$user): ?>
@@ -128,6 +138,13 @@
     <?php endif; ?>
   <?php endif; ?>
   </div>
+<?php endif; ?>
+
+<?php if (!empty($holdings['electronic_holdings'])): ?>
+  <?=$this->context($this)->renderInContext(
+      'RecordTab/holdingsils/electronic.phtml',
+      ['holdings' => $holdings['electronic_holdings']]
+  );?>
 <?php endif; ?>
 
 <div class="table record-holdings-table">
@@ -248,7 +265,7 @@
        $callnumbers[] = ['callNo' => $callNo, 'collection' => $collection, 'location' => $location];
     }
     $dialogTitle = ': ' . $this->driver->getTitle();
-    $titleLocation = $this->transEsc('location_' . $holding['location'], [], $holding['location']);
+    $titleLocation = $this->transEscWithPrefix('location_', $holding['location']);
     if ($titleLocation) {
         $dialogTitle .= " - $titleLocation";
     }
@@ -266,7 +283,7 @@
   <?php endif; ?>
   <div class="holdings-container-heading">
     <div class="location">
-      <i class="fa fa-arrow-<?=$holdingsDetails == 'collapsed' ? 'right' : 'down'?>" aria-hidden="true"></i> <?=$this->transEsc('location_' . $holding['location'], [], $holding['location'])?>
+      <i class="fa fa-arrow-<?=$holdingsDetails == 'collapsed' ? 'right' : 'down'?>" aria-hidden="true"></i> <?=$this->transEscWithPrefix('location_', $holding['location'])?>
       <?php if ($this->holdingsSettings()->showDetailsAfterLocationGroup()): ?>
         <div class="details"><?=$this->partial('RecordTab/holdings-details.phtml', ['holdingId' => $holdingId, 'holding' => $holding, 'heading' => true]);?></div>
       <?php endif; ?>
