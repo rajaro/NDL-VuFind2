@@ -4,19 +4,6 @@
   padding-top: 10px;
   display: flex;
   flex-wrap: wrap;
-
-  @supports (display: grid) {
-    display: grid;
-    grid-template-columns: repeat(3, 33%);
-    @media (max-width: @screen-md-min) {
-      grid-template-columns: repeat(2, 50%);
-    }
-    @media (max-width: @screen-xs-min) {
-      grid-template-columns: repeat(1, 100%);
-    }
-    grid-auto-rows: 1fr;
-    grid-column-gap: 5px;
-  }
   &::after {
     display: table;
     clear: both;
@@ -27,8 +14,11 @@
 .grid.result {
   display: flex;
   float: left;
-  width: 50%;
+  width: 33%;
   border-bottom: none;
+  @media (max-width: @screen-md) {
+    width: 50%;
+  }
   @media (max-width: @screen-xs) {
     width: 100%;
   }
@@ -59,12 +49,7 @@
   .grid:not(.recordcovers) {
     padding: 0px 5px 10px;
     margin-bottom: 0px;
-    width: 33%;
     height: 350px;
-    @supports (display: grid) {
-      width: 100%;
-      max-height: 350px;
-    }
     &:focus {
       outline: none;
     }
