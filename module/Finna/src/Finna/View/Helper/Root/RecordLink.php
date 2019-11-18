@@ -78,6 +78,38 @@ class RecordLink extends \VuFind\View\Helper\Root\RecordLink
     }
 
     /**
+     * Returns url for video embedding if url is vimeo or youtube url
+     *
+     * @param string $url record url
+     *
+     * @return string
+     */
+    public function getEmbeddedVideoUrl($url)
+    {
+        $match = []; 
+        if (preg_match(
+            '/^https?:\/\/(www\.)?(youtube\.com\/watch\?|youtu\.?be\/)\w+/',
+            $url,
+            $match
+        )
+        ) {
+            if (strpos($match[0], 'youtu.be') !== false) {
+                $parts = explode('youtu.be/', $match[0]);
+            } else {
+                $parts = explode('youtube.com/watch?v=', $match[0]);
+            }
+            $videoId = array_pop($parts);
+            return "https://youtube.com/embed/$videoId";
+        }
+        if (preg_match('/^https?:\/\/vimeo\.com\/\d+/', $url, $match)) {
+            $parts = explode('vimeo.com/', $match[0]);
+            $videoId = array_pop($parts);
+            return "https://player.vimeo.com/video/$videoId";
+        }
+        return '';
+    }
+
+    /**
      * Given an array representing a related record (which may be a bib ID or OCLC
      * number), this helper renders a URL linking to that record.
      *
