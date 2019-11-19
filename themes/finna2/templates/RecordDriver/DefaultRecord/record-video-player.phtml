@@ -37,6 +37,7 @@
         if ($inlineVideo) {
           $currentVideo['data-inline-iframe'] = '';
         }
+        $currentVideo['data-embed-url'] = $this->recordLink()->getEmbeddedVideoUrl($url['url']);
         $currentVideo[$embeddedVideo] = '';
       }
 

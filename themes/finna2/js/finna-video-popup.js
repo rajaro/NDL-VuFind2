@@ -196,19 +196,8 @@ finna.videoPopup = (function finnaVideoPopup() {
   function displayIframe(video) {
     var source = video.is('a') ? video.attr('href') : video.data('link');
     if ($('[data-inline-iframe]').length) {
-      var videoId = '';
-      var sourceUrl = '';
-      var vimeoVideo = source.indexOf('vimeo.com') !== -1;
-      if (vimeoVideo) {
-        videoId = source.split('vimeo.com/').pop();
-        sourceUrl = 'https://player.vimeo.com/video/' + videoId;
-      } else {
-        var youtubeFormat = source.indexOf('youtube.com') !== -1 ? 'youtube.com/watch?v=' : 'youtu.be/';
-        videoId = source.split(youtubeFormat).pop();
-        sourceUrl = 'https://www.youtube.com/embed/' + videoId;
-      }
-
-      var player = '<iframe class="embed-responsive-item" src="' + sourceUrl + '" allowfullscreen>';
+      var embedUrl = video.data('embed-url');
+      var player = '<iframe class="embed-responsive-item" src="' + embedUrl + '" allowfullscreen>';
       $('.inline-video').html(player);
 
       // If using Chrome + VoiceOver, Chrome crashes if vimeo player video settings button has aria-haspopup=true

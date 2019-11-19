@@ -68,10 +68,7 @@ class RecordLink extends \VuFind\View\Helper\Root\RecordLink
      */
     public function getEmbeddedVideo($url)
     {
-        if (preg_match(
-            '/^https?:\/\/(www\.)?(youtube\.com\/watch\?|youtu\.?be\/)\w+/', $url
-        ) || preg_match('/^https?:\/\/vimeo\.com\/\d+/', $url)
-        ) {
+        if ($this->getEmbeddedVideoUrl($url)) {
             return 'data-embed-iframe';
         }
         return '';
@@ -86,24 +83,19 @@ class RecordLink extends \VuFind\View\Helper\Root\RecordLink
      */
     public function getEmbeddedVideoUrl($url)
     {
-        $match = []; 
+        $matches = [];
         if (preg_match(
-            '/^https?:\/\/(www\.)?(youtube\.com\/watch\?|youtu\.?be\/)\w+/',
+            '/^https?:\/\/(www\.)?(youtube\.com\/watch\?|youtu\.?be\/)'
+            . '(v=)?([\w\-]+)/',
             $url,
-            $match
+            $matches
         )
         ) {
-            if (strpos($match[0], 'youtu.be') !== false) {
-                $parts = explode('youtu.be/', $match[0]);
-            } else {
-                $parts = explode('youtube.com/watch?v=', $match[0]);
-            }
-            $videoId = array_pop($parts);
-            return "https://youtube.com/embed/$videoId";
+            $videoId = array_pop($matches);
+            return "https://www.youtube.com/embed/$videoId";
         }
-        if (preg_match('/^https?:\/\/vimeo\.com\/\d+/', $url, $match)) {
-            $parts = explode('vimeo.com/', $match[0]);
-            $videoId = array_pop($parts);
+        if (preg_match('/^https?:\/\/vimeo\.com\/(\d+)/', $url, $matches)) {
+            $videoId = array_pop($matches);
             return "https://player.vimeo.com/video/$videoId";
         }
         return '';
