@@ -1011,8 +1011,10 @@ trait SolrFinna
                 ['id' => $this->getUniqueID()]
             );
             if (false === $bibLevels) {
-                $bibLevels = ['monograph', 'monographpart', 'serialpart',
-                'collectionpart'];
+                $bibLevels = [
+                    'monograph', 'monographpart',
+                    'serialpart', 'collectionpart'
+                ];
             }
             if (in_array($biblioLevel, $bibLevels)) {
                 if ($this->ils->getTitleHoldsMode() != "disabled") {
