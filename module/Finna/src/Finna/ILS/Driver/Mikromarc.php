@@ -1522,7 +1522,9 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             $organisationTotal[$unit['branch']] = [
                'reservations' => $item['ReservationQueueLength']
             ];
-
+            $duedate = isset($item['DueDate'])
+                ? $this->formatDate($item['DueDate'])
+                : '';
             $unit = $this->getLibraryUnit($unitId);
             $number = '';
             $shelf = $item['Shelf'];
@@ -1545,7 +1547,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
                 'status' => $statusCode,
                 'reserve' => 'N',
                 'callnumber' => $shelf,
-                'duedate' => null,
+                'duedate' => $duedate,
                 'barcode' => $item['Barcode'],
                 'item_notes' => [isset($items['notes']) ? $item['notes'] : null],
                 'number' => $number,
@@ -1796,6 +1798,23 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
     {
         return "mikromarc|$action|"
             . md5(implode('|', [$patron['cat_username'], $patron['cat_password']]));
+    }
+
+    /**
+     * Format date
+     *
+     * @param string $dateString Date as a string
+     *
+     * @return string Formatted date
+     */
+    protected function formatDate($dateString)
+    {
+        // Remove timezone from Mikromarc time format
+        if (preg_match('/^(\d{4}-\d{2}-\d{2})/', $dateString, $matches)) {
+            $date = $matches[1];
+            return $this->dateConverter->convertToDisplayDate('Y-m-d', $date);
+        }
+        return '';
     }
 
     /**
