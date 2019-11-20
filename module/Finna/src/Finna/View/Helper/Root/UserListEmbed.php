@@ -55,6 +55,13 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
     protected $listTable;
 
     /**
+     * Index start counter
+     *
+     * @var int
+     */
+    protected $indexStart = 0;
+
+    /**
      * Constructor
      *
      * @param \VuFind\Search\Favorites\Results $results   Results
@@ -109,12 +116,14 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
         $resultsCopy->performAndProcessSearch();
         $list = $resultsCopy->getListObject();
         $view = $opt['view'] ?? 'list';
-
+        $idStart = $this->indexStart;
+        $this->indexStart += $resultsCopy->getResultTotal();
         return $this->getView()->render(
             'Helpers/userlist.phtml',
             [
                 'results' => $resultsCopy,
                 'params' => $params,
+                'indexStart' => $idStart,
                 'view' => $view,
                 'title' =>
                     (isset($opt['title']) && $opt['title'] === false)
