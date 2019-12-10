@@ -48,7 +48,6 @@ class Markdown extends \Zend\View\Helper\AbstractHelper
     public function toHtml($markdown)
     {
         $parser = new \Parsedown();
-        $parser->setMarkupEscaped(true);
         $parser->setBreaksEnabled(true);
         return $parser->text($markdown);
     }
