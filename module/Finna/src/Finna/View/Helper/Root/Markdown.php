@@ -27,6 +27,8 @@
  */
 namespace Finna\View\Helper\Root;
 
+use HTMLPurifier;
+
 /**
  * Markdown view helper
  *
@@ -39,6 +41,33 @@ namespace Finna\View\Helper\Root;
 class Markdown extends \Zend\View\Helper\AbstractHelper
 {
     /**
+     * Allowed elements & attributes
+     *
+     * @var array
+     */
+    protected $allowedElements = [
+        'details',
+        'summary',
+        'a[href]',
+        'ol',
+        'ul',
+        'li',
+        'blockquote',
+        'pre',
+        'code',
+        'img[src|alt]',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+        'b',
+        'i',
+        'br',
+    ];
+
+    /**
      * Return HTML.
      *
      * @param string $markdown Markdown
@@ -48,8 +77,26 @@ class Markdown extends \Zend\View\Helper\AbstractHelper
     public function toHtml($markdown)
     {
         $parser = new \Parsedown();
-        $parser->setMarkupEscaped(true);
         $parser->setBreaksEnabled(true);
-        return $parser->text($markdown);
+        $text = $parser->text($markdown);
+        if (strpos($text, '<') !== -1) {
+            $purifierConfig = \HTMLPurifier_Config::createDefault();
+            $allowed = implode(',', $this->allowedElements);
+            $purifierConfig->set('HTML.Allowed', $allowed);
+            $def = $purifierConfig->getHTMLDefinition(true);
+
+            // Details & summary elements not supported by default, add them:
+            $def->addElement(
+                'details',
+                'Block',
+                'Flow',
+                'Common',
+                ['open' => new \HTMLPurifier_AttrDef_HTML_Bool(true)]
+            );
+            $def->addElement('summary', 'Inline', 'Inline', 'Common');
+            $purifier = new HTMLPurifier($purifierConfig);
+            return $purifier->purify($text);
+        }
+        return $text;
     }
 }
