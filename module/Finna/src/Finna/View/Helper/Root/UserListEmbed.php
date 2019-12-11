@@ -55,7 +55,7 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
     protected $listTable;
 
     /**
-     * Index start counter
+     * Counter used to ensure unique id attributes when several lists are displayed
      *
      * @var int
      */
