@@ -70,7 +70,7 @@
       <strong><?=$this->transEsc('Description') ?>:</strong>
       <ul>
       <?php foreach ($listNotes as $note): ?>
-        <li><?=$this->cleanHtml($this->markdown()->toHtml($note)) ?></li>
+        <li><?=$this->markdown()->toHtml($note) ?></li>
       <?php endforeach; ?>
       </ul>
     </div>
