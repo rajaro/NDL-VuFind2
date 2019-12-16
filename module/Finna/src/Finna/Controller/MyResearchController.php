@@ -25,6 +25,7 @@
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
  * @author   Kalle Pyykkönen <kalle.pyykkonen@helsinki.fi>
+ * @author   Juha Luoma <juha.luoma@helsinki.fi>
  * @author   Tuure Ilmarinen <tuure.ilmarinen@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
@@ -40,6 +41,7 @@ namespace Finna\Controller;
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
  * @author   Kalle Pyykkönen <kalle.pyykkonen@helsinki.fi>
+ * @author   Juha Luoma <juha.luoma@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
@@ -55,21 +57,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
      */
     public function catalogloginAction()
     {
-        // Connect to the ILS and check if multiple target support is available
-        // Add default driver to result so we can use it on cataloglogin.phtml
-        $targets = null;
-        $defaultTarget = null;
-        $catalog = $this->getILS();
-        if ($catalog->checkCapability('getLoginDrivers')) {
-            $targets = $catalog->getLoginDrivers();
-            $defaultTarget = $catalog->getDefaultLoginDriver();
-        }
-        $result = $this->createViewModel(
-            [
-                'targets' => $targets,
-                'defaultdriver' => $defaultTarget
-            ]
-        );
+        $result = parent::catalogloginAction();
 
         // Try to find the original action and map it to the corresponding menu item
         // since we were probably forwarded here.
@@ -137,7 +125,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             $this->params()->fromQuery('sort'),
             isset($config->Catalog->checked_out_page_size)
                 ? $config->Catalog->checked_out_page_size : 50,
-            $catalog->checkFunction('getMyTransactions', $patron)
+            $catalog->checkFunction('getMyTransactions', compact('patron'))
         );
 
         // Get checked out item details:
@@ -397,7 +385,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         }
 
         if ($this->formWasSubmitted('cancelOrdering')) {
-            return $this->redirect()->toRoute('userList', ['id' => $listID]);
+            return $this->redirect()->toRoute('userList', ['id' => $listId]);
         }
         if ($this->formWasSubmitted('saveOrdering')) {
             $orderedList = json_decode(
@@ -444,8 +432,6 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             }
             throw $e;
         }
-
-        return $view;
     }
 
     /**
@@ -561,62 +547,111 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         }
 
         $catalog = $this->getILS();
-        $updateConfig = $catalog->checkFunction('updateAddress', $patron);
+        $updateConfig = $catalog->checkFunction('updateAddress', compact('patron'));
         $profile = $catalog->getMyProfile($patron);
         $fields = [];
         if (!empty($updateConfig['fields'])) {
             foreach ($updateConfig['fields'] as $fieldConfig) {
-                list($label, $field) = explode(':', $fieldConfig);
-                $fields[$field] = ['label' => $label];
+                if (is_array($fieldConfig)) {
+                    $fields[$fieldConfig['field']] = $fieldConfig;
+                    if (!isset($fields[$fieldConfig['field']]['required'])) {
+                        $fields[$fieldConfig['field']]['required'] = false;
+                    }
+                } else {
+                    $parts = explode(':', $fieldConfig);
+                    $field = $parts[1] ?? '';
+                    if (!$field) {
+                        continue;
+                    }
+                    $fields[$field] = [
+                        'label' => $parts[0],
+                        'type' => $parts[2] ?? 'text',
+                        'required' => ($parts[3] ?? '') === 'required'
+                    ];
+                }
             }
         }
         if (empty($fields)) {
             $fields = [
-                'address1' => ['label' => 'Address'],
-                'zip' => ['label' => 'Zip'],
-                'city' => ['label' => 'City'],
-                'country' => ['label' => 'Country']
+                'address1'
+                    => ['label' => 'Address', 'type' => 'text', 'required' => true],
+                'zip' => ['label' => 'Zip', 'type' => 'text', 'required' => true],
+                'city' => ['label' => 'City', 'type' => 'text', 'required' => true],
+                'country'
+                    => ['label' => 'Country', 'type' => 'text', 'required' => true]
             ];
 
-            if (false === $catalog->checkFunction('updateEmail', $patron)) {
-                $fields['email'] = ['label' => 'Email'];
+            if (false === $catalog->checkFunction('updateEmail', compact('patron'))
+            ) {
+                $fields['email']
+                    = ['label' => 'Email', 'type' => 'email', 'required' => true];
             }
-            if (false === $catalog->checkFunction('updatePhone', $patron)) {
-                $fields['phone'] = ['label' => 'Phone'];
+            if (false === $catalog->checkFunction('updatePhone', compact('patron'))
+            ) {
+                $fields['phone']
+                    = ['label' => 'Phone', 'type' => 'tel', 'required' => true];
             }
-            if (false === $catalog->checkFunction('updateSmsNumber', $patron)) {
-                $fields['sms_number'] = ['label' => 'SMS Number'];
+            $updateSms
+                = $catalog->checkFunction('updateSmsNumber', compact('patron'));
+            if (false === $updateSms) {
+                $fields['sms_number'] = [
+                    'label' => 'SMS Number', 'type' => 'tel', 'required' => false
+                ];
             }
         }
 
-        $view = $this->createViewModel();
-        $view->fields = $fields;
+        $view = $this->createViewModel(
+            [
+                'fields' => $fields,
+                'profile' => $profile,
+                'config' => $updateConfig,
+            ]
+        );
+        $view->setTemplate('myresearch/change-address-settings');
 
         if ($this->formWasSubmitted('address_change_request')) {
             $data = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-            $config = $this->getILS()->getConfig('updateAddress', $patron);
-
-            if (isset($config['method']) && 'driver' === $config['method']) {
-                if (false === $catalog->checkFunction('updateAddress', $patron)) {
+            if (isset($updateConfig['method'])
+                && 'driver' === $updateConfig['method']
+            ) {
+                if (false === $updateConfig) {
                     throw new \Exception(
-                        'ILS driver does not support updating contact information'
+                        'ILS driver does not support updating profile information'
                     );
                 }
-                $result = $catalog->updateAddress($patron, $data);
-                if ($result['success']) {
-                    $view->requestCompleted = true;
-                    $this->flashMessenger()->addSuccessMessage($result['status']);
-                } else {
-                    $this->flashMessenger()->addErrorMessage($result['status']);
+
+                foreach ($fields as $fieldName => $fieldConfig) {
+                    if ($fieldConfig['required']
+                        && (!isset($data[$fieldName]) || '' === $data[$fieldName])
+                    ) {
+                        $this->flashMessenger()->addErrorMessage(
+                            $this->translate('This field is required') . ': '
+                            . $this->translate($fieldConfig['label'])
+                        );
+                        return $view;
+                    }
+                }
+
+                try {
+                    $result = $catalog->updateAddress($patron, $data);
+                    if ($result['success']) {
+                        $view->requestCompleted = true;
+                        $this->flashMessenger()
+                            ->addSuccessMessage($result['status']);
+                    } else {
+                        $this->flashMessenger()->addErrorMessage($result['status']);
+                    }
+                } catch (ILSException $e) {
+                    $this->flashMessenger()->addErrorMessage($e->getMessage());
                 }
             } else {
-                if (!isset($config['emailAddress'])) {
+                if (!isset($updateConfig['emailAddress'])) {
                     throw new \Exception(
                         'Missing emailAddress in ILS updateAddress settings'
                     );
                 }
-                $recipient = $config['emailAddress'];
+                $recipient = $updateConfig['emailAddress'];
 
                 $this->sendChangeRequestEmail(
                     $patron, $profile, $data, $fields, $recipient,
@@ -628,9 +663,6 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             }
         }
 
-        $view->profile = $profile;
-        $view->config = $updateConfig;
-        $view->setTemplate('myresearch/change-address-settings');
         return $view;
     }
 
@@ -812,13 +844,13 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         if ($this->formWasSubmitted('opcode')
             && $this->params()->fromPost('opcode') == 'save_order'
         ) {
+            $listID = $this->params()->fromPost('list_id');
             $this->session->url = empty($listID)
                 ? $this->url()->fromRoute('myresearch-favorites')
                 : $this->url()->fromRoute('userList', ['id' => $listID]);
 
             $orderedList = $this->params()->fromPost('orderedList');
             $table = $this->getTable('UserResource');
-            $listID = $this->params()->fromPost('list_id');
             if (empty($listID) || empty($orderedList)
                 || !$table->saveCustomFavoriteOrder($user->id, $listID, $orderedList)
             ) {
@@ -1178,22 +1210,6 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
     {
         $memory  = $this->serviceLocator->get(\VuFind\Search\Memory::class);
         $listUrl = $this->getRequest()->getRequestUri();
-        /*$routeName = $publicView ? 'list-page' : 'userList';
-        $idParamName = $publicView ? 'lid' : 'id';
-        $request = $this->getRequest();
-        $queryParams = [];
-        if ($view = $request->getQuery('view')) {
-            $queryParams['view'] = $view;
-        }
-        if ($page = $request->getQuery('page')) {
-            $queryParams['page'] = $page;
-        }
-        if ($filter = $request->getQuery('filter')) {
-            $queryParams['filter'] = $filter;
-        }
-        $listUrl = $this->url()->fromRoute(
-            $routeName, [$idParamName => $id], ['query' => $queryParams]
-        );*/
         $memory->rememberSearch($listUrl);
     }
 
@@ -1214,7 +1230,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         if (isset($values->profile_email)) {
             $validator = new \Zend\Validator\EmailAddress();
             if ($validator->isValid($values->profile_email)
-                && $catalog->checkFunction('updateEmail', $patron)
+                && $catalog->checkFunction('updateEmail', compact('patron'))
             ) {
                 // Update email
                 $result = $catalog->updateEmail($patron, $values->profile_email);
@@ -1226,7 +1242,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         }
         // Update phone
         if (isset($values->profile_tel)
-            && $catalog->checkFunction('updatePhone', $patron)
+            && $catalog->checkFunction('updatePhone', compact('patron'))
         ) {
             $result = $catalog->updatePhone($patron, $values->profile_tel);
             if (!$result['success']) {
@@ -1236,7 +1252,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         }
         // Update SMS Number
         if (isset($values->profile_sms_number)
-            && $catalog->checkFunction('updateSmsNumber', $patron)
+            && $catalog->checkFunction('updateSmsNumber', compact('patron'))
         ) {
             $result = $catalog->updateSmsNumber(
                 $patron, $values->profile_sms_number
@@ -1247,9 +1263,9 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             }
         }
         // Update checkout history state
-        if (isset($values->loan_history)
-            && $catalog->checkFunction('updateTransactionHistoryState', $patron)
-        ) {
+        $updateState = $catalog
+            ->checkFunction('updateTransactionHistoryState', compact('patron'));
+        if (isset($values->loan_history) && $updateState) {
             $result = $catalog->updateTransactionHistoryState(
                 $patron, $values->loan_history
             );

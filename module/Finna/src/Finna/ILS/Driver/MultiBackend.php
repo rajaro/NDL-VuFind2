@@ -502,6 +502,49 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
     }
 
     /**
+     * Register a patron
+     *
+     * @param array $params Required params
+     *
+     * @return array Associative array of the results
+     */
+    public function registerPatron($params)
+    {
+        $source = $this->getSource($params['cat_username']);
+        $driver = $this->getDriver($source);
+        if ($driver) {
+            return $driver->registerPatron(
+                $this->stripIdPrefixes($params, $source)
+            );
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    /**
+     * Get detailed holding information for a single holdings record
+     *
+     * @param string $id     Bib record id
+     * @param string $key    Retrieval key
+     * @param array  $patron Patron data
+     *
+     * @return array
+     */
+    public function getHoldingsDetails($id, $key, $patron = null)
+    {
+        $source = $this->getSource($id);
+        $driver = $this->getDriver($source);
+        if ($driver) {
+            $result = $driver->getHoldingsDetails(
+                $this->getLocalId($id),
+                $key,
+                $this->stripIdPrefixes($patron, $source)
+            );
+            return $this->addIdPrefixes($result, $source);
+        }
+        return [];
+    }
+
+    /**
      * Get configuration for the ILS driver.  We will load an .ini file named
      * after the driver class and number if it exists;
      * otherwise we will return an empty array.

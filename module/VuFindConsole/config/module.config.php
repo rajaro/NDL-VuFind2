@@ -70,7 +70,7 @@ $routes = [
     'language/normalize' => 'language normalize [<target>]',
     'util/cleanup_record_cache' => 'util (cleanuprecordcache|cleanup_record_cache) [--help|-h]',
     'util/commit' => 'util commit [<core>]',
-    'util/createHierarchyTrees' => 'util createHierarchyTrees [--skip-xml|-sx] [--skip-json|-sj] [--help|-h]',
+    'util/createHierarchyTrees' => 'util createHierarchyTrees [--skip-xml|-sx] [--skip-json|-sj] [<backend>] [--help|-h]',
     'util/cssBuilder' => 'util cssBuilder [...themes]',
     'util/deletes' => 'util deletes [--verbose] [<filename>] [<format>] [<index>]',
     'util/expire_external_sessions' => 'util expire_external_sessions [--help|-h] [--batch=] [--sleep=] [<daysOld>]',
@@ -79,7 +79,7 @@ $routes = [
     'util/index_reserves' => 'util index_reserves [--help|-h] [-d=s] [-t=s] [-f=s]',
     'util/lint_marc' => 'util lint_marc [<filename>]',
     'util/optimize' => 'util optimize [<core>]',
-    'util/sitemap' => 'util sitemap [--verbose]',
+    'util/sitemap' => 'util sitemap [--help|-h] [--verbose] [--baseurl=s] [--basesitemapurl=s]',
     'util/suppressed' => 'util suppressed [--help|-h] [--authorities] [--outfile=s]',
     'util/switch_db_hash' => 'util switch_db_hash [<newhash>] [<newkey>]',
 ];

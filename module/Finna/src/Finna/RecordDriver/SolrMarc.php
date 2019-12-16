@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2014-2017.
+ * Copyright (C) The National Library of Finland 2014-2019.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -40,7 +40,7 @@ namespace Finna\RecordDriver;
  */
 class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 {
-    use SolrFinna;
+    use SolrFinnaTrait;
 
     /**
      * Fields that may contain subject headings, and their descriptions
@@ -313,12 +313,10 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         $url = '';
         $type = '';
         foreach ($this->getMarcRecord()->getFields('856') as $url) {
-            $type = $url->getSubfield('q');
-            if ($type) {
-                $type = $type->getData();
-                if ("TEXT" == $type || "text/html" == $type) {
-                    $address = $url->getSubfield('u');
-                    if ($address && !$this->urlBlacklisted($address->getData())) {
+            if ($type = $url->getSubfield('q')) {
+                $type = strtolower($type->getData());
+                if ("text" == $type || "text/html" == $type) {
+                    if ($address = $url->getSubfield('u')) {
                         $address = $address->getData();
                         return $address;
                     }
@@ -334,7 +332,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 
     /**
      * Get dissertation note for the record.
-     * Use field 502 if available. If not use local field 509
+     * Use field 502 if available. If not, use local field 509 or 920.
      *
      * @return string dissertation notes
      */
@@ -342,7 +340,12 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
     {
         $notes = $this->getFirstFieldValue('502', ['a', 'b', 'c']);
         if (!$notes) {
+            // 509 used in Voyager
             $notes = $this->getFirstFieldValue('509', ['a', 'b', 'c']);
+        }
+        if (!$notes) {
+            // 920 used in Alma
+            $notes = $this->getFirstFieldValue('920', ['a', 'b', 'c']);
         }
         return $notes;
     }
@@ -453,8 +456,8 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
                 $partArrangers = [];
                 $partOtherAuthors = [];
                 foreach ($partAuthors as $author) {
-                    if (isset($configArray['Record']['presenter_roles'])) {
-                        foreach ($configArray['Record']['presenter_roles']
+                    if (isset($this->recordConfig['Record']['presenter_roles'])) {
+                        foreach ($this->recordConfig['Record']['presenter_roles']
                             as $role
                         ) {
                             $author = trim($author);
@@ -464,8 +467,10 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
                             }
                         }
                     }
-                    if (isset($configArray['Record']['arranger_roles'])) {
-                        foreach ($configArray['Record']['arranger_roles'] as $role) {
+                    if (isset($this->recordConfig['Record']['arranger_roles'])) {
+                        foreach ($this->recordConfig['Record']['arranger_roles']
+                            as $role
+                        ) {
                             if (substr($author, -strlen($role) - 2) == ", $role") {
                                 $partArrangers[] = $author;
                                 continue 2;
@@ -983,12 +988,39 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
      */
     public function getSfxObjectId()
     {
-        $field001 = $this->getMarcRecord()->getField('001');
+        $record = $this->getMarcRecord();
+        $field001 = $record->getField('001');
         $id = $field001 ? $field001->getData() : '';
-        $field090 = $this->getMarcRecord()->getField('090');
+        $field090 = $record->getField('090');
         $objectId = $field090 ? $field090->getSubfield('a') : '';
         if ($objectId) {
             $objectId = $objectId->getData();
+        }
+        if ($id == $objectId) {
+            return $objectId;
+        }
+        return '';
+    }
+
+    /**
+     * Return Alma MMS ID
+     *
+     * @return string
+     */
+    public function getAlmaMmsId()
+    {
+        $record = $this->getMarcRecord();
+        $field001 = $record->getField('001');
+        $id = $field001 ? $field001->getData() : '';
+        $field090 = $record->getField('090');
+        $objectId = $field090 ? $field090->getSubfield('a') : '';
+        if ($objectId) {
+            $objectId = $objectId->getData();
+            if (strncmp($objectId, '(Alma)', 6) === 0) {
+                $objectId = substr($objectId, 6);
+            } else {
+                $objectId = '';
+            }
         }
         if ($id == $objectId) {
             return $objectId;
@@ -1457,10 +1489,10 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
     /**
      * Strip trailing spaces and punctuation characters from a string
      *
-     * @param string|string[] $input      String to strip
-     * @param string          $additional Additional punctuation characters
+     * @param string|array $input      String to strip
+     * @param string       $additional Additional punctuation characters
      *
-     * @return string
+     * @return string|array
      */
     protected function stripTrailingPunctuation($input, $additional = '')
     {

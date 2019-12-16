@@ -24,7 +24,7 @@
       display: none;
     }
   }
-  .record-image-container{
+  .record-image-container {
     position: relative;
   }
 }
@@ -79,7 +79,7 @@ mark, .highlight {
   }
   @media (max-width:@screen-xs-max) {
     border-bottom: 1px solid @gray-lighter;
-    &#result0 {
+    &#result0, &:first-child {
       border-top: 1px solid @gray-lighter;
     }
   }
@@ -254,6 +254,9 @@ mark, .highlight {
     .left {width:40%}
     .middle {width:60%}
     .right {display:none}
+  }
+  .label {
+    display: inline-block;
   }
 }
 .result.embedded {

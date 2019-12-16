@@ -18,7 +18,7 @@ finna.common = (function finnaCommon() {
       return;
     }
     $(window).keypress(function onSearchInputKeypress(e) {
-      if (e && (!$(e.target).is('input, textarea, select'))
+      if (e && (!$(e.target).is('input, textarea, select, div.CodeMirror-code'))
             && !$(e.target).hasClass('dropdown-toggle') // Bootstrap dropdown
             && !$('#modal').is(':visible')
             && (e.which >= 48) // Start from normal input keys
@@ -46,9 +46,10 @@ finna.common = (function finnaCommon() {
     });
   }
 
-  function initQrCodeLink() {
+  function initQrCodeLink(_holder) {
+    var holder = typeof _holder === 'undefined' ? $(document) : _holder;
     // handle finna QR code links
-    $('a.finnaQrcodeLink').click(function qrcodeToggle() {
+    holder.find('a.finnaQrcodeLink').click(function qrcodeToggle() {
       if ($(this).hasClass("active")) {
         $(this).html("<i class='fa fa-qr-code' aria-hidden='true'></i>").removeClass("active");
         $(this).parent().removeClass('qr-box');
@@ -57,22 +58,22 @@ finna.common = (function finnaCommon() {
         $(this).parent().addClass('qr-box');
       }
 
-      var holder = $(this).next('.qrcode');
-      if (holder.find('img').length === 0) {
+      var qrholder = $(this).next('.qrcode');
+      if (qrholder.find('img').length === 0) {
         // We need to insert the QRCode image
-        var template = holder.find('.qrCodeImgTag').html();
-        holder.html(template);
+        var template = qrholder.find('.qrCodeImgTag').html();
+        qrholder.html(template);
       }
-      holder.toggleClass('hidden');
+      qrholder.toggleClass('hidden');
       return false;
     });
 
     $('a.finnaQrcodeLinkRecord').click(function qrcodeToggleRecord() {
-      var holder = $(this).parent().find('li');
-      if (holder.find('img').length === 0) {
+      var qrholder = $(this).parent().find('li');
+      if (qrholder.find('img').length === 0) {
         // We need to insert the QRCode image
-        var template = holder.find('.qrCodeImgTag').html();
-        holder.html(template);
+        var template = qrholder.find('.qrCodeImgTag').html();
+        qrholder.html(template);
       }
       return true;
     });
@@ -81,6 +82,7 @@ finna.common = (function finnaCommon() {
   var my = {
     decodeHtml: decodeHtml,
     getField: getField,
+    initQrCodeLink: initQrCodeLink,
     init: function init() {
       initSearchInputListener();
       initQrCodeLink();

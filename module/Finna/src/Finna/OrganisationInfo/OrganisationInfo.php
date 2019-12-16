@@ -237,8 +237,6 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
         if (isset($params['id'])) {
             $id = $params['id'];
         }
-        $consortium
-            = $params['consortium'] ?? null;
         $target = $params['target'] ?? 'widget';
 
         $now = false;

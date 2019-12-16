@@ -52,6 +52,7 @@ if ($img):
             <?php else: ?>
               <?=$this->escapeHtml($type) ?><?=$this->escapeHtml($country) ?>
             <?php endif; ?>
+            <?=$this->record($this->driver)->getSourceIdElement() ?>
           </div>
 
           <?php if ($results = $this->driver->tryMethod('getOtherLinks')): ?>
@@ -82,7 +83,7 @@ if ($img):
             <?php if (!empty($primaryAuthors)): ?>
               <div class="truncate-field" data-rows="1">
                 <?php foreach($primaryAuthors as $index => $author): ?>
-                  <?=($index > 0 ? '; ' : '')?><a href="<?=$this->record($this->driver)->getLink('author', $author['name'])?>"><?=$this->escapeHtml($author['name'])?></a><?php if (!empty($author['date'])): ?><span class="author-date">, <?=$this->escapeHtml($author['date']) ?></span><?php endif; ?><?php if (!empty($author['role'])): ?><span class="author-role">, <?=mb_strtolower($this->transEsc('CreatorRoles::' . $author['role']), 'UTF-8') ?></span><?php endif; ?>
+                  <?=($index > 0 ? '; ' : '')?><?=$this->record($this->driver)->getAuthorityLinkElement('author', $author['name'], $author, ['date' => true, 'role' => true, 'authorityType' => $author['type']])?>
                 <?php endforeach; ?>
               </div>
             <?php endif; ?>
@@ -156,14 +157,16 @@ if ($img):
           <?php endif; ?>
         <?php endif; ?>
 
+        <?php if ($this->driver->tryMethod('getWorkKeys') && $this->record($this->driver)->hasTab('Versions')): ?>
+          <div class="record-versions ajax"></div>
+        <?php endif; ?>
+
         <?php $recordHelper = $this->record($this->driver); ?>
         <?=$recordHelper->renderTemplate('holdings.phtml');?>
         <?=$recordHelper->getOnlineUrls('results');?>
         <?=$recordHelper->getPreviews();?>
 
-        <?php if ($this->layout()->templateDir === 'list'): ?>
-            <?=$this->render('list/list-notes.phtml')?>
-        <?php endif; ?>
+        <?=$this->render('list/list-notes.phtml')?>
 
         <div class="clearfix"></div>
         <?php if ($this->userlist()->getMode() !== 'disabled'): ?>
@@ -198,7 +201,7 @@ if ($img):
             </div>
             <?php endif; ?>
 
-            <?php if ($this->cart()->isActiveInSearch() && $this->params->getOptions()->supportsCart() && $this->cart()->isActive()): ?>
+            <?php if (isset($this->params) && $this->cart()->isActiveInSearch() && $this->params->getOptions()->supportsCart() && $this->cart()->isActive()): ?>
                 <?=$this->render('record/cart-buttons.phtml', ['id' => $this->driver->getUniqueId(), 'source' => $this->driver->getSourceIdentifier()]); ?><br/>
             <?php endif; ?>
 

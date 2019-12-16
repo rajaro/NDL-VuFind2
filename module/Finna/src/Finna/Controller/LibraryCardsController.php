@@ -44,6 +44,41 @@ use VuFind\Exception\Auth as AuthException;
 class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
 {
     /**
+     * Send user's library cards to the view
+     *
+     * @return mixed
+     */
+    public function homeAction()
+    {
+        $view = parent::homeAction();
+        if (!empty($view->libraryCards)) {
+            // Try to see if the actual barcode is different from the login ID.
+            // Typical with email login.
+            try {
+                $cards = [];
+                $patron = $this->getILSAuthenticator()->storedCatalogLogin();
+                foreach ($view->libraryCards as $card) {
+                    $card = $card->toArray();
+                    if ($patron
+                        && $patron['cat_username'] === $card['cat_username']
+                    ) {
+                        $profile = $this->getILS()->getMyProfile($patron);
+                        if (!empty($profile['barcode'])) {
+                            $card['barcode'] = $profile['barcode'];
+                        }
+                    }
+                    $cards[] = $card;
+                }
+                $view->libraryCards = $cards;
+            } catch (\Exception $e) {
+                // No worries, this isn't critical
+            }
+        }
+
+        return $view;
+    }
+
+    /**
      * Send user's library card to the edit view
      *
      * @return mixed
@@ -119,7 +154,8 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
 
         // Connect to the ILS and check if it supports changing password
         $catalog = $this->getILS();
-        if (!$catalog->checkFunction('changePassword', $card->toArray())) {
+        if (!$catalog->checkFunction('changePassword', ['card' => $card->toArray()])
+        ) {
             throw new \Exception('Changing password not supported for this card');
         }
         // It's not exactly correct to send a card to getPasswordPolicy, but it has
@@ -157,7 +193,8 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
         );
         $catalog = $this->getILS();
         $recoveryConfig = $catalog->checkFunction(
-            'getPasswordRecoveryToken', ['cat_username' => "$target.123"]
+            'getPasswordRecoveryToken',
+            ['patron' => ['cat_username' => "$target.123"]]
         );
         $view = $this->createViewModel(
             [
@@ -221,6 +258,265 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
     }
 
     /**
+     * Self-registration action
+     *
+     * @return View object
+     */
+    public function registerAction()
+    {
+        // Make sure we're configured to do this
+        $target = $this->params()->fromQuery(
+            'target',
+            $this->params()->fromPost('target', '')
+        );
+        $catalog = $this->getILS();
+        $registerConfig = $catalog->checkFunction(
+            'registerPatron',
+            ['patron' => ['cat_username' => "$target.123"]]
+        );
+        if (!$registerConfig) {
+            throw new \Exception('Self-registration disabled');
+        }
+        $view = $this->createViewModel(
+            [
+                'target' => $target,
+                'introductionText' => $registerConfig['introductionText'] ?? ''
+            ]
+        );
+        $view->useRecaptcha = $this->recaptcha()->active('passwordRecovery');
+        // If we have a submitted form
+        if ($this->formWasSubmitted('submit', $view->useRecaptcha)) {
+            $email = trim($this->params()->fromPost('email'));
+            if (empty($email)) {
+                $this->flashMessenger()->addErrorMessage('no_email_address');
+            } else {
+                $emailAuthenticator = $this->serviceLocator
+                    ->get(\VuFind\Auth\EmailAuthenticator::class);
+
+                $patron = $catalog->patronLogin("$target.$email", ' ');
+                $targetName = $this->translate("source_$target", null, $target);
+                $subject = $this->translate(
+                    'email_registration_subject',
+                    ['%%target%%' => $targetName]
+                );
+                try {
+                    if ($patron) {
+                        $patron['target'] = $target;
+                        $emailAuthenticator->sendAuthenticationLink(
+                            $patron['email'],
+                            $patron,
+                            ['auth_method' => 'MultiILS'],
+                            'myresearch-home',
+                            $subject,
+                            'Email/registration-login-link.phtml'
+                        );
+                    } else {
+                        $emailAuthenticator->sendAuthenticationLink(
+                            $email,
+                            [
+                                'email' => $email,
+                                'target' => $target
+                            ],
+                            [],
+                            'librarycards-registrationform',
+                            $subject,
+                            'Email/registration-link.phtml'
+                        );
+                    }
+                    $this->flashMessenger()
+                        ->addSuccessMessage('email_registration_link_sent');
+                    $view->emailSent = true;
+                } catch (AuthException $e) {
+                    $this->flashMessenger()
+                        ->addErrorMessage($e->getMessage());
+                }
+            }
+        }
+        return $view;
+    }
+
+    /**
+     * Self-registration form action
+     *
+     * @return View object
+     */
+    public function registrationFormAction()
+    {
+        // Verify hash
+        $sessionManager = $this->serviceLocator->get(\VuFind\SessionManager::class);
+        $session = new \Zend\Session\Container('registerPatron', $sessionManager);
+        $hash = $this->params()->fromQuery(
+            'hash',
+            $this->params()->fromPost('hash', '')
+        );
+        if (empty($session->params[$hash])) {
+            $emailAuthenticator = $this->serviceLocator
+                ->get(\VuFind\Auth\EmailAuthenticator::class);
+            $params = $emailAuthenticator->authenticate($hash);
+            if (!isset($session->params)) {
+                $session->params = [];
+            }
+            $params['hash'] = $hash;
+            $session->params[$hash] = $params;
+        } else {
+            $params = $session->params[$hash];
+        }
+
+        // Make sure we're configured to do this
+        $target = $params['target'];
+        $catalog = $this->getILS();
+        $registerConfig = $catalog->checkFunction(
+            'registerPatron',
+            ['patron' => ['cat_username' => "$target.123"]]
+        );
+        if (!$registerConfig) {
+            throw new \Exception('Self-registration disabled');
+        }
+        if (!empty($registerConfig['fields'])) {
+            $fields = $registerConfig['fields'];
+        } else {
+            $fields = [
+                'firstname' => [
+                    'label' => 'First Name',
+                    'type' => 'text',
+                    'required' => true,
+                ],
+                'lastname' => [
+                    'label' => 'Last Name',
+                    'type' => 'text',
+                    'required' => true,
+                ],
+                'identitynumber' => [
+                    'label' => 'Identity Number',
+                    'type' => 'text',
+                ],
+                'email' => [
+                    'label' => 'Email',
+                    'type' => 'email',
+                    'readonly' => true,
+                ],
+                'address' => [
+                    'label' => 'Address',
+                    'type' => 'text',
+                    'required' => true,
+                ],
+                'zip' => [
+                    'label' => 'Zip',
+                    'type' => 'text',
+                    'required' => true,
+                ],
+                'city' => [
+                    'label' => 'Post Office',
+                    'type' => 'text',
+                    'required' => true,
+                ],
+                'phone' => [
+                    'label' => 'Phone',
+                    'type' => 'text',
+                    'required' => true,
+                ],
+                'language' => [
+                    'label' => 'Preferred Language',
+                    'type' => 'radio',
+                    'required' => true,
+                    'options' => [
+                        'fi' => ['name' => 'Suomi'],
+                        'sv' => ['name' => 'Svenska'],
+                        'en' => ['name' => 'English'],
+                    ],
+                ],
+            ];
+        }
+        foreach ($fields as $id => &$fieldRef) {
+            // Use the email address used for the registration message
+            $fieldRef['value'] = 'email' === $id
+                ? $params['email'] : $params['userdata'][$id] ?? '';
+        }
+        // Unset reference so that any further use doesn't access the referred
+        // element
+        unset($fieldRef);
+
+        $params['fields'] = $fields;
+        $view = $this->createViewModel($params);
+        $view->termsUrl = $registerConfig['termsUrl'] ?? '';
+        $view->registrationHelpText = $registerConfig['registrationHelpText'] ?? '';
+
+        // If we have a submitted form
+        if ($this->formWasSubmitted('submit')) {
+            $missingFields = false;
+            foreach ($fields as $id => $field) {
+                // Don't let the user override the email address
+                $params['userdata'][$id] = 'email' === $id
+                    ? $params['email'] : trim($this->params()->fromPost($id, ''));
+                if (($field['required'] ?? false)
+                    && '' === $params['userdata'][$id]
+                ) {
+                    $missingFields = true;
+                }
+            }
+            if (!$this->params()->fromPost('acceptTerms')) {
+                $missingFields = true;
+            }
+            $session->params[$hash] = $params;
+            if ($missingFields) {
+                $this->flashMessenger()->addErrorMessage('Fill mandatory fields');
+            } else {
+                $params['userdataok'] = true;
+                $session->params[$hash] = $params;
+                $catalog->registerPatron(
+                    [
+                        'cat_username' => "$target.123",
+                        'userdata' => $params['userdata']
+                    ]
+                );
+                $this->flashMessenger()->addSuccessMessage('new_ils_account_added');
+                return $this->redirect()->toRoute(
+                    'librarycards-registrationdone',
+                    [],
+                    ['query' => ['hash' => $hash]]
+                );
+            }
+        }
+        return $view;
+    }
+
+    /**
+     * Self-registration confirmation action
+     *
+     * @return View object
+     */
+    public function registrationDoneAction()
+    {
+        // Verify hash
+        $sessionManager = $this->serviceLocator->get(\VuFind\SessionManager::class);
+        $session = new \Zend\Session\Container('registerPatron', $sessionManager);
+        $hash = $this->params()->fromQuery(
+            'hash',
+            $this->params()->fromPost('hash', '')
+        );
+        if (empty($session->params[$hash])) {
+            throw new \Exception('An error has occurred');
+        }
+        $params = $session->params[$hash];
+        if (empty($params['userdataok'])) {
+            throw new \Exception('An error has occurred');
+        }
+
+        $target = $params['target'];
+        $catalog = $this->getILS();
+        $registerConfig = $catalog->checkFunction(
+            'registerPatron',
+            ['patron' => ['cat_username' => "$target.123"]]
+        );
+        if (!$registerConfig) {
+            throw new \Exception('A error has occurred');
+        }
+        $organisationInfoId = $registerConfig['organisationInfoId'] ?? null;
+
+        return $this->createViewModel(compact('target', 'organisationInfoId'));
+    }
+
+    /**
      * Handling submission of a new password for a library card.
      *
      * @return view
@@ -271,7 +567,7 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
         $catalog = $this->getILS();
         $recoveryConfig = $catalog->checkFunction(
             'recoverPassword',
-            ['cat_username' => "$target." . $recoveryData['username']]
+            ['patron' => ['cat_username' => "$target." . $recoveryData['username']]]
         );
         if (!$recoveryConfig) {
             $this->flashMessenger()->addMessage('recovery_disabled', 'error');
@@ -339,8 +635,9 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
         $target = $this->params()->fromPost('target', '');
         $username = $this->params()->fromPost('username', '');
         $password = $this->params()->fromPost('password', '');
+        $id = $this->params()->fromRoute('id', $this->params()->fromQuery('id'));
 
-        if (!$username || !$password) {
+        if (!$username) {
             $this->flashMessenger()
                 ->addMessage('authentication_error_blank', 'error');
             return false;
@@ -354,15 +651,32 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
         $secondaryUsername = trim($this->params()->fromPost('secondary_username'));
 
         // Connect to the ILS and check that the credentials are correct:
+        $loginMethod = $this->getILSLoginMethod($target);
         $catalog = $this->getILS();
         $patron = $catalog->patronLogin($username, $password, $secondaryUsername);
-        if (!$patron) {
+        if ('password' === $loginMethod && !$patron) {
             $this->flashMessenger()
                 ->addMessage('authentication_error_invalid', 'error');
             return false;
         }
-
-        $id = $this->params()->fromRoute('id', $this->params()->fromQuery('id'));
+        if ('email' === $loginMethod) {
+            if ($patron) {
+                $info = $patron;
+                $info['cardID'] = $id;
+                $info['cardName'] = $cardName;
+                $emailAuthenticator = $this->serviceLocator
+                    ->get(\VuFind\Auth\EmailAuthenticator::class);
+                $emailAuthenticator->sendAuthenticationLink(
+                    $info['email'],
+                    $info,
+                    ['auth_method' => 'Email'],
+                    'editLibraryCard'
+                );
+            }
+            // Don't reveal the result
+            $this->flashMessenger()->addSuccessMessage('email_login_link_sent');
+            return $this->redirect()->toRoute('librarycards-home');
+        }
 
         if (!empty($cardName)) {
             list($cardInstitution) = explode('.', $username, 2);

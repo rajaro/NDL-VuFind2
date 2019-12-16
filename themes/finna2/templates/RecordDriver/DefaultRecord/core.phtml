@@ -45,7 +45,7 @@
   $thumbnail = false;
   $thumbnailAlignment = $this->record($this->driver)->getThumbnailAlignment('result');
   ob_start(); ?>
-  <div class="media-<?=$thumbnailAlignment ?>">
+  <div class="media-<?=$thumbnailAlignment ?><?=!empty($audioUrls) ? ' audio' : ''?>">
 
     <?=$this->record($this->driver)->renderTemplate('record-image-information.phtml', ['img' => $img]);?>
 
@@ -83,7 +83,14 @@
     <?php if ($uniformTitles = $this->driver->tryMethod('getUniformTitles')): ?>
       <div class="record-uniform-titles">
         <?php foreach ($uniformTitles as $uniformTitle): ?>
-          <?=$this->escapeHtml($uniformTitle) ?><br/>
+          <?php if (isset($this->tabs['Versions'])): ?>
+            <a href="<?=$this->escapeHtmlAttr($this->recordLink()->getVersionsSearchUrl($this->driver))?>" rel="nofollow">
+              <?=$this->escapeHtml($uniformTitle) ?>
+            </a>
+            <br>
+          <?php else: ?>
+            <?=$this->escapeHtml($uniformTitle) ?><br>
+          <?php endif; ?>
         <?php endforeach; ?>
       </div>
     <?php endif; ?>
@@ -91,8 +98,18 @@
     <?php
       $formats = $this->driver->getFormats();
     ?>
-    <?php if (!empty($urls) || $openUrlActive || !empty($onlineURLs) || !empty($mergedData['urls'])): ?>
-      <div class="recordURLs local-available-online-record">
+
+    <?php // Include the recordURLs div as a placeholder for URLs from holdings too ?>
+    <div class="recordURLs local-available-online-record">
+      <?php // The following template is used in finna-record.js to pull links from real-time holdings ?>
+      <div class="fulltextField url-template hidden">
+        <a class="fulltext" href="HREF" target="_blank" aria-label="<?=$this->escapeHtmlAttr($this->translate('external_online_link'))?>">
+          <i class="fa fa-external-link"></i> DESC
+          <span class="online-source">SOURCE</span>
+        </a>
+        <?php if (!empty($url['part'])): ?> <span class="coverage"><?=$this->transEsc('default::link_' . $url['part'], null, $url['part']) ?><?php endif; ?>
+      </div>
+      <?php if (!empty($urls) || $openUrlActive || !empty($onlineURLs) || !empty($mergedData['urls'])): ?>
         <div class="truncate-field">
           <?php if (!empty($otherUrls)): ?>
             <?php foreach ($otherUrls as $url): ?>
@@ -118,19 +135,19 @@
             <?php foreach (!empty($mergedData['urls']) ? $mergedData['urls'] : $onlineURLs as $url): ?>
               <?php if (in_array($url['url'], $renderedURLs)) { continue; } ?>
               <div class="fulltextField"><a class="fulltext" href="<?=$this->escapeHtmlAttr($this->proxyUrl($url['url'])) ?>" target="_blank" aria-label="<?=$this->escapeHtmlAttr($this->translate('external_online_link'))?>"><i class="fa fa-external-link"></i> <?=!empty($url['text']) ? $this->transEsc('default::link_' . $url['text'], null, $url['text']) : $this->escapeHtml($this->truncateUrl($url['url'])) ?></a>
-              <?php if (!empty($url['part'])): ?> <span class="coverage"><?=$this->transEsc('default::link_' . $url['part'], null, $url['part']) ?><?php endif; ?>
-              <?php if ($url['source']): ?>
-                <span class="online-source">(<?=is_array($url['source']) ? $this->transEsc('Multiple Organisations') : $this->transEsc('default::source_' . $url['source'], null, $url['source']) ?>)</span>
-              <?php endif; ?>
+                <?php if (!empty($url['part'])): ?> <span class="coverage"><?=$this->transEsc('default::link_' . $url['part'], null, $url['part']) ?><?php endif; ?>
+                <?php if ($url['source']): ?>
+                  <span class="online-source">(<?=is_array($url['source']) ? $this->transEsc('Multiple Organisations') : $this->transEsc('default::source_' . $url['source'], null, $url['source']) ?>)</span>
+                <?php endif; ?>
               </div>
             <?php endforeach; ?>
           <?php endif; ?>
         </div>
-      <?php if ($openUrlActive): ?>
-        <?=$openUrl->renderTemplate()?>
+        <?php if ($openUrlActive): ?>
+          <?=$openUrl->renderTemplate()?>
+        <?php endif; ?>
       <?php endif; ?>
-      </div>
-    <?php endif; ?>
+    </div>
 
     <div class="record-core-metadata">
       <?php $formats = $this->driver->getFormats(); if (!empty($formats)): ?>
@@ -173,13 +190,13 @@
                 <?=$i > 0 ? '<br/>' : ''?>
                 <?php if ($hostRecord['id'] || $hostRecord['title']): ?>
                   <?php $link = $hostRecord['id'] ? $this->recordLink()->getUrl($hostRecord['sourceId'] . '|' . $hostRecord['id']) : $this->record($this->driver)->getLink('title', $hostRecord['title']); ?>
-                  <a href="<?=$link?>"><?=$hostRecord['title']?></a>
+                  <a href="<?=$this->escapeHtmlAttr($link)?>"><?=$hostRecord['title']?></a>
                 <?php endif; ?>
                 <?=$this->escapeHtml($hostRecord['reference']); ?>
               <?php endforeach; ?>
             <?php else: ?>
               <?php $link = $containerID ? $this->recordLink()->getUrl($containerSource . '|' . $containerID) : $this->record($this->driver)->getLink('title', $containerTitle); ?>
-              <a href="<?=$link?>"><?=$this->escapeHtml($containerTitle)?></a>
+              <a href="<?=$this->escapeHtmlAttr($link)?>"><?=$this->escapeHtml($containerTitle)?></a>
               <?php $ref = $this->driver->getContainerReference(); if (!empty($ref)) { echo $this->escapeHtml($ref); } ?>
             <?php endif; ?>
           </div>
@@ -207,6 +224,7 @@
         </span>
       <?php endif; ?>
 
+      <?=$this->record($this->driver)->renderTemplate('versions-link.phtml')?>
     </div> <?php // record-core-metadata ?>
 
     <div class="description recordSummary">

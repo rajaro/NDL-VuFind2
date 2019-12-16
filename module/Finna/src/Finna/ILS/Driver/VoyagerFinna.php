@@ -140,7 +140,7 @@ trait VoyagerFinna
            'locations' => count($locations),
            'availability' => null,
            'callnumber' => null,
-           'location' => null
+           'location' => '__HOLDINGSSUMMARYLOCATION__'
         ];
     }
 
@@ -466,7 +466,9 @@ trait VoyagerFinna
         } elseif ($function == 'onlinePayment'
             && isset($this->config['OnlinePayment'])
         ) {
-            return $this->config['OnlinePayment'];
+            $functionConfig = $this->config['OnlinePayment'];
+            $functionConfig['exactBalanceRequired'] = true;
+            return $functionConfig;
         }
 
         if (is_callable('parent::getConfig')) {

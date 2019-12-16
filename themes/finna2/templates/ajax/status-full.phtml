@@ -8,22 +8,19 @@ $holdings = $this->statusItems;
 $summary = array_pop($holdings);
 $onlyUnknownStatuses = true;
 $holdingsConfig = $this->ils()->getConfig('Holdings', [$id]);
-if (isset($summary['total'])) {
+if (($summary['location'] ?? '') === '__HOLDINGSSUMMARYLOCATION__') {
   $itemsTotal = $summary['total'];
   $availableTotal = $summary['available'];
   $reservationsTotal
      = $summary['reservations'] ?? null;
   $orderedTotal
      = $summary['ordered'] ?? null;
-  $locations = $summary['locations'];
+  $locations = $summary['locations'] ?? null;
 } else {
   $holdings[] = $summary;
 }
 
 foreach ($holdings as &$holding) {
-  $holding['location']
-     = $this->transEsc('location_' . $holding['location'], [], $holding['location']);
-
   if (!empty($holding['availability']) || empty($holding['use_unknown_message'])) {
     $onlyUnknownStatuses = false;
   }
@@ -185,7 +182,14 @@ foreach ($this->statusItems as $item):
     <div class="holdings-container<?=$collapseBranches ? ' collapsible' : ''?> clearfix">
       <div class="header">
         <?php if ($collapseBranches): ?><i class="fa fa-arrow-right arrow right"></i><?php endif; ?>
-        <?=$currentLocation?>
+        <?php $locationText = $this->transEscWithPrefix('location_', $item['location']); ?>
+        <?php if ($item['locationhref'] ?? false): ?>
+          <span class="available-online-links">
+            <a href="<?=$this->escapeHtmlAttr($item['locationhref'])?>" target="_blank"><?=$locationText?></a>
+          </span>
+        <?php else: ?>
+          <?=$locationText?>
+        <?php endif; ?>
         <?php if ($collapseBranches): ?>
           <span>
             <?php if (!empty($availableLocations[$item['location']])): ?>
@@ -206,18 +210,23 @@ foreach ($this->statusItems as $item):
     if (!empty($item['availability'])) {
       $classes = ['ok', 'success'];
     }
-    if (!$classes && !empty($item['use_unknown_message']) && $item['use_unknown_message']) {
+    if (!$classes && ($item['use_unknown_message'] ?? false)) {
       $classes = $onlyUnknownStatuses ? ['status-unknown-no-icon warning'] : ['status-unknown', 'warning'];
     }
     if (!$classes) {
       $classes = ['remove', 'error'];
     }
+    $locationText = $this->transEscWithPrefix('location_', $item['location']);
+    if ($item['locationhref'] ?? false) {
+      $locationText = '<span class="available-online-links"><a href="' . $this->escapeHtmlAttr($item['locationhref']) . '" target="_blank">'
+        . $locationText . '</a></span>';
+    }
     if (!empty($item['department']) && !$groupBranches) {
-      $location = '<span class="branch">' . $this->transEsc($item['location']) . '</span>, <span class="department">' . $this->transEsc($item['department']) . '</span>';
+      $location = '<span class="branch">' . $locationText . '</span>, <span class="department">' . $this->transEsc($item['department']) . '</span>';
     } elseif ($groupBranches) {
       $location = '<span class="branch">' . ($this->transEsc($item['branch']) . '</span>, <span class="department">' . $this->transEsc($item['department']) . '</span>');
     } else {
-      $location = '<span class="branch">' . $this->transEsc($item['location']) . '</span>';
+      $location = '<span class="branch">' . $locationText . '</span>';
     }
   ?>
     <div class="<?=$currentRow % 2 == 0 ? 'even' : 'odd'?> clearfix">
@@ -276,7 +285,7 @@ if (!$disableTitleHold
       $logged = $account->isLoggedIn();
       $link = null;
       if (!$logged) {
-        $link = $holdingsLink . '?login=true&amp;catalogLogin=true';
+        $link = $holdingsLink . '?login=true&catalogLogin=true';
       } elseif ($journal) {
         $link = $holdingsLink;
       } else {
@@ -288,11 +297,11 @@ if (!$disableTitleHold
       if ($link) {
         if ($logged) {
 ?>
-      <a href="<?=$link?>" class="placehold btn btn-primary hidden-print" data-lightbox-title="<?=$this->escapeHtmlAttr($this->translate('title_hold_place') . ': ' . $driver->getTitle()) ?>" data-lightbox><?=$this->transEsc('title_hold_place')?></a>
+      <a href="<?=$this->escapeHtmlAttr($link)?>" class="placehold btn btn-primary hidden-print" data-lightbox-title="<?=$this->escapeHtmlAttr($this->translate('title_hold_place') . ': ' . $driver->getTitle()) ?>" data-lightbox><?=$this->transEsc('title_hold_place')?></a>
 <?php
         } else {
 ?>
-      <a href="<?=$link?>" class="login btn btn-primary hidden-print" data-lightbox><?=$this->transEsc('title_hold_login')?></a>
+      <a href="<?=$this->escapeHtmlAttr($link)?>" class="login btn btn-primary hidden-print" data-lightbox><?=$this->transEsc('title_hold_login')?></a>
 <?php
         }
       }
@@ -304,7 +313,7 @@ if (!$disableTitleHold
 ?>
 <?php if ($this->holdingsSettings()->showLinkToRecordPage()): ?>
   <div class="all-holdings">
-    <a href="<?=$holdingsLink;?>"><?=$this->transEsc('See all holdings')?></a>
+    <a href="<?=$this->escapeHtmlAttr($holdingsLink)?>"><?=$this->transEsc('See all holdings')?></a>
   </div>
 <?php endif; ?>
 </div>

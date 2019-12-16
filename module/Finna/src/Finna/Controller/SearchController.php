@@ -207,6 +207,25 @@ class SearchController extends \VuFind\Controller\SearchController
     }
 
     /**
+     * Blended action.
+     *
+     * @return mixed
+     */
+    public function blendedAction()
+    {
+        $saveId = $this->searchClassId;
+        try {
+            $this->searchClassId = 'Blender';
+            $view = parent::resultsAction();
+        } catch (\Exception $e) {
+            $this->searchClassId = $saveId;
+            throw $e;
+        }
+        $this->searchClassId = $saveId;
+        return $view;
+    }
+
+    /**
      * Results action.
      *
      * @return mixed
@@ -263,6 +282,27 @@ class SearchController extends \VuFind\Controller\SearchController
             $results->getUrlQuery()->isQuerySuppressed()
                 ? '' : $results->getParams()->getDisplayQuery()
         );
+    }
+
+    /**
+     * Returns a list of all items associated with one facet for the lightbox
+     *
+     * Parameters:
+     * facet        The facet to retrieve
+     * searchParams Facet search params from $results->getUrlQuery()->getParams()
+     *
+     * @return mixed
+     */
+    public function facetListAction()
+    {
+        $authorityHelper
+            = $this->serviceLocator->get(\Finna\Search\Solr\AuthorityHelper::class);
+
+        $view = parent::facetListAction();
+
+        // Convert author-id facet labels to readable names
+        $view->data = $authorityHelper->formatFacetList($view->facet, $view->data);
+        return $view;
     }
 
     /**

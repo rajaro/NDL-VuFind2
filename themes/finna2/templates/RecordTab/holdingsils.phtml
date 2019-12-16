@@ -13,12 +13,21 @@
     try {
         $holdings = $this->driver->getRealTimeHoldings();
     } catch (\VuFind\Exception\ILS $e) {
-        $holdings = [];
+        $holdings = [
+          'holdings' => [],
+          'electronic_holdings' => [],
+          'total' => 0,
+          'page' => 0,
+          'itemLimit' => 0
+        ];
         $offlineMode = 'ils-offline';
     }
     $holdsAllowed = $this->driver->tryMethod('getHoldsAllowed');
     if (!isset($holdings['holdings'])) {
         $holdings['holdings'] = [];
+        $holdings['total'] = 0;
+        $holdings['page'] = 1;
+        $holdings['itemLimit'] = 10;
     }
 
     $illRequestLink = false;
@@ -36,7 +45,7 @@
       $last = array_pop($holdings['holdings']);
       if (isset($last['items']) && is_array($last['items'])) {
           $summary = $last['items'][0];
-          if (!isset($summary['total'])) {
+          if (($summary['location'] ?? '') !== '__HOLDINGSSUMMARYLOCATION__') {
              $summary = false;
           }
       }
@@ -71,6 +80,7 @@
 ?>
 
 <?=($offlineMode == "ils-offline") ? $this->render('Helpers/ils-offline.phtml', ['offlineModeMsg' => 'ils_offline_holdings_message']) : ''?>
+
 <?php if ($holdsAllowed && !$disableTitleHold && (($this->ils()->getHoldsMode() == 'driver' && !empty($holdings['holdings'])) || $this->ils()->getTitleHoldsMode() == 'driver')): ?>
   <?php if ($account->loginEnabled() && $offlineMode != 'ils-offline' && $ilsLoginAvailable): ?>
     <?php if (!$user): ?>
@@ -97,7 +107,13 @@
         <a class="holdings-url-link" href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>" target="_blank" aria-label="<?=$this->escapeHtmlAttr($this->translate('external_online_link'))?>"><i class="fa fa-external-link"></i> <?=$this->transEsc('default::link_' . $current['desc'], null, $current['desc'])?></a>
       <?php endforeach; ?>
     <?php endif; ?>
-    <?php if ($openUrlActive): ?><?=$openUrl->renderTemplate()?><?php endif; ?>
+    <?php if ($openUrlActive): ?>
+      <?=$openUrl->renderTemplate()?>
+      <?php
+        $loadOpenURLs = "finna.openUrl.initLinks($('.holdings-urls'));";
+        echo $this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $loadOpenURLs, 'SET')
+      ?>
+    <?php endif; ?>
     <?php if ($doiActive): ?><?=$doi->renderTemplate()?><?php endif; ?>
   </div>
 </div>
@@ -128,6 +144,13 @@
     <?php endif; ?>
   <?php endif; ?>
   </div>
+<?php endif; ?>
+
+<?php if (!empty($holdings['electronic_holdings'])): ?>
+  <?=$this->context($this)->renderInContext(
+      'RecordTab/holdingsils/electronic.phtml',
+      ['holdings' => $holdings['electronic_holdings']]
+  );?>
 <?php endif; ?>
 
 <div class="table record-holdings-table">
@@ -186,7 +209,7 @@
           $firstDueStr = $row['duedate'];
         }
       }
-      $statuses[$this->translate('status_' . $row['status'], null, $row['status'])] = 1;
+      $statuses[$this->translate('status_' . $row['status'], null, $this->translate($row['status']))] = 1;
       if (isset($row['branch'])) {
         $branches = true;
       } else {
@@ -248,7 +271,7 @@
        $callnumbers[] = ['callNo' => $callNo, 'collection' => $collection, 'location' => $location];
     }
     $dialogTitle = ': ' . $this->driver->getTitle();
-    $titleLocation = $this->transEsc('location_' . $holding['location'], [], $holding['location']);
+    $titleLocation = $this->transEscWithPrefix('location_', $holding['location']);
     if ($titleLocation) {
         $dialogTitle .= " - $titleLocation";
     }
@@ -266,7 +289,7 @@
   <?php endif; ?>
   <div class="holdings-container-heading">
     <div class="location">
-      <i class="fa fa-arrow-<?=$holdingsDetails == 'collapsed' ? 'right' : 'down'?>" aria-hidden="true"></i> <?=$this->transEsc('location_' . $holding['location'], [], $holding['location'])?>
+      <i class="fa fa-arrow-<?=$holdingsDetails == 'collapsed' ? 'right' : 'down'?>" aria-hidden="true"></i> <?=$this->transEscWithPrefix('location_', $holding['location'])?>
       <?php if ($this->holdingsSettings()->showDetailsAfterLocationGroup()): ?>
         <div class="details"><?=$this->partial('RecordTab/holdings-details.phtml', ['holdingId' => $holdingId, 'holding' => $holding, 'heading' => true]);?></div>
       <?php endif; ?>
@@ -362,7 +385,7 @@
             </div>
           <?php else: ?>
             <?php /* Begin Unavailable Items (Recalls) */ ?>
-            <span class="text-danger"><?=$row['status'] == 'Ordered' ? '' : '<i class="fa fa-remove" aria-hidden="true"></i>';?> <?=$this->transEsc('status_' . $row['status'], null, $row['status'])?><link property="availability" href="http://schema.org/OutOfStock" /> </span>
+            <span class="text-danger"><?=$row['status'] == 'Ordered' ? '' : '<i class="fa fa-remove" aria-hidden="true"></i>';?> <?=$this->transEsc('status_' . $row['status'], null, $this->translate($row['status']))?><link property="availability" href="http://schema.org/OutOfStock" /> </span>
             <?php if (isset($row['returnDate']) && $row['returnDate']): ?>&ndash; <span class="small"><?=$this->escapeHtml($row['returnDate'])?></span><?php endif; ?>
             <?php if (isset($row['duedate']) && $row['duedate']): ?>
               &ndash;&nbsp;<span class="small"><?=$this->transEsc('Due')?>:&nbsp;<?=$this->escapeHtml($row['duedate'])?></span>

@@ -24,7 +24,7 @@
             'searchId' => $this->results->getSearchId(),
             'searchClassId' => $this->params->getSearchClassId(),
             'checkboxFilters' => $this->params->getCheckboxFacets(),
-            'filterList' => $this->params->getFilters(),
+            'filterList' => $this->params->getFilterList(true),
             'hasDefaultsApplied' => $this->params->hasDefaultsApplied(),
             'selectedShards' => $this->params->getSelectedShards(),
             'savedSearches' => $this->layout()->savedTabs,
@@ -64,7 +64,7 @@
   }
 
   $filterCount = 0;
-  if (!$browse && !empty($params->getFilterList(false))){
+  if (!empty($params->getFilterList(false))){
       // Clone the params object to prevent its manipulation from affecting main facet functionality
       $params = clone $this->params;
       $filterList = $params->getFilterList(true);
@@ -125,13 +125,13 @@
         <?php
           $removeLink = isset($urlQuery) ? $urlQuery->removeFacet($value['field'], $value['value'], $value['operator']) : '';
           $desc = $this->escapeHtml($value['displayText']);
-          $ariaLabel = $this->translate('Remove filter') . ' ' . $desc;
+          $ariaLabel = $this->escapeHtmlAttr($this->translate('Remove filter') . ' ' . $value['displayText']);
         ?>
         <span class="filter-value">
           <span class="filter-text">
             <?=$desc?>
           </span>
-          <?php if ($removeLink): ?><a aria-label="<?=$ariaLabel?>" href="<?=$removeLink?>"><i class="fa fa-window-close" aria-hidden="true"></i></a><?php endif; ?>
+          <?php if ($removeLink): ?><a aria-label="<?=$ariaLabel?>" href="<?=$this->escapeHtmlAttr($removeLink)?>"><i class="fa fa-window-close" aria-hidden="true"></i></a><?php endif; ?>
         </span>
       <?php endforeach; ?>
     <?php endif; ?>
@@ -141,9 +141,9 @@
 <?php endif; ?>
 
 <?php if (($recordTotal = $this->results->getResultTotal()) > 0): // only display these at very top if we have results ?>
-    <?php foreach ($this->results->getRecommendations('top') as $current): ?>
-        <?=$this->recommend($current)?>
-    <?php endforeach; ?>
+  <?php foreach ($this->results->getRecommendations('top') as $index => $current): ?>
+    <?=$this->recommend($current, 'top', $index)?>
+  <?php endforeach; ?>
 <?php endif; ?>
 <div class="results result-view-<?=$this->escapeHtmlAttr($this->params->getView())?>">
   <?php if ($recordTotal < 1): ?>
@@ -178,9 +178,9 @@
       <?php if (isset($this->parseError)): ?>
         <p class="alert alert-danger"><?=$this->transEsc('nohit_parse_error')?></p>
       <?php endif; ?>
-      <?php foreach ($this->results->getRecommendations('noresults') as $current): ?>
+      <?php foreach ($this->results->getRecommendations('noresults') as $index => $current): ?>
         <?php if (!in_array($current, $topRecommendations)): ?>
-          <?=$this->recommend($current)?>
+          <?=$this->recommend($current, 'noresults', $index)?>
         <?php endif; ?>
       <?php endforeach; ?>
       <?php if ($this->fromStreetSearch): ?>
@@ -224,8 +224,10 @@
     <?php /* End Listing Options */ ?>
     <h1 class="sr-only"><?= $this->transEsc('Search Results'); ?></h1>
     <?php if ($recordTotal < 1): ?>
-      <?php foreach ($topRecommendations as $current): ?>
-        <?=$this->recommend($current)?>
+      <?php foreach ($topRecommendations as $index => $current): ?>
+        <?php if (! $current instanceof \Finna\Recommend\AuthorityRecommend): ?>
+          <?=$this->recommend($current, 'top', $index)?>
+        <?php endif; ?>
       <?php endforeach; ?>
       <?php if (!$browse && $this->searchTabsRecommendations()->getConfig($this->params->getSearchClassId())): ?>
         <div id="search-tabs-recommendations-holder" data-search-id="<?=$this->escapeHtmlAttr($this->results->getSearchId())?>" data-limit="<?=$this->results->getParams()->getLimit() ?>"></div>
@@ -246,8 +248,8 @@
   <?php /* Narrow Search Options */ ?>
   <div id="sidebar" class="<?=$recordTotal < 1 ? "empty-list" : $this->layoutClass('sidebar')?>">
     <?php $messageAdded = false; ?>
-    <?php foreach ($this->results->getRecommendations('side') as $current): ?>
-      <?=$this->recommend($current)?>
+    <?php foreach ($this->results->getRecommendations('side') as $index => $current): ?>
+      <?=$this->recommend($current, 'side', $index)?>
       <?php if (!$messageAdded) {
         if (!isset($this->layout()->srmessage)) {
           $this->layout()->srmessage = '';

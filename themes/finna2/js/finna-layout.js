@@ -1,4 +1,4 @@
-/*global VuFind, checkSaveStatuses, action, finna, initFacetTree, priorityNav */
+/*global VuFind, videojs, checkSaveStatuses, action, finna, initFacetTree, priorityNav */
 finna.layout = (function finnaLayout() {
   var _fixFooterTimeout = null;
   var masonryInitialized = false;
@@ -455,10 +455,11 @@ finna.layout = (function finnaLayout() {
     holder.find('select.jumpMenuUrl').unbind('change').change(function onChangeJumpMenuUrl(e) { window.location.href = $(e.target).val(); });
   }
 
-  function initSecondaryLoginField(labels, topClass) {
-    $('#login_target').change(function onChangeLoginTarget() {
-      var target = $('#login_target').val();
-      var field = $('#login_' + (topClass ? topClass + '_' : '') + 'secondary_username');
+  function initSecondaryLoginField(labels, idPrefix) {
+    var searchPrefix = idPrefix ? '#' + idPrefix : '#';
+    $(searchPrefix + 'target').change(function onChangeLoginTarget() {
+      var target = $(searchPrefix + 'target').val();
+      var field = $(searchPrefix + 'secondary_username');
       if ((typeof labels[target] === 'undefined') || labels[target] === '') {
         field.val('');
         field.closest('.form-group').hide();
@@ -470,13 +471,26 @@ finna.layout = (function finnaLayout() {
     }).change();
   }
 
-  function initILSPasswordRecoveryLink(links) {
-    $('#login_target').change(function onChangeLoginTargetLink() {
-      var target = $('#login_target').val();
+  function initILSPasswordRecoveryLink(links, idPrefix) {
+    var searchPrefix = idPrefix ? '#' + idPrefix : '#';
+    $(searchPrefix + 'target').change(function onChangeLoginTargetLink() {
+      var target = $(searchPrefix + 'target').val();
       if (links[target]) {
         $('#login_library_card_recovery').attr('href', links[target]).show();
       } else {
         $('#login_library_card_recovery').hide();
+      }
+    }).change();
+  }
+
+  function initILSSelfRegistrationLink(links, idPrefix) {
+    var searchPrefix = idPrefix ? '#' + idPrefix : '#';
+    $(searchPrefix + 'target').change(function onChangeLoginTargetLink() {
+      var target = $(searchPrefix + 'target').val();
+      if (links[target]) {
+        $('#login_library_card_register').attr('href', links[target]).show();
+      } else {
+        $('#login_library_card_register').hide();
       }
     }).change();
   }
@@ -650,6 +664,32 @@ finna.layout = (function finnaLayout() {
     });
   }
 
+  function initAudioButtons() {
+    $('.audio-accordion .audio-item-wrapper').each(function initAudioPlayer() {
+      var self = $(this);
+      var play = self.find('.play');
+      var source = self.find('source');
+      play.click(function onPlay() {
+        self.find('.audio-player-wrapper').removeClass('hide');
+        var audio = self.find('audio');
+        audio.removeClass('hide');
+        audio.addClass('video-js');
+        source.attr('src', source.data('src'));
+        finna.layout.loadScripts(
+          $(this).data('scripts'),
+          function onVideoJsLoaded() {
+            videojs(
+              audio.attr('id'),
+              { controlBar: { volumePanel: false, muteToggle: false } },
+              function onVideoJsInited() {}
+            );
+          }
+        );
+        play.remove();
+      });
+    });
+  }
+
   function initVideoButtons() {
     finna.videoPopup.initVideoPopup($('body'));
     finna.videoPopup.initIframeEmbed($('body'));
@@ -731,7 +771,7 @@ finna.layout = (function finnaLayout() {
     $('.filters-toggle').click(function filterToggleClicked() {
       var button = $(this);
       var filters = button.closest('.finna-filters').find('.filters');
-      
+
       function setState(setHidden, arrowClass, text) {
         filters.toggleClass('hidden', setHidden);
         button.find('.fa').attr('class', arrowClass);
@@ -824,6 +864,7 @@ finna.layout = (function finnaLayout() {
     initOrganisationPageLinks: initOrganisationPageLinks,
     initSecondaryLoginField: initSecondaryLoginField,
     initILSPasswordRecoveryLink: initILSPasswordRecoveryLink,
+    initILSSelfRegistrationLink: initILSSelfRegistrationLink,
     initLoginTabs: initLoginTabs,
     loadScripts: loadScripts,
     getMasonryState: getMasonryState,
@@ -853,6 +894,7 @@ finna.layout = (function finnaLayout() {
       initLoadMasonry();
       initOrganisationInfoWidgets();
       initOrganisationPageLinks();
+      initAudioButtons();
       initVideoButtons();
       initKeyboardNavigation();
       initPriorityNav();

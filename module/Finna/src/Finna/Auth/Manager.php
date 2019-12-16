@@ -84,18 +84,18 @@ class Manager extends \VuFind\Auth\Manager
     }
 
     /**
-     * Update common user attributes on login
+     * Check if ILS supports self-registration
      *
-     * @param \VuFind\Db\Row\User $user User object
+     * @param string $target Login target (only for MultiILS)
      *
-     * @return void
+     * @return string|false
      */
-    protected function updateUser($user)
+    public function ilsSupportsSelfRegistration($target = '')
     {
-        parent::updateUser($user);
-        if ($lng = $this->cookieManager->get('language')) {
-            $user->finna_language = $lng;
-            $user->save();
+        $auth = $this->getAuth();
+        if (is_callable([$auth, 'ilsSupportsSelfRegistration'])) {
+            return $auth->ilsSupportsSelfRegistration($target);
         }
+        return false;
     }
 }

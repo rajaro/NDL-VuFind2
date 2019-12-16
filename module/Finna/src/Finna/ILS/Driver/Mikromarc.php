@@ -152,7 +152,19 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
                 'default_sort' => 'everything desc',
             ];
         }
-        return isset($this->config[$function]) ? $this->config[$function] : false;
+        $functionConfig = $this->config[$function] ?? false;
+        if ($functionConfig && 'onlinePayment' === $function) {
+            $functionConfig['exactBalanceRequired'] = true;
+        }
+        if ($functionConfig && 'Holds' === $function) {
+            if (isset($functionConfig['titleHoldBibLevels'])
+                && !is_array($functionConfig['titleHoldBibLevels'])
+            ) {
+                $functionConfig['titleHoldBibLevels']
+                    = explode(':', $functionConfig['titleHoldBibLevels']);
+            }
+        }
+        return $functionConfig;
     }
 
     /**
@@ -1468,8 +1480,6 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
      */
     protected function getItemStatusesForBiblio($id, $patron = null)
     {
-        $units = $this->getLibraryUnits();
-
         $result = $this->makeRequest(
             ['odata', 'CatalogueItems'],
             ['$filter' => "MarcRecordId eq $id"]
@@ -1501,9 +1511,22 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             $organisationTotal[$unit['branch']] = [
                'reservations' => $item['ReservationQueueLength']
             ];
-
+            $duedate = isset($item['DueDate'])
+                ? $this->dateConverter->convertToDisplayDate(
+                    \DateTime::ATOM,
+                    $item['DueDate']
+                )
+                : '';
             $unit = $this->getLibraryUnit($unitId);
+            $number = '';
+            $shelf = $item['Shelf'];
 
+            // Special case: detect if Shelf field has issue number information
+            // (e.g. 2018:4) and put the info into number field instead
+            if (preg_match('/^\d{4}:\d+$/', $shelf) === 1) {
+                $number = $shelf;
+                $shelf = '';
+            }
             $entry = [
                 'id' => $id,
                 'item_id' => $item['Id'],
@@ -1515,10 +1538,11 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
                 'availability' => $available,
                 'status' => $statusCode,
                 'reserve' => 'N',
-                'callnumber' => $item['Shelf'],
-                'duedate' => null,
+                'callnumber' => $shelf,
+                'duedate' => $duedate,
                 'barcode' => $item['Barcode'],
                 'item_notes' => [isset($items['notes']) ? $item['notes'] : null],
+                'number' => $number,
             ];
 
             if (!empty($item['LocationId'])) {
@@ -1566,6 +1590,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
     protected function getHoldingsSummary($holdings)
     {
         $holdable = false;
+        $titleHold = true;
         $availableTotal = $itemsTotal = $orderedTotal = $reservationsTotal = 0;
         $locations = [];
         foreach ($holdings as $item) {
@@ -1582,6 +1607,9 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             if ($item['is_holdable']) {
                 $holdable = true;
             }
+            if (!empty($item['number'])) {
+                $titleHold = false;
+            }
             $itemsTotal++;
         }
 
@@ -1597,8 +1625,9 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
            'holdable' => $holdable,
            'availability' => null,
            'callnumber' => null,
-           'location' => null,
-           'groupBranches' => false
+           'location' => '__HOLDINGSSUMMARYLOCATION__',
+           'groupBranches' => false,
+           'titleHold' => $titleHold
         ];
     }
 
@@ -2094,5 +2123,30 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             return $this->holdError($code, $result);
         }
         return ['success' => true];
+    }
+
+    /**
+     * Check if request is valid
+     *
+     * This is responsible for determining if an item is requestable
+     *
+     * @param string $id     The Bib ID
+     * @param array  $data   An Array of item data
+     * @param patron $patron An array of patron data
+     *
+     * @return bool True if request is valid, false if not
+     */
+    public function checkRequestIsValid($id, $data, $patron)
+    {
+        if ('title' === $data['level']) {
+            $items = $this->getStatus($id);
+            $summary = array_pop($items);
+            if ((isset($summary['titleHold']) && $summary['titleHold'] === false)
+                || !$summary['holdable']
+            ) {
+                return false;
+            }
+        }
+        return true;
     }
 }

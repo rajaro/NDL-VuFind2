@@ -156,6 +156,7 @@ $config = [
             'VuFind\Controller\FeedbackController' => 'VuFind\Controller\AbstractBaseFactory',
             'VuFind\Controller\Search2Controller' => 'VuFind\Controller\AbstractBaseFactory',
             'VuFind\Controller\Search2recordController' => 'VuFind\Controller\AbstractBaseFactory',
+            'VuFind\Controller\Search2collectionController' => 'VuFind\Controller\AbstractBaseWithConfigFactory',
             'VuFind\Controller\HelpController' => 'VuFind\Controller\AbstractBaseFactory',
             'VuFind\Controller\HierarchyController' => 'VuFind\Controller\AbstractBaseFactory',
             'VuFind\Controller\IndexController' => 'VuFind\Controller\IndexControllerFactory',
@@ -183,6 +184,9 @@ $config = [
             'VuFind\Controller\WebController' => 'VuFind\Controller\AbstractBaseFactory',
             'VuFind\Controller\WorldcatController' => 'VuFind\Controller\AbstractBaseFactory',
             'VuFind\Controller\WorldcatrecordController' => 'VuFind\Controller\AbstractBaseFactory',
+        ],
+        'initializers' => [
+            'VuFind\ServiceManager\ServiceInitializer',
         ],
         'aliases' => [
             'AJAX' => 'VuFind\Controller\AjaxController',
@@ -231,6 +235,8 @@ $config = [
             'feedback' => 'VuFind\Controller\FeedbackController',
             'Search2' => 'VuFind\Controller\Search2Controller',
             'search2' => 'VuFind\Controller\Search2Controller',
+            'Search2Collection' => 'VuFind\Controller\Search2collectionController',
+            'search2collection' => 'VuFind\Controller\Search2collectionController',
             'Search2Record' => 'VuFind\Controller\Search2recordController',
             'search2record' => 'VuFind\Controller\Search2recordController',
             'Help' => 'VuFind\Controller\HelpController',
@@ -305,6 +311,9 @@ $config = [
             'VuFind\Controller\Plugin\StorageRetrievalRequests' => 'VuFind\Controller\Plugin\AbstractRequestBaseFactory',
             'Zend\Mvc\Plugin\FlashMessenger\FlashMessenger' => 'VuFind\Controller\Plugin\FlashMessengerFactory',
         ],
+        'initializers' => [
+            'VuFind\ServiceManager\ServiceInitializer',
+        ],
         'aliases' => [
             'dbUpgrade' => 'VuFind\Controller\Plugin\DbUpgrade',
             'favorites' => 'VuFind\Controller\Plugin\Favorites',
@@ -326,6 +335,7 @@ $config = [
         'factories' => [
             'ProxyManager\Configuration' => 'VuFind\Service\ProxyConfigFactory',
             'VuFind\AjaxHandler\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
+            'VuFind\Auth\EmailAuthenticator' => 'VuFind\Auth\EmailAuthenticatorFactory',
             'VuFind\Auth\ILSAuthenticator' => 'VuFind\Auth\ILSAuthenticatorFactory',
             'VuFind\Auth\Manager' => 'VuFind\Auth\ManagerFactory',
             'VuFind\Auth\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
@@ -373,6 +383,7 @@ $config = [
             'VuFind\Hierarchy\TreeDataFormatter\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'VuFind\Hierarchy\TreeDataSource\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'VuFind\Hierarchy\TreeRenderer\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
+            'VuFind\Http\PhpEnvironment\Request' => 'Zend\ServiceManager\Factory\InvokableFactory',
             'VuFind\ILS\Connection' => 'VuFind\ILS\ConnectionFactory',
             'VuFind\ILS\Driver\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'VuFind\ILS\Logic\Holds' => 'VuFind\ILS\Logic\LogicFactory',
@@ -421,10 +432,14 @@ $config = [
             'Zend\Mvc\I18n\Translator' => 'VuFind\I18n\Translator\TranslatorFactory',
             'Zend\Session\SessionManager' => 'VuFind\Session\ManagerFactory',
         ],
+        'delegators' => [
+            'VuFind\Http\PhpEnvironment\Request' => [ \Zend\Mvc\Console\Service\ConsoleRequestDelegatorFactory::class ],
+        ],
         'initializers' => [
             'VuFind\ServiceManager\ServiceInitializer',
         ],
         'aliases' => [
+            'Request' => 'VuFind\Http\PhpEnvironment\Request',
             'VuFind\AccountCapabilities' => 'VuFind\Config\AccountCapabilities',
             'VuFind\AuthManager' => 'VuFind\Auth\Manager',
             'VuFind\AuthPluginManager' => 'VuFind\Auth\PluginManager',
@@ -594,6 +609,8 @@ $recordRoutes = [
     'summonrecord' => 'SummonRecord',
     'worldcatrecord' => 'WorldcatRecord',
     'search2record' => 'Search2Record',
+    'search2collection' => 'Search2Collection',
+    'search2collectionrecord' => 'Search2Record',
 ];
 
 // Define dynamic routes -- controller => [route name => action]
@@ -627,9 +644,10 @@ $staticRoutes = [
     'LibGuides/Home', 'LibGuides/Results',
     'LibraryCards/Home', 'LibraryCards/SelectCard',
     'LibraryCards/DeleteCard',
-    'MyResearch/Account', 'MyResearch/ChangePassword', 'MyResearch/CheckedOut',
-    'MyResearch/Delete', 'MyResearch/DeleteAccount', 'MyResearch/DeleteList',
-    'MyResearch/Edit', 'MyResearch/Email', 'MyResearch/EmailNotVerified', 'MyResearch/Favorites',
+    'MyResearch/Account', 'MyResearch/ChangeEmail', 'MyResearch/ChangePassword',
+    'MyResearch/CheckedOut', 'MyResearch/Delete', 'MyResearch/DeleteAccount',
+    'MyResearch/DeleteList', 'MyResearch/Edit', 'MyResearch/Email',
+    'MyResearch/EmailNotVerified', 'MyResearch/Favorites',
     'MyResearch/Fines', 'MyResearch/HistoricLoans', 'MyResearch/Holds',
     'MyResearch/Home', 'MyResearch/ILLRequests', 'MyResearch/Logout',
     'MyResearch/NewPassword', 'MyResearch/Profile',
@@ -641,7 +659,8 @@ $staticRoutes = [
     'Primo/Advanced', 'Primo/Home', 'Primo/Search',
     'QRCode/Show', 'QRCode/Unavailable', 'Records/Home',
     'Relais/Login', 'Relais/Request',
-    'Search/Advanced', 'Search/CollectionFacetList', 'Search/Email',
+    'Search/Advanced', 'Search/CollectionFacetList',
+    'Search/EditMemory', 'Search/Email',
     'Search/FacetList', 'Search/History', 'Search/Home', 'Search/NewItem',
     'Search/OpenSearch', 'Search/Reserves', 'Search/ReservesFacetList',
     'Search/Results', 'Search/Suggest',
