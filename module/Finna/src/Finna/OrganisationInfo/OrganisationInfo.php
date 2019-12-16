@@ -701,7 +701,6 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
                 $address = [
                     'street' => $item['address']['street'],
                     'zipcode' => $item['address']['zipcode'],
-                    'city' => $item['address']['area'] ?? $item['address']['city']
                 ];
 
                 if (!empty($item['address']['area'])) {
