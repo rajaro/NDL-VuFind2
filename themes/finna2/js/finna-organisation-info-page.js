@@ -38,6 +38,15 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
     window.location.hash = hash;
   }
 
+  function updateConsortiumNotification(data) {
+    if ('consortium' in data) {
+      if (data.consortium.finna.notification) {
+        holder.find('.consortium-notification')
+          .html(data.consortium.finna.notification).removeClass('hide');
+      }
+    }
+  }
+
   function updateDefaultServicePoint(data) {
     if ('consortium' in data) {
       if ('finna' in data.consortium
@@ -197,15 +206,6 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
       officeSearch.focus();
       return false;
     });
-  }
-
-  function updateConsortiumNotification(data) {
-    if ('consortium' in data) {
-      if (data.consortium.finna.notification) {
-        holder.find('.consortium-notification')
-          .html(data.consortium.finna.notification).removeClass('hide');
-      }
-    }
   }
 
   function loadOrganisationList(buildings, orgId) {
