@@ -343,7 +343,7 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
                 closes: object.closes
               };
             }
-            return staffSchedule
+            return staffSchedule;
           });
           var staffTimes;
           if (staffSchedule && obj.times.length > 1) {
