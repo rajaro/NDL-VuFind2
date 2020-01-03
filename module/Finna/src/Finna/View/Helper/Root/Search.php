@@ -115,4 +115,37 @@ class Search extends \VuFind\View\Helper\Bootstrap3\Search
             . '"><span class="sr-only">' . $view->transEsc('spell_expand_alt')
             . '</span><i class="fa fa-plus-small"></i></a>';
     }
+
+    /**
+     * Render a title and description for a search
+     *
+     * @param type                            $type search type
+     * @param \Zend\View\Renderer\PhpRenderer $view View renderer object
+     *
+     * @return string
+     */
+    public function renderSearchTitleAndDesc($type, $view)
+    {
+        $titleTransKey = '';
+        $descTransKey = '';
+        switch ($type) {
+        case 'journal':
+            $titleTransKey = 'browse_extended_Journal';
+            $descTransKey = 'browse_extended_description_Journal_html';
+            break;
+        case 'database':
+            $titleTransKey = 'browse_extended_Database';
+            $descTransKey = 'browse_extended_description_Database_html';
+            break;
+        }
+
+        $title = '<h2 class="search-type-title">'
+            . $view->transEsc($titleTransKey) . '</h2>';
+        $desc = $view->translationEmpty($descTransKey)
+            ? ''
+            : '<div class="search-type-desc">'
+                . $view->translate($descTransKey) . '</div>';
+
+        return $title . $desc;
+    }
 }
