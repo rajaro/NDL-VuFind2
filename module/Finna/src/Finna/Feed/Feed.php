@@ -477,7 +477,7 @@ EOT;
                 foreach ($xcalContent as $setting) {
                     $xcal = $xpath
                         ->query('.//*[local-name()="' . $setting . '"]', $xpathItem)
-                        ->item(0)->nodeValue;
+                        ->item(0)->nodeValue ?? '';
                     if (!empty($xcal)) {
                         if ($setting === 'featured') {
                             if (!empty($imgLink = $this->extractImage($xcal))) {
@@ -556,7 +556,7 @@ EOT;
                         foreach ($elements as $el) {
                             $styleProperties = [];
                             $styleAttr = $el->getAttribute('style');
-                            $properties = explode(';', $styleAttr);
+                            $properties = array_filter(explode(';', $styleAttr));
                             foreach ($properties as $prop) {
                                 list($field, $val) = explode(':', $prop);
                                 if (stristr($field, 'width') === false
