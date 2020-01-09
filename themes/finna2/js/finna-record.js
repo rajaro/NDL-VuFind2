@@ -81,7 +81,6 @@ finna.record = (function finnaRecord() {
       vars.push(getRequestLinkData(element, recordId));
     });
 
-
     var url = VuFind.path + '/AJAX/JSON?method=checkRequestsAreValid';
     $.ajax({
       dataType: 'json',
@@ -103,10 +102,35 @@ finna.record = (function finnaRecord() {
       });
   }
 
+  function fetchHoldingsDetails(elements) {
+    if (!elements[0]) {
+      return;
+    }
+
+    $.each(elements, function handleElement(idx, element) {
+      $(element).find('.holdings-load-indicator').removeClass('hidden');
+      var url = VuFind.path + '/AJAX/JSON?method=getHoldingsDetails';
+      $.ajax({
+        dataType: 'json',
+        data: $(element).data(),
+        method: 'POST',
+        cache: false,
+        url: url
+      })
+        .done(function onGetDetailsDone(response) {
+          $(element).html(response.data.html);
+        })
+        .fail(function onGetDetailsFail() {
+          $(element).text(VuFind.translate('error_occurred'));
+        });
+    });
+  }
+
   function setUpCheckRequest() {
     checkRequestsAreValid($('.expandedCheckRequest').removeClass('expandedCheckRequest'), 'Hold');
     checkRequestsAreValid($('.expandedCheckStorageRetrievalRequest').removeClass('expandedCheckStorageRetrievalRequest'), 'StorageRetrievalRequest');
     checkRequestsAreValid($('.expandedCheckILLRequest').removeClass('expandedCheckILLRequest'), 'ILLRequest');
+    fetchHoldingsDetails($('.expandedGetDetails').removeClass('expandedGetDetails'));
   }
 
   function initHoldingsControls() {
@@ -126,6 +150,7 @@ finna.record = (function finnaRecord() {
         checkRequestsAreValid(rows.find('.collapsedCheckRequest').removeClass('collapsedCheckRequest'), 'Hold', 'holdBlocked');
         checkRequestsAreValid(rows.find('.collapsedCheckStorageRetrievalRequest').removeClass('collapsedCheckStorageRetrievalRequest'), 'StorageRetrievalRequest', 'StorageRetrievalRequestBlocked');
         checkRequestsAreValid(rows.find('.collapsedCheckILLRequest').removeClass('collapsedCheckILLRequest'), 'ILLRequest', 'ILLRequestBlocked');
+        fetchHoldingsDetails(rows.filter('.collapsedGetDetails').removeClass('collapsedGetDetails'));
       }
     });
   }
@@ -309,38 +334,45 @@ finna.record = (function finnaRecord() {
       });
   }
 
-  function initAuthorityInfo()
-  {
-    $('div.authority').each(function initAuthority() {
-      var $authority = $(this);
-      $authority.find('a.show-info').click(function onClickShowInfo() {
-        var $authorityInfo = $authority.find('.authority-info .content');
-        if (!$authority.hasClass('loaded')) {
-          $authority.addClass('loaded');
-          $.getJSON(
-            VuFind.path + '/AJAX/JSON',
-            {
-              method: 'getAuthorityInfo',
-              id: $authority.data('authority'),
-              type: $authority.data('type'),
-              source: $authority.data('source')
-            }
-          )
-            .done(function onGetAuthorityInfoDone(response) {
-              $authorityInfo.html(typeof response.data.html !== 'undefined' ? response.data.html : '--');
-            })
-            .fail(function onGetAuthorityInfoFail() {
-              $authorityInfo.text(VuFind.translate('error_occurred'));
-            });
+  function initRecordVersions(_holder) {
+    var holder = typeof _holder === 'undefined' ? $(document) : _holder;
+
+    holder.find('.record-versions.ajax').each(function checkVersions() {
+      $(this).one('inview', function onInView() {
+        var $elem = $(this);
+        if ($elem.hasClass('loaded')) {
+          return;
         }
-        $authority.addClass('open');
-        return false;
+        $elem.addClass('loaded');
+        $elem.addClass('loading');
+        $elem.removeClass('hidden');
+        $elem.append('<span class="js-load">' + VuFind.translate('loading') + '...</span>');
+        var $item = $(this).parents('.record-container');
+        if ($item.length === 0) {
+          return;
+        }
+        var id = $item.find('.hiddenId')[0].value;
+        $.getJSON(
+          VuFind.path + '/AJAX/JSON',
+          {
+            method: 'getRecordVersions',
+            id: id
+          }
+        )
+          .done(function onGetVersionsDone(response) {
+            if (response.data.length > 0) {
+              $elem.html(response.data);
+            } else {
+              $elem.text('');
+            }
+            $elem.removeClass('loading');
+          })
+          .fail(function onGetSimilarRecordsFail() {
+            $elem.text(VuFind.translate('error_occurred'));
+            $elem.removeClass('loading');
+          });
       });
 
-      $authority.find('a.hide-info').click(function onClickHideInfo() {
-        $authority.removeClass('open');
-        return false;
-      });
     });
   }
 
@@ -350,17 +382,18 @@ finna.record = (function finnaRecord() {
     initRecordNaviHashUpdate();
     initRecordAccordion();
     initAudioAccordion();
-    initAuthorityInfo();
     applyRecordAccordionHash(initialToggle);
     $(window).on('hashchange', applyRecordAccordionHash);
     loadSimilarRecords();
+    initRecordVersions();
   }
 
   var my = {
     checkRequestsAreValid: checkRequestsAreValid,
     init: init,
     setupHoldingsTab: setupHoldingsTab,
-    setupLocationsEad3Tab: setupLocationsEad3Tab
+    setupLocationsEad3Tab: setupLocationsEad3Tab,
+    initRecordVersions: initRecordVersions
   };
 
   return my;

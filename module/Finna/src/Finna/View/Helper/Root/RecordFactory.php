@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2018.
+ * Copyright (C) The National Library of Finland 2018-2019.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -63,8 +63,12 @@ class RecordFactory implements FactoryInterface
         }
         $helper = new Record(
             $container->get(\VuFind\Config\PluginManager::class)->get('config'),
+            $container->get(\VuFind\Config\PluginManager::class)->get('datasources'),
             $container->get(\VuFind\Record\Loader::class),
-            $container->get('ViewHelperManager')->get('recordImage')
+            $container->get('ViewHelperManager')->get('recordImage'),
+            $container->get(\Finna\Search\Solr\AuthorityHelper::class),
+            $container->get('ViewHelperManager')->get('url'),
+            $container->get(\VuFind\RecordTab\TabManager::class)
         );
         if ('cli' !== php_sapi_name()) {
             $helper->setCoverRouter(

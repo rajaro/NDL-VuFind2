@@ -77,8 +77,14 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
     {
         $view = parent::formAction();
 
+        if ($this->params()->fromPost('forcingLogin', false)) {
+            // Parent response is a forced login for a non-logged user. Return it.
+            return $view;
+        }
+
         // Set record driver (used by FeedbackRecord form)
         $data = $this->getRequest()->getQuery('data', []);
+
         if ($id = ($this->getRequest()->getPost(
             'record_id',
             $this->getRequest()->getQuery('record_id')

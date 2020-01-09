@@ -20,7 +20,7 @@
       <?=$this->flashmessages()?>
       <?php if (!$this->translationEmpty('library_cards_instructions_html')): ?><p class="no-content-message"><?=$this->translate('library_cards_instructions_html')?></p><?php endif; ?>
       <h2><?=$this->transEsc('Library Cards Connected To My Account')?></h2>
-      <?php if ($this->libraryCards->count() == 0): ?>
+      <?php if (empty($this->libraryCards)): ?>
         <h4><?=$this->transEsc('You do not have any library cards')?></h4>
       <?php else: ?>
         <table class="table table-striped useraccount-table library-cards mobile-table">
@@ -56,18 +56,24 @@
                 <td data-label="<?=$this->transEsc('login_target')?>"><span><?=$target ? $this->transEsc("source_$target", null, $target) : '&nbsp;' ?></span></td>
               <?php endif; ?>
               <td data-label="<?=$this->transEsc('Username')?>">
-                <a href="<?=$this->url('barcode-show') ?>?code=<?=$this->escapeHtmlAttr($username) ?>" title="<?=$this->escapeHtmlAttr($this->translate('show_barcode_title'))?>">
-                  <?php if (strcasecmp($record['cat_username'], $user->cat_username) === 0 && ($barcode = $this->barcode()->createPng($username, 2, 60))): ?>
+                <?php $barcode = $record['barcode'] ?? $username;?>
+                <?php if ($barcode !== $username): ?>
+                  <p><?=$this->escapeHtml($username)?></p>
+                <?php endif; ?>
+                <a href="<?=$this->url('barcode-show') ?>?code=<?=$this->escapeHtmlAttr($barcode) ?>" title="<?=$this->escapeHtmlAttr($this->translate('show_barcode_title'))?>">
+                  <?php if (strcasecmp($record['cat_username'], $user->cat_username) === 0 && ($barcodeImg = $this->barcode()->createPng($barcode, 2, 60))): ?>
                     <div class="librarycard-barcode">
-                      <img src="data:image/png;base64,<?=$barcode?>" alt="">
+                      <img src="data:image/png;base64,<?=$barcodeImg?>" alt="">
                     </div>
                   <?php endif; ?>
-                  <span><?=$this->escapeHtml($username)?></span>
+                  <span><?=$this->escapeHtml($barcode)?></span>
                 </a>
               </td>
               <td data-label="<?=$this->transEsc('Actions')?>" class="library-card-actions">
                 <div>
-                  <a class="btn-link" href="<?=$this->url('newLibraryCardPassword') ?>?id=<?=$this->escapeHtmlAttr($record['id']) ?>" data-lightbox title="<?=$this->transEsc('Change Password')?>"><i class="fa fa-lock bigger gray"></i> <?=$this->transEsc('Change Password')?></a>
+                  <?php if ($this->ils()->checkFunction('changePassword', (array)$record)): ?>
+                    <a class="btn-link" href="<?=$this->url('newLibraryCardPassword') ?>?id=<?=$this->escapeHtmlAttr($record['id']) ?>" data-lightbox title="<?=$this->transEsc('Change Password')?>"><i class="fa fa-lock bigger gray"></i> <?=$this->transEsc('Change Password')?></a>
+                  <?php endif; ?>
                   <a class="btn-link" href="<?=$this->url('editLibraryCard') . $this->escapeHtmlAttr($record['id']) ?>" title="<?=$this->transEsc('Edit Library Card')?>"><i class="fa fa-pen gray" aria-hidden="true"></i> <?=$this->transEsc('Update Card Details')?></a>
                   <div class="dropdown">
                     <a class="btn-link dropdown-toggle" data-toggle="dropdown" href="<?=$this->url('librarycards-deletecard') ?>?cardID=<?=urlencode($record['id'])?>">

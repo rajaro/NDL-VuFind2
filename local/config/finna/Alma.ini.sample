@@ -11,6 +11,15 @@ apiKey = "your-key-here"
 ; email     Username needs to be a valid email address for the user
 loginMethod = email
 
+; Translation prefix to use for codes coming from Alma. By default a prefix is not
+; used, but a prefix may be used to distinguish the codes from any other
+; translations (or other libraries). To use a simple prefix in the default text
+; domain:
+; translationPrefix = "alma_"
+; To use a separate Alma text domain:
+; translationPrefix = "Alma::"
+;translationPrefix = "Alma::"
+
 [Holds]
 ; HMACKeys - A list of hold form element names that will be analyzed for consistency
 ; during hold form processing. Most users should not need to change this setting.
@@ -34,6 +43,52 @@ extraHoldFields = comments:requiredByDate:pickUpLocation
 ; 3) a value within the Location IDs returned by getPickUpLocations()
 defaultPickUpLocation = ""
 
+; Optional help texts that can be displayed on the hold form
+;helpText = "Help text for all languages."
+;helpText[en-gb] = "Help text for English language."
+
+; Whether item level holds are enabled. Possible values:
+;   true          - Always when Alma allows them
+;   false         - Never
+;   "description" - Only if the item has a description
+;enableItemHolds = true
+
+; List of bibliographic levels for which title hold is allowed
+titleHoldBibLevels = "monograph:monographpart:serial:serialpart:collectionpart:integratingresource"
+
+; Rules for filtering pickup locations. Each part of a rule set is separated by a
+; colon. A part contains a filter key, equals sign and values separated by commas.
+; A value can be enclosed in '' if it contains a colon or a comma. Values are
+; evaluated as regular expressions. A rule value can be negated by prepending it with
+; an exclamation mark (!).
+; Rules are processed in the order of occurrence until end or match=stop with a
+; matching rule is encountered.
+;
+; Supported filter keys are:
+; lib        - Item library code (a single value)
+; loc        - Item location code(s)
+; policy     - Item policy code(s)
+; availlib   - Library with available items (a single value)
+; avail      - Location with available item(s)
+; availpolicy - Item policy code(s) for locations with available items
+; unavaillib - Library with only unavailable items (a single value)
+; unavail    - Location with only unavailable item(s)
+; unavailpolicy - Item policy code(s) for locations with only unavailable items
+; group      - Patron group
+; level      - Hold level: 'copy' (meaning item) or 'title'
+; match      - 'stop' to stop processing further rules on match. Otherwise all matching
+;              rules are combined.
+; The following keys define the outcome of a matching filter:
+; pickup     - Allowed pickup libraries
+; home       - true to indicate that home address is allowed as a pickup location
+; work       - true to indicate that work address is allowed as a pickup location
+;
+; Examples:
+;
+; pickupLocationRules[] = "loc=MAIN:group=PATRON:pickup=MAINLIB;match=stop"
+; pickupLocationRules[] = "loc=MAIN:group=!STAFF:pickup=MAINLIB"
+; pickupLocationRules[] = "loc=MAIN,SUB:group=STAFF:pickup=MAINLIB,RES_SHARE:work=true"
+;pickupLocationRules[] = ""
 
 ; The "NewUser" section defines some default values that are used when creating an account
 ; in Alma via its API. This is only relevant if you use the authentication method "AlmaDatabase"
@@ -46,52 +101,88 @@ recordType = PUBLIC
 ; authentication method.
 accountType = INTERNAL
 
-; Mandatory. The status of the Alma user account. Usually "ACTIVE".
-status = ACTIVE
+; Mandatory. The status of the Alma user account. Usually "INACTIVE".
+status = INACTIVE
 
 ; Mandatory. The user group to which the new Alma account should belong. Use the code of one of
 ; the user groups that are defined in Alma (see "Alma Configuration -> User Management -> User Groups").
-userGroup =
-
-; Mandatory. The type of ID under which the username should be saved to Alma. Log in to the ExLibris developer
-; network and check the Alma API documentation for possible values on this site:
-; https://developers.exlibrisgroup.com/alma/apis/xsd/rest_user.xsd?tags=POST#user_identifier
-idType =
-
-; Mandatory. The preferred language of the new Alma account. This should normally be the Alma language
-; code of your local language (see "Alma Configuration -> General -> Institution Languages").
-preferredLanguage =
+userGroup = GUEST
 
 ; Mandatory. The type of eMail of the users eMail address. Log in to the ExLibris developer network and
 ; check the Alma API documentation for possible values on this site:
 ; https://developers.exlibrisgroup.com/alma/apis/xsd/rest_user.xsd?tags=POST#email_types
-emailType =
+emailType = personal
 
 ; Optional. Set the time period when the Alma account should expire. The given period will be added to the
 ; point in time of the Alma account creation. Use the DateInterval notation of PHP to express the period. See:
 ; https://secure.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
 ; If not set, 1 year (P1Y) will be used as default value.
-expiryDate =
+expiryDate = P10Y
 
 ; Optional. Set the time period that should be used for the Alma user account purge date. The given period
 ; will be added to the point in time of the Alma account creation. Use the DateInterval notation of PHP to
 ; express the period. See:
 ; https://secure.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
 ; If not set, the purge date of the Alma user account will be empty.
-purgeDate =
+purgeDate = P11Y
 
+; Field where the identity number is stored. Default is primary id. Supported values are:
+; "primary_id", "inst_id", "note"
+;identityField =
+
+; Optional introduction texts that can be displayed on the initial email form
+;introductionText = "Introduction text for all languages."
+;introductionText[en-gb] = "Introduction text for English language."
+
+; Optional registration help texts that can be displayed on the registration form
+;registrationHelpText = ""
+;registrationHelpText[fi] = "Tällä lomakkeella voit ilmoittautua kirjaston asiakkaaksi. Lomakkeen lähettämisen jälkeen sinun tulee vielä käydä henkilökohtaisesti kirjastossa todistamassa henkilöllisyytesi."
+;registrationHelpText[en-gb] = ""
+
+; URLs to the library's terms of use
+;termsUrl = "https://generic_terms_url"
+;termsUrl[en-gb] = "https://terms_in_english"
+
+; Organisation info ID (Kirjastohakemisto) for displaying contact information
+;organisationInfoId =
 
 [Webhook]
 ; The webhook secret. This must be the same value that was added to the Alma webhook configuration as a secret.
 secret = YOUR_WEBHOOK_SECRET_FROM_ALMA
 
 [Holdings]
+; Max. no. of items displayed in the holdings tab. A paginator is used when there are
+; more holdings to display.
+;itemLimit = "10"
 ; The digital delivery URL for your Alma instance. Replace at least SOMETHING and
 ; INSTITUTION with correct values.
 ;digitalDeliveryUrl = "https://SOMETHING.alma.exlibrisgroup.com/view/delivery/INSTITUTION/%%id%%"
 ; Inventory types to display from Alma. A colon-separated list. Supported values
 ; are "physical", "electronic" and "digital". By default all are displayed.
 ;inventoryTypes = "physical:electronic"
+; Fields to include in notes. Default is "852z".
+notes = "506au:845a:852z"
+; Fields to include in summary. Default is "866a".
+summary = "863abiz:866az"
+; Fields to include in supplements. Default is none.
+supplements = "867az"
+; Fields to include in indexes. Default is none.
+indexes = "868az"
+; By default the holdings list is sorted alphabetically. This setting can be used
+; to manually set the order of locations by entering location codes as a
+; colon-separated list. By default the first entry has the highest priority (0), but
+; each entry can be given a custom priority after an equals sign (higher number means
+; lower priority). Unlisted locations will get a default priority of 999.
+;
+; Examples:
+; "MAIN:BRANCH:SUB"
+; "MAIN:PERSONNEL=9999"
+;
+;holdingsLocationOrder = "MAIN:BRANCH:SUB"
+
+; Whether to sort items by enumchron. Default is true.
+;sortByEnumChron = false
+
 
 [OnlinePayment]
 ; Whether online payment is enabled. Default is false.
@@ -120,14 +211,26 @@ method = driver
 ; Default is address, zip, city, country and pin. Email and phone are included unless
 ; they have their own sections [updateEmail] or [updatePhone] defined. Also custom
 ; fields can be defined.
-fields[] = Address:address1
-fields[] = Address2:address2
-fields[] = Zip:zip
-fields[] = City:city
-fields[] = Country:country
-fields[] = Email:email
-fields[] = Phone:phone
-fields[] = self_service_pin:self_service_pin:password
+fields[] = "address_type:addresses[0][types]:multiselect"
+fields[] = "address_preferred:addresses[0][preferred]:boolean"
+fields[] = "Address:addresses[0][address1]"
+fields[] = "Address2:addresses[0][address2]"
+fields[] = "Zip:addresses[0][zip]"
+fields[] = "City:addresses[0][city]"
+fields[] = "Country:addresses[0][country]"
+fields[] = "address_type:addresses[1][types]:multiselect"
+fields[] = "address_preferred:addresses[1][preferred]:boolean"
+fields[] = "Address:addresses[1][address1]"
+fields[] = "Address2:addresses[1][address2]"
+fields[] = "Zip:addresses[1][zip]"
+fields[] = "City:addresses[1][city]"
+fields[] = "Country:addresses[1][country]"
+fields[] = "Email:email"
+fields[] = "Phone:phone"
+fields[] = "self_service_pin:self_service_pin:pin4"
+; A colon-separated list of disabled fields that can be used to remove one or more of
+; the fields configured above (for easier centralized configuration management):
+;disabledFields = "self_service_pin"
 ; url is required for the url method. url can be a single address or an array of
 ; language-specific addresses. First example is a single one:
 ;url = http://address.of.change.form
