@@ -6,6 +6,23 @@ finna.myList = (function finnaMyList() {
   var save = false;
   var listUrl = null;
   var refreshLists = null;
+  const truncateField = '<div class="truncate-field" data-rows="1" data-row-height="3">'
+  const mdeToolbar = [
+    'bold', 'italic',
+    'heading', '|',
+    'quote', 'unordered-list',
+    'ordered-list', '|',
+    'link', 'image',
+    '|',
+    {
+      name: 'pagebreak',
+      action: function truncateField(editor) {
+        toggleTruncateField(editor);
+      },
+      className: 'md-pagebreak',
+      title: 'Pagebreak'
+    }
+  ];
 
   // This is duplicated in image-popup.js to avoid dependency
   function getActiveListId() {
@@ -38,6 +55,10 @@ finna.myList = (function finnaMyList() {
     target.toggleClass('fa-spinner fa-spin list-save', mode);
   }
 
+  function toggleTruncateField(editor) {
+    editor.value(editor.value() + '\n[[more]]\n');
+  }
+
   function updateList(params, callback, type) {
     save = true;
     var spinner = null;
@@ -50,6 +71,10 @@ finna.myList = (function finnaMyList() {
 
     if (type !== 'add-list') {
       var description = $('.list-description .editable').data('markdown');
+      if ('[[more]]'.indexOf(description)) {
+        description = description.replace('[[more]]', truncateField);
+        description += '</div>';
+      }
       if (description === VuFind.translate('add_list_description')) {
         listParams.desc = '';
       } else {
@@ -266,6 +291,10 @@ finna.myList = (function finnaMyList() {
       var textArea = $('<textarea/>');
       var currentVal = null;
       currentVal = container.data('markdown');
+      if (currentVal.indexOf(truncateField) !== -1) {
+        currentVal = currentVal.replace(truncateField, '[[more]]');
+        currentVal = currentVal.substr(0, currentVal.length - 6);
+      }
       textArea.text(currentVal);
       container.hide();
       textArea.insertAfter(container);
@@ -277,7 +306,7 @@ finna.myList = (function finnaMyList() {
         autoDownloadFontAwesome: false,
         autofocus: true,
         element: textArea[0],
-        hideIcons: ['preview', 'side-by-side', 'guide', 'fullscreen'],
+        toolbar: mdeToolbar,
         spellChecker: false,
         status: false
       };

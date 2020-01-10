@@ -69,6 +69,8 @@ class CleanHtml extends \Zend\View\Helper\AbstractHelper
                 ['open' => new \HTMLPurifier_AttrDef_HTML_Bool(true)]
             );
             $def->addElement('summary', 'Inline', 'Inline', 'Common');
+            $def->addAttribute('div', 'data-rows', 'Number');
+            $def->addAttribute('div', 'data-row-height', 'Number');
             $this->purifier = new \HTMLPurifier($config);
         }
         return $this->purifier->purify($html);
