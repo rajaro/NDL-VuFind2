@@ -344,7 +344,7 @@ finna.myList = (function finnaMyList() {
         var result = SimpleMDE.prototype.markdown(editor.value());
         if (result.indexOf('[[more]]') !== -1) {
           if (!$('.md-pagebreak').hasClass('pagebreak-toggled')){
-          $('.md-pagebreak').addClass('pagebreak-toggled');
+            $('.md-pagebreak').addClass('pagebreak-toggled');
           }
         } else {
           $('.md-pagebreak').removeClass('pagebreak-toggled');
