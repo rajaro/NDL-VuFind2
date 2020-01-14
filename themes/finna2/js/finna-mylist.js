@@ -7,6 +7,7 @@ finna.myList = (function finnaMyList() {
   var listUrl = null;
   var refreshLists = null;
   var truncateField = '<span class="truncate-field" data-rows="1">';
+  var truncateTag = '[[more]]';
   var mdeToolbar = [
     'bold', 'italic',
     'heading', '|',
@@ -57,10 +58,10 @@ finna.myList = (function finnaMyList() {
 
   function toggleTruncateField(mdeditor) {
     var value = mdeditor.value();
-    if (value.indexOf('[[more]]') !== -1) {
+    if (value.indexOf(truncateTag) !== -1) {
       return;
     } else {
-      mdeditor.value(value + '\n[[more]]\n');
+      mdeditor.value(value + '\n' + truncateTag + '\n');
       mdeditor.codemirror.focus();
       mdeditor.codemirror.doc.setCursor({line: 9999, ch: 0});
     }
@@ -69,13 +70,13 @@ finna.myList = (function finnaMyList() {
   function handleTruncateField(description, addTruncate) {
     var trunc = typeof addTruncate !== 'undefined' ? addTruncate : true;
     var desc = description;
-    if (trunc && description.indexOf('[[more]]') !== -1) {
-      desc = description.replace('[[more]]', truncateField);
+    if (trunc && description.indexOf(truncateTag) !== -1) {
+      desc = description.replace(truncateTag, truncateField);
       desc += '</span>';
     } else if (description.indexOf(truncateField) !== -1) {
       // replace <span class="truncate-field"...> with [[more]] and
       // get rid of closing span tag
-      desc = description.replace(truncateField, '[[more]]');
+      desc = description.replace(truncateField, truncateTag);
       desc = desc.substr(0, desc.length - 7);
     }
     return desc;
@@ -342,7 +343,7 @@ finna.myList = (function finnaMyList() {
 
       editor.codemirror.on('change', function onChangeEditor() {
         var result = SimpleMDE.prototype.markdown(editor.value());
-        if (result.indexOf('[[more]]') !== -1) {
+        if (result.indexOf(truncateTag) !== -1) {
           if (!$('.md-truncate').hasClass('truncate-toggled')) {
             $('.md-truncate').addClass('truncate-toggled');
           }
@@ -358,7 +359,6 @@ finna.myList = (function finnaMyList() {
       $(document).one('click', function onClickDocument() {
         var markdown = editor.value();
         var resultHtml = SimpleMDE.prototype.markdown(markdown);
-      //  resultHtml = handleTruncateField(resultHtml);
 
         editor.toTextArea();
         editor = null;
@@ -368,7 +368,6 @@ finna.myList = (function finnaMyList() {
         container.data('markdown', markdown);
         container.data('empty', (markdown.length === 0 ? '1' : '0'));
         container.html(resultHtml);
-      //  finna.layout.initTruncate(container);
         preview.remove();
 
         callback(markdown);
