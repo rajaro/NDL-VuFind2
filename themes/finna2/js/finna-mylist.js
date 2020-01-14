@@ -6,7 +6,7 @@ finna.myList = (function finnaMyList() {
   var save = false;
   var listUrl = null;
   var refreshLists = null;
-  var truncateField = '<span class="truncate-field" data-rows="1" markdown="1">';
+  var truncateField = '<span class="truncate-field" data-rows="1">';
   var mdeToolbar = [
     'bold', 'italic',
     'heading', '|',
@@ -15,12 +15,12 @@ finna.myList = (function finnaMyList() {
     'link', 'image',
     '|',
     {
-      name: 'pagebreak',
+      name: 'truncate',
       action: function truncateFieldToggle(mdeditor) {
         toggleTruncateField(mdeditor);
       },
-      className: 'md-pagebreak',
-      title: 'Pagebreak'
+      className: 'md-truncate',
+      title: 'Truncate'
     }
   ];
 
@@ -343,11 +343,11 @@ finna.myList = (function finnaMyList() {
       editor.codemirror.on('change', function onChangeEditor() {
         var result = SimpleMDE.prototype.markdown(editor.value());
         if (result.indexOf('[[more]]') !== -1) {
-          if (!$('.md-pagebreak').hasClass('pagebreak-toggled')){
-            $('.md-pagebreak').addClass('pagebreak-toggled');
+          if (!$('.md-truncate').hasClass('truncate-toggled')) {
+            $('.md-truncate').addClass('truncate-toggled');
           }
         } else {
-          $('.md-pagebreak').removeClass('pagebreak-toggled');
+          $('.md-truncate').removeClass('truncate-toggled');
         }
         result = handleTruncateField(result);
         preview.find('.data').html(result);
@@ -358,6 +358,7 @@ finna.myList = (function finnaMyList() {
       $(document).one('click', function onClickDocument() {
         var markdown = editor.value();
         var resultHtml = SimpleMDE.prototype.markdown(markdown);
+      //  resultHtml = handleTruncateField(resultHtml);
 
         editor.toTextArea();
         editor = null;
@@ -367,7 +368,7 @@ finna.myList = (function finnaMyList() {
         container.data('markdown', markdown);
         container.data('empty', (markdown.length === 0 ? '1' : '0'));
         container.html(resultHtml);
-        finna.layout.initTruncate(element);
+      //  finna.layout.initTruncate(container);
         preview.remove();
 
         callback(markdown);
