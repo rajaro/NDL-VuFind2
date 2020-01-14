@@ -8,6 +8,18 @@ finna.myList = (function finnaMyList() {
   var refreshLists = null;
   var truncateField = '<span class="truncate-field" data-rows="1">';
   var truncateTag = '[[more]]';
+
+  function toggleTruncateField(mdeditor) {
+    var value = mdeditor.value();
+    if (value.indexOf(truncateTag) !== -1) {
+      return;
+    } else {
+      mdeditor.value(value + '\n' + truncateTag + '\n');
+      mdeditor.codemirror.focus();
+      mdeditor.codemirror.doc.setCursor({line: 9999, ch: 0});
+    }
+  }
+
   var mdeToolbar = [
     'bold', 'italic',
     'heading', '|',
@@ -54,17 +66,6 @@ finna.myList = (function finnaMyList() {
     }
     // spinner
     target.toggleClass('fa-spinner fa-spin list-save', mode);
-  }
-
-  function toggleTruncateField(mdeditor) {
-    var value = mdeditor.value();
-    if (value.indexOf(truncateTag) !== -1) {
-      return;
-    } else {
-      mdeditor.value(value + '\n' + truncateTag + '\n');
-      mdeditor.codemirror.focus();
-      mdeditor.codemirror.doc.setCursor({line: 9999, ch: 0});
-    }
   }
 
   function handleTruncateField(description, addTruncate) {
