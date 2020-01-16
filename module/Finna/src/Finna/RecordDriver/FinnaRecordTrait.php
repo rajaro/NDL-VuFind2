@@ -1,6 +1,6 @@
 <?php
 /**
- * Additional functionality for Finna records.
+ * Additional functionality for Finna and Primo records.
  *
  * PHP version 7
  *
@@ -31,7 +31,7 @@ namespace Finna\RecordDriver;
 use Finna\Db\Row\User;
 
 /**
- * Additional functionality for Finna records.
+ * Additional functionality for Finna and Primo records.
  *
  * @category VuFind
  * @package  RecordDrivers
@@ -40,7 +40,7 @@ use Finna\Db\Row\User;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
-trait FinnaRecord
+trait FinnaRecordTrait
 {
     /**
      * Preferred language for display strings
@@ -171,10 +171,20 @@ trait FinnaRecord
      *
      * @param int $user_id user user_id
      *
-     * @return User
+     * @return User|boolean
      */
-    public function getUserById($user_id): User
+    public function getUserById($user_id)
     {
         return $this->getDbTable('User')->getById($user_id);
+    }
+
+    /**
+     * Allow record image to be downloaded?
+     *
+     * @return boolean
+     */
+    public function allowRecordImageDownload()
+    {
+        return true;
     }
 }

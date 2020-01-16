@@ -1,3 +1,4 @@
+.authoritybox,
 .record {
   // .media and .media-body code added to fix IE11 display: table-cell issues
   .media {
@@ -24,6 +25,11 @@
       position: relative;
       margin-bottom: 10px;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      resize: vertical;
+      overflow: auto;
     }
   }
   @media(min-width: @screen-xs){
@@ -95,58 +101,34 @@
     }
   }
 
-  .authority {
-
-    .btn, .show-info {
-      font-size: 0.9em;
-      line-height: 0.1em;
-      margin-left: 0.5em;
+  .record-title {
+    margin: 0;
+    margin-bottom: 3px;
+    font-size: @record-title-font-size;
+    @media (max-width: @screen-sm) {
+      margin-bottom: 20px;
     }
-    .show-info {
+  }
+  .label {
+    display: inline-block;
+  }
+  .record-versions {
+    font-size: 0.9em;
+    margin-top: 6px;
+    &:not(.loading) {
       text-transform: uppercase;
-    }
-    .authority-info {
-      display: none;
-    }
-
-    .authority-info {
-      border-top: 1px solid gray;
-      border-bottom: 1px solid gray;
-
-      margin: 10px 0;
-      padding: 10px 0 10px 0px;
-
-      table {
-        margin-bottom: 0;
-        margin-top: 1em;
-      }
-      .content-btn-holder {
-        text-align: right;
-      }
-    }
-
-    &.open {
-      .show-info {
-        display: none;
-      }
-      .authority-info {
-        display: block;
-      }
-    }
-    .role {
-      color: @gray;
     }
   }
 }
 
 .next-image {
   position: absolute;
-  top: calc(50% - 20px);
   z-index: 500;
   appearance: none;
   -webkit-appearance: none;
   border: none;
   background-color: rgba(138, 138, 138, 0.5);
+  align-self: center;
   .paginator-canvas & {
     background-color: rgba(138, 138, 138, 0.9);
   }
@@ -176,19 +158,11 @@ a.authority {
   clear: left;
 }
 
-.record .record-title {
-  margin: 0;
-  margin-bottom: 3px;
-  font-size: @record-title-font-size;
-  @media (max-width: @screen-sm) {
-    margin-bottom: 20px;
-  }
-}
-
 .record-image-container {
   margin-bottom: 20px;
 }
 
+.authoritybox,
 .large-image-layout.record {
   .media-left,
   .media-right {

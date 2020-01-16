@@ -9,18 +9,17 @@
   $onlineURLs = $this->driver->getOnlineURLs();
   $mergedData = $this->driver->tryMethod('getMergedRecordData');
   $renderedURLs = [];
-  if (!empty($urls) || $openUrlActive || !empty($onlineURLs) || !empty($mergedData['urls'])){
-    if (!empty($urls)){
-      $videoUrls = [];
-      $otherUrls = [];
-      foreach ($urls as $url) {
-        if(!empty($url['videoSources']) || !empty($url['embed']) && $url['embed'] == 'video' || $this->recordLink()->getEmbeddedVideo($url['url']) == 'data-embed-iframe'){
-          array_push($videoUrls, $url);
-          $renderedURLs[] = $url['url'];
-        }
-        else {
-          array_push($otherUrls, $url);
-        }
+
+  if (!empty($urls)){
+    $videoUrls = [];
+    $otherUrls = [];
+    foreach ($urls as $url) {
+      if(!empty($url['videoSources']) || !empty($url['embed']) && $url['embed'] == 'video' || $this->recordLink()->getEmbeddedVideo($url['url']) == 'data-embed-iframe'){
+        array_push($videoUrls, $url);
+        $renderedURLs[] = $url['url'];
+      }
+      else {
+        array_push($otherUrls, $url);
       }
     }
   }
@@ -50,29 +49,53 @@
 
     <?=$this->record($this->driver)->renderTemplate('record-post-thumbnail.phtml');?>
   </div>
-  <?php $thumbnail = ob_get_contents(); ?>
-<?php ob_end_clean(); ?>
+<?php
+  $thumbnail = ob_get_contents();
+  ob_end_clean();
+  $altTitles = $this->driver->getAlternativeTitles();
+  ob_start();
+?>
+  <div class="recordAltTitles record-alt-titles truncate-field" data-rows="2">
+    <?php foreach ($altTitles as $altTitle): ?>
+      <div class="record-alt-title">
+        <?=$this->escapeHtml($altTitle) ?>
+      </div>
+    <?php endforeach; ?>
+  </div>
+<?php
+  $altTitlesContent = ob_get_contents();
+  ob_end_clean();
+?>
+
 <?php $this->headScript()->appendFile("finna-record.js"); ?>
 <div class="media" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
   <h1 property="name" class="record-title visible-xs"><?=$this->escapeHtml($this->driver->getShortTitle())?><?php if ($subtitle = $this->driver->getSubtitle()): ?>&nbsp;: <?=$this->escapeHtml($subtitle) ?><?php endif; ?></h1>
+  <?php if ($altTitles): ?>
+    <div class="alt-title-wrapper visible-xs">
+      <?=$altTitlesContent?>
+    </div>
+  <?php endif; ?>
   <?php if ($thumbnail && $thumbnailAlignment == 'left'): ?>
     <?=$thumbnail ?>
   <?php endif; ?>
   <div class="media-body record-information">
       <h1 property="name" class="record-title hidden-xs"><?=$this->escapeHtml($this->driver->getShortTitle())?><?php if ($subtitle = $this->driver->getSubtitle()): ?>&nbsp;: <?=$this->escapeHtml($subtitle) ?><?php endif; ?></h1>
-      <?php if ($results = $this->driver->getAlternativeTitles()): ?>
-        <div class="recordAltTitles record-alt-titles truncate-field" data-rows="2">
-          <?php foreach ($results as $result): ?>
-            <div class="record-alt-title">
-              <?=$this->escapeHtml($result) ?>
-            </div>
-          <?php endforeach; ?>
+      <?php if ($altTitles): ?>
+        <div class="alt-title-wrapper hidden-xs">
+          <?=$altTitlesContent?>
         </div>
       <?php endif; ?>
       <?php if ($uniformTitles = $this->driver->tryMethod('getUniformTitles')): ?>
         <div class="record-uniform-titles">
           <?php foreach ($uniformTitles as $uniformTitle): ?>
-            <?=$this->escapeHtml($uniformTitle) ?><br/>
+            <?php if (isset($this->tabs['Versions'])): ?>
+              <a href="<?=$this->escapeHtmlAttr($this->recordLink()->getVersionsSearchUrl($this->driver))?>" rel="nofollow">
+                <?=$this->escapeHtml($uniformTitle) ?>
+              </a>
+              <br>
+            <?php else: ?>
+              <?=$this->escapeHtml($uniformTitle) ?><br>
+            <?php endif; ?>
           <?php endforeach; ?>
         </div>
       <?php endif; ?>
@@ -81,26 +104,26 @@
         <div class="truncate-field">
           <?php if(!empty($otherUrls)): ?>
             <?php foreach ($otherUrls as $url): ?>
-                <div class="fulltextField">
-                  <a class="fulltext" href="<?=$this->escapeHtmlAttr($this->proxyUrl($url['url']))?>" aria-label="<?=$this->escapeHtmlAttr($this->translate('external_online_link'))?>"
-                    <?php if (!empty($url['posterUrl'])): ?> data-poster-url="<?= $this->escapeHtmlAttr($url['posterUrl']) ?>"<?php endif; ?>
-                  >
-                    <i class="fa <?=$icon?>"></i> <?=$this->transEsc('default::link_' . $desc, null, $desc) ?>
-                  </a>
-                </div>
+              <?php
+                $renderedURLs[] = $url['url'];
+                $desc = $url['desc'] ?? $this->truncateUrl($url['url']);
+                if (!empty($url['desc'])) {
+                  $map = ['Database Guide' => 'fa-info-database', 'Database Interface' => 'fa-browse-database'];
+                  if (isset($map[$url['desc']])) {
+                    $icon = $map[$url['desc']];
+                  }
+                }
+              ?>
+              <div class="fulltextField">
+                <a class="fulltext" href="<?=$this->escapeHtmlAttr($this->proxyUrl($url['url']))?>" aria-label="<?=$this->escapeHtmlAttr($this->translate('external_online_link'))?>"
+                  <?php if (!empty($url['posterUrl'])): ?> data-poster-url="<?= $this->escapeHtmlAttr($url['posterUrl']) ?>"<?php endif; ?>
+                >
+                  <i class="fa <?=$icon?>"></i> <?=$this->transEsc('default::link_' . $desc, null, $desc) ?>
+                </a>
+              </div>
             <?php endforeach; ?>
             <?php if (!empty($onlineURLs) || !empty($mergedData['urls'])): ?>
               <?php foreach (!empty($mergedData['urls']) ? $mergedData['urls'] : $onlineURLs as $url): ?>
-                <?php
-                  $renderedURLs[] = $url['url'];
-                  $desc = $url['desc'] ?? $this->truncateUrl($url['url']);
-                  if (!empty($url['desc'])) {
-                  $map = ['Database Guide' => 'fa-info-database', 'Database Interface' => 'fa-browse-database'];
-                  if (isset($map[$url['desc']])) {
-                  $icon = $map[$url['desc']];
-                  }
-                  }
-                ?>
                 <?php if (in_array($url['url'], $renderedURLs)) { continue; } ?>
                 <div class="fulltextField"><a class="fulltext" href="<?=$this->escapeHtmlAttr($this->proxyUrl($url['url'])) ?>"<?=!empty($url['embed']) && $url['embed'] == 'iframe' ? ' data-embed-iframe' : '' ?> target="_blank" aria-label="<?=$this->escapeHtmlAttr($this->translate('external_online_link'))?>"><i class="fa fa-external-link"></i> <?=!empty($url['text']) ? $this->transEsc('default::link_' . $url['text'], null, $url['text']) : $this->escapeHtml($this->truncateUrl($url['url'])) ?></a>
                 <?php if ($url['source']): ?>
@@ -136,8 +159,8 @@
           <div class="truncate-field">
             <?php if ($primaryAuthors): ?>
               <span class="recordAuthors">
-                <?php foreach ($primaryAuthors as $index => $author): ?>
-                  <?=($index > 0 ? '; ' : '')?><a href="<?=$this->record($this->driver)->getLink('author', $author['name'])?>"><?=$this->escapeHtml($author['name'])?></a><?php if (!empty($author['date'])): ?><span class="author-date">, <?=$this->escapeHtml($author['date']) ?></span><?php endif; ?><?php if (!empty($author['role'])): ?><span class="author-role">, <?=mb_strtolower($this->transEsc('CreatorRoles::' . $author['role']), 'UTF-8') ?></span><?php endif; ?>
+                  <?php foreach ($primaryAuthors as $index => $author): ?>
+                  <?=($index > 0 ? '; ' : '')?><?=$this->record($this->driver)->getAuthorityLinkElement('author', $author['name'], $author, ['date' => true, 'role' => true, 'authorityType' => $author['type'] ?? null, 'showInlineInfo' => true])?>
                 <?php endforeach; ?>
               </span>
             <?php endif; ?>
@@ -178,13 +201,15 @@
             <span property="bookEdition"><?=$this->escapeHtml($edition)?></span>
           </span>
         <?php endif; ?>
+
+        <?=$this->record($this->driver)->renderTemplate('versions-link.phtml')?>
       </div>
 
       <?php if ($result = $this->driver->getSummary()): ?>
         <div class="description recordSummary">
           <div class="truncate-field">
             <?php foreach ($result as $item): ?>
-              <p><?=$item // intentionally left unescaped due to embedded HTML ?></p>
+              <p><?=$this->cleanHtml($item) ?></p>
             <?php endforeach; ?>
           </div>
         </div>

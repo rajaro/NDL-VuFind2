@@ -16,7 +16,10 @@ finna.imagePaginator = (function imagePaginator() {
     imagesOnNormal: 8,
     imagesPerRow: 8,
     enableImageZoom: false,
-    recordType: 'default-type'
+    recordType: 'default-type',
+    leaflet: {
+      offsetPercentage: 4
+    }
   };
 
   var translations = {
@@ -24,6 +27,7 @@ finna.imagePaginator = (function imagePaginator() {
     close: '',
     next_record: '',
     previous_record: '',
+    no_cover: '',
     isSet: false
   };
 
@@ -88,6 +92,7 @@ finna.imagePaginator = (function imagePaginator() {
         close: VuFind.translate('close'),
         next_record: VuFind.translate('Next Record'),
         previous_record: VuFind.translate('Previous Record'),
+        no_cover: VuFind.translate('No Cover Image'),
         isSet: true
       };
     }
@@ -304,10 +309,12 @@ finna.imagePaginator = (function imagePaginator() {
 
     var img = new Image();
     img.src = image.data('largest');
+    $(img).attr('alt', image.data('alt'));
     img.onload = function onLoad() {
       if (this.naturalWidth && this.naturalWidth === 10 && this.naturalHeight === 10) {
         _.nonZoomableHolder.addClass('no-image');
         icon.show();
+        $(this).attr('alt', translations.no_cover);
       } else if (_.nonZoomableHolder.hasClass('no-image')) {
         icon.hide();
       }
@@ -364,15 +371,51 @@ finna.imagePaginator = (function imagePaginator() {
 
       var h = this.naturalHeight;
       var w = this.naturalWidth;
-      var zoomLevel = 10;
+      var leafletHolderWidth = $('#leaflet-map-image').width();
+      var leafletHolderHeight = $('#leaflet-map-image').height();
+      
+      var zoomLevel = 1;
+      var alt = h === 10 && w === 10 ? translations.no_cover : image.data('alt');
 
-      var bounds = new L.LatLngBounds(_.leafletHolder.unproject([0, h], zoomLevel), _.leafletHolder.unproject([w, 0], zoomLevel));
-      _.leafletHolder.flyToBounds(bounds, {animate: false});
-      L.imageOverlay(img.src, bounds).addTo(_.leafletHolder);
+      var offsetPercentage = _.settings.leaflet.offsetPercentage;
+
+      function calculateBounds(boundWidth, imageWidth, boundHeight, imageHeight) {
+        var heightPercentage = 0;
+        var widthPercentage = 0;
+        var newHeight = imageHeight;
+        var newWidth = imageWidth;
+
+        if (imageHeight >= boundHeight) {
+          newHeight = boundHeight - (boundHeight / 100 * offsetPercentage);
+          heightPercentage = 100 - (newHeight / imageHeight * 100);
+        }
+        
+        if (imageWidth >= boundWidth) {
+          newWidth = boundWidth - (boundWidth / 100 * offsetPercentage);
+          widthPercentage = 100 - (newWidth / imageWidth * 100);
+        }
+
+        if (heightPercentage > widthPercentage) {
+          newWidth = imageWidth - (imageWidth / 100 * heightPercentage);
+        } else if (widthPercentage > heightPercentage) {
+          newHeight = imageHeight - (imageHeight / 100 * widthPercentage);
+        }
+
+        return {
+          height: newHeight,
+          width: newWidth
+        };
+      }
+
+      var bounds = calculateBounds(leafletHolderWidth, w, leafletHolderHeight, h);
+      var imageBounds = new L.LatLngBounds(_.leafletHolder.unproject([0, bounds.height], zoomLevel), _.leafletHolder.unproject([bounds.width, 0], zoomLevel));
+
+      L.imageOverlay(img.src, imageBounds, {alt: alt}).addTo(_.leafletHolder);
+      _.leafletHolder.flyToBounds(imageBounds, {animate: false});
       _.leafletHolder.invalidateSize(false);
       _.leafletLoader.removeClass('loading');
-      _.leafletHolder.setMaxBounds(bounds);
-      _.leafletStartBounds = bounds;
+      _.leafletHolder.setMaxBounds(imageBounds);
+      _.leafletStartBounds = imageBounds;
       _.leafletHolder.setMinZoom(_.leafletHolder.getZoom());
       _.setZoomButtons();
     };
@@ -526,7 +569,7 @@ finna.imagePaginator = (function imagePaginator() {
     var _ = this;
     var img = _.trigger.find('img');
     img.attr('data-src', imagePopup.attr('href'));
-    img.attr('alt', imagePopup.find('img').attr('alt'));
+    img.attr('alt', imagePopup.data('alt'));
 
     if (_.openImageIndex !== imagePopup.attr('index')) {
       img.css('opacity', 0.5);
@@ -537,6 +580,7 @@ finna.imagePaginator = (function imagePaginator() {
       _.setDimensions();
       if (image.naturalWidth && image.naturalWidth === 10 && image.naturalHeight === 10) {
         _.trigger.addClass('no-image');
+        $(image).attr('alt', translations.no_cover);
         if (_.isList) {
           if (_.images.length < 2) {
             _.settings.enableImageZoom = false;
@@ -549,9 +593,10 @@ finna.imagePaginator = (function imagePaginator() {
           $(image).parents('.grid').addClass('no-image');
         }
         if (!_.isList && _.images.length <= 1) {
-          _.root.closest('.media-left').addClass('hidden-xs').find('.organisation-menu').hide();
+          _.root.closest('.media-left').not('.audio').addClass('hidden-xs');
+          _.root.closest('.media-left').find('.organisation-menu').hide();
           _.root.css('display', 'none');
-          _.root.siblings('.image-details-container').hide();
+          _.root.siblings('.image-details-container:not(:has(.image-rights))').hide();
           $('.record.large-image-layout').addClass('no-image-layout').removeClass('large-image-layout');
           $('.large-image-sidebar').addClass('visible-xs visible-sm');
           $('.record-main').addClass('mainbody left');
@@ -759,8 +804,14 @@ finna.imagePaginator = (function imagePaginator() {
         $(this).siblings('i').remove();
       };
     }
-    holder.attr({'index': image.index, 'data-largest': image.largest, 'data-description': image.description});
-    holder.attr('href', (!_.isList && _.settings.enableImageZoom) ? image.largest : image.medium);
+    holder.attr({
+      'index': image.index,
+      'data-largest': image.largest,
+      'data-description': image.description,
+      'href': (!_.isList && _.settings.enableImageZoom) ? image.largest : image.medium,
+      'data-alt': image.alt
+    });
+
     return holder;
   };
 
@@ -849,7 +900,7 @@ finna.imagePaginator = (function imagePaginator() {
     _.setCurrentVisuals();
     var modal = $('#imagepopup-modal').find('.imagepopup-holder').clone();
 
-    _.trigger.magnificPopup({
+    _.trigger.not('[data-disable-modal="1"]').magnificPopup({
       items: {
         src: modal,
         type: 'inline',
@@ -982,7 +1033,11 @@ finna.imagePaginator = (function imagePaginator() {
     var _ = this;
     var tmpImg = $(_.imagePopup).clone(true);
     tmpImg.find('img').data('src', image.small);
-    tmpImg.attr({'index': image.index, 'href': image.medium});
+    tmpImg.attr({
+      'index': image.index,
+      'href': image.medium,
+      'data-alt': image.alt
+    });
     tmpImg.click();
   };
 
