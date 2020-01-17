@@ -1,6 +1,7 @@
 <!-- START of: finna - librarycards/editcard.phtml -->
 <?php
   // Set up page title:
+  $account = $this->auth()->getManager();
   $pageTitle = empty($this->card->id) ? 'Connect Library Card' : 'Update Card Details';
   $this->headTitle($this->translate($pageTitle));
   // Set up breadcrumbs:
@@ -61,6 +62,7 @@
     <?php endif; ?>
     <div class="form-group">
       <input class="btn btn-primary" type="submit" name="submit" value="<?=$this->transEsc('Save') ?>"/>
+      <a id="login_library_card_recovery" class="btn btn-link" href="<?=$this->url('librarycards-recover') ?>"><?=$this->transEsc('Forgot Password')?></a>
     </div>
     <?php if (empty($this->card->id)): ?>
       <?php
@@ -82,15 +84,20 @@
 <?php
   if ($this->targets !== null) {
       $labels = [];
+      $recovery = [];
       foreach ($this->secondaryLoginFieldLabels as $target => $label) {
         $labels[] = '"' . addslashes($target) . '": "' . ($label ? addslashes($this->translate($label)) : '') . '"';
+        $recovery[$target] = $this->ils()->checkFunction('recoverPassword', ['patron' => ['cat_username' => "$target.123"]])
+        ? $this->url('librarycards-recover') . "?target=$target" : false;
       }
 
+      $recovery = json_encode($recovery);
       $labels = implode(', ', $labels);
       $methods = json_encode($this->loginMethods);
       $script = <<<EOT
   setupMultiILSLoginFields($methods, 'login_');
   finna.layout.initSecondaryLoginField({{$labels}}, 'login_');
+  finna.layout.initILSPasswordRecoveryLink($recovery, 'login_');
 EOT;
 
       // Inline the script for lightbox compatibility
