@@ -294,6 +294,12 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
 
     holder.data('id', id);
 
+    if ('openTimes' in data && 'openNow' in data
+      && 'schedules' in data.openTimes && data.openTimes.schedules.length
+    ) {
+      holder.find('.is-open' + (data.openNow ? '.open' : '.closed')).show();
+    }
+
     if ('email' in data) {
       holder.find('.email').attr('href', 'mailto:' + data.email).show();
     }
