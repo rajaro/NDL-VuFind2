@@ -107,7 +107,8 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
             if (!selfservice || obj.times.length === 1) {
               if (currentSelfservice === null || selfservice !== currentSelfservice) {
                 var timeRow = timeRowTpl.clone();
-                timeRow.find('.date').text(date + ' ' + day);
+                timeRow.find('.date').text(date);
+                timeRow.find('.name').text(day);
                 if (addFullOpeningTimes && obj.times.length > 1) {
                   timeRow.find('.opens').text(firstElement.opens);
                   timeRow.find('.closes').text(lastElement.closes);
@@ -147,7 +148,7 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
           });
         } else {
           var timeRow = timeRowTpl.clone();
-          timeRow.find('.date').text(obj.date + ' ' + obj.day);
+          timeRow.find('.date').text(obj.date);
           timeRow.find('.name').text(obj.day);
           timeRow.find('.info').text(obj.info);
           timeRow.find('.period, .name-staff').hide();

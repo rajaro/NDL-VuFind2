@@ -1085,10 +1085,8 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
         ];
         foreach ($days as $day => $key) {
             $details['openTimes']['schedules'][$day]
-                = $this->getMuseumDaySchedule($key, $json, $today, $currentHour);
-            if (isset($details['openTimes']['schedules'][$day]['openNow'])
-                && $details['openTimes']['schedules'][$day]['openNow'] == true
-            ) {
+                = $this->getMuseumDaySchedule($key, $json);
+            if ($details['openTimes']['schedules'][$day]['openNow'] ?? false) {
                 $details['openNow'] = true;
                 $details['openTimes']['openNow'] = true;
             }
