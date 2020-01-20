@@ -554,6 +554,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             'period.end' => $endDate,
             'status' => '',
             'lang' => $this->getLanguage(),
+            'refs' => 'period'
         ];
 
         $response = $this->fetchData('service_point', $params);
@@ -565,6 +566,17 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             return false;
         }
 
+        $scheduleDescriptions = null;
+        if (isset($response['refs']['period'])) {
+            $scheduleDescriptions = [];
+            foreach ($response['refs']['period'] as $key => $period) {
+                $scheduleDesc = $period['description'];
+                if (!empty($scheduleDesc)) {
+                    $scheduleDescriptions[] = $scheduleDesc;
+                }
+            }
+        }
+
         // Details
         $response = $response['items'][0];
         $result = $this->parseDetails(
@@ -573,6 +585,9 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
 
         $result['id'] = $id;
         $result['periodStart'] = $startDate;
+        if ($scheduleDescriptions) {
+            $result['scheduleDescriptions'] = $scheduleDescriptions;
+        }
 
         return $result;
     }
