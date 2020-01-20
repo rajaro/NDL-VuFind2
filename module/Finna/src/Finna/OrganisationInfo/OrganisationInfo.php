@@ -476,7 +476,6 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             }
 
             $consortium['finna'] = [
-                'service_point' => $response['servicePoint'],
                 'usage_info' => $response['usageInfo'],
                 'notification' => $response['notification'],
                 'finna_coverage' => $response['finnaCoverage'],
@@ -491,6 +490,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
             }
         }
 
+        $consortium['finna']['service_point'] = $response['servicePoint'];
         $consortium['id'] = $response['id'];
 
         // Organisation list for a consortium with schedules for the current week
