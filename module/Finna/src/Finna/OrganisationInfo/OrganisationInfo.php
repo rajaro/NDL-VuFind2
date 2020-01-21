@@ -86,6 +86,13 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
     protected $language = null;
 
     /**
+     * CleanHtml helper
+     *
+     * @var \Finna\View\Helper\Root\CleanHtml
+     */
+    protected $cleanHtml;
+
+    /**
      * Constructor.
      *
      * @param \Zend\Config\Config             $config        Configuration
@@ -102,6 +109,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
         $this->cacheManager = $cacheManager;
         $this->viewRenderer = $viewRenderer;
         $this->dateConverter = $dateConverter;
+        $this->cleanHtml = $viewRenderer->plugin('cleanHtml');
     }
 
     /**
@@ -840,10 +848,11 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
         }
 
         if (!empty($response['slogan'])) {
-            $result['slogan'] = html_entity_decode($response['slogan']);
+            $result['slogan'] = $this->cleanHtml->__invoke($response['slogan']);
         }
         if (!empty($response['description'])) {
-            $result['description'] = html_entity_decode($response['description']);
+            $result['description']
+                = $this->cleanHtml->__invoke($response['description']);
         }
 
         if (!empty($response['links'])) {
@@ -878,7 +887,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
                     $name = empty($service['name'])
                         ? $service['standardName'] : $service['name'];
                     $data = [$name];
-                    $desc = html_entity_decode($service['shortDescription']);
+                    $desc = $this->cleanHtml->__invoke($service['shortDescription']);
                     if ($desc) {
                         $data[] = $desc;
                     }
