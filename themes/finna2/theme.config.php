@@ -182,6 +182,7 @@ return [
         'finna-feed.js',
         'finna-holds.js',
         'finna-layout.js',
+        'finna-linked-events.js',
         'finna-openurl.js',
         'finna-map.js',
         'finna-map-facet.js',
