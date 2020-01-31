@@ -196,7 +196,7 @@
     <?=$this->flashmessages()?>
     <?php if ($recordTotal > 0): ?>
       <?php if ($browse): ?>
-        <?= $this->search()->renderBrowseTitleAndDesc($browse, $this); ?>
+        <?=$this->render('search/browse-header.phtml', ['browse' => $browse])?>
       <?php endif; ?>
       <div class="search-controls">
             <div class="control-container text-right hidden-print">
