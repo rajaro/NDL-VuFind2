@@ -776,9 +776,6 @@ recordMap = openlayers
 ; layout. Disabled by default.
 ; enableImagePopupZoom = true
 
-; Whether to embed video in the record page.
-;inlineVideo = true
-
 [QRCode]
 ; This setting controls the image to display when no qrcode is available.
 ; The path is relative to the base of your theme directory.
@@ -1322,6 +1319,9 @@ url_blacklist[] = '/booky\.fi\/(image\.php\?|description\.php\?)/'
 ; Video poster source configuration keyed by data source. {filename} is replaced with
 ; the actual filename.
 ;poster_sources[kavi] = "http://www.elonet.fi/tenho/media/{filename}"
+
+; Whether to embed video in the record page.
+;embedVideo = true
 
 ; The following two sections control the Alphabetic Browse module.
 [AlphaBrowse]

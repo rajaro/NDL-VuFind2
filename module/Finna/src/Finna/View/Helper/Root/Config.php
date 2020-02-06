@@ -46,6 +46,6 @@ class Config extends \VuFind\View\Helper\Root\Config
      */
     public function inlineVideoEnabled()
     {
-        return !empty($this->get('config')->Content->inlineVideo);
+        return !empty($this->get('config')->Record->embedVideo);
     }
 }
