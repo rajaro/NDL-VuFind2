@@ -87,9 +87,9 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
      */
     public function handleRequest(Params $params)
     {
+        $param = $params->fromQuery('params');
         try {
-            $events = $this->linkedEvents->getEvents([]);
-         ///   var_dump($events);
+            $events = $this->linkedEvents->getEvents($param);
         } catch (\Exception $e) {
             return $e->getMessage();
         }

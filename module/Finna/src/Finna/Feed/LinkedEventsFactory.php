@@ -64,7 +64,8 @@ class LinkedEventsFactory implements FactoryInterface
         }
         $config = $container->get(\VuFind\Config\PluginManager::class);
         return new $requestedName(
-            $config->get('config')
+            $config->get('config'),
+            $container->get(\VuFind\Date\Converter::class)
         );
     }
 }

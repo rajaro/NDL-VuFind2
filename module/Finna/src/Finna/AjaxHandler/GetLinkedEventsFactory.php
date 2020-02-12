@@ -63,7 +63,7 @@ class GetLinkedEventsFactory implements \Zend\ServiceManager\Factory\FactoryInte
             throw new \Exception('Unexpected options passed to factory.');
         }
         $result = new $requestedName(
-            $container->get(\VuFind\Config\PluginManager::class)->get('config'),
+            $container->get(\VuFind\Config\PluginManager::class)->get('OrganisationInfo'),
             $container->get('Finna\Feed\LinkedEvents'),
             $container->get('ViewRenderer')
         );

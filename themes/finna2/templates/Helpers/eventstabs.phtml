@@ -1,0 +1,18 @@
+<div class="events-tabs feed-tabs-container">
+<ul class="nav nav-tabs" role="tablist">
+  <?php foreach ($this->tabs as $tab): ?>
+    <h2></h2>
+    <li class="nav-item event-tab" id="<?=$tab['title']?>" data-params="<?=$tab['params']?>"><?= $tab['title'] ?></li>
+  <?php endforeach; ?>
+  </ul>
+  <div class="linked-events-content"></div>
+</div>
+<?php
+$this->headScript()->appendFile("finna-linked-events.js");
+$js = <<<JS
+$(document).ready(function(){
+  finna.linkedEvents.initEventsTabs();
+});
+JS;
+$this->headScript()->appendScript($js);
+?>
