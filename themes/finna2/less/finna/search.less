@@ -103,6 +103,12 @@ mark, .highlight {
   .media-body {
     width: auto;
   }
+  .record-versions {
+    font-size: 0.9em;
+    &:not(.loading) {
+      text-transform: uppercase;
+    }
+  }
 }
 .dateyeartype {
   .date-and-year();
@@ -313,6 +319,13 @@ mark, .highlight {
     flex-direction: row-reverse;
     align-items: center;
   }
+}
+.browse-title {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+.browse-desc {
+  margin-bottom: 10px;
 }
 
 .cart-controls .btn {

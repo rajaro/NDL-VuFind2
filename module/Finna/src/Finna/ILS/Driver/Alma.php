@@ -65,6 +65,14 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
     protected $sortItemsByEnumChron = true;
 
     /**
+     * Process types hidden from holdings. The array is keyed by physical material
+     * type, or '*' to match all types.
+     *
+     * @var array
+     */
+    protected $hiddenProcessTypes = [];
+
+    /**
      * Initialize the driver.
      *
      * Validate configuration and perform all resource-intensive tasks needed to
@@ -91,6 +99,14 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
 
         $this->sortItemsByEnumChron
             = $this->config['Holdings']['sortByEnumChron'] ?? true;
+
+        if (!empty($this->config['Holdings']['hiddenProcessTypes'])) {
+            foreach ($this->config['Holdings']['hiddenProcessTypes']
+                as $key => $value
+            ) {
+                $this->hiddenProcessTypes[$key] = explode(':', $value);
+            }
+        }
     }
 
     /**
@@ -130,6 +146,118 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             ];
         }
         return $fineList;
+    }
+
+    /**
+     * Get transactions of the current patron.
+     *
+     * @param array $patron The patron array from patronLogin
+     * @param array $params Parameters
+     *
+     * @return array Transaction information as array.
+     *
+     * @author Michael Birkner
+     */
+    public function getMyTransactions($patron, $params = [])
+    {
+        // Defining the return value
+        $returnArray = [];
+
+        // Get the patron id
+        $patronId = $patron['id'];
+
+        // Create a timestamp for calculating the due / overdue status
+        $nowTS = time();
+
+        $sort = explode(
+            ' ', !empty($params['sort']) ? $params['sort'] : 'checkout desc', 2
+        );
+        if ($sort[0] == 'checkout') {
+            $sortKey = 'loan_date';
+        } elseif ($sort[0] == 'title') {
+            $sortKey = 'title';
+        } else {
+            $sortKey = 'due_date';
+        }
+        $direction = (isset($sort[1]) && 'desc' === $sort[1]) ? 'DESC' : 'ASC';
+
+        $pageSize = $params['limit'] ?? 50;
+        $params = [
+            'limit' => $pageSize,
+            'offset' => isset($params['page'])
+                ? ($params['page'] - 1) * $pageSize : 0,
+            'order_by' => $sortKey,
+            'direction' => $direction,
+            'expand' => 'renewable'
+        ];
+
+        // Get user loans from Alma API
+        $apiResult = $this->makeRequest(
+            '/users/' . $patronId . '/loans',
+            $params
+        );
+
+        // If there is an API result, process it
+        $totalCount = 0;
+        if ($apiResult) {
+            $totalCount = $apiResult->attributes()->total_record_count;
+            // Iterate over all item loans
+            foreach ($apiResult->item_loan as $itemLoan) {
+                $loan['duedate'] = $this->parseDate(
+                    (string)$itemLoan->due_date,
+                    true
+                );
+                //$loan['dueTime'] = ;
+                $loan['checkoutDate'] = $this->parseDate(
+                    (string)$itemLoan->loan_date,
+                    false
+                );
+                $loan['dueStatus'] = null; // Calculated below
+                $loan['id'] = (string)$itemLoan->mms_id;
+                //$loan['source'] = 'Solr';
+                $loan['barcode'] = (string)$itemLoan->item_barcode;
+                //$loan['renew'] = ;
+                //$loan['renewLimit'] = ;
+                //$loan['request'] = ;
+                //$loan['volume'] = ;
+                $loan['publication_year'] = (string)$itemLoan->publication_year;
+                $loan['renewable']
+                    = (strtolower((string)$itemLoan->renewable) == 'true')
+                    ? true
+                    : false;
+                //$loan['message'] = ;
+                $loan['title'] = (string)$itemLoan->title;
+                $loan['item_id'] = (string)$itemLoan->loan_id;
+                $loan['institution_name']
+                    = $this->getTranslatableString($itemLoan->library);
+                //$loan['isbn'] = ;
+                //$loan['issn'] = ;
+                //$loan['oclc'] = ;
+                //$loan['upc'] = ;
+                /*
+                Apparently this is not useful for us
+                $loan['borrowingLocation']
+                    = $this->getTranslatableString($itemLoan->circ_desk);
+                */
+
+                // Calculate due status
+                $dueDateTS = strtotime($loan['duedate']);
+                if ($nowTS > $dueDateTS) {
+                    // Loan is overdue
+                    $loan['dueStatus'] = 'overdue';
+                } elseif (($dueDateTS - $nowTS) < 86400) {
+                    // Due date within one day
+                    $loan['dueStatus'] = 'due';
+                }
+
+                $returnArray[] = $loan;
+            }
+        }
+
+        return [
+            'count' => $totalCount,
+            'records' => $returnArray
+        ];
     }
 
     /**
@@ -258,41 +386,42 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
         $contact = $xml->contact_info;
         if ($contact) {
             if ($contact->addresses) {
-                $address = null;
+                $profile['addresses'] = [];
                 foreach ($contact->addresses->address as $item) {
-                    if ('true' === (string)$item['preferred']) {
-                        $address = $item;
+                    $address = [
+                        'preferred' => 'true' === (string)$item['preferred'],
+                        'types' => [],
+                        'address1' => (string)($item->line1 ?? ''),
+                        'address2' => (string)($item->line2 ?? ''),
+                        'address3' => (string)($item->line3 ?? ''),
+                        'zip' => (string)($item->postal_code ?? ''),
+                        'city' => (string)($item->city ?? ''),
+                    ];
+                    foreach ($item->address_types->address_type as $type) {
+                        $address['types'][] = (string)$type;
+                    }
+                    if (!empty($item->country)) {
+                        $address['country'] = new \VuFind\I18n\TranslatableString(
+                            (string)$item->country,
+                            (string)$item->country->attributes()->desc
+                        );
+                    } else {
+                        $address['country'] = '';
+                    }
+                    $profile['addresses'][] = $address;
+                }
+
+                // Copy preferred address to the basic fields
+                foreach ($profile['addresses'] as $address) {
+                    if (!empty($address['preferred'])) {
+                        foreach ($address as $key => $value) {
+                            $profile[$key] = $value;
+                        }
                         break;
                     }
                 }
-                if (null === $address) {
-                    $address = $contact->addresses[0]->address[0];
-                }
-                $profile['address1'] =  isset($address->line1)
-                                            ? (string)$address->line1
-                                            : null;
-                $profile['address2'] =  isset($address->line2)
-                                            ? (string)$address->line2
-                                            : null;
-                $profile['address3'] =  isset($address->line3)
-                                            ? (string)$address->line3
-                                            : null;
-                $profile['zip']      =  isset($address->postal_code)
-                                            ? (string)$address->postal_code
-                                            : null;
-                $profile['city']     =  isset($address->city)
-                                            ? (string)$address->city
-                                            : null;
-                if (!empty($address->country)) {
-                    $profile['country'] = new \VuFind\I18n\TranslatableString(
-                        (string)$address->country,
-                        (string)$address->country->attributes()->desc
-                    );
-                } else {
-                    $profile['country'] = null;
-                }
 
-                // Check if the user has a work and/or home address
+                // Check if the user has a work and/or home address for hold pickup
                 foreach ($contact->addresses->address as $item) {
                     foreach ($item->address_types->address_type ?? [] as $type) {
                         $parts = [
@@ -355,8 +484,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
         }
 
         // Display '****' as a hint that the field is available to update..
-        $fieldConfig = isset($this->config['updateProfile']['fields'])
-            ? $this->config['updateProfile']['fields'] : [];
+        $fieldConfig = $this->getUpdateProfileFields();
         foreach ($fieldConfig as $field) {
             $parts = explode(':', $field);
             if (($parts[1] ?? '') === 'self_service_pin') {
@@ -461,8 +589,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
         $hasAddress = false;
         $hasPhone = false;
         $hasEmail = false;
-        $fieldConfig = isset($this->config['updateProfile']['fields'])
-            ? $this->config['updateProfile']['fields'] : [];
+        $fieldConfig = $this->getUpdateProfileFields();
         foreach ($fieldConfig as $field) {
             $parts = explode(':', $field);
             if (isset($parts[1])) {
@@ -515,8 +642,58 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             $address['preferred'] = 'true';
             foreach ($details as $key => $value) {
                 if (isset($addressMapping[$key])) {
-                    $address->addChild($addressMapping[$key], $value);
+                    $address->addChild($addressMapping[$key], trim($value));
                 }
+            }
+        } else {
+            // Multiple address support
+            $addresses = array_reverse(array_values($details['addresses'] ?? []));
+            // Make sure we only have a single preferred address
+            $hasPreferred = false;
+            foreach ($addresses as &$address) {
+                if (!empty($address['preferred'])) {
+                    if ($hasPreferred) {
+                        $address['preferred'] = false;
+                    } else {
+                        $hasPreferred = true;
+                    }
+                }
+            }
+            unset($address);
+
+            $index = count($addresses);
+            foreach ($addresses as $newAddress) {
+                --$index;
+                if (!($address = $contact->addresses->address[$index] ?? null)) {
+                    $address = $contact->addresses->addChild('address');
+                }
+                $hasData = false;
+                foreach ($newAddress as $key => $value) {
+                    if (isset($addressMapping[$key])) {
+                        $address->addChild($addressMapping[$key], trim($value));
+                        if (!empty(trim($value))) {
+                            $hasData = true;
+                        }
+                    }
+                }
+                if (!$hasData) {
+                    // Empty fields, remove address
+                    unset($address[0]);
+                    continue;
+                }
+                $addressTypes = $address->address_types ??
+                    $address->addChild('address_types');
+
+                foreach ($newAddress['types'] ?? ['home'] as $type) {
+                    foreach ($addressTypes->address_type as $existing) {
+                        if ((string)$existing === $type) {
+                            continue 2;
+                        }
+                    }
+                    $addressTypes->addChild('address_type', (string)$type);
+                }
+                $address['preferred'] = !empty($newAddress['preferred'])
+                    ? 'true' : 'false';
             }
         }
 
@@ -584,7 +761,9 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
 
         $overrideFields = [];
         foreach ($details as $key => $value) {
-            $value = trim($value);
+            if (!is_array($value)) {
+                $value = trim($value);
+            }
             if (isset($otherMapping[$key])) {
                 $fieldName = $otherMapping[$key];
                 if ('pin_number' === $fieldName) {
@@ -803,6 +982,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
         }
         $config = parent::getConfig($function, $params);
         if ('updateProfile' === $function && isset($config['fields'])) {
+            $config['fields'] = $this->getUpdateProfileFields();
             // Allow only a limited set of fields for external users
             if (isset($params['patron'])) {
                 $profile = $this->getMyProfile($params['patron']);
@@ -820,19 +1000,44 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     $config['fields'] = $fields;
                 }
             }
-            // Add code tables
+            // Add code tables and choices
             if (!empty($config['fields'])) {
                 foreach ($config['fields'] as &$field) {
                     $parts = explode(':', $field);
                     $fieldId = $parts[1] ?? '';
-                    if ('country' === $fieldId) {
+                    if ('country' === $fieldId
+                        || preg_match('/^addresses\[[0-9]\]\[country\]$/', $fieldId)
+                    ) {
                         $field = [
-                            'field' => 'country',
+                            'field' => $fieldId,
                             'label' => $parts[0],
                             'type' => 'select',
                             'options' => $this->getCodeTableOptions(
                                 'CountryCodes', 'description'
                             ),
+                            'required' => ($parts[3] ?? '') === 'required',
+                        ];
+                    } elseif (preg_match('/^addresses\[[0-9]\]\[types\]$/', $fieldId)
+                    ) {
+                        // Add address types
+                        $field = [
+                            'field' => $fieldId,
+                            'label' => $parts[0],
+                            'type' => 'multiselect',
+                            'options' => [
+                                'home' => [
+                                    'name' => 'address_type_home',
+                                ],
+                                'work' => [
+                                    'name' => 'address_type_work',
+                                ],
+                                'school' => [
+                                    'name' => 'address_type_school',
+                                ],
+                                'alternative' => [
+                                    'name' => 'address_type_alternative',
+                                ],
+                            ],
                             'required' => ($parts[3] ?? '') === 'required',
                         ];
                     }
@@ -845,6 +1050,35 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             ) {
                 $config['titleHoldBibLevels']
                     = explode(':', $config['titleHoldBibLevels']);
+            }
+            if (!empty($params['id']) && !empty($params['patron']['id'])) {
+                // Check if we require the part_issue (description) field
+                $requestOptionsPath = '/bibs/' . urlencode($params['id'])
+                    . '/request-options?user_id='
+                    . urlencode($params['patron']['id']);
+                // Make the API request
+                $requestOptions = $this->makeRequest($requestOptionsPath);
+                // Check possible request types from the API answer
+                $requestTypes = $requestOptions->xpath(
+                    '/request_options/request_option//type'
+                );
+                $types = [];
+                foreach ($requestTypes as $requestType) {
+                    $types[] = (string)$requestType;
+                }
+                if ($types === ['PURCHASE']) {
+                    $config['extraHoldFields']
+                        = empty($config['extraHoldFields'])
+                            ? 'part_issue'
+                            : $config['extraHoldFields'] . ':part_issue';
+                }
+
+                // Add a flag so that checkRequestIsValid knows to check valid pickup
+                // locations
+                $config['HMACKeys']
+                    = empty($config['HMACKeys'])
+                        ? '__check_pickup'
+                        : $config['HMACKeys'] . ':__check_pickup';
             }
         }
         return $config;
@@ -923,7 +1157,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                         continue 2;
                     }
                 }
-                $unavailableItems[] = $entry;
+                $unavailableItems[] = $item;
             }
 
             $profile = $this->getMyProfile($patron);
@@ -1019,14 +1253,20 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             if ($home) {
                 $libraries[] = [
                     'locationID' => '$$HOME',
-                    'locationDisplay' => $profile['homeAddress']
+                    'locationDisplay' => $this->getTranslatableStringForCode(
+                        'pickup_location_home_address',
+                        'pickup_location_home_address'
+                    )
                 ];
             }
             if ($work) {
                 if (!$home || $profile['homeAddress'] !== $profile['workAddress']) {
                     $libraries[] = [
                         'locationID' => '$$WORK',
-                        'locationDisplay' => $profile['workAddress']
+                        'locationDisplay' => $this->getTranslatableStringForCode(
+                            'pickup_location_work_address',
+                            'pickup_location_work_address'
+                        )
                     ];
                 }
             }
@@ -1050,6 +1290,74 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
     public function getDefaultPickUpLocation($patron = null, $holdDetails = null)
     {
         return false;
+    }
+
+    /**
+     * Get Patron Holds
+     *
+     * This is responsible for retrieving all holds by a specific patron.
+     *
+     * @param array $patron The patron array from patronLogin
+     *
+     * @return mixed        Array of the patron's holds on success.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getMyHolds($patron)
+    {
+        $holdList = [];
+        $offset = 0;
+        $totalCount = 1;
+        while ($offset < $totalCount) {
+            $xml = $this->makeRequest(
+                '/users/' . $patron['id'] . '/requests',
+                ['request_type' => 'HOLD', 'offset' => $offset, 'limit' => 100]
+            );
+            $offset += 100;
+            $totalCount = (int)$xml->attributes()->{'total_record_count'};
+            foreach ($xml as $request) {
+                $lastInterestDate = $request->last_interest_date
+                    ? $this->dateConverter->convertToDisplayDate(
+                        'Y-m-dT',
+                        (string)$request->last_interest_date
+                    ) : null;
+                $available = (string)$request->request_status === 'On Hold Shelf';
+                $lastPickupDate = null;
+                if ($available) {
+                    $lastPickupDate = $request->expiry_date
+                        ? $this->dateConverter->convertToDisplayDate(
+                            'Y-m-dT',
+                            (string)$request->expiry_date
+                        ) : null;
+                    $lastInterestDate = null;
+                }
+                $hold = [
+                    'create' => $this->dateConverter->convertToDisplayDate(
+                        'Y-m-dT',
+                        (string)$request->request_date
+                    ),
+                    'expire' => $lastInterestDate,
+                    'id' => (string)$request->request_id,
+                    'available' => $available,
+                    'last_pickup_date' => $lastPickupDate,
+                    'item_id' => (string)$request->mms_id,
+                    'location' => (string)$request->pickup_location,
+                    'processed' => $request->item_policy === 'InterlibraryLoan'
+                        && (string)$request->request_status !== 'Not Started',
+                    'title' => (string)$request->title,
+                ];
+                if (!$available) {
+                    if ('In Process' === (string)$request->request_status) {
+                        $hold['position'] = $this->translate('status_In Process');
+                    } else {
+                        $hold['position'] = (int)($request->place_in_queue ?? 1);
+                    }
+                }
+
+                $holdList[] = $hold;
+            }
+        }
+        return $holdList;
     }
 
     /**
@@ -1084,7 +1392,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             $requestOptions = $this->makeRequest($requestOptionsPath);
         } elseif ('title' === $level) {
             $hmac = explode(':', $this->config['Holds']['HMACKeys'] ?? '');
-            if (!in_array('level', $hmac) || !in_array('description', $hmac)) {
+            if (!in_array('level', $hmac)) {
                 return false;
             }
             // Call the request-options API for the logged-in user
@@ -1097,17 +1405,27 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             return false;
         }
 
+        $result = false;
+
         // Check possible request types from the API answer
         $requestTypes = $requestOptions->xpath(
             '/request_options/request_option//type'
         );
         foreach ($requestTypes as $requestType) {
             if (in_array((string)$requestType, ['HOLD', 'PURCHASE'])) {
-                return true;
+                $result = true;
+                break;
             }
         }
 
-        return false;
+        if ($result && array_key_exists('__check_pickup', $data)) {
+            // Check valid pickup locations
+            if (empty($this->getPickupLocations($patron, $data))) {
+                $result = false;
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -1161,12 +1479,23 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
 
         // Check if we have a title level request or an item level request
         if ($level === 'title') {
-            // Add description if we have one for title level requests as Alma
-            // needs it under certain circumstances. See: https://developers.
-            // exlibrisgroup.com/alma/apis/xsd/rest_user_request.xsd?tags=POST
-            $description = isset($holdDetails['description']) ?? null;
-            if ($description) {
-                $body['description'] = $description;
+            $partIssue = $holdDetails['part_issue'] ?? null;
+            if ($partIssue) {
+                // Alma doesn't have a way of placing an "other item" request via the
+                // API (it would need to fill the manual_description field). And this
+                // one will require a description. Take one, whichever, and add the
+                // part or issue description in the comment field.
+                $items = $this->makeRequest(
+                    '/bibs/' . urlencode($mmsId) . '/holdings/ALL/items?limit=1'
+                );
+                $item = $items->item;
+                if ($item->item_data->description) {
+                    $body['description'] = (string)$item->item_data->description;
+                }
+                $body['comment'] = "Part or issue: $partIssue";
+                if ($comment) {
+                    $body['comment'] .= " -- Comment: $comment";
+                }
             }
 
             // Create HTTP client with Alma API URL for title level requests
@@ -1237,10 +1566,28 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                 ?? 'hold_error_fail';
         }
 
+        if ('Missing mandatory field: Description.' === $errorMsg) {
+            $errorMsg = $this->translate('This field is required') . ': '
+                . $this->translate('hold_part_issue');
+        }
+
         return [
             'success' => false,
             'sysMessage' => $errorMsg
         ];
+    }
+
+    /**
+     * Get details of a single hold request.
+     *
+     * @param array $holdDetails One of the item arrays returned by the
+     *                           getMyHolds method
+     *
+     * @return string            The Alma request ID
+     */
+    public function getCancelHoldDetails($holdDetails)
+    {
+        return empty($holdDetails['available']) ? $holdDetails['id'] : '';
     }
 
     /**
@@ -1305,6 +1652,13 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             $results['total'] = (int)$items->attributes()->total_record_count;
 
             foreach ($items->item as $item) {
+                $processType = (string)($item->item_data->process_type ?? '');
+                $format = (string)($item->item_data->physical_material_type ?? '');
+                if (in_array($processType, $this->hiddenProcessTypes[$format] ?? [])
+                    || in_array($processType, $this->hiddenProcessTypes['*'] ?? [])
+                ) {
+                    continue;
+                }
                 $holdingId = (string)$item->holding_data->holding_id;
                 if ($holding = $holdings[$holdingId] ?? null) {
                     if ('true' === (string)$holding->suppress_from_publishing) {
@@ -1325,7 +1679,6 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                 $itemNotes = !empty($item->item_data->public_note)
                     ? [(string)$item->item_data->public_note] : null;
 
-                $processType = (string)($item->item_data->process_type ?? '');
                 if ($processType && 'LOAN' !== $processType) {
                     $status = $this->getTranslatableStatusString(
                         $item->item_data->process_type
@@ -1354,6 +1707,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     'availability' => $this->getAvailabilityFromItem($item),
                     'status' => $status,
                     'location' => $this->getItemLocation($item),
+                    'location_code' => (string)$item->item_data->location,
                     'reserve' => 'N',   // TODO: support reserve status
                     'callnumber' => $this->getTranslatableString(
                         $item->holding_data->call_number
@@ -1365,6 +1719,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     'item_notes' => $itemNotes ?? null,
                     'item_id' => $itemId,
                     'holding_id' => $holdingId,
+                    'details_ajax' => $holdingId,
                     'holdtype' => 'auto',
                     'addLink' => $addLink,
                     // For Alma title-level hold requests
@@ -1406,17 +1761,12 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                 if ('true' === (string)$record->suppress_from_publishing) {
                     continue;
                 }
-                $itemsFound = false;
-                foreach ($results['holdings'] as &$holding) {
+                foreach ($results['holdings'] as $holding) {
                     if ($holding['holding_id'] === (string)$record->holding_id) {
-                        $holding['details_ajax'] = $holding['holding_id'];
-                        $itemsFound = true;
+                        continue 2;
                     }
                 }
-                unset($holding);
-                if (!$itemsFound) {
-                    $noItemsHoldings[] = $record;
-                }
+                $noItemsHoldings[] = $record;
             }
 
             foreach ($noItemsHoldings as $record) {
@@ -1608,6 +1958,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             'id' => $id,
             'item_id' => 'HLD_' . (string)$holding->holding_id,
             'location' => $location,
+            'location_code' => (string)$holding->library,
             'requests_placed' => 0,
             'status' => '',
             'use_unknown_message' => true,
@@ -1753,11 +2104,17 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     // Physical
                     $physicalItems = $record->getFields('AVA');
                     foreach ($physicalItems as $field) {
+                        // Filter out suggestions for other records
+                        $mmsId = $this->getMarcSubfield($field, '0');
+                        if ($mmsId !== (string)$bib->mms_id) {
+                            continue;
+                        }
                         $avail = $this->getMarcSubfield($field, 'e');
                         $item = $tmpl;
                         $item['availability'] = strtolower($avail) === 'available';
+                        $item['location_code'] = $this->getMarcSubfield($field, 'j');
                         $item['location'] = $this->getTranslatableStringForCode(
-                            $this->getMarcSubfield($field, 'j'),
+                            $item['location_code'],
                             $this->getMarcSubfield($field, 'c')
                         );
                         $item['callnumber'] = $this->getMarcSubfield($field, 'd');
@@ -2059,9 +2416,15 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
      */
     protected function statusSortFunction($a, $b)
     {
-        $orderA = $this->holdingsLocationOrder[(string)$a['location']] ?? 999;
-        $orderB = $this->holdingsLocationOrder[(string)$b['location']] ?? 999;
+        $orderA = $this->holdingsLocationOrder[$a['location_code']] ?? 999;
+        $orderB = $this->holdingsLocationOrder[$b['location_code']] ?? 999;
         $result = $orderA - $orderB;
+
+        if (0 === $result) {
+            $orderA = $this->holdingsLocationOrder[(string)$a['location']] ?? 999;
+            $orderB = $this->holdingsLocationOrder[(string)$b['location']] ?? 999;
+            $result = $orderA - $orderB;
+        }
 
         if (0 === $result) {
             $result = strcmp(
@@ -2097,5 +2460,28 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
         $value = ($this->config['Catalog']['translationPrefix'] ?? '')
             . (string)$code;
         return new \VuFind\I18n\TranslatableString($value, $description);
+    }
+
+    /**
+     * Get fields available for profile update
+     *
+     * @return array
+     */
+    protected function getUpdateProfileFields()
+    {
+        $fieldConfig = isset($this->config['updateProfile']['fields'])
+            ? $this->config['updateProfile']['fields'] : [];
+        if ($disabled = ($this->config['updateProfile']['disabledFields'] ?? '')) {
+            $result = [];
+            $disabled = explode(':', $disabled);
+            foreach ($fieldConfig as $field) {
+                $parts = explode(':', $field);
+                if (!in_array($parts[1] ?? '', $disabled)) {
+                    $result[] = $field;
+                }
+            }
+            return $result;
+        }
+        return $fieldConfig;
     }
 }
