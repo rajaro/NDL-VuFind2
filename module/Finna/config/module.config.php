@@ -372,6 +372,8 @@ $config = [
                         'VuFind\AjaxHandler\GetSideFacetsFactory',
                     'Finna\AjaxHandler\GetSimilarRecords' =>
                         'Finna\AjaxHandler\GetSimilarRecordsFactory',
+                    'Finna\AjaxHandler\GetUserList' =>
+                        'Finna\AjaxHandler\GetUserListFactory',
                     'Finna\AjaxHandler\GetUserLists' =>
                         'Finna\AjaxHandler\GetUserListsFactory',
                     'Finna\AjaxHandler\ImportFavorites' =>
@@ -405,6 +407,7 @@ $config = [
                     'getRecordVersions' => 'Finna\AjaxHandler\GetRecordVersions',
                     'getSearchTabsRecommendations' => 'Finna\AjaxHandler\GetSearchTabsRecommendations',
                     'getSimilarRecords' => 'Finna\AjaxHandler\GetSimilarRecords',
+                    'getUserList' => 'Finna\AjaxHandler\GetUserList',
                     'importFavorites' => 'Finna\AjaxHandler\ImportFavorites',
                     'onlinePaymentNotify' => 'Finna\AjaxHandler\OnlinePaymentNotify',
                     'registerOnlinePayment' => 'Finna\AjaxHandler\RegisterOnlinePayment',
@@ -519,7 +522,7 @@ $config = [
                     'Finna\ILS\Driver\AxiellWebServices' => 'Finna\ILS\Driver\AxiellWebServicesFactory',
                     'Finna\ILS\Driver\Demo' => 'VuFind\ILS\Driver\DemoFactory',
                     'Finna\ILS\Driver\Gemini' => '\VuFind\ILS\Driver\DriverWithDateConverterFactory',
-                    'Finna\ILS\Driver\KohaRest' => 'Finna\ILS\Driver\KohaRestFactory',
+                    'Finna\ILS\Driver\KohaRestSuomi' => 'Finna\ILS\Driver\KohaRestSuomiFactory',
                     'Finna\ILS\Driver\Mikromarc' => '\VuFind\ILS\Driver\DriverWithDateConverterFactory',
                     'Finna\ILS\Driver\MultiBackend' => 'Finna\ILS\Driver\MultiBackendFactory',
                     'Finna\ILS\Driver\SierraRest' => 'VuFind\ILS\Driver\SierraRestFactory',
@@ -530,8 +533,9 @@ $config = [
                     'axiellwebservices' => 'Finna\ILS\Driver\AxiellWebServices',
                     'gemini' => 'Finna\ILS\Driver\Gemini',
                     'mikromarc' => 'Finna\ILS\Driver\Mikromarc',
-                    // TOOD: remove the following line when KohaRest driver is available upstream:
-                    'koharest' => 'Finna\ILS\Driver\KohaRest',
+                    // TODO: remove the following line when KohaRest driver is available upstream:
+                    'koharest' => 'Finna\ILS\Driver\KohaRestSuomi',
+                    'koharestsuomi' => 'Finna\ILS\Driver\KohaRestSuomi',
 
                     'VuFind\ILS\Driver\Alma' => 'Finna\ILS\Driver\Alma',
                     'VuFind\ILS\Driver\Demo' => 'Finna\ILS\Driver\Demo',
@@ -689,29 +693,17 @@ $config = [
             ],
             'recordtab' => [
                 'factories' => [
-                    'Finna\RecordTab\DescriptionFWD' => 'Finna\RecordTab\Factory::getDescriptionFWD',
-                    'Finna\RecordTab\Distribution' => 'Finna\RecordTab\Factory::getDistribution',
-                    'Finna\RecordTab\InspectionDetails' => 'Finna\RecordTab\Factory::getInspectionDetails',
-                    'Finna\RecordTab\ItemDescription' => 'Finna\RecordTab\Factory::getItemDescription',
                     'Finna\RecordTab\LocationsEad3' => 'Finna\RecordTab\Factory::getLocationsEad3',
                     'Finna\RecordTab\Map' => 'Finna\RecordTab\Factory::getMap',
-                    'Finna\RecordTab\Music' => 'Finna\RecordTab\Factory::getMusic',
-                    'Finna\RecordTab\PressReviews' => 'Finna\RecordTab\Factory::getPressReviews',
                     'Finna\RecordTab\UserComments' => 'Finna\RecordTab\Factory::getUserComments',
-                    'Finna\RecordTab\Versions' => 'Zend\ServiceManager\Factory\InvokableFactory',
+                    'Finna\RecordTab\Versions' => 'Finna\RecordTab\VersionsFactory',
                 ],
                 'invokables' => [
                     'componentparts' => 'Finna\RecordTab\ComponentParts',
                 ],
                 'aliases' => [
                     'componentparts' => 'Finna\RecordTab\ComponentParts',
-                    'descriptionFWD' => 'Finna\RecordTab\DescriptionFWD',
-                    'distribution' => 'Finna\RecordTab\Distribution',
-                    'inspectionDetails' => 'Finna\RecordTab\InspectionDetails',
-                    'itemdescription' => 'Finna\RecordTab\ItemDescription',
                     'LocationsEad3' => 'Finna\RecordTab\LocationsEad3',
-                    'music' => 'Finna\RecordTab\Music',
-                    'pressreview' => 'Finna\RecordTab\PressReviews',
                     'versions' => 'Finna\RecordTab\Versions',
 
                     // Overrides:

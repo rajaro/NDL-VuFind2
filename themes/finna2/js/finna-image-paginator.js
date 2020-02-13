@@ -16,7 +16,10 @@ finna.imagePaginator = (function imagePaginator() {
     imagesOnNormal: 8,
     imagesPerRow: 8,
     enableImageZoom: false,
-    recordType: 'default-type'
+    recordType: 'default-type',
+    leaflet: {
+      offsetPercentage: 4
+    }
   };
 
   var translations = {
@@ -38,7 +41,6 @@ finna.imagePaginator = (function imagePaginator() {
   function FinnaPaginator(images, settings) {
     var _ = this;
 
-    _.paginatorIndex = paginatorIndex;
     _.isList = settings.isList;
     if (_.isList) {
       settings.imagesOnNormal = 0;
@@ -50,7 +52,7 @@ finna.imagePaginator = (function imagePaginator() {
     _.images = images;
 
     _.trigger = _.root.find('.image-popup-trigger');
-    _.trigger.attr('paginator-index', paginatorIndex++);
+    _.setPaginatorIndex(paginatorIndex++);
 
     _.settings = $.extend({}, defaults, settings);
     _.setMaxImages(_.settings.imagesOnNormal);
@@ -99,6 +101,26 @@ finna.imagePaginator = (function imagePaginator() {
     var paginator = new FinnaPaginator(images, settings);
     paginator.init();
   }
+
+  /**
+   * Reindex all paginators. Required if new paginators are appended to the DOM after initial page load.
+   */
+  function reindexPaginators() {
+    $('.image-popup-trigger').each(function reindexPaginator(index) {
+      $(this).trigger('setPaginatorIndex', index);
+    });
+  }
+
+  /**
+   * Helper function for setting paginator index.
+   *
+   * @param {int} index
+   */
+  FinnaPaginator.prototype.setPaginatorIndex = function setPaginatorIndex(index) {
+    var _ = this;
+    _.paginatorIndex = index;
+    _.trigger.attr('paginator-index', index);
+  };
 
   /**
    * Helper function to show a button and hide another
@@ -193,6 +215,10 @@ finna.imagePaginator = (function imagePaginator() {
    */
   FinnaPaginator.prototype.setEvents = function setEvents() {
     var _ = this;
+
+    _.trigger.off('setPaginatorIndex').on('setPaginatorIndex', function setIndex(event, index) {
+      _.setPaginatorIndex(index);
+    });
 
     if (!_.isList) {
       _.leftBtn.click(function loadImages() {
@@ -368,17 +394,51 @@ finna.imagePaginator = (function imagePaginator() {
 
       var h = this.naturalHeight;
       var w = this.naturalWidth;
-      var zoomLevel = 10;
-
+      var leafletHolderWidth = $('#leaflet-map-image').width();
+      var leafletHolderHeight = $('#leaflet-map-image').height();
+      
+      var zoomLevel = 1;
       var alt = h === 10 && w === 10 ? translations.no_cover : image.data('alt');
-      var bounds = new L.LatLngBounds(_.leafletHolder.unproject([0, h], zoomLevel), _.leafletHolder.unproject([w, 0], zoomLevel));
 
-      _.leafletHolder.flyToBounds(bounds, {animate: false});
-      L.imageOverlay(img.src, bounds, {alt: alt}).addTo(_.leafletHolder);
+      var offsetPercentage = _.settings.leaflet.offsetPercentage;
+
+      function calculateBounds(boundWidth, imageWidth, boundHeight, imageHeight) {
+        var heightPercentage = 0;
+        var widthPercentage = 0;
+        var newHeight = imageHeight;
+        var newWidth = imageWidth;
+
+        if (imageHeight >= boundHeight) {
+          newHeight = boundHeight - (boundHeight / 100 * offsetPercentage);
+          heightPercentage = 100 - (newHeight / imageHeight * 100);
+        }
+        
+        if (imageWidth >= boundWidth) {
+          newWidth = boundWidth - (boundWidth / 100 * offsetPercentage);
+          widthPercentage = 100 - (newWidth / imageWidth * 100);
+        }
+
+        if (heightPercentage > widthPercentage) {
+          newWidth = imageWidth - (imageWidth / 100 * heightPercentage);
+        } else if (widthPercentage > heightPercentage) {
+          newHeight = imageHeight - (imageHeight / 100 * widthPercentage);
+        }
+
+        return {
+          height: newHeight,
+          width: newWidth
+        };
+      }
+
+      var bounds = calculateBounds(leafletHolderWidth, w, leafletHolderHeight, h);
+      var imageBounds = new L.LatLngBounds(_.leafletHolder.unproject([0, bounds.height], zoomLevel), _.leafletHolder.unproject([bounds.width, 0], zoomLevel));
+
+      L.imageOverlay(img.src, imageBounds, {alt: alt}).addTo(_.leafletHolder);
+      _.leafletHolder.flyToBounds(imageBounds, {animate: false});
       _.leafletHolder.invalidateSize(false);
       _.leafletLoader.removeClass('loading');
-      _.leafletHolder.setMaxBounds(bounds);
-      _.leafletStartBounds = bounds;
+      _.leafletHolder.setMaxBounds(imageBounds);
+      _.leafletStartBounds = imageBounds;
       _.leafletHolder.setMinZoom(_.leafletHolder.getZoom());
       _.setZoomButtons();
     };
@@ -575,22 +635,11 @@ finna.imagePaginator = (function imagePaginator() {
     }
     _.imageDetail.html(imagePopup.data('description'));
 
-    if (_.isList) {
-      img.unveil(200, function tryMasonry() {
-        $(this).load(function handleImage() {
-          setImageProperties(this);
-          if (finna.layout.getMasonryState()) {
-            $('.result-view-grid .masonry-wrapper').masonry('layout');
-          }
-        });
+    img.unveil(100, function handleLoading() {
+      $(this).load(function handleImage() {
+        setImageProperties(this);
       });
-    } else {
-      img.unveil(100, function handleLoading() {
-        $(this).load(function handleImage() {
-          setImageProperties(this);
-        });
-      });
-    }
+    });
   };
 
   /**
@@ -1016,6 +1065,7 @@ finna.imagePaginator = (function imagePaginator() {
 
   var my = {
     initPaginator: initPaginator,
+    reindexPaginators: reindexPaginators,
     setCanvasContent: setCanvasContent
   };
 
