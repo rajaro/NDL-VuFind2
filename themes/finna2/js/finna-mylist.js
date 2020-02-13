@@ -6,7 +6,7 @@ finna.myList = (function finnaMyList() {
   var save = false;
   var listUrl = null;
   var refreshLists = null;
-  var truncateField = '<span class="truncate-field" data-rows="1">';
+  var truncateField = '<span class="truncate-field" data-rows="1" data-row-height="10">';
   var truncateTag = '[[more]]';
 
   function toggleTruncateField(mdeditor) {
@@ -32,7 +32,7 @@ finna.myList = (function finnaMyList() {
       action: function truncateFieldToggle(mdeditor) {
         toggleTruncateField(mdeditor);
       },
-      className: 'md-truncate',
+      className: 'fa-pagebreak',
       title: 'Truncate'
     }
   ];
@@ -106,7 +106,7 @@ finna.myList = (function finnaMyList() {
     if (type === 'title') {
       spinner = $('.list-title .fa');
     } else if (type === 'desc') {
-      spinner = $('.list-description .fa');
+      spinner = $('.list-description .fa:not(.fa-arrow-down)');
     } else if (type === 'add-list') {
       spinner = $('.add-new-list .fa');
     } else if (type === 'visibility') {
@@ -332,6 +332,9 @@ finna.myList = (function finnaMyList() {
       editor = new SimpleMDE(editorSettings);
       currentVal = editor.value();
 
+      if (currentVal.indexOf(truncateTag) !== -1) {
+        $('.fa-pagebreak').addClass('pagebreak-toggled');
+      }
       // Preview
       var html = SimpleMDE.prototype.markdown(editor.value());
       html = handleTruncateField(html);
@@ -345,11 +348,11 @@ finna.myList = (function finnaMyList() {
       editor.codemirror.on('change', function onChangeEditor() {
         var result = SimpleMDE.prototype.markdown(editor.value());
         if (result.indexOf(truncateTag) !== -1) {
-          if (!$('.md-truncate').hasClass('truncate-toggled')) {
-            $('.md-truncate').addClass('truncate-toggled');
+          if (!$('.fa-pagebreak').hasClass('pagebreak-toggled')) {
+            $('.fa-pagebreak').addClass('pagebreak-toggled');
           }
         } else {
-          $('.md-truncate').removeClass('truncate-toggled');
+          $('.fa-pagebreak').removeClass('pagebreak-toggled');
         }
         result = handleTruncateField(result);
         preview.find('.data').html(result);
@@ -368,7 +371,9 @@ finna.myList = (function finnaMyList() {
         container.show();
         container.data('markdown', markdown);
         container.data('empty', (markdown.length === 0 ? '1' : '0'));
+        resultHtml = handleTruncateField(resultHtml);
         container.html(resultHtml);
+        finna.layout.initTruncate(container);
         preview.remove();
 
         callback(markdown);
