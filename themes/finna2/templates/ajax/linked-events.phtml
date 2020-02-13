@@ -1,30 +1,32 @@
 <!-- START of: finna - ajax/linked-events.phtml -->
-<div class="linked-events">
+<div class="linked-events feed-grid with-image">
   <?php foreach ($this->events as $event): ?>
-    <div class="linked-event">
+    <div class="linked-event grid-item">
       <?php if (isset($event['imageurl'])): ?>
-        <span class="linked-events-image">
+        <span class="linked-events-image grid-image">
           <img src=<?= $event['imageurl'] ?>>
         </span>
       <?php endif; ?>
-      <?php if (isset($event['name'])): ?>
-        <span class="event-info"><b><?= $event['name'] ?></b></span>
-      <?php endif; ?>
-      <?php if (isset($event['description'])): ?>
-        <span class="event-info"><?= $this->truncate($event['description'], 200) ?></span>
-      <?php endif; ?>
-      <?php if (isset($event['start_date'])): ?>
-        <span class="event-info"><i class="fa fa-calendar"></i> <?= $event['start_date']; ?> <?php if (isset($event['end_date']) && $event['start_date'] !== $event['end_date']):?>&nbsp;&ndash;&nbsp;<?= $event['end_date']?><?php endif; ?></span>
-      <?php endif; ?>
-      <?php if (isset($event['start_time'])): ?>
-        <span class="event-info"> <i class="fa fa-clock-o"></i> <?= $event['start_time']; ?><?php if (isset($event['end_time'])): ?>&nbsp;&ndash;&nbsp;<?=$event['end_time'];?><?php endif; ?></span>
-      <?php endif; ?>
-      <?php if (isset($event['location'])): ?>
-        <span class="event-info"><i class="fa fa-map-marker"></i> <?= $event['location']; ?></span>
-      <?php endif; ?>
-      <?php if ($event['info_url']): ?>
-        <a class="event-url" href="<?= $event['info_url'] ?>">Linkki </a>
-      <?php endif; ?>
+      <span class="grid-info">
+        <?php if (isset($event['name'])): ?>
+          <span class="event-info"><b><?= $event['name'] ?></b></span>
+        <?php endif; ?>
+        <?php if (isset($event['description'])): ?>
+          <span class="event-info"><?= $this->truncate($event['description'], 200) ?></span>
+        <?php endif; ?>
+        <?php if (isset($event['start_date'])): ?>
+          <span class="event-info"><i class="fa fa-calendar"></i> <?= $event['start_date']; ?> <?php if (isset($event['end_date']) && $event['start_date'] !== $event['end_date']):?>&nbsp;&ndash;&nbsp;<?= $event['end_date']?><?php endif; ?></span>
+        <?php endif; ?>
+        <?php if (isset($event['start_time'])): ?>
+          <span class="event-info"> <i class="fa fa-clock-o"></i> <?= $event['start_time']; ?><?php if (isset($event['end_time'])): ?>&nbsp;&ndash;&nbsp;<?=$event['end_time'];?><?php endif; ?></span>
+        <?php endif; ?>
+        <?php if (isset($event['location'])): ?>
+          <span class="event-info"><i class="fa fa-map-marker"></i> <?= $event['location']; ?></span>
+        <?php endif; ?>
+        <?php if ($event['info_url']): ?>
+          <a class="event-url" href="<?= $event['info_url'] ?>">Linkki </a>
+        <?php endif; ?>
+      </span>
     </div>
   <?php endforeach; ?>
 </div>

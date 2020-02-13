@@ -83,12 +83,8 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
      */
     public function getEvents($params)
     {
-       // $url = $this->apiUrl . '?publisher=pori:kaupunki';
-       // $url = $this->apiUrl . '?page_size=10';
-       // $url = $this->apiUrl . '?keyword=pori:topic:music&page_size=5';
         $url = $this->apiUrl . $params;
         $client = $this->httpService->createClient($url);
-        //$client->setParameterGet($params);
         $result = $client->send();
         if (!$result->isSuccess()) {
             return $this->handleError(
@@ -99,7 +95,6 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
         $response = json_decode($result->getBody(), true);
         $events = [];
         if (! empty($response['data'])) {
-        //    var_dump($response);
             try {
                 foreach ($response['data'] as $eventData) {
                     $event = [
