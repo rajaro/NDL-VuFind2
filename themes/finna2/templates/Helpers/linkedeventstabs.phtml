@@ -1,0 +1,29 @@
+<!-- START of: finna - Helpers/linkedeventstabs.phtml -->
+<div class="events-tabs feed-tabs-container feed-tabs" data-tabs="<?= $this->escapeHtmlAttr(json_encode($this->tabs)); ?>" data-show-all="<?= $this->showAll; ?>">
+  <h2><?= $this->transEsc('Events'); ?></h2>
+  <ul class="nav nav-tabs" role="tablist">
+    <?php foreach ($this->tabs as $id => $tab): ?>
+      <?php $isActive = $this->active === $tab['title'] ?>
+      <li class="nav-item event-tab feed-tab <?= $isActive ? 'active' : ''; ?>" id="<?=$tab['title']?>"
+        tabindex="0"
+        aria-selected=<?= $isActive ? 'true' : 'false'; ?>
+        data-params="<?= isset($tab['params']) ? $this->escapeHtmlAttr(json_encode($tab['params'])) : ''?>"
+        aria-label="<?= $tab['title']; ?>"
+        ><?= $tab['title'] ?></li>
+    <?php endforeach; ?>
+  </ul>
+  </div>
+  <div class="tab-content">
+    <div class="linked-events-content" data-init="0"></div>
+  </div>
+  <a class="btn btn-primary events-more-link <?= $this->showAll ? 'hidden' : '' ?>" href="<?= $this->moreLink; ?>" data-link="<?= $this->moreLink; ?>"><?= $this->transEsc('more') ?></a>
+<?php
+$this->headScript()->appendFile("finna-linked-events.js");
+$js = <<<JS
+$(document).ready(function(){
+  finna.linkedEvents.initEventsTabs("{$this->active}");
+});
+JS;
+$this->headScript()->appendScript($js);
+?>
+<!-- END of: finna - Helpers/linkedeventstabs.phtml -->

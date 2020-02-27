@@ -69,4 +69,30 @@ class FeedContentController extends ContentController
              'element' => $element, 'modal' => $modal, 'feedUrl' => $feedUrl]
         );
     }
+
+    /**
+     * Linked events action
+     *
+     * @return Zend\View\Model\ViewModel
+     */
+    public function linkedEventsAction()
+    {
+        $event = $this->params()->fromQuery();
+        return $this->createViewModel(
+            ['page' => 'linked-events', 'event' => $event]
+        );
+    }
+
+    /**
+     * All linked events action
+     *
+     * @return Zend\View\Model\ViewModel
+     */
+    public function linkedEventsAllAction()
+    {
+        $params = $this->params()->fromQuery();
+        return $this->createViewModel(
+            ['page' => 'linkedeventsall', 'params' => $params]
+        );
+    }
 }

@@ -1,0 +1,20 @@
+
+<div class="event-date-container">
+  <?= $this->transEsc('Range'); ?>
+  <input id="event-date-start" type="date"> &ndash; <input id="event-date-end" type="date">
+  <button class="btn btn-primary" onclick="finna.linkedEvents.getEventsByDate()"><?= $this->transEsc('Find') ?></button>
+</div>
+<div class="event-search-container">
+  <?= $this->transEsc('Tekstihaku'); ?>
+  <input id="event-text-search" type="text">
+  <button class="btn btn-primary" onclick="finna.linkedEvents.searchEvents()"><?= $this->transEsc('Find') ?></button>
+</div>
+<div class="linked-events-all">
+  <?php foreach ($this->params['tabs'] as $tab): ?>
+    <?php $tab['params']['page_size'] = 30; ?>
+  <?php endforeach; ?>
+   <?=$this->linkedEventsTabs(['tabs' => $this->params['tabs'], 'active' => $this->params['active'], 'showAll' => true]) ?>
+</div>
+<?php
+  $this->headScript()->appendFile('finna-linked-events.js');
+?>

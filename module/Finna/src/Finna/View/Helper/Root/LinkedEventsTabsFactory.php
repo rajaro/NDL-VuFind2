@@ -1,6 +1,6 @@
 <?php
 /**
- * Factory for GetFeed AJAX handler.
+ * Feed helper factory.
  *
  * PHP version 7
  *
@@ -20,25 +20,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  AJAX
+ * @package  View_Helpers
  * @author   Jaro Ravila <jaro.ravila@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-namespace Finna\AjaxHandler;
+namespace Finna\View\Helper\Root;
 
 use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
- * Factory for GetFeed AJAX handler.
+ * EventsTabs helper factory.
  *
  * @category VuFind
- * @package  AJAX
+ * @package  View_Helpers
  * @author   Jaro Ravila <jaro.ravila@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class GetLinkedEventsFactory implements \Zend\ServiceManager\Factory\FactoryInterface
+class LinkedEventsTabsFactory implements FactoryInterface
 {
     /**
      * Create an object
@@ -53,19 +54,15 @@ class GetLinkedEventsFactory implements \Zend\ServiceManager\Factory\FactoryInte
      * @throws ServiceNotCreatedException if an exception is raised when
      * creating a service.
      * @throws ContainerException if any other error occurs
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function __invoke(ContainerInterface $container, $requestedName,
         array $options = null
     ) {
         if (!empty($options)) {
-            throw new \Exception('Unexpected options passed to factory.');
+            throw new \Exception('Unexpected options sent to factory.');
         }
-        $result = new $requestedName(
-            $container->get('Finna\Feed\LinkedEvents'),
-            $container->get('ViewRenderer')
+        return new $requestedName(
+            $container->get('ControllerPluginManager')->get('url')
         );
-        return $result;
     }
 }

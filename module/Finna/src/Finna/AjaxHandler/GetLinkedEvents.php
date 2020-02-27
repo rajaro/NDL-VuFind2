@@ -27,9 +27,7 @@
  */
 namespace Finna\AjaxHandler;
 
-use Zend\Config\Config;
 use Zend\Mvc\Controller\Plugin\Params;
-use Zend\Mvc\Controller\Plugin\Url;
 
 /**
  * GetLinkedEvents AJAX handler
@@ -42,14 +40,6 @@ use Zend\Mvc\Controller\Plugin\Url;
  */
 class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
 {
-
-    /**
-     * Main config
-     *
-     * @var Config $config
-     */
-    protected $config;
-
     /**
      * Linked Events
      *
@@ -67,13 +57,11 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
     /**
      * Constructor
      *
-     * @param Config       $config       Configuration
      * @param LinkedEvents $linkedEvents linkedEvents service
      * @param ViewRenderer $viewRenderer view renderer
      */
-    public function __construct(Config $config, $linkedEvents, $viewRenderer)
+    public function __construct($linkedEvents, $viewRenderer)
     {
-        $this->config = $config;
         $this->linkedEvents = $linkedEvents;
         $this->viewRenderer = $viewRenderer;
     }
@@ -81,22 +69,34 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
     /**
      * Handle a request.
      *
-     * @param Params $params Parameter helper from controller
+     * @param Params $params Parameter helper
      *
      * @return array [response data, HTTP status code]
      */
     public function handleRequest(Params $params)
     {
-        $param = $params->fromQuery('params');
+        $param = [];
+        $param['query'] = $params->fromQuery('params', []);
+        $param['showAll'] = $params->fromQuery('showAll', false);
+        $param['search'] = $params->fromQuery('search', false);
         try {
             $events = $this->linkedEvents->getEvents($param);
         } catch (\Exception $e) {
             return $e->getMessage();
         }
-        $html = $this->viewRenderer->partial(
-            'ajax/linked-events.phtml', ['events' => $events]
-        );
-        return $this->formatResponse($html);
-        ;
+        $response = '';
+        if (empty($events)) {
+            $response = false;
+        } else {
+            if (isset($param['query']['id'])) {
+                $response = $events['events'][0];
+            } else {
+                $response = $this->viewRenderer->partial(
+                    'ajax/linked-events.phtml', ['events' => $events['events'],
+                    'next' => $events['next'], 'previous' => $events['previous']]
+                );
+            }
+        }
+        return $this->formatResponse($response);
     }
 }

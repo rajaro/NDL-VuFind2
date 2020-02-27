@@ -1,0 +1,29 @@
+<!-- START of: finna - feedcontent/linked-events.phtml -->
+<div class="linked-event-content">
+   <h2 class="linked-event-name"></h2>
+   <img class="linked-event-image" />
+   <div class="linked-event-description"></div>
+   <div class="linked-events-left-col">
+      <div class="linked-event-field hidden"><?= $this->transEsc('xcal_time'); ?>: <span class="linked-event-startTime"></span> - <span class="linked-event-endTime"></span></div>
+      <div class="linked-event-field hidden"><?= $this->transEsc('xcal_date'); ?>: <span class="linked-event-startDate"></span> - <span class="linked-event-endDate"></span></div>
+      <div class="linked-event-field hidden"><?= $this->transEsc('Location'); ?>: <span class="linked-event-location"></span></div>
+      <div class="linked-event-field hidden"><?= $this->transEsc('Cost'); ?>: <span class="linked-event-price"></span></div>
+      <div class="linked-event-field hidden"><?= $this->transEsc('Audience'); ?>: <span class="linked-event-audience"></span></div>
+      <div class="linked-event-field hidden"><?= $this->transEsc('Organizer'); ?></div>
+   </div>
+   <div class="linked-events-right-col">
+      <div id="openlayers-canvas" class="linked-events-map"></div>
+   </div>
+</div>
+
+<?php
+  $this->headScript()->appendFile('finna-linked-events.js');
+  $id = $this->event['id'];
+  $setupJS = <<<JS
+$(document).ready(function() {
+   finna.linkedEvents.getEventContent("$id");
+});
+JS;
+    echo $this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $setupJS, 'SET');
+?>
+<!-- END of: finna - feedcontent/linked-events.phtml -->
