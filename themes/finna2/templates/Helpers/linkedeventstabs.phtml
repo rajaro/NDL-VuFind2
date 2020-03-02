@@ -16,7 +16,7 @@
   <div class="tab-content">
     <div class="linked-events-content" data-init="0"></div>
   </div>
-  <a class="btn btn-primary events-more-link <?= $this->showAll ? 'hidden' : '' ?>" href="<?= $this->moreLink; ?>" data-link="<?= $this->moreLink; ?>"><?= $this->transEsc('more') ?></a>
+  <a class="btn btn-primary events-more-link <?= $this->showAll ? 'hidden' : '' ?>" href="" data-link="<?= $this->moreLink; ?>"><?= $this->transEsc('more') ?></a>
 <?php
 $this->headScript()->appendFile("finna-linked-events.js");
 $js = <<<JS

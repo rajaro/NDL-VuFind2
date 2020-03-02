@@ -148,22 +148,23 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
                         'info_url' => $this->getField($eventData, 'info_url'),
                         'location' =>
                             $this->getField($eventData, 'location_extra_info'),
-                        'position' => $eventData['position'],
+                        'position' => $this->getField($eventData, 'position'),
+                    //    'position2' => $this->getField($eventData, 'location'),
                         'price' => $this->getField($eventData, 'offers'),
                         'audience' => $this->getField($eventData, 'audience'),
                         'link' => $link,
-                        'next' => $this->getField($response['meta'], 'next'),
-                        'previous' => $this->getField($response['meta'], 'previous')
                     ];
 
                     $events[] = $event;
                 }
             }
-            $result = [
-                'events' => $events,
-                'next' => $this->getField($response['meta'], 'next'),
-                'previous' => $this->getField($response['meta'], 'previous')
-            ];
+            if (isset($response['meta'])) {
+                $result = [
+                    'next' => $this->getField($response['meta'], 'next'),
+                    'previous' => $this->getField($response['meta'], 'previous')
+                ];
+            }
+            $result['events'] = $events;
         }
         return $result;
     }
@@ -190,7 +191,11 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
             }
         }
         if ($field === 'audience' && !empty($data)) {
-            $data = $data[0]['name'];
+            $data = $data[0]['name'] ?? '';
+        }
+        if ($field === 'position' && !empty($data)) {
+            return $data;
+            
         }
         if (is_array($data)) {
             return $data[$this->getLanguage()] ?? '';

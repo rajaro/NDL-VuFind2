@@ -79,6 +79,9 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
         $param['query'] = $params->fromQuery('params', []);
         $param['showAll'] = $params->fromQuery('showAll', false);
         $param['search'] = $params->fromQuery('search', false);
+        if (isset($param['query']['bbox'])) {
+            $param['query']['bbox'] = implode(',', $param['query']['bbox']);
+        }
         try {
             $events = $this->linkedEvents->getEvents($param);
         } catch (\Exception $e) {

@@ -543,18 +543,29 @@
 
 // LinkedEvents
 .linked-events {
-    .linked-event {
-        padding-bottom: 20px;
-        display: flex;
-        .linked-events-image 
-        .event-info {
-            width: 55%;
-        }
+    .event-info {
+        margin: 0px;
     }
 }
-.events-tabs {
-    .event-tab {
-        font-size: 2em;
-        padding-right: 15px;
+.linked-event-content {
+    .linked-events-left-col {
+        width: 45%;
+        float: left;
+        margin-top: 20px;
+        @media (max-width: @screen-sm-max) {
+            width: 100%;
+        }
+    }
+    .linked-events-right-col {
+        width: 50%;
+        float: right;
+        margin-top: 20px;
+        @media (max-width: @screen-sm-max) {
+            width: 100%;
+        }
+    }
+    .linked-events-map {
+        height: 400px;
+        width: 400px;
     }
 }

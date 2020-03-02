@@ -144,15 +144,35 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     getEvents(newParams, handleMultipleEvents);
   }
 
-  function eventsPagination() {
+  function initEventGeoLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(getEventsByGeoLocation);
+    } else {
+    }
+  }
+
+  function getEventsByGeoLocation(position) {
+    var activeParams = $('.event-tab.active').data('params');
+    activeParams.showAll = true;
+    var lat = position.coords.latitude;
+    var lon = position.coords.longitude;
+
+    var west = lon - 0.05;
+    var east = lon + 0.05;
+    var south = lat - 0.05;
+    var north = lat + 0.05;
+    var newParams = {}
+    newParams.query = $.extend(newParams.query, activeParams, {'bbox': {west, south, east, north}});
     
+    getEvents(newParams, handleMultipleEvents);
   }
 
   var my = {
     getEventsByDate: getEventsByDate,
     initEventsTabs: initEventsTabs,
     getEventContent: getEventContent,
-    searchEvents: searchEvents
+    searchEvents: searchEvents,
+    initEventGeoLocation: initEventGeoLocation
   };
 
   return my;

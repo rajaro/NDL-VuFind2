@@ -9,7 +9,6 @@
         $linkElement['target'] = '';
       }
       $linkElement['data-lightbox'] = '';
-      $linkElement['data-lightbox-title'] = $event['title'];
     ?>
     <div class="linked-event grid-item">
     <?php if (isset($event['link'])): ?><a class="grid-link" <?= $this->htmlElement()->getAttributes($linkElement)?>><?php endif; ?>
