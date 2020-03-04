@@ -39,23 +39,6 @@ namespace Finna\View\Helper\Root;
 class LinkedEventsTabs extends \Zend\View\Helper\AbstractHelper
 {
     /**
-     * Url helper
-     *
-     * @var \VuFind\View\Helper\Root\Url $url
-     */
-    protected $url;
-
-    /**
-     * Constructor
-     *
-     * @param Url $url url helper
-     */
-    public function __construct($url)
-    {
-        $this->url = $url;
-    }
-
-    /**
      * Returns HTML for the widget.
      *
      * @param array $params e.g. [tabs' => [
@@ -72,21 +55,16 @@ class LinkedEventsTabs extends \Zend\View\Helper\AbstractHelper
         $tabs = $params['tabs'] ?? [];
         $linkTo = $params['linkTo'] ?? 'content';
         $active = $params['active'] ?? $tabs[0]['title'];
-        $showAll = $params['showAll'] ?? false;
-        $view = $params['view'] ?? 'grid';
-        $moreLink = $this->url->fromRoute('linked-events-all');
-        $linkTabs['tabs'] = $tabs;
-        $moreLink .= '?' . http_build_query($linkTabs);
+        $moreLink = $params['link'] ?? '';
+        $searchTools = $params['searchTools'] ?? 'show';
 
         return $this->getView()->render(
             'Helpers/linkedeventstabs.phtml',
             [
                 'tabs' => $tabs,
-                'linkTo' => $linkTo,
                 'active' => $active,
-                'showAll' => $showAll,
-                'view' => $view,
-                'moreLink' => $moreLink
+                'moreLink' => $moreLink,
+                'searchTools' => $searchTools
             ]
         );
     }

@@ -100,14 +100,8 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
         }
 
         $paramArray = $params['query'];
-        if (!empty($params['showAll'])) {
-            $paramArray['page_size'] = 20;
-        }
-        if (!empty($params['search'])) {
-            $url = $this->apiUrl . 'search/';
-        } else {
-            $url = $this->apiUrl . 'event/';
-        }
+
+        $url = $this->apiUrl . 'event/';
         if (!empty($paramArray['id'])) {
             $url .= $paramArray['id'] . '/?include=location,audience';
         } else {
@@ -149,7 +143,6 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
                         'location' =>
                             $this->getField($eventData, 'location_extra_info'),
                         'position' => $this->getField($eventData, 'position'),
-                    //    'position2' => $this->getField($eventData, 'location'),
                         'price' => $this->getField($eventData, 'offers'),
                         'audience' => $this->getField($eventData, 'audience'),
                         'link' => $link,
@@ -195,7 +188,6 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
         }
         if ($field === 'position' && !empty($data)) {
             return $data;
-            
         }
         if (is_array($data)) {
             return $data[$this->getLanguage()] ?? '';

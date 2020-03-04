@@ -71,20 +71,6 @@ $config = [
                     ]
                 ],
             ],
-            'linked-events-all' => [
-                'type'    => 'Zend\Router\Http\Segment',
-                'options' => [
-                    'route'    => '/FeedContent/LinkedEventsAll[/:tabs]',
-                    'constraints' => [
-                        'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                        'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
-                    ],
-                    'defaults' => [
-                        'controller' => 'FeedContent',
-                        'action'     => 'LinkedEventsAll',
-                    ]
-                ],
-            ],
             'list-save' => [
                 'type'    => 'Zend\Router\Http\Segment',
                 'options' => [

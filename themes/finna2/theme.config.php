@@ -16,7 +16,7 @@ return [
             'Finna\View\Helper\Root\Content' => 'Zend\ServiceManager\Factory\InvokableFactory',
             'Finna\View\Helper\Root\Cookie' => 'Finna\View\Helper\Root\CookieFactory',
             'Finna\View\Helper\Root\EDS' => 'Finna\View\Helper\Root\EDSFactory',
-            'Finna\View\Helper\Root\LinkedEventsTabs' => 'Finna\View\Helper\Root\LinkedEventsTabsFactory',
+            'Finna\View\Helper\Root\LinkedEventsTabs' => 'Zend\ServiceManager\Factory\InvokableFactory',
             'Finna\View\Helper\Root\Feed' => 'Finna\View\Helper\Root\FeedFactory',
             'Finna\View\Helper\Root\FeedTabs' => 'Zend\ServiceManager\Factory\InvokableFactory',
             'Finna\View\Helper\Root\FileSrc' => 'Finna\View\Helper\Root\HelperWithThemeInfoFactory',

@@ -5,7 +5,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     $.ajax({
       url: url,
       dataType: 'json',
-      data: {'params': params.query, 'showAll': params.showAll, 'search': params.search}
+      data: {'params': params.query, 'search': params.search}
     })
       .done(function onGetEventsDone(response) {
         if (response.data) {
@@ -73,8 +73,6 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     var initial = container.find($('li.nav-item.event-tab#' + initialTitle));
     var initialParams = {};
     initialParams.query = initial.data('params');
-    initialParams.showAll = container.data('showAll');
-    updateMoreLink();
     getEvents(initialParams, handleMultipleEvents);
     container.find($('li.nav-item.event-tab')).click(function eventTabClick() {
       if ($(this).hasClass('active')) {
@@ -82,10 +80,8 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       }
       var params = {};
       params.query = $(this).data('params');
-      params.showAll = container.data('showAll');
       $('li.nav-item.event-tab').removeClass('active').attr('aria-selected', 'false');
       $(this).addClass('active').attr('aria-selected', 'true');
-      updateMoreLink();
       getEvents(params, handleMultipleEvents);
     }).keyup(function onKeyUp(e) {
       return keyHandler(e);
@@ -101,13 +97,16 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     return true;
   }
 
-  function updateMoreLink() {
-    var activeTab = $('li.nav-item.event-tab.active').attr('id');
-    var moreLink = $('.events-more-link').data('link');
-    if (moreLink.indexOf('active=') === -1) {
-      moreLink += '&active=' + activeTab + '&showAll=true';
+  function toggleSearchTools() {
+    if ($('.events-searchtools-container').hasClass('hidden')) {
+      $('.events-searchtools-container').removeClass('hidden');
+      $('.events-show-searchtools').addClass('hidden');
+      $('.events-hide-searchtools').removeClass('hidden');
+    } else {
+      $('.events-searchtools-container').addClass('hidden');
+      $('.events-show-searchtools').removeClass('hidden');
+      $('.events-hide-searchtools').addClass('hidden');
     }
-    $('.events-more-link').attr('href', moreLink);
   }
 
   function getEventsByDate() {
@@ -121,7 +120,6 @@ finna.linkedEvents = (function finnaLinkedEvents() {
 
     var newParams = {};
     newParams.query = $.extend(newParams.query, activeParams, startDate, endDate);
-    newParams.showAll = true;
     getEvents(newParams, handleMultipleEvents);
   }
 
@@ -135,25 +133,22 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       : '';
     
     var textSearch = $('#event-text-search')[0].value
-    ? {'text': $('#event-text-search')[0].value}
-    : '';
+      ? {'text': $('#event-text-search')[0].value}
+      : '';
 
     var newParams = {};
     newParams.query = $.extend(newParams.query, activeParams, startDate, endDate, textSearch);
-    newParams.showAll = true;
     getEvents(newParams, handleMultipleEvents);
   }
 
   function initEventGeoLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(getEventsByGeoLocation);
-    } else {
-    }
+    } 
   }
 
   function getEventsByGeoLocation(position) {
     var activeParams = $('.event-tab.active').data('params');
-    activeParams.showAll = true;
     var lat = position.coords.latitude;
     var lon = position.coords.longitude;
 
@@ -161,8 +156,9 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     var east = lon + 0.05;
     var south = lat - 0.05;
     var north = lat + 0.05;
+    var bbox = {'west': west, 'south': south, 'east': east, 'north': north};
     var newParams = {}
-    newParams.query = $.extend(newParams.query, activeParams, {'bbox': {west, south, east, north}});
+    newParams.query = $.extend(newParams.query, activeParams, bbox);
     
     getEvents(newParams, handleMultipleEvents);
   }
@@ -172,7 +168,8 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     initEventsTabs: initEventsTabs,
     getEventContent: getEventContent,
     searchEvents: searchEvents,
-    initEventGeoLocation: initEventGeoLocation
+    initEventGeoLocation: initEventGeoLocation,
+    toggleSearchTools: toggleSearchTools
   };
 
   return my;

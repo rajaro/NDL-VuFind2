@@ -1,5 +1,27 @@
 <!-- START of: finna - Helpers/linkedeventstabs.phtml -->
-<div class="events-tabs feed-tabs-container feed-tabs" data-tabs="<?= $this->escapeHtmlAttr(json_encode($this->tabs)); ?>" data-show-all="<?= $this->showAll; ?>">
+<?php if ($this->searchTools !== 'hide'): ?>
+  <?php if ($this->searchTools === 'button'): ?>
+    <button class="btn btn-primary events-show-searchtools" onclick="finna.linkedEvents.toggleSearchTools()">Näytä hakutoiminnot</button>
+    <button class="btn btn-primary events-hide-searchtools hidden" onclick="finna.linkedEvents.toggleSearchTools()">Piilota hakutoiminnot</button>
+  <?php endif; ?>
+  <div class="events-searchtools-container <?= $this->searchTools === 'show' ? '' : 'hidden'; ?>">
+    <div class="event-date-container">
+      <?= $this->transEsc('Range'); ?>
+      <input id="event-date-start" type="date"> &ndash; <input id="event-date-end" type="date">
+      <button class="btn btn-primary" onclick="finna.linkedEvents.getEventsByDate()"><?= $this->transEsc('Find') ?></button>
+    </div>
+    <div class="event-search-container">
+      <?= $this->transEsc('Tekstihaku'); ?>
+      <input id="event-text-search" type="text">
+      <button class="btn btn-primary" onclick="finna.linkedEvents.searchEvents()"><?= $this->transEsc('Find') ?></button>
+    </div>
+    <div class="event-geolocation-container">
+      <button class="btn btn-primary linked-events-geolocation" onclick="finna.linkedEvents.initEventGeoLocation()">Hae lähellä olevia tapahtumia</button>
+    </div>
+  </div>
+<?php endif; ?>
+
+<div class="events-tabs feed-tabs-container feed-tabs" data-tabs="<?= $this->escapeHtmlAttr(json_encode($this->tabs)); ?>">
   <h2><?= $this->transEsc('Events'); ?></h2>
   <ul class="nav nav-tabs" role="tablist">
     <?php foreach ($this->tabs as $id => $tab): ?>
@@ -14,9 +36,9 @@
   </ul>
   </div>
   <div class="tab-content">
-    <div class="linked-events-content" data-init="0"></div>
+    <div class="linked-events-content"></div>
   </div>
-  <a class="btn btn-primary events-more-link <?= $this->showAll ? 'hidden' : '' ?>" href="" data-link="<?= $this->moreLink; ?>"><?= $this->transEsc('more') ?></a>
+  <a class="btn btn-primary events-more-link <?= $this->moreLink ? '' : 'hidden' ?>" href="<?= $this->moreLink; ?>"><?= $this->transEsc('more') ?></a>
 <?php
 $this->headScript()->appendFile("finna-linked-events.js");
 $js = <<<JS
