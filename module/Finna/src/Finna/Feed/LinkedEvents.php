@@ -88,7 +88,9 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
     /**
      * Return events from the LinkedEvents API
      *
-     * @param array $params parameters for the query
+     * @param array $params array of parameters. Key 'query' has API query
+     *                      parameters as value, key 'url' has full URL as value.
+     *                      If 'url' is provided, 'query' is ignored.
      *
      * @return array array of events
      */
@@ -98,14 +100,19 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
             $this->logError('Missing LinkedEvents API URL');
             return false;
         }
-
-        $paramArray = $params['query'];
-
-        $url = $this->apiUrl . 'event/';
-        if (!empty($paramArray['id'])) {
-            $url .= $paramArray['id'] . '/?include=location,audience';
+        if (!empty($params['url'])
+            && strpos($params['url'], $this->apiUrl) !== false
+        ) {
+            $url = $params['url'];
         } else {
-            $url .= '?' . http_build_query($paramArray);
+            $paramArray = $params['query'];
+
+            $url = $this->apiUrl . 'event/';
+            if (!empty($paramArray['id'])) {
+                $url .= $paramArray['id'] . '/?include=location,audience';
+            } else {
+                $url .= '?' . http_build_query($paramArray);
+            }
         }
 
         $client = $this->httpService->createClient($url);

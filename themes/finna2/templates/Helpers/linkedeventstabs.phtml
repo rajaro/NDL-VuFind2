@@ -1,22 +1,21 @@
 <!-- START of: finna - Helpers/linkedeventstabs.phtml -->
 <?php if ($this->searchTools !== 'hide'): ?>
   <?php if ($this->searchTools === 'button'): ?>
-    <button class="btn btn-primary events-show-searchtools" onclick="finna.linkedEvents.toggleSearchTools()">Näytä hakutoiminnot</button>
-    <button class="btn btn-primary events-hide-searchtools hidden" onclick="finna.linkedEvents.toggleSearchTools()">Piilota hakutoiminnot</button>
+    <button class="btn btn-primary events-toggle-searchtools">Näytä hakutoiminnot</button>
+    <button class="btn btn-primary events-toggle-searchtools hidden">Piilota hakutoiminnot</button>
   <?php endif; ?>
   <div class="events-searchtools-container <?= $this->searchTools === 'show' ? '' : 'hidden'; ?>">
     <div class="event-date-container">
       <?= $this->transEsc('Range'); ?>
       <input id="event-date-start" type="date"> &ndash; <input id="event-date-end" type="date">
-      <button class="btn btn-primary" onclick="finna.linkedEvents.getEventsByDate()"><?= $this->transEsc('Find') ?></button>
     </div>
     <div class="event-search-container">
       <?= $this->transEsc('Tekstihaku'); ?>
       <input id="event-text-search" type="text">
-      <button class="btn btn-primary" onclick="finna.linkedEvents.searchEvents()"><?= $this->transEsc('Find') ?></button>
     </div>
+    <button class="btn btn-primary linked-event-search"><?= $this->transEsc('Find') ?></button>
     <div class="event-geolocation-container">
-      <button class="btn btn-primary linked-events-geolocation" onclick="finna.linkedEvents.initEventGeoLocation()">Hae lähellä olevia tapahtumia</button>
+      <button class="btn btn-primary event-geolocation">Hae lähellä olevia tapahtumia</button>
     </div>
   </div>
 <?php endif; ?>
@@ -28,7 +27,7 @@
       <?php $isActive = $this->active === $tab['title'] ?>
       <li class="nav-item event-tab feed-tab <?= $isActive ? 'active' : ''; ?>" id="<?=$tab['title']?>"
         tabindex="0"
-        aria-selected=<?= $isActive ? 'true' : 'false'; ?>
+        aria-selected="<?= $isActive ? 'true' : 'false'; ?>"
         data-params="<?= isset($tab['params']) ? $this->escapeHtmlAttr(json_encode($tab['params'])) : ''?>"
         aria-label="<?= $tab['title']; ?>"
         ><?= $tab['title'] ?></li>
@@ -38,7 +37,7 @@
   <div class="tab-content">
     <div class="linked-events-content"></div>
   </div>
-  <a class="btn btn-primary events-more-link <?= $this->moreLink ? '' : 'hidden' ?>" href="<?= $this->moreLink; ?>"><?= $this->transEsc('more') ?></a>
+  <a class="btn btn-primary events-more-link <?= $this->moreLink ? '' : 'hidden' ?>" href="<?= $this->moreLink; ?>">Tapahtumasivulle</a>
 <?php
 $this->headScript()->appendFile("finna-linked-events.js");
 $js = <<<JS

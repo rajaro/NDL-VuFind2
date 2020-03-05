@@ -5,7 +5,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     $.ajax({
       url: url,
       dataType: 'json',
-      data: {'params': params.query, 'search': params.search}
+      data: {'params': params.query, 'url': params.url}
     })
       .done(function onGetEventsDone(response) {
         if (response.data) {
@@ -86,6 +86,45 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     }).keyup(function onKeyUp(e) {
       return keyHandler(e);
     });
+
+    var toggleSearchTools = $('.events-toggle-searchtools');
+    if (toggleSearchTools[0]) {
+      toggleSearchTools.click(function onToggleSeachTools() {
+        if ($('.events-searchtools-container').hasClass('hidden')) {
+          $('.events-searchtools-container').removeClass('hidden');
+        } else {
+          $('.events-searchtools-container').addClass('hidden');
+        }
+        toggleSearchTools.removeClass('hidden');
+        $(this).addClass('hidden');
+      });
+    }
+
+    if ($('.events-searchtools-container')[0]) {
+      $('.linked-event-search').click(function onSearchClick() {
+        var activeParams = $('.event-tab.active').data('params');
+        var startDate = $('#event-date-start')[0].value
+          ? {'start': $('#event-date-start')[0].value}
+          : '';
+        var endDate = $('#event-date-end')[0].value
+          ? {'end': $('#event-date-end')[0].value}
+          : '';
+        
+        var textSearch = $('#event-text-search')[0].value
+          ? {'text': $('#event-text-search')[0].value}
+          : '';
+
+        var newParams = {};
+        newParams.query = $.extend(newParams.query, activeParams, startDate, endDate, textSearch);
+        getEvents(newParams, handleMultipleEvents);
+      })
+
+      $('.event-geolocation').click(function onGeolocationClick() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(getEventsByGeoLocation);
+        }
+      });
+    }
   }
 
   function keyHandler(e/*, cb*/) {
@@ -97,54 +136,10 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     return true;
   }
 
-  function toggleSearchTools() {
-    if ($('.events-searchtools-container').hasClass('hidden')) {
-      $('.events-searchtools-container').removeClass('hidden');
-      $('.events-show-searchtools').addClass('hidden');
-      $('.events-hide-searchtools').removeClass('hidden');
-    } else {
-      $('.events-searchtools-container').addClass('hidden');
-      $('.events-show-searchtools').removeClass('hidden');
-      $('.events-hide-searchtools').addClass('hidden');
-    }
-  }
-
-  function getEventsByDate() {
-    var activeParams = $('.event-tab.active').data('params');
-    var startDate = $('#event-date-start')[0].value
-      ? {'start': $('#event-date-start')[0].value}
-      : '';
-    var endDate = $('#event-date-end')[0].value
-      ? {'end': $('#event-date-end')[0].value}
-      : '';
-
-    var newParams = {};
-    newParams.query = $.extend(newParams.query, activeParams, startDate, endDate);
-    getEvents(newParams, handleMultipleEvents);
-  }
-
-  function searchEvents() {
-    var activeParams = $('.event-tab.active').data('params');
-    var startDate = $('#event-date-start')[0].value
-      ? {'start': $('#event-date-start')[0].value}
-      : '';
-    var endDate = $('#event-date-end')[0].value
-      ? {'end': $('#event-date-end')[0].value}
-      : '';
-    
-    var textSearch = $('#event-text-search')[0].value
-      ? {'text': $('#event-text-search')[0].value}
-      : '';
-
-    var newParams = {};
-    newParams.query = $.extend(newParams.query, activeParams, startDate, endDate, textSearch);
-    getEvents(newParams, handleMultipleEvents);
-  }
-
-  function initEventGeoLocation() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(getEventsByGeoLocation);
-    } 
+  function getOrganisationPageEvents(url, callback) {
+    var params = {};
+    params.url = url;
+    getEvents(params, callback);
   }
 
   function getEventsByGeoLocation(position) {
@@ -164,12 +159,9 @@ finna.linkedEvents = (function finnaLinkedEvents() {
   }
 
   var my = {
-    getEventsByDate: getEventsByDate,
     initEventsTabs: initEventsTabs,
     getEventContent: getEventContent,
-    searchEvents: searchEvents,
-    initEventGeoLocation: initEventGeoLocation,
-    toggleSearchTools: toggleSearchTools
+    getOrganisationPageEvents: getOrganisationPageEvents
   };
 
   return my;
