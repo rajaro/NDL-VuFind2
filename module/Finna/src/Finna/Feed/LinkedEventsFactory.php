@@ -66,7 +66,8 @@ class LinkedEventsFactory implements FactoryInterface
         return new $requestedName(
             $config->get('OrganisationInfo'),
             $container->get(\VuFind\Date\Converter::class),
-            $container->get('ControllerPluginManager')->get('url')
+            $container->get('ControllerPluginManager')->get('url'),
+            $container->get('ViewRenderer')
         );
     }
 }

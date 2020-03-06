@@ -71,18 +71,27 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
     protected $url;
 
     /**
+     * CleanHtml helper
+     *
+     * @var \Finna\View\Helper\Root\CleanHtml
+     */
+    protected $cleanHtml;
+
+    /**
      * Constructor
      *
-     * @param \Zend\Config\Config    $config        OrganisationInfo configuration
-     * @param \VuFind\Date\Converter $dateConverter Date converter
-     * @param Url                    $url           Url helper
+     * @param \Zend\Config\Config             $config        OrganisationInfo config
+     * @param \VuFind\Date\Converter          $dateConverter Date converter
+     * @param Url                             $url           Url helper
+     * @param \Zend\View\Renderer\PhpRenderer $viewRenderer  View Renderer
      */
-    public function __construct($config, $dateConverter, $url)
+    public function __construct($config, $dateConverter, $url, $viewRenderer)
     {
         $this->apiUrl = $config->LinkedEvents->api_url ?? '';
         $this->language = $config->General->language ?? '';
         $this->dateConverter = $dateConverter;
         $this->url = $url;
+        $this->cleanHtml = $viewRenderer->plugin('cleanHtml');
     }
 
     /**
@@ -138,7 +147,9 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
                     $event = [
                         'id' => $eventData['id'],
                         'name' => $this->getField($eventData, 'name'),
-                        'description' => $this->getField($eventData, 'description'),
+                        'description' => $this->cleanHtml->__invoke(
+                            $this->getField($eventData, 'description')
+                        ),
                         'imageurl' => $eventData['images'][0]['url'] ?? '',
                         'short_description' =>
                             $this->getField($eventData, 'short_description'),
@@ -152,6 +163,7 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
                         'position' => $this->getField($eventData, 'position'),
                         'price' => $this->getField($eventData, 'offers'),
                         'audience' => $this->getField($eventData, 'audience'),
+                        'provider' => $this->getField($eventData, 'provider_name'),
                         'link' => $link,
                     ];
 
@@ -197,7 +209,7 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
             return $data;
         }
         if (is_array($data)) {
-            return $data[$this->getLanguage()] ?? '';
+            $data = $data[$this->getLanguage()] ?? $data['fi'];
         }
         return $data;
     }

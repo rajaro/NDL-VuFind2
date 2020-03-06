@@ -544,7 +544,19 @@
 // LinkedEvents
 .linked-events {
     .event-info {
-        margin: 0px;
+        margin: 0px !important;
+    }
+}
+.linked-events-pagination {
+    display: flex;
+    justify-content: center;
+    span {
+        i {
+            font-size: 2em;
+            &:hover {
+            cursor: pointer
+            }
+        }
     }
 }
 .linked-event-content {

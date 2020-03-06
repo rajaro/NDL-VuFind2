@@ -66,6 +66,20 @@ finna.linkedEvents = (function finnaLinkedEvents() {
   var handleMultipleEvents = function handleMultipleEvents(data) {
     var container = $('.linked-events-content');
     container.html(data);
+    $('.linked-events-next').click(function onNextClick() {
+      if ($(this).data('next') !== false) {
+        var params = {};
+        params.url = $(this).data('next');
+        getEvents(params, handleMultipleEvents);
+      }
+    });
+    $('.linked-events-previous').click(function onNextClick() {
+      if ($(this).data('previous') !== false) {
+        var params = {};
+        params.url = $(this).data('previous');
+        getEvents(params, handleMultipleEvents);
+      }
+    });
   }
 
   function initEventsTabs(initialTitle) {

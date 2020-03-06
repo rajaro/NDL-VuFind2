@@ -39,7 +39,7 @@
   <?php endforeach; ?>
 </div>
 <div class="linked-events-pagination">
-  <span class="linked-events-previous"></span>
-  <span class="linked-events-next" data-next="<?= !empty($this->next) ? $this->next : false ?>"><i class="fa fa-arrow-right"></i></span>
+  <span class="linked-events-previous <?= $this->previous ? '' : 'hidden' ?>" data-previous="<?= !empty($this->previous) ? $this->previous : false ?>"><i class="fa fa-arrow-left"></i></span>
+  <span class="linked-events-next <?= $this->next ? '' : 'hidden' ?>" data-next="<?= !empty($this->next) ? $this->next : false ?>"><i class="fa fa-arrow-right"></i></span>
 </div>
 <!-- END of: finna - ajax/linked-events.phtml -->
