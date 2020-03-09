@@ -86,10 +86,8 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
         } catch (\Exception $e) {
             return $e->getMessage();
         }
-        $response = '';
-        if (empty($events)) {
-            $response = false;
-        } else {
+        $response = false;
+        if (!empty($events)) {
             if (isset($param['query']['id'])) {
                 $response = $events['events'][0];
             } else {

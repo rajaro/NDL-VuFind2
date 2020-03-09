@@ -10,7 +10,6 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       .done(function onGetEventsDone(response) {
         if (response.data) {
           callback(response.data);
-          return;
         }
       })
       .fail(function getEventsFail(response/*, textStatus, err*/) {
@@ -52,6 +51,9 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       if (data[field]) {
         if (field === 'position') {
           initEventMap(data[field]);
+        }
+        if (field === 'endDate' && data['startDate'] === data['endDate']) {
+          continue;
         }
         if (field === 'imageurl') {
           $('.linked-event-image').attr('src', data[field]);
