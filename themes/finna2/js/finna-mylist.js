@@ -7,6 +7,41 @@ finna.myList = (function finnaMyList() {
   var listUrl = null;
   var refreshLists = null;
 
+  var mdeToolbar = [
+    'bold', 'italic',
+    'heading', '|',
+    'quote', 'unordered-list',
+    'ordered-list', '|',
+    'link', 'image',
+    '|',
+    {
+      name: 'Details',
+      action: function detailsInsert(mdeditor) {
+        insertDetails(mdeditor);
+      },
+      className: 'fa fa-indent',
+      title: 'Insert details element'
+    }
+  ]
+
+  function initDetailsElements() {
+    $('.favorite-list-details').click(function onDetailsClick() {
+      if ($(this).attr('open') === 'open') {
+        $(this).attr('open', false);
+      } else {
+        $(this).attr('open', 'open');
+      }
+    });
+  }
+
+  function insertDetails(mdeditor) {
+    var detailsElement = '\n<details class="favorite-list-details">\n' +
+     '<summary>' + VuFind.translate('details_summary_placeholder') + '</summary>' +
+     '<p>' + VuFind.translate('details_text_placeholder') + '</p>\n' + 
+     '</details>';
+    mdeditor.value(mdeditor.value() + detailsElement);    
+  }
+
   // This is duplicated in image-popup.js to avoid dependency
   function getActiveListId() {
     return $('input[name="listID"]').val();
@@ -277,7 +312,7 @@ finna.myList = (function finnaMyList() {
         autoDownloadFontAwesome: false,
         autofocus: true,
         element: textArea[0],
-        hideIcons: ['preview', 'side-by-side', 'guide', 'fullscreen'],
+        toolbar: mdeToolbar,
         spellChecker: false,
         status: false
       };
@@ -292,10 +327,12 @@ finna.myList = (function finnaMyList() {
         .html($('<div/>').addClass('data').html(html));
       $('<div/>').addClass('preview').text(VuFind.translate('preview').toUpperCase()).prependTo(preview);
       preview.appendTo(element);
+      initDetailsElements();
 
       editor.codemirror.on('change', function onChangeEditor() {
         var result = SimpleMDE.prototype.markdown(editor.value());
         preview.find('.data').html(result);
+        initDetailsElements();
       });
 
       // Close editor and save when user clicks outside the editor
