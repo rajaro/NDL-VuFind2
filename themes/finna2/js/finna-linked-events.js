@@ -1,6 +1,6 @@
 /*global VuFind, finna, L */
 finna.linkedEvents = (function finnaLinkedEvents() {
-  function getEvents(params, callback) {
+  function getEvents(params, callback, append = false) {
     var url = VuFind.path + '/AJAX/JSON?method=getLinkedEvents';
     $.ajax({
       url: url,
@@ -9,7 +9,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     })
       .done(function onGetEventsDone(response) {
         if (response.data) {
-          callback(response.data);
+          callback(response.data, append);
         }
       })
       .fail(function getEventsFail(response/*, textStatus, err*/) {
@@ -65,14 +65,19 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     }
   }
 
-  var handleMultipleEvents = function handleMultipleEvents(data) {
+  var handleMultipleEvents = function handleMultipleEvents(data, append = false) {
     var container = $('.linked-events-content');
-    container.html(data);
-    $('.linked-events-next').click(function onNextClick() {
-      if ($(this).data('next') !== false) {
+    if (append) {
+      container.append(data['html']);
+    } else {
+      container.html(data['html']);
+    }
+
+    $('.linked-events-next').off('click').click(function onNextClick() {
+      if ($('.linked-events.feed-grid').data('next') !== false) {
         var params = {};
-        params.url = $(this).data('next');
-        getEvents(params, handleMultipleEvents);
+        params.url = data['next'];
+        getEvents(params, handleMultipleEvents, true);
       }
     });
     $('.linked-events-previous').click(function onNextClick() {

@@ -1,21 +1,25 @@
 <!-- START of: finna - feedcontent/linked-events.phtml -->
 <div class="linked-event-content">
-   <h2 class="linked-event-name"></h2>
-   <img class="linked-event-image" />
-   <div class="linked-event-description"></div>
    <div class="linked-events-left-col">
-      <div class="linked-event-field hidden"><?= $this->transEsc('xcal_time'); ?>: <span class="linked-event-startTime"></span> - <span class="linked-event-endTime"></span></div>
-      <div class="linked-event-field hidden"><?= $this->transEsc('xcal_date'); ?>: <span class="linked-event-startDate"></span> - <span class="linked-event-endDate"></span></div>
-      <div class="linked-event-field hidden"><?= $this->transEsc('Location'); ?>: <span class="linked-event-location"></span></div>
-      <div class="linked-event-field hidden"><?= $this->transEsc('Cost'); ?>: <span class="linked-event-price"></span></div>
-      <div class="linked-event-field hidden"><?= $this->transEsc('Audience'); ?>: <span class="linked-event-audience"></span></div>
-      <div class="linked-event-field hidden"><?= $this->transEsc('Organizer'); ?>: <span class="linked-event-provider"></span></div>
+      <h2 class="linked-event-name"></h2>
+      <span class="linked-event-info">
+         <span class="linked-event-field hidden"><i class="fa fa-calendar"></i> <span class="linked-event-startDate"></span> - <span class="linked-event-endDate"></span></span>
+         <span class="linked-event-field hidden"><i class="fa fa-clock-o"></i> <span class="linked-event-startTime"></span> - <span class="linked-event-endTime"></span></span>
+         <span class="linked-event-field hidden"> € <span class="linked-event-price"></span></span>
+         <span class="linked-event-field hidden">yleisöikoni <span class="linked-event-audience"></span></span>
+      </span>
+      <img class="linked-event-image" />
+      <b><div class="linked-event-short_description"></div></b>
+      <div class="linked-event-description"></div>
    </div>
    <div class="linked-events-right-col">
       <div id="openlayers-canvas" class="linked-events-map"></div>
+      <div class="linked-event-map-info">
+         <div class="linked-event-field hidden"><i class="fa fa-map-marker"></i> <span class="linked-event-location"></span></div>
+         <div class="linked-event-field hidden"><?= $this->transEsc('Organizer'); ?>: <span class="linked-event-provider"></span></div>
+      </div>
    </div>
 </div>
-
 <?php
   $this->headScript()->appendFile('finna-linked-events.js');
   $id = $this->event['id'];

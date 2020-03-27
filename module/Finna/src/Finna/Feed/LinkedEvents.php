@@ -173,7 +173,6 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
             if (isset($response['meta'])) {
                 $result = [
                     'next' => $this->getField($response['meta'], 'next'),
-                    'previous' => $this->getField($response['meta'], 'previous')
                 ];
             }
             $result['events'] = $events;

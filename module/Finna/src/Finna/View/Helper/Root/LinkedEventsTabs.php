@@ -41,11 +41,11 @@ class LinkedEventsTabs extends \Zend\View\Helper\AbstractHelper
     /**
      * Returns HTML for the widget.
      *
-     * @param array $params e.g. [tabs' => [
-     *                      ['title' => 'Music', 'params' => '[
+     * @param array $params e.g. ['tabs' => [
+     *                      ['title' => 'Music', 'params' => [
      *                      'keyword' => 'music', 'page_size' => 6]],
      *                      ['title' => 'Sports', 'params' => [
-     *                      'keyword' => 'sports', 'page_size => 6]]
+     *                      'keyword' => 'sports', 'page_size' => 6]]
      *                      ], 'linkTo' => 'modal'].
      *
      * @return string

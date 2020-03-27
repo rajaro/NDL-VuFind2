@@ -91,10 +91,10 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
             if (isset($param['query']['id'])) {
                 $response = $events['events'][0];
             } else {
-                $response = $this->viewRenderer->partial(
-                    'ajax/linked-events.phtml', ['events' => $events['events'],
-                    'next' => $events['next'], 'previous' => $events['previous']]
+                $response['html'] = $this->viewRenderer->partial(
+                    'ajax/linked-events.phtml', ['events' => $events['events']]
                 );
+                $response['next'] = $events['next'];
             }
         }
         return $this->formatResponse($response);

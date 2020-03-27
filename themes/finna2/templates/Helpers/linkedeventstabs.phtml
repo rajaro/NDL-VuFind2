@@ -1,25 +1,4 @@
 <!-- START of: finna - Helpers/linkedeventstabs.phtml -->
-<?php if ($this->searchTools !== 'hide'): ?>
-  <?php if ($this->searchTools === 'button'): ?>
-    <button class="btn btn-primary events-toggle-searchtools">Näytä hakutoiminnot</button>
-    <button class="btn btn-primary events-toggle-searchtools hidden">Piilota hakutoiminnot</button>
-  <?php endif; ?>
-  <div class="events-searchtools-container <?= $this->searchTools === 'show' ? '' : 'hidden'; ?>">
-    <div class="event-date-container">
-      <?= $this->transEsc('Range'); ?>
-      <input id="event-date-start" type="date"> &ndash; <input id="event-date-end" type="date">
-    </div>
-    <div class="event-search-container">
-      <?= $this->transEsc('Tekstihaku'); ?>
-      <input id="event-text-search" type="text">
-    </div>
-    <button class="btn btn-primary linked-event-search"><?= $this->transEsc('Find') ?></button>
-    <div class="event-geolocation-container">
-      <button class="btn btn-primary event-geolocation">Hae lähellä olevia tapahtumia</button>
-    </div>
-  </div>
-<?php endif; ?>
-
 <div class="events-tabs feed-tabs-container feed-tabs" data-tabs="<?= $this->escapeHtmlAttr(json_encode($this->tabs)); ?>">
   <h2><?= $this->transEsc('Events'); ?></h2>
   <ul class="nav nav-tabs" role="tablist">
@@ -34,10 +13,30 @@
     <?php endforeach; ?>
   </ul>
   </div>
+  <?php if ($this->searchTools !== 'hide'): ?>
+  <?php if ($this->searchTools === 'button'): ?>
+    <button class="btn btn-primary events-toggle-searchtools">Näytä hakutoiminnot</button>
+    <button class="btn btn-primary events-toggle-searchtools hidden">Piilota hakutoiminnot</button>
+  <?php endif; ?>
+  <div class="events-searchtools-container <?= $this->searchTools === 'show' ? '' : 'hidden'; ?>">
+    <span class="event-search-container">
+      <input id="event-text-search" type="text" placeholder="<?= $this->transEsc('Tapahtuman nimi tai paikka') ?>" size="26">
+    </span>
+    <button class="btn btn-primary linked-event-search"><?= $this->transEsc('Find') ?></button>
+    <span class="event-date-container">
+      <?= $this->transEsc('Etsi vain ajalta'); ?>:
+      <input id="event-date-start" type="date"> &ndash; <input id="event-date-end" type="date">
+    </span>
+    <span class="event-geolocation-container">
+      <span class="event-geolocation"><?= $this->transEsc('use_my_location'); ?></span>
+    </span>
+  </div>
+<?php endif; ?>
   <div class="tab-content">
     <div class="linked-events-content"></div>
   </div>
-  <a class="btn btn-primary events-more-link <?= $this->moreLink ? '' : 'hidden' ?>" href="<?= $this->moreLink; ?>">Tapahtumasivulle</a>
+  <button class="btn btn-primary linked-events-next"><?= $this->transEsc('Näytä lisää') ?></button>
+  <a class="btn btn-primary events-more-link <?= $this->moreLink ? '' : 'hidden' ?>" href="<?= $this->moreLink; ?>"><?= $this->transEsc('Näytä kaikki tapahtumat') ?></a>
 <?php
 $this->headScript()->appendFile("finna-linked-events.js");
 $js = <<<JS

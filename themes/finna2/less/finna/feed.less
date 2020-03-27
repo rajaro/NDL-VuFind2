@@ -559,25 +559,63 @@
         }
     }
 }
+.events-searchtools-container {
+    .event-search-container, .event-date-container {
+        margin-right: 10px;
+        margin-left: 5px;
+    }
+    input {
+        border-radius: 5px;
+        border: 1px solid @gray-lighter;
+        padding: 5px;
+    }
+    .event-geolocation {
+        text-transform: uppercase;
+        font-size: 0.84em;
+        color: @brand-primary;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+}
 .linked-event-content {
+    .linked-event-info {
+        display: flex;
+        justify-content: space-between;
+        color: @gray-light;
+    }
     .linked-events-left-col {
-        width: 45%;
+        width: 65%;
         float: left;
         margin-top: 20px;
         @media (max-width: @screen-sm-max) {
             width: 100%;
         }
+        .linked-event-image {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            max-height: 500px;
+        }
+        .linked-event-description {
+            margin-top: 10px;
+        }
     }
     .linked-events-right-col {
-        width: 50%;
+        width: 30%;
         float: right;
         margin-top: 20px;
         @media (max-width: @screen-sm-max) {
             width: 100%;
         }
-    }
-    .linked-events-map {
-        height: 400px;
-        width: 400px;
+        .linked-event-map-info {
+            .linked-event-field {
+                border-bottom: 1px solid @gray-lighter;
+                padding: 5px;
+            }
+        }
+        .linked-events-map {
+            margin-top: 21px;
+            height: 200px;
+            width: 350px;
+        }
     }
 }

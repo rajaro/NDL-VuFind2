@@ -1,15 +1,8 @@
 <!-- START of: finna - ajax/linked-events.phtml -->
 <div class="linked-events feed-grid with-image">
   <?php foreach ($this->events as $event): ?>
-  <?php
-      $linkElement = [
-      'href' => $event['link'],
-      ];
-
-      $linkElement['data-lightbox'] = '';
-    ?>
     <div class="linked-event grid-item">
-    <?php if (isset($event['link'])): ?><a class="grid-link" <?= $this->htmlElement()->getAttributes($linkElement)?>><?php endif; ?>
+    <?php if (isset($event['link'])): ?><a class="grid-link" href="<?= $event['link'] ?>"><?php endif; ?>
       <?php if (isset($event['imageurl'])): ?>
         <span class="linked-events-image grid-image">
           <img src=<?= $event['imageurl'] ?>>
@@ -35,9 +28,5 @@
     <?php if (isset($event['link'])): ?></a><?php endif; ?>
     </div>
   <?php endforeach; ?>
-</div>
-<div class="linked-events-pagination">
-  <span class="linked-events-previous <?= $this->previous ? '' : 'hidden' ?>" data-previous="<?= !empty($this->previous) ? $this->previous : false ?>"><i class="fa fa-arrow-left"></i></span>
-  <span class="linked-events-next <?= $this->next ? '' : 'hidden' ?>" data-next="<?= !empty($this->next) ? $this->next : false ?>"><i class="fa fa-arrow-right"></i></span>
 </div>
 <!-- END of: finna - ajax/linked-events.phtml -->
