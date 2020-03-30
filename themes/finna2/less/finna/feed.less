@@ -545,6 +545,7 @@
 .linked-events {
     .event-info {
         margin: 0px !important;
+        font-size: 0.95em !important;
     }
 }
 .linked-events-pagination {
@@ -575,13 +576,18 @@
         color: @brand-primary;
         font-weight: bold;
         margin-left: 10px;
+        &:hover {
+            cursor: pointer;
+        }
     }
 }
 .linked-event-content {
     .linked-event-info {
         display: flex;
-        justify-content: space-between;
         color: @gray-light;
+        .linked-event-field {
+            margin-right: 30px;
+        }
     }
     .linked-events-left-col {
         width: 65%;
@@ -597,6 +603,14 @@
         }
         .linked-event-description {
             margin-top: 10px;
+        }
+        .linked-event-keywords {
+            display: flex;
+            color: @gray-mid-light;
+            margin-top: 20px;
+            .linked-event-keyword {
+                margin-right: 30px;
+            }
         }
     }
     .linked-events-right-col {

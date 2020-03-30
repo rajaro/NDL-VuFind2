@@ -1,6 +1,7 @@
 /*global VuFind, finna, L */
 finna.linkedEvents = (function finnaLinkedEvents() {
-  function getEvents(params, callback, append = false) {
+  function getEvents(params, callback, append) {
+    var app = typeof append !== 'undefined' ? append : false;
     var url = VuFind.path + '/AJAX/JSON?method=getLinkedEvents';
     $.ajax({
       url: url,
@@ -9,7 +10,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     })
       .done(function onGetEventsDone(response) {
         if (response.data) {
-          callback(response.data, append);
+          callback(response.data, app);
         }
       })
       .fail(function getEventsFail(response/*, textStatus, err*/) {
@@ -47,36 +48,46 @@ finna.linkedEvents = (function finnaLinkedEvents() {
   }
 
   var handleSingleEvent = function handleSingleEvent(data) {
-    for (var field in data) {
-      if (data[field]) {
+    var events = data.events;
+    for (var field in events) {
+      if (events[field]) {
         if (field === 'position') {
-          initEventMap(data[field]);
+          initEventMap(events[field]);
         }
-        if (field === 'endDate' && data['startDate'] === data['endDate']) {
+        if (field === 'endDate' && events.startDate === events.endDate) {
           continue;
         }
         if (field === 'imageurl') {
-          $('.linked-event-image').attr('src', data[field]);
+          $('.linked-event-image').attr('src', events[field]);
+        } if (field === 'keywords') {
+          $.each(events[field], function initKeywords(key, val) {
+            var html = '<span class="linked-event-keyword">#' + val + '</span>';
+            $('.linked-event-keywords').append(html);
+          });
         } else {
-          $('.linked-event-' + field).html(data[field]);
+          $('.linked-event-' + field).html(events[field]);
           $('.linked-event-' + field).closest('.linked-event-field').removeClass('hidden');
         }
       }
     }
+    if (data.relatedEvents) {
+      $('.related-events').append(data.relatedEvents).removeClass('hidden');
+      $('.related-events .linked-event.grid-item').css('flex-basis', '100%');
+    }
   }
 
-  var handleMultipleEvents = function handleMultipleEvents(data, append = false) {
+  var handleMultipleEvents = function handleMultipleEvents(data, append) {
     var container = $('.linked-events-content');
     if (append) {
-      container.append(data['html']);
+      container.append(data.html);
     } else {
-      container.html(data['html']);
+      container.html(data.html);
     }
 
     $('.linked-events-next').off('click').click(function onNextClick() {
       if ($('.linked-events.feed-grid').data('next') !== false) {
         var params = {};
-        params.url = data['next'];
+        params.url = data.next;
         getEvents(params, handleMultipleEvents, true);
       }
     });

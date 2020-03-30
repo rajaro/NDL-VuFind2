@@ -1,6 +1,8 @@
 <!-- START of: finna - ajax/linked-events.phtml -->
 <div class="linked-events feed-grid with-image">
+  <?php $i = 0 ?>
   <?php foreach ($this->events as $event): ?>
+    <?php if (isset($this->limit) && $i++ === $this->limit): break; endif; ?>
     <div class="linked-event grid-item">
     <?php if (isset($event['link'])): ?><a class="grid-link" href="<?= $event['link'] ?>"><?php endif; ?>
       <?php if (isset($event['imageurl'])): ?>

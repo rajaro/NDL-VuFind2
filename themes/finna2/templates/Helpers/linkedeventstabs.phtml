@@ -35,8 +35,8 @@
   <div class="tab-content">
     <div class="linked-events-content"></div>
   </div>
-  <button class="btn btn-primary linked-events-next"><?= $this->transEsc('Näytä lisää') ?></button>
-  <a class="btn btn-primary events-more-link <?= $this->moreLink ? '' : 'hidden' ?>" href="<?= $this->moreLink; ?>"><?= $this->transEsc('Näytä kaikki tapahtumat') ?></a>
+  <button class="btn btn-outline-primary linked-events-next"><?= $this->transEsc('Näytä lisää') ?></button>
+  <a class="btn btn-outline-primary events-more-link <?= $this->moreLink ? '' : 'hidden' ?>" href="<?= $this->moreLink; ?>"><?= $this->transEsc('Näytä kaikki tapahtumat') ?></a>
 <?php
 $this->headScript()->appendFile("finna-linked-events.js");
 $js = <<<JS

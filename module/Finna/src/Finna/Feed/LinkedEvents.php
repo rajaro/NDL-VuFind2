@@ -109,6 +109,7 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
             $this->logError('Missing LinkedEvents API URL');
             return false;
         }
+        $paramArray = [];
         if (!empty($params['url'])
             && strpos($params['url'], $this->apiUrl) !== false
         ) {
@@ -118,7 +119,8 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
 
             $url = $this->apiUrl . 'event/';
             if (!empty($paramArray['id'])) {
-                $url .= $paramArray['id'] . '/?include=location,audience';
+                $url .= $paramArray['id'] . '/?include=location,audience,keywords,' .
+                 'sub_events,super_event';
             } else {
                 $url .= '?' . http_build_query($paramArray);
             }
@@ -160,14 +162,27 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
                         'info_url' => $this->getField($eventData, 'info_url'),
                         'location' =>
                             $this->getField($eventData, 'location_extra_info'),
-                        'position' => $this->getField($eventData, 'position'),
+                    //    'position' => $this->getField($eventData, 'position'), // This is for SatakuntaEvents
+                        'position' => $this->getField($eventData, 'location'), // This is for linkedEvents
                         'price' => $this->getField($eventData, 'offers'),
                         'audience' => $this->getField($eventData, 'audience'),
                         'provider' => $this->getField($eventData, 'provider_name'),
                         'link' => $link,
+                        'keywords' => $this->getField($eventData, 'keywords'),
+                        'superEvent' => $eventData['super_event'],
+                        'subEvents' => $eventData['sub_events']
                     ];
 
                     $events[] = $event;
+                    if ($eventData['super_event'] !== null
+                        && !empty($paramArray['id'])
+                    ) {
+                        $superEventId = $eventData['super_event']['id'];
+                        $newApiUrl = $this->apiUrl . 'event/?super_event='
+                            . $superEventId;
+                        $relatedEvents = $this->getEvents(['url' => $newApiUrl]);
+                        $events['relatedEvents'] = $relatedEvents['events'];
+                    }
                 }
             }
             if (isset($response['meta'])) {
@@ -204,11 +219,25 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
         if ($field === 'audience' && !empty($data)) {
             $data = $data[0]['name'] ?? '';
         }
-        if ($field === 'position' && !empty($data)) {
-            return $data;
+        // if ($field === 'position' && !empty($data)) { // FOR SATAKUNTA EVENTS
+        //     return $data;
+        // }
+        if ($field === 'location') { // FOR LINKED EVENTS
+            $coordinates = [
+                'lng' => $data['position']['coordinates'][0],
+                'lat' => $data['position']['coordinates'][1]
+            ];
+            return $coordinates;
+        }
+        if ($field === 'keywords' && !empty($data)) {
+            $keywords = [];
+            foreach ($data as $keyword) {
+                $keywords[] = $this->getField($keyword, 'name');
+            }
+            return $keywords;
         }
         if (is_array($data)) {
-            $data = $data[$this->getLanguage()] ?? $data['fi'];
+            $data = $data[$this->getLanguage()] ?? $data['fi'] ?? $data;
         }
         return $data;
     }

@@ -5,12 +5,13 @@
       <span class="linked-event-info">
          <span class="linked-event-field hidden"><i class="fa fa-calendar"></i> <span class="linked-event-startDate"></span> - <span class="linked-event-endDate"></span></span>
          <span class="linked-event-field hidden"><i class="fa fa-clock-o"></i> <span class="linked-event-startTime"></span> - <span class="linked-event-endTime"></span></span>
-         <span class="linked-event-field hidden"> € <span class="linked-event-price"></span></span>
-         <span class="linked-event-field hidden">yleisöikoni <span class="linked-event-audience"></span></span>
+         <span class="linked-event-field hidden"><i class="fa fa-euro"></i> <span class="linked-event-price"></span></span>
+         <span class="linked-event-field hidden"><i class="fa fa-users"></i> <span class="linked-event-audience"></span></span>
       </span>
       <img class="linked-event-image" />
       <b><div class="linked-event-short_description"></div></b>
       <div class="linked-event-description"></div>
+      <div class="linked-event-keywords"></div>
    </div>
    <div class="linked-events-right-col">
       <div id="openlayers-canvas" class="linked-events-map"></div>
@@ -18,6 +19,7 @@
          <div class="linked-event-field hidden"><i class="fa fa-map-marker"></i> <span class="linked-event-location"></span></div>
          <div class="linked-event-field hidden"><?= $this->transEsc('Organizer'); ?>: <span class="linked-event-provider"></span></div>
       </div>
+      <div class="related-events hidden"><h3><?= $this->transEsc('related_events'); ?></h3></div>
    </div>
 </div>
 <?php
