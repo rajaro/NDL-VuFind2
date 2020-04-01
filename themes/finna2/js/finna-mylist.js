@@ -19,7 +19,7 @@ finna.myList = (function finnaMyList() {
       action: function detailsInsert(mdeditor) {
         insertDetails(mdeditor);
       },
-      className: 'fa fa-indent',
+      className: 'details-icon',
       title: 'Insert details element'
     }
   ]
