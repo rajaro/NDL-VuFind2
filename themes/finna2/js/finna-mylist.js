@@ -35,12 +35,27 @@ finna.myList = (function finnaMyList() {
   }
 
   function insertDetails(mdeditor) {
+    var summaryPlaceholder = VuFind.translate('details_summary_placeholder')
     var detailsElement = '\n<details class="favorite-list-details">\n' +
-     '<summary>' + VuFind.translate('details_summary_placeholder') + '</summary>' +
+     '<summary>' + summaryPlaceholder + '</summary>' +
      '<p>' + VuFind.translate('details_text_placeholder') + '</p>\n' + 
      '</details>';
-    mdeditor.value(mdeditor.value() + detailsElement);    
-  }
+    var doc = mdeditor.codemirror.getDoc();
+    var cursorPos = doc.getCursor();
+    var position = {
+      line: cursorPos.line,
+      ch: cursorPos.ch
+    }
+    doc.replaceRange(detailsElement, position);
+    mdeditor.codemirror.focus();
+    cursorPos = doc.getCursor();
+    var summaryAndPlaceholder = '<summary>' + summaryPlaceholder;
+    var newPosition = {
+      line: cursorPos.line,
+      ch: cursorPos.ch
+    }
+    doc.setCursor({line: newPosition.line - 1, ch: summaryAndPlaceholder.length});
+    }
 
   // This is duplicated in image-popup.js to avoid dependency
   function getActiveListId() {
