@@ -116,6 +116,16 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
             $url = $params['url'];
         } else {
             $paramArray = $params['query'];
+            $paramArray['start'] = isset($paramArray['start'])
+                ? $this->dateConverter->convert(
+                    'd m Y', 'Y-m-d', $paramArray['start']
+                )
+                : '';
+                $paramArray['end'] = isset($paramArray['end'])
+                ? $this->dateConverter->convert(
+                    'd m Y', 'Y-m-d', $paramArray['end']
+                )
+                : '';
 
             $url = $this->apiUrl . 'event/';
             if (!empty($paramArray['id'])) {

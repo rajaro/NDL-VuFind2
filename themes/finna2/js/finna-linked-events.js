@@ -1,4 +1,4 @@
-/*global VuFind, finna, L */
+/*global VuFind, finna, L, datepicker */
 finna.linkedEvents = (function finnaLinkedEvents() {
   function getEvents(params, callback, append) {
     var app = typeof append !== 'undefined' ? append : false;
@@ -131,6 +131,14 @@ finna.linkedEvents = (function finnaLinkedEvents() {
         $(this).addClass('hidden');
       });
     }
+
+    $('.event-datepicker').datepicker({
+      'language': '',
+      'format': 'd-m-yyyy',
+      'weekStart': 1,
+      'autoclose': true
+    });
+
 
     if ($('.events-searchtools-container')[0]) {
       $('.linked-event-search').click(function onSearchClick() {
