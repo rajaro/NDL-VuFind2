@@ -229,14 +229,18 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
         if ($field === 'audience' && !empty($data)) {
             $data = $data[0]['name'] ?? '';
         }
-        // if ($field === 'position' && !empty($data)) { // FOR SATAKUNTA EVENTS
-        //     return $data;
-        // }
-        if ($field === 'location') { // FOR LINKED EVENTS
-            $coordinates = [
-                'lng' => $data['position']['coordinates'][0],
-                'lat' => $data['position']['coordinates'][1]
-            ];
+
+        // SatakuntaEvents and LinkedEvents have different ways
+        // of handling coordinates, support both:
+        if ($field === 'position' || $field === 'location') {
+            if (isset($data['position']['coordinates'])) {
+                $coordinates = [
+                    'lng' => $data['position']['coordinates'][0],
+                    'lat' => $data['position']['coordinates'][1]
+                ];
+            } else {
+                $coordinates = $data;
+            }
             return $coordinates;
         }
         if ($field === 'keywords' && !empty($data)) {
@@ -247,7 +251,7 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
             return $keywords;
         }
         if (is_array($data)) {
-            $data = $data[$this->getLanguage()] ?? $data['fi'] ?? $data;
+            $data = $data[$this->getLanguage()] ?? $data['fi'] ?? '';
         }
         return $data;
     }

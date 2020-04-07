@@ -14,24 +14,22 @@
   </ul>
   </div>
   <?php if ($this->searchTools !== 'hide'): ?>
-  <?php if ($this->searchTools === 'button'): ?>
     <button class="btn btn-primary events-toggle-searchtools">Näytä hakutoiminnot</button>
     <button class="btn btn-primary events-toggle-searchtools hidden">Piilota hakutoiminnot</button>
+    <div class="events-searchtools-container <?= $this->searchTools === 'show' ? '' : 'hidden'; ?>">
+      <span class="event-search-container">
+        <input id="event-text-search" type="text" placeholder="<?= $this->transEsc('Tapahtuman nimi tai paikka') ?>" size="26">
+      </span>
+      <span class="event-date-container">
+        <?= $this->transEsc('Etsi vain ajalta'); ?>:
+        <input id="event-date-start" class="event-datepicker"> &ndash; <input id="event-date-end" class="event-datepicker">
+      </span>
+      <button class="btn btn-primary linked-event-search"><?= $this->transEsc('Find') ?></button>
+      <span class="event-geolocation-container">
+        <span class="event-geolocation"><?= $this->transEsc('use_my_location'); ?></span>
+      </span>
+    </div>
   <?php endif; ?>
-  <div class="events-searchtools-container <?= $this->searchTools === 'show' ? '' : 'hidden'; ?>">
-    <span class="event-search-container">
-      <input id="event-text-search" type="text" placeholder="<?= $this->transEsc('Tapahtuman nimi tai paikka') ?>" size="26">
-    </span>
-    <button class="btn btn-primary linked-event-search"><?= $this->transEsc('Find') ?></button>
-    <span class="event-date-container">
-      <?= $this->transEsc('Etsi vain ajalta'); ?>:
-      <input id="event-date-start" class="event-datepicker"> &ndash; <input id="event-date-end" class="event-datepicker">
-    </span>
-    <span class="event-geolocation-container">
-      <span class="event-geolocation"><?= $this->transEsc('use_my_location'); ?></span>
-    </span>
-  </div>
-<?php endif; ?>
   <div class="tab-content">
     <div class="linked-events-content"></div>
   </div>

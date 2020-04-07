@@ -46,14 +46,13 @@ class LinkedEventsTabs extends \Zend\View\Helper\AbstractHelper
      *                      'keyword' => 'music', 'page_size' => 6]],
      *                      ['title' => 'Sports', 'params' => [
      *                      'keyword' => 'sports', 'page_size' => 6]]
-     *                      ], 'linkTo' => 'modal'].
+     *                      ], 'searchTools' => 'show'].
      *
      * @return string
      */
     public function __invoke($params)
     {
         $tabs = $params['tabs'] ?? [];
-        $linkTo = $params['linkTo'] ?? 'content';
         $active = $params['active'] ?? $tabs[0]['title'];
         $moreLink = $params['link'] ?? '';
         $searchTools = $params['searchTools'] ?? 'show';

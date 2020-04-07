@@ -1,6 +1,8 @@
 /*global VuFind, finna, L, datepicker */
 finna.linkedEvents = (function finnaLinkedEvents() {
   function getEvents(params, callback, append) {
+    var spinner = $('<i>').addClass('fa fa-spinner fa-spin');
+    $('.linked-events-content').append(spinner);
     var app = typeof append !== 'undefined' ? append : false;
     var url = VuFind.path + '/AJAX/JSON?method=getLinkedEvents';
     $.ajax({
@@ -12,6 +14,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
         if (response.data) {
           callback(response.data, app);
         }
+        spinner.remove();
       })
       .fail(function getEventsFail(response/*, textStatus, err*/) {
         var err = '<!-- Events could not be loaded';
@@ -89,13 +92,6 @@ finna.linkedEvents = (function finnaLinkedEvents() {
         var params = {};
         params.url = data.next;
         getEvents(params, handleMultipleEvents, true);
-      }
-    });
-    $('.linked-events-previous').click(function onNextClick() {
-      if ($(this).data('previous') !== false) {
-        var params = {};
-        params.url = $(this).data('previous');
-        getEvents(params, handleMultipleEvents);
       }
     });
   }
