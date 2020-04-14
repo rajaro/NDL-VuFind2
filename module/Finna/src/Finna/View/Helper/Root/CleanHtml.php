@@ -85,9 +85,7 @@ class CleanHtml extends \Zend\View\Helper\AbstractHelper
         if (null === $this->purifier || $targetBlank !== $this->currentTargetBlank) {
             $this->currentTargetBlank = $targetBlank;
             $config = \HTMLPurifier_Config::createDefault();
-<<<<<<< HEAD
             $config->set('AutoFormat.AutoParagraph', true);
-=======
             // Set cache path to the object cache
             if ($this->cacheDir) {
                 $config->set('Cache.SerializerPath', $this->cacheDir);
@@ -96,7 +94,6 @@ class CleanHtml extends \Zend\View\Helper\AbstractHelper
                 $config->set('HTML.Nofollow', 1);
                 $config->set('HTML.TargetBlank', 1);
             }
->>>>>>> master
             // Details & summary elements not supported by default, add them:
             $def = $config->getHTMLDefinition(true);
             $def->addElement(
@@ -107,8 +104,8 @@ class CleanHtml extends \Zend\View\Helper\AbstractHelper
                 ['open' => new \HTMLPurifier_AttrDef_HTML_Bool(true)]
             );
             $def->addElement('summary', 'Inline', 'Inline', 'Common');
-            $def->addAttribute('span', 'data-rows', 'Number');
-            $def->addAttribute('span', 'data-row-height', 'Number');
+            $def->addAttribute('div', 'data-rows', 'Number');
+            $def->addAttribute('div', 'data-row-height', 'Number');
             $this->purifier = new \HTMLPurifier($config);
         }
         return $this->purifier->purify($html);

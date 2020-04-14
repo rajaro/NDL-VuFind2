@@ -6,7 +6,7 @@ finna.myList = (function finnaMyList() {
   var save = false;
   var listUrl = null;
   var refreshLists = null;
-  var truncateField = '<span class="truncate-field" data-rows="1" data-row-height="10">';
+  var truncateField = '<div class="truncate-field" data-rows="1" data-row-height="5" markdown="1">';
   var truncateTag = '[[more]]';
 
   function toggleTruncateField(mdeditor) {
@@ -14,9 +14,8 @@ finna.myList = (function finnaMyList() {
     if (value.indexOf(truncateTag) !== -1) {
       return;
     } else {
-      mdeditor.value(value + '\n' + truncateTag + '\n');
-      mdeditor.codemirror.focus();
-      mdeditor.codemirror.doc.setCursor({line: 9999, ch: 0});
+      var moreTag = '\n' + truncateTag + '\n';
+      insertElement(moreTag, mdeditor);
     }
   }
 
@@ -32,7 +31,7 @@ finna.myList = (function finnaMyList() {
       action: function detailsInsert(mdeditor) {
         insertDetails(mdeditor);
       },
-      className: 'details-icon',
+      className: 'fa details-icon',
       title: 'Insert details element'
     },
     {
@@ -40,7 +39,7 @@ finna.myList = (function finnaMyList() {
       action: function truncateFieldToggle(mdeditor) {
         toggleTruncateField(mdeditor);
       },
-      className: 'fa-pagebreak',
+      className: 'fa fa-pagebreak',
       title: 'Truncate'
     }
   ]
@@ -55,28 +54,35 @@ finna.myList = (function finnaMyList() {
     });
   }
 
-  function insertDetails(mdeditor) {
-    var summaryPlaceholder = VuFind.translate('details_summary_placeholder')
-    var detailsElement = '\n<details class="favorite-list-details">\n' +
-     '<summary>' + summaryPlaceholder + '</summary>' +
-     '<p>' + VuFind.translate('details_text_placeholder') + '</p>\n' + 
-     '</details>';
+  function insertElement(element, mdeditor) {
+    var doc = mdeditor.codemirror.getDoc();
+    doc.replaceRange(element, getEditorCursorPos(mdeditor));
+    mdeditor.codemirror.focus();
+  }
+
+  function getEditorCursorPos(mdeditor) {
     var doc = mdeditor.codemirror.getDoc();
     var cursorPos = doc.getCursor();
     var position = {
       line: cursorPos.line,
       ch: cursorPos.ch
     }
-    doc.replaceRange(detailsElement, position);
-    mdeditor.codemirror.focus();
-    cursorPos = doc.getCursor();
+    return position;
+  }
+
+  function insertDetails(mdeditor) {
+    var summaryPlaceholder = VuFind.translate('details_summary_placeholder')
+    var detailsElement = '\n<details class="favorite-list-details">\n' +
+     '<summary>' + summaryPlaceholder + '</summary>' +
+     '<p>' + VuFind.translate('details_text_placeholder') + '</p>\n' + 
+     '</details>';
+
+    insertElement(detailsElement, mdeditor);
+    var doc = editor.codemirror.getDoc();
+    var cursorPos = getEditorCursorPos(editor);
     var summaryAndPlaceholder = '<summary>' + summaryPlaceholder;
-    var newPosition = {
-      line: cursorPos.line,
-      ch: cursorPos.ch
-    }
-    doc.setCursor({line: newPosition.line - 1, ch: summaryAndPlaceholder.length});
-    }
+    doc.setCursor({line: cursorPos.line - 1, ch: summaryAndPlaceholder.length});
+  }
 
   // This is duplicated in image-popup.js to avoid dependency
   function getActiveListId() {
@@ -114,12 +120,12 @@ finna.myList = (function finnaMyList() {
     var desc = description;
     if (trunc && description.indexOf(truncateTag) !== -1) {
       desc = description.replace(truncateTag, truncateField);
-      desc += '</span>';
+      desc += '</div>';
     } else if (description.indexOf(truncateField) !== -1) {
-      // replace <span class="truncate-field"...> with [[more]] and
-      // get rid of closing span tag
+      // replace <div class="truncate-field"...> with [[more]] and
+      // get rid of the closing tag
       desc = description.replace(truncateField, truncateTag);
-      desc = desc.substr(0, desc.length - 7);
+      desc = desc.substr(0, desc.length - 6);
     }
     return desc;
   }
