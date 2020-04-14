@@ -5,19 +5,21 @@
     <?php if (isset($this->limit) && $i++ === $this->limit): break; endif; ?>
     <div class="linked-event grid-item">
     <?php if (isset($event['link'])): ?><a class="grid-link" href="<?= $event['link'] ?>"><?php endif; ?>
-      <?php if (isset($event['imageurl'])): ?>
-        <span class="linked-events-image grid-image">
+      <span class="linked-events-image grid-image <?= !empty($event['imageurl']) ? '' : 'no-image' ?>">
+        <?php if (!empty($event['imageurl'])): ?>
           <img src=<?= $event['imageurl'] ?>>
-        </span>
-      <?php endif; ?>
+        <?php else: ?>
+          <i class="fa fa-calendar-o image-placeholder"></i>
+        <?php endif; ?>
+      </span>
       <span class="grid-info">
         <?php if (isset($event['name'])): ?>
           <span class="event-info"><b><?= $this->truncate($event['name'], 30) ?></b></span>
         <?php endif; ?>
         <?php if (isset($event['startDate'])): ?>
-          <p class="event-info"><i class="fa fa-calendar"></i> <?= $event['startDate']; ?> <?php if (isset($event['end_date']) && $event['startDate'] !== $event['endDate']):?>&nbsp;&ndash;&nbsp;<?= $event['endDate']?><?php endif; ?></p>
+          <p class="event-info"><i class="fa fa-calendar"></i> <?= $event['startDate']; ?> <?php if (isset($event['endDate']) && $event['startDate'] !== $event['endDate']):?>&nbsp;&ndash;&nbsp;<?= $event['endDate']?><?php endif; ?></p>
         <?php endif; ?>
-        <?php if (isset($event['startTime'])): ?>
+        <?php if (isset($event['startTime']) && isset($event['endDate']) && $event['startDate'] === $event['endDate']): ?>
           <p class="event-info"> <i class="fa fa-clock-o"></i> <?= $event['startTime']; ?><?php if (isset($event['endTime'])): ?>&nbsp;&ndash;&nbsp;<?=$event['endTime'];?><?php endif; ?></p>
         <?php endif; ?>
         <?php if (isset($event['location']) && $event['location']): ?>
