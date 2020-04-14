@@ -28,6 +28,14 @@ finna.myList = (function finnaMyList() {
     'link', 'image',
     '|',
     {
+      name: 'Details',
+      action: function detailsInsert(mdeditor) {
+        insertDetails(mdeditor);
+      },
+      className: 'details-icon',
+      title: 'Insert details element'
+    },
+    {
       name: 'truncate',
       action: function truncateFieldToggle(mdeditor) {
         toggleTruncateField(mdeditor);
@@ -35,7 +43,40 @@ finna.myList = (function finnaMyList() {
       className: 'fa-pagebreak',
       title: 'Truncate'
     }
-  ];
+  ]
+
+  function initDetailsElements() {
+    $('.favorite-list-details').click(function onDetailsClick() {
+      if ($(this).attr('open') === 'open') {
+        $(this).attr('open', false);
+      } else {
+        $(this).attr('open', 'open');
+      }
+    });
+  }
+
+  function insertDetails(mdeditor) {
+    var summaryPlaceholder = VuFind.translate('details_summary_placeholder')
+    var detailsElement = '\n<details class="favorite-list-details">\n' +
+     '<summary>' + summaryPlaceholder + '</summary>' +
+     '<p>' + VuFind.translate('details_text_placeholder') + '</p>\n' + 
+     '</details>';
+    var doc = mdeditor.codemirror.getDoc();
+    var cursorPos = doc.getCursor();
+    var position = {
+      line: cursorPos.line,
+      ch: cursorPos.ch
+    }
+    doc.replaceRange(detailsElement, position);
+    mdeditor.codemirror.focus();
+    cursorPos = doc.getCursor();
+    var summaryAndPlaceholder = '<summary>' + summaryPlaceholder;
+    var newPosition = {
+      line: cursorPos.line,
+      ch: cursorPos.ch
+    }
+    doc.setCursor({line: newPosition.line - 1, ch: summaryAndPlaceholder.length});
+    }
 
   // This is duplicated in image-popup.js to avoid dependency
   function getActiveListId() {
@@ -344,6 +385,7 @@ finna.myList = (function finnaMyList() {
       $('<div/>').addClass('preview').text(VuFind.translate('preview').toUpperCase()).prependTo(preview);
       preview.appendTo(element);
       finna.layout.initTruncate(preview);
+      initDetailsElements();
 
       editor.codemirror.on('change', function onChangeEditor() {
         var result = SimpleMDE.prototype.markdown(editor.value());
@@ -357,6 +399,7 @@ finna.myList = (function finnaMyList() {
         result = handleTruncateField(result);
         preview.find('.data').html(result);
         finna.layout.initTruncate(preview);
+        initDetailsElements();
       });
 
       // Close editor and save when user clicks outside the editor
