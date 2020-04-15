@@ -371,7 +371,10 @@ finna.layout = (function finnaLayout() {
         });
         currentOpenTooltips = [self];
       })
-      .tooltip({trigger: 'click', viewport: '.container'});
+      .tooltip({trigger: 'click', viewport: '.container'})
+      .on('hidden.bs.tooltip', function (e) {
+        $(e.target).data('bs.tooltip').inState.click = false;
+      });
     // prevent link opening if tooltip is placed inside link element
     holder.find('[data-toggle="tooltip"] > i').click(function onClickTooltip(event) {
       event.preventDefault();
