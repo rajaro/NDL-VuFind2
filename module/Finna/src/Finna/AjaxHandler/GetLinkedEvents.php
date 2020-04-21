@@ -40,6 +40,8 @@ use Zend\Mvc\Controller\Plugin\Params;
  */
 class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
 {
+    use \VuFindHttp\HttpServiceAwareTrait;
+
     /**
      * Linked Events
      *
@@ -84,7 +86,7 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
         try {
             $events = $this->linkedEvents->getEvents($param);
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return $this->formatResponse($e->getMessage());
         }
         $response = false;
         if (!empty($events)) {

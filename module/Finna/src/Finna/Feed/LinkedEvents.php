@@ -116,17 +116,17 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
             $url = $params['url'];
         } else {
             $paramArray = $params['query'];
-            $paramArray['start'] = isset($paramArray['start'])
-                ? $this->dateConverter->convert(
-                    'd m Y', 'Y-m-d', $paramArray['start']
-                )
-                : '';
-                $paramArray['end'] = isset($paramArray['end'])
-                ? $this->dateConverter->convert(
-                    'd m Y', 'Y-m-d', $paramArray['end']
-                )
-                : '';
-
+            if (isset($paramArray['start'])) {
+                $paramArray['start'] = $this->dateConverter->convert(
+                    'd-m-Y', 'Y-m-d', $paramArray['start']
+                );
+            }
+            if (isset($paramArray['end'])) {
+                $paramArray['end'] = $this->dateConverter->convert(
+                    'd-m-Y', 'Y-m-d', $paramArray['end']
+                );
+            }
+       
             $url = $this->apiUrl . 'event/';
             if (!empty($paramArray['id'])) {
                 $url .= $paramArray['id'] . '/?include=location,audience,keywords,' .
@@ -177,6 +177,8 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
                         'price' => $this->getField($eventData, 'offers'),
                         'audience' => $this->getField($eventData, 'audience'),
                         'provider' => $this->getField($eventData, 'provider_name'),
+                        'providerLink' =>
+                            $this->getField($eventData, 'provider_link'),
                         'link' => $link,
                         'keywords' => $this->getField($eventData, 'keywords'),
                         'superEvent' => $eventData['super_event'],

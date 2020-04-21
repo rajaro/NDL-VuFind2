@@ -1,27 +1,48 @@
 <!-- START of: finna - Helpers/linkedeventstabs.phtml -->
-<div class="events-tabs feed-tabs-container feed-tabs" data-tabs="<?= $this->escapeHtmlAttr(json_encode($this->tabs)); ?>">
-  <h2><?= $this->transEsc('Events'); ?></h2>
-  <ul class="nav nav-tabs" role="tablist">
-    <?php foreach ($this->tabs as $id => $tab): ?>
-      <?php $isActive = $this->active === $tab['title'] ?>
-      <li class="nav-item event-tab feed-tab <?= $isActive ? 'active' : ''; ?>" id="<?=$tab['title']?>"
-        tabindex="0"
-        aria-selected="<?= $isActive ? 'true' : 'false'; ?>"
-        data-params="<?= isset($tab['params']) ? $this->escapeHtmlAttr(json_encode($tab['params'])) : ''?>"
-        aria-label="<?= $tab['title']; ?>"
-        ><?= $tab['title'] ?></li>
+<div class="linked-events-tabs-container">
+  <div class="events-tabs feed-tabs-container feed-tabs" data-tabs="<?= $this->escapeHtmlAttr(json_encode($this->tabs)); ?>">
+    <h2><?= $this->transEsc('Events'); ?></h2>
+    <ul class="nav nav-tabs" role="tablist">
+      <?php foreach ($this->tabs as $id => $tab): ?>
+        <?php $isActive = $this->active === $tab['title'] ?>
+        <li class="nav-item event-tab feed-tab <?= $isActive ? 'active' : ''; ?>" id="<?=$tab['title']?>"
+          tabindex="0"
+          aria-selected="<?= $isActive ? 'true' : 'false'; ?>"
+          data-params="<?= isset($tab['params']) ? $this->escapeHtmlAttr(json_encode($tab['params'])) : ''?>"
+          aria-label="<?= $tab['title']; ?>"
+          ><?= $tab['title'] ?></li>
+      <?php endforeach; ?>
+    </ul>
+  </div>
+
+  <div class="feed-accordions event-accordions" role="tablist">
+    <h2 class="feed-accordions-title event-accordions-title"><?= $this->transEsc('Events'); ?></h2>
+    <?php $i = 0; foreach ($this->tabs as $id => $tab): ?>
+      <?php
+        $classes = ['accordion', 'accordion-' . $tab['title']];
+        $isActive = 0 === strcasecmp($this->active, $tab['title']);
+        if ($isActive) {
+          $classes[] = 'active initial-active';
+        }
+      ?>
+      <div class="<?=$this->escapeHtmlAttr(implode(' ', $classes))?>"
+           data-params="<?=$this->escapeHtmlAttr(json_encode($tab['params']))?>"
+           data-title="<?=$tab['title']?>"
+           role="tab"
+           tabindex="0"
+           aria-selected="<?= $isActive ? 'true' : 'false' ?>">
+          <span class="title"><?=$this->transEsc($tab['title'])?></span>
+          <i class="icon"></i>
+      </div>
     <?php endforeach; ?>
-  </ul>
   </div>
   <?php if ($this->searchTools !== 'hide'): ?>
-    <button class="btn btn-primary events-toggle-searchtools">Näytä hakutoiminnot</button>
-    <button class="btn btn-primary events-toggle-searchtools hidden">Piilota hakutoiminnot</button>
     <div class="events-searchtools-container <?= $this->searchTools === 'show' ? '' : 'hidden'; ?>">
       <span class="event-search-container">
         <input id="event-text-search" type="text" placeholder="<?= $this->transEsc('Tapahtuman nimi tai paikka') ?>" size="26">
       </span>
       <span class="event-date-container">
-        <?= $this->transEsc('Etsi vain ajalta'); ?>:
+        <span class="event-date-title"><?= $this->transEsc('Etsi vain ajalta'); ?>:</span>
         <input id="event-date-start" class="event-datepicker"> &ndash; <input id="event-date-end" class="event-datepicker">
       </span>
       <button class="btn btn-primary linked-event-search"><?= $this->transEsc('Find') ?></button>
@@ -33,8 +54,10 @@
   <div class="tab-content">
     <div class="linked-events-content"></div>
   </div>
-  <button class="btn btn-outline-primary linked-events-next"><?= $this->transEsc('Näytä lisää') ?></button>
-  <a class="btn btn-outline-primary events-more-link <?= $this->moreLink ? '' : 'hidden' ?>" href="<?= $this->moreLink; ?>"><?= $this->transEsc('Näytä kaikki tapahtumat') ?></a>
+  <div class="linked-events-buttons">
+    <button class="btn btn-outline-primary linked-events-next"><?= $this->transEsc('Näytä lisää') ?></button>
+    <a class="btn btn-outline-primary events-more-link <?= $this->moreLink ? '' : 'hidden' ?>" href="<?= $this->moreLink; ?>"><?= $this->transEsc('Näytä kaikki tapahtumat') ?></a>
+  </div>
 <?php
 $this->headScript()->appendFile("finna-linked-events.js");
 $js = <<<JS

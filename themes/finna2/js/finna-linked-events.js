@@ -2,8 +2,12 @@
 finna.linkedEvents = (function finnaLinkedEvents() {
   function getEvents(params, callback, append) {
     var spinner = $('<i>').addClass('fa fa-spinner fa-spin');
-    $('.linked-events-content').append(spinner);
     var app = typeof append !== 'undefined' ? append : false;
+    if (append) {
+      $('.linked-events-content').append(spinner);
+    } else {
+      $('.linked-events-content').html(spinner);
+    }
     var url = VuFind.path + '/AJAX/JSON?method=getLinkedEvents';
     $.ajax({
       url: url,
@@ -58,7 +62,14 @@ finna.linkedEvents = (function finnaLinkedEvents() {
           initEventMap(events[field]);
         }
         if (field === 'endDate' && events.startDate === events.endDate) {
+          $('.linked-event-endDate').addClass('hidden');
           continue;
+        }
+        if ((field === 'startTime' || field === 'endTime') && events.startDate !== events.endDate) {
+          continue;
+        }
+        if (field === 'providerLink') {
+          $('.linked-event-provider').attr('href', events[field]);
         }
         if (field === 'imageurl') {
           $('.linked-event-image').attr('src', events[field]);
@@ -68,7 +79,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
             $('.linked-event-keywords').append(html);
           });
         } else {
-          $('.linked-event-' + field).html(events[field]);
+          $('.linked-event-' + field).append(events[field]);
           $('.linked-event-' + field).closest('.linked-event-field').removeClass('hidden');
         }
       }
@@ -129,8 +140,8 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     }
 
     $('.event-datepicker').datepicker({
-      'language': '',
-      'format': 'd-m-yyyy',
+ //     'language': '',
+      'format': 'dd-mm-yyyy',
       'weekStart': 1,
       'autoclose': true
     });
@@ -160,6 +171,59 @@ finna.linkedEvents = (function finnaLinkedEvents() {
           navigator.geolocation.getCurrentPosition(getEventsByGeoLocation);
         }
       });
+    }
+    initAccordions();
+  }
+
+  function initAccordions() {
+    $('.event-accordions .accordion').click(function accordionClicked(/*e*/) {
+      var accordion = $(this);
+      var tabParams = {};
+      tabParams.query = accordion.data('params');
+      var container = accordion.closest('.linked-events-tabs-container');
+      var tabs = accordion.closest('.event-tabs');
+      tabs.find('.event-tab').removeClass('active');
+      if (toggleAccordion(container, accordion)) {
+        getEvents(tabParams, handleMultipleEvents);
+      }
+      return false;
+    }).keyup(function onKeyUp(e) {
+      return keyHandler(e);
+    });
+
+    function toggleAccordion(container, accordion) {
+      var tabContent = container.find('.linked-events-content').detach();
+      var searchTools = container.find('.events-searchtools-container').detach();
+      var moreButtons = container.find('.linked-events-buttons').detach();
+      var loadContent = false;
+      var accordions = container.find('.event-accordions');
+      if (!accordion.hasClass('active') || accordion.hasClass('initial-active')) {
+        accordions.find('.accordion.active')
+          .removeClass('active')
+          .attr('aria-selected', false);
+
+        container.find('.event-tab.active')
+          .removeClass('active')
+          .attr('aria-selected', false);
+
+        accordions.toggleClass('all-closed', false);
+
+        accordion
+          .addClass('active')
+          .attr('aria-selected', true);
+
+        container.find('.event-tab[data-title="' + accordion.data('title') + '"]')
+          .addClass('active')
+          .attr('aria-selected', true);
+
+        loadContent = true;
+      }
+      moreButtons.insertAfter(accordion);
+      tabContent.insertAfter(accordion);
+      searchTools.insertAfter(accordion);
+      accordion.removeClass('initial-active');
+
+      return loadContent;
     }
   }
 

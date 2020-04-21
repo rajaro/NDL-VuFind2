@@ -558,6 +558,12 @@
         }
     }
 }
+.events-tabs {
+    @media (max-width: @screen-sm-max) {
+        display: none;
+    }
+}
+
 .linked-events-pagination {
     display: flex;
     justify-content: center;
@@ -589,6 +595,18 @@
     }
     .event-datepicker {
         width: 100px;
+    }
+    .event-date-title {
+        @media (max-width: @screen-xs-max) {
+            display: block;
+        }
+    }
+    .linked-event-search {
+        @media (max-width: @screen-xs-max) {
+            width: 25%;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
     }
     .event-geolocation {
         text-transform: uppercase;
