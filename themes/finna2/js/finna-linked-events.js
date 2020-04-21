@@ -69,7 +69,9 @@ finna.linkedEvents = (function finnaLinkedEvents() {
           continue;
         }
         if (field === 'providerLink') {
-          $('.linked-event-provider').attr('href', events[field]);
+          $('.linked-event-providerLink').attr('href', events[field]);
+          $('.linked-event-' + field).closest('.linked-event-field').removeClass('hidden');
+          continue;
         }
         if (field === 'imageurl') {
           $('.linked-event-image').attr('src', events[field]);
