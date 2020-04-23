@@ -37,6 +37,7 @@
     <?php endforeach; ?>
   </div>
   <?php if ($this->searchTools !== 'hide'): ?>
+    <div class="events-searchtools-toggle"><?= $this->transEsc('Näytä rajaimet') ?> <i class="fa fa-arrow-down"></i></div>
     <div class="events-searchtools-container <?= $this->searchTools === 'show' ? '' : 'hidden'; ?>">
       <span class="event-search-container">
         <input id="event-text-search" type="text" placeholder="<?= $this->transEsc('Tapahtuman nimi tai paikka') ?>" size="26">
@@ -46,7 +47,7 @@
         <input id="event-date-start" class="event-datepicker"> &ndash; <input id="event-date-end" class="event-datepicker">
       </span>
       <button class="btn btn-primary linked-event-search"><?= $this->transEsc('Find') ?></button>
-      <span class="event-geolocation-container">
+      <span class="event-geolocation-container hidden">
         <span class="event-geolocation"><?= $this->transEsc('use_my_location'); ?></span>
       </span>
     </div>

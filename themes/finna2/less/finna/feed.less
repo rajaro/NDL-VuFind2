@@ -582,8 +582,26 @@
         left: 50%;
     }
 }
-
+.events-searchtools-toggle {
+    display: none;
+    color: black;
+    text-transform: uppercase;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 0.84em;
+    &.open i {
+        transform: rotate(180deg);
+    }
+    @media (max-width: @screen-xs-max) {
+        display: block;
+    }
+}
 .events-searchtools-container {
+    display: block;
+    @media (max-width: @screen-xs-max) {
+        display: none;
+    }
     .event-search-container, .event-date-container {
         margin-right: 10px;
         margin-left: 5px;

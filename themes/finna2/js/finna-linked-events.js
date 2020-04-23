@@ -128,37 +128,35 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       return keyHandler(e);
     });
 
-    var toggleSearchTools = $('.events-toggle-searchtools');
+    var toggleSearchTools = $('.events-searchtools-toggle');
     if (toggleSearchTools[0]) {
       toggleSearchTools.click(function onToggleSeachTools() {
-        if ($('.events-searchtools-container').hasClass('hidden')) {
-          $('.events-searchtools-container').removeClass('hidden');
+        if ($('.events-searchtools-toggle').hasClass('open')) {
+          $('.events-searchtools-container').hide();
+          $('.events-searchtools-toggle').removeClass('open');
         } else {
-          $('.events-searchtools-container').addClass('hidden');
+          $('.events-searchtools-container').show();
+          $('.events-searchtools-toggle').addClass('open')        
         }
-        toggleSearchTools.removeClass('hidden');
-        $(this).addClass('hidden');
       });
     }
 
     $('.event-datepicker').datepicker({
- //     'language': '',
-      'format': 'dd-mm-yyyy',
+      'language': 'fi',
+      'format': 'dd.mm.yyyy',
       'weekStart': 1,
       'autoclose': true
     });
-
 
     if ($('.events-searchtools-container')[0]) {
       $('.linked-event-search').click(function onSearchClick() {
         var activeParams = $('.event-tab.active').data('params');
         var startDate = $('#event-date-start')[0].value
-          ? {'start': $('#event-date-start')[0].value}
+          ? {'start': $('#event-date-start')[0].value.replace(/\./g, '-')}
           : '';
         var endDate = $('#event-date-end')[0].value
-          ? {'end': $('#event-date-end')[0].value}
+          ? {'end': $('#event-date-end')[0].value.replace(/\./g, '-')}
           : '';
-        
         var textSearch = $('#event-text-search')[0].value
           ? {'text': $('#event-text-search')[0].value}
           : '';
@@ -197,6 +195,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       var tabContent = container.find('.linked-events-content').detach();
       var searchTools = container.find('.events-searchtools-container').detach();
       var moreButtons = container.find('.linked-events-buttons').detach();
+      var toggleSearch = container.find('.events-searchtools-toggle').detach();
       var loadContent = false;
       var accordions = container.find('.event-accordions');
       if (!accordion.hasClass('active') || accordion.hasClass('initial-active')) {
@@ -223,6 +222,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       moreButtons.insertAfter(accordion);
       tabContent.insertAfter(accordion);
       searchTools.insertAfter(accordion);
+      toggleSearch.insertAfter(accordion);
       accordion.removeClass('initial-active');
 
       return loadContent;
