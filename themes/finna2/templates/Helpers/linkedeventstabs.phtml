@@ -61,9 +61,15 @@
   </div>
 <?php
 $this->headScript()->appendFile("finna-linked-events.js");
+$this->jsTranslations()->addStrings(
+  [
+    'nohit_heading' => 'nohit_heading',
+  ]);
+$translations = $this->jsTranslations()->getJSON();
 $js = <<<JS
 $(document).ready(function(){
   finna.linkedEvents.initEventsTabs("{$this->active}");
+  VuFind.addTranslations({$translations});
 });
 JS;
 $this->headScript()->appendScript($js);

@@ -17,6 +17,9 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       .done(function onGetEventsDone(response) {
         if (response.data) {
           callback(response.data, app);
+        } else {
+          var err = '<div class="linked-events-noresults infobox">' + VuFind.translate('nohit_heading'); + '</div>'
+          $('.linked-events-content').html(err)
         }
         spinner.remove();
       })
@@ -99,18 +102,20 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     } else {
       container.html(data.html);
     }
-
-    $('.linked-events-next').off('click').click(function onNextClick() {
-      if ($('.linked-events.feed-grid').data('next') !== false) {
-        var params = {};
-        params.url = data.next;
-        getEvents(params, handleMultipleEvents, true);
-      }
-    });
+    if (data.next !== '') {
+      $('.linked-events-next').removeClass('hidden');
+      $('.linked-events-next').off('click').click(function onNextClick() {
+          var params = {};
+          params.url = data.next;
+          getEvents(params, handleMultipleEvents, true);
+      });
+    } else {
+      $('.linked-events-next').addClass('hidden');
+    }
   }
 
   function initEventsTabs(initialTitle) {
-    var container = $('.events-tabs');
+    var container = $('.linked-events-tabs-container');
     var initial = container.find($('li.nav-item.event-tab#' + initialTitle));
     var initialParams = {};
     initialParams.query = initial.data('params');
@@ -123,6 +128,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       params.query = $(this).data('params');
       $('li.nav-item.event-tab').removeClass('active').attr('aria-selected', 'false');
       $(this).addClass('active').attr('aria-selected', 'true');
+      container.find('.accordion[data-title="' + $(this).id + '"]').addClass('active');
       getEvents(params, handleMultipleEvents);
     }).keyup(function onKeyUp(e) {
       return keyHandler(e);
@@ -213,7 +219,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
           .addClass('active')
           .attr('aria-selected', true);
 
-        container.find('.event-tab[data-title="' + accordion.data('title') + '"]')
+        container.find('.event-tab[id="' + accordion.data('title') + '"]')
           .addClass('active')
           .attr('aria-selected', true);
 

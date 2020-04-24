@@ -148,7 +148,7 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
         $events = [];
         $result = [];
         if (!empty($response)) {
-            $responseData = empty($response['data'])
+            $responseData = !isset($response['data'])
                 ? [$response]
                 : $response['data'];
             if (!empty($responseData)) {
