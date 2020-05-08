@@ -80,9 +80,6 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
         $param = [];
         $param['query'] = $params->fromQuery('params', []);
         $param['url'] = $params->fromQuery('url', '');
-        if (isset($param['query']['bbox'])) {
-            $param['query']['bbox'] = implode(',', $param['query']['bbox']);
-        }
         try {
             $events = $this->linkedEvents->getEvents($param);
         } catch (\Exception $e) {
@@ -101,7 +98,7 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
                 }
                 $response = ['events' => $events['events'][0],
                     'relatedEvents' => $html];
-            } else if (!empty($events['events'])) {
+            } elseif (!empty($events['events'])) {
                 $response['html'] = $this->viewRenderer->partial(
                     'ajax/linked-events.phtml', ['events' => $events['events']]
                 );

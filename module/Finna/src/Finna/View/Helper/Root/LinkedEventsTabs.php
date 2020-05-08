@@ -63,7 +63,8 @@ class LinkedEventsTabs extends \Zend\View\Helper\AbstractHelper
                 'tabs' => $tabs,
                 'active' => $active,
                 'moreLink' => $moreLink,
-                'searchTools' => $searchTools
+                'searchTools' => $searchTools,
+                'id' => md5(json_encode($tabs)),
             ]
         );
     }

@@ -1,12 +1,12 @@
-/*global VuFind, finna, L, datepicker */
+/*global VuFind, finna, L */
 finna.linkedEvents = (function finnaLinkedEvents() {
-  function getEvents(params, callback, append) {
+  function getEvents(params, callback, append, container) {
     var spinner = $('<i>').addClass('fa fa-spinner fa-spin');
     var app = typeof append !== 'undefined' ? append : false;
     if (append) {
-      $('.linked-events-content').append(spinner);
+      container.find($('.linked-events-content')).append(spinner);
     } else {
-      $('.linked-events-content').html(spinner);
+      container.find($('.linked-events-content')).html(spinner);
     }
     var url = VuFind.path + '/AJAX/JSON?method=getLinkedEvents';
     $.ajax({
@@ -16,10 +16,10 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     })
       .done(function onGetEventsDone(response) {
         if (response.data) {
-          callback(response.data, app);
+          callback(response.data, app, container);
         } else {
-          var err = '<div class="linked-events-noresults infobox">' + VuFind.translate('nohit_heading'); + '</div>'
-          $('.linked-events-content').html(err)
+          var err = '<div class="linked-events-noresults infobox">' + VuFind.translate('nohit_heading') + '</div>'
+          container.find($('.linked-events-content')).html(err)
         }
         spinner.remove();
       })
@@ -54,7 +54,8 @@ finna.linkedEvents = (function finnaLinkedEvents() {
   function getEventContent(id) {
     var params = {};
     params.query = {'id': id};
-    getEvents(params, handleSingleEvent);
+    var container = $('.linked-event-content');
+    getEvents(params, handleSingleEvent, false, container);
   }
 
   var handleSingleEvent = function handleSingleEvent(data) {
@@ -95,54 +96,54 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     }
   }
 
-  var handleMultipleEvents = function handleMultipleEvents(data, append) {
-    var container = $('.linked-events-content');
+  var handleMultipleEvents = function handleMultipleEvents(data, append, container) {
+    var content = container.find($('.linked-events-content'));
     if (append) {
-      container.append(data.html);
+      content.append(data.html);
     } else {
-      container.html(data.html);
+      content.html(data.html);
     }
     if (data.next !== '') {
-      $('.linked-events-next').removeClass('hidden');
-      $('.linked-events-next').off('click').click(function onNextClick() {
-          var params = {};
-          params.url = data.next;
-          getEvents(params, handleMultipleEvents, true);
+      container.find($('.linked-events-next')).removeClass('hidden');
+      container.find($('.linked-events-next')).off('click').click(function onNextClick() {
+        var params = {};
+        params.url = data.next;
+        getEvents(params, handleMultipleEvents, true, container);
       });
     } else {
-      $('.linked-events-next').addClass('hidden');
+      container.find($('.linked-events-next')).addClass('hidden');
     }
   }
 
-  function initEventsTabs(initialTitle) {
-    var container = $('.linked-events-tabs-container');
-    var initial = container.find($('li.nav-item.event-tab#' + initialTitle));
+  function initEventsTabs(id) {
+    var container = $('.linked-events-tabs-container[id="' + id + '"]');
+    var initial = container.find($('li.nav-item.event-tab.active'));
     var initialParams = {};
     initialParams.query = initial.data('params');
-    getEvents(initialParams, handleMultipleEvents);
+    getEvents(initialParams, handleMultipleEvents, false, container);
     container.find($('li.nav-item.event-tab')).click(function eventTabClick() {
       if ($(this).hasClass('active')) {
         return false;
       }
       var params = {};
       params.query = $(this).data('params');
-      $('li.nav-item.event-tab').removeClass('active').attr('aria-selected', 'false');
+      container.find($('li.nav-item.event-tab')).removeClass('active').attr('aria-selected', 'false');
       $(this).addClass('active').attr('aria-selected', 'true');
       container.find('.accordion[data-title="' + $(this).id + '"]').addClass('active');
-      getEvents(params, handleMultipleEvents);
+      getEvents(params, handleMultipleEvents, false, container);
     }).keyup(function onKeyUp(e) {
       return keyHandler(e);
     });
 
-    var toggleSearchTools = $('.events-searchtools-toggle');
+    var toggleSearchTools = container.find($('.events-searchtools-toggle'));
     if (toggleSearchTools[0]) {
       toggleSearchTools.click(function onToggleSeachTools() {
-        if ($('.events-searchtools-toggle').hasClass('open')) {
-          $('.events-searchtools-container').hide();
-          $('.events-searchtools-toggle').removeClass('open');
+        if (container.find($('.events-searchtools-toggle')).hasClass('open')) {
+          container.find($('.events-searchtools-container')).hide();
+          container.find($('.events-searchtools-toggle')).removeClass('open');
         } else {
-          $('.events-searchtools-container').show();
-          $('.events-searchtools-toggle').addClass('open')        
+          container.find($('.events-searchtools-container')).show();
+          container.find($('.events-searchtools-toggle')).addClass('open');      
         }
       });
     }
@@ -154,28 +155,22 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       'autoclose': true
     });
 
-    if ($('.events-searchtools-container')[0]) {
-      $('.linked-event-search').click(function onSearchClick() {
-        var activeParams = $('.event-tab.active').data('params');
-        var startDate = $('#event-date-start')[0].value
-          ? {'start': $('#event-date-start')[0].value.replace(/\./g, '-')}
+    if (container.find($('.events-searchtools-container'))[0]) {
+      container.find($('.linked-event-search')).click(function onSearchClick() {
+        var activeParams = container.find($('.event-tab.active')).data('params');
+        var startDate = container.find($('.event-date-start'))[0].value
+          ? {'start': container.find($('.event-date-start'))[0].value.replace(/\./g, '-')}
           : '';
-        var endDate = $('#event-date-end')[0].value
-          ? {'end': $('#event-date-end')[0].value.replace(/\./g, '-')}
+        var endDate = container.find($('.event-date-end'))[0].value
+          ? {'end': container.find($('.event-date-end'))[0].value.replace(/\./g, '-')}
           : '';
-        var textSearch = $('#event-text-search')[0].value
-          ? {'text': $('#event-text-search')[0].value}
+        var textSearch = container.find($('.event-text-search'))[0].value
+          ? {'text': container.find($('.event-text-search'))[0].value}
           : '';
 
         var newParams = {};
         newParams.query = $.extend(newParams.query, activeParams, startDate, endDate, textSearch);
-        getEvents(newParams, handleMultipleEvents);
-      })
-
-      $('.event-geolocation').click(function onGeolocationClick() {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(getEventsByGeoLocation);
-        }
+        getEvents(newParams, handleMultipleEvents, false, container);
       });
     }
     initAccordions();
@@ -190,7 +185,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       var tabs = accordion.closest('.event-tabs');
       tabs.find('.event-tab').removeClass('active');
       if (toggleAccordion(container, accordion)) {
-        getEvents(tabParams, handleMultipleEvents);
+        getEvents(tabParams, handleMultipleEvents, false, container);
       }
       return false;
     }).keyup(function onKeyUp(e) {
@@ -248,22 +243,6 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     var params = {};
     params.url = url;
     getEvents(params, callback);
-  }
-
-  function getEventsByGeoLocation(position) {
-    var activeParams = $('.event-tab.active').data('params');
-    var lat = position.coords.latitude;
-    var lon = position.coords.longitude;
-
-    var west = lon - 0.05;
-    var east = lon + 0.05;
-    var south = lat - 0.05;
-    var north = lat + 0.05;
-    var bbox = {'west': west, 'south': south, 'east': east, 'north': north};
-    var newParams = {}
-    newParams.query = $.extend(newParams.query, activeParams, bbox);
-    
-    getEvents(newParams, handleMultipleEvents);
   }
 
   var my = {

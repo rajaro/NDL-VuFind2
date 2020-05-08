@@ -50,6 +50,11 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
     protected $apiUrl = '';
 
     /**
+     * Publisher ID
+     */
+    protected $publisherId = '';
+
+    /**
      * Language
      *
      * @var string
@@ -88,6 +93,7 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
     public function __construct($config, $dateConverter, $url, $viewRenderer)
     {
         $this->apiUrl = $config->LinkedEvents->api_url ?? '';
+        $this->publisherId = $config->LinkedEvents->publisher_id ?? '';
         $this->language = $config->General->language ?? '';
         $this->dateConverter = $dateConverter;
         $this->url = $url;
@@ -105,8 +111,8 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
      */
     public function getEvents($params)
     {
-        if (empty($this->apiUrl)) {
-            $this->logError('Missing LinkedEvents API URL');
+        if (empty($this->apiUrl) || empty($this->publisherId)) {
+            $this->logError('Missing LinkedEvents configuration');
             return false;
         }
         $paramArray = [];
@@ -120,22 +126,26 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
                 $paramArray['start'] = $this->dateConverter->convert(
                     'd-m-Y', 'Y-m-d', $paramArray['start']
                 );
+            } else {
+                $paramArray['start'] = date('Y-m-d');
             }
             if (isset($paramArray['end'])) {
                 $paramArray['end'] = $this->dateConverter->convert(
                     'd-m-Y', 'Y-m-d', $paramArray['end']
                 );
             }
-       
+
             $url = $this->apiUrl . 'event/';
             if (!empty($paramArray['id'])) {
                 $url .= $paramArray['id'] . '/?include=location,audience,keywords,' .
                  'sub_events,super_event';
             } else {
-                $url .= '?' . http_build_query($paramArray);
+                $url .= '?'
+                . 'publisher=' . $this->publisherId . '&'
+                . http_build_query($paramArray)
+                . '&sort=start_time';
             }
         }
-
         $client = $this->httpService->createClient($url);
         $result = $client->send();
         if (!$result->isSuccess()) {
@@ -172,8 +182,7 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
                         'info_url' => $this->getField($eventData, 'info_url'),
                         'location' =>
                             $this->getField($eventData, 'location_extra_info'),
-                    //    'position' => $this->getField($eventData, 'position'), // This is for SatakuntaEvents
-                        'position' => $this->getField($eventData, 'location'), // This is for linkedEvents
+                        'position' => $this->getField($eventData, 'location'),
                         'price' => $this->getField($eventData, 'offers'),
                         'audience' => $this->getField($eventData, 'audience'),
                         'provider' => $this->getField($eventData, 'provider_name'),
