@@ -51,6 +51,7 @@ class LinkedEventsTabs extends \Zend\View\Helper\AbstractHelper
         $active = $params['active'] ?? $tabs[0]['title'];
         $allEventsLink = $params['link'] ?? '';
         $searchTools = $params['searchTools'] ?? 'show';
+        $limit = $params['limit'] ?? 30;
 
         return $this->getView()->render(
             'Helpers/linkedeventstabs.phtml',
@@ -59,6 +60,7 @@ class LinkedEventsTabs extends \Zend\View\Helper\AbstractHelper
                 'active' => $active,
                 'allEventsLink' => $allEventsLink,
                 'searchTools' => $searchTools,
+                'limit' => $limit,
                 'id' => md5(json_encode($tabs)),
             ]
         );

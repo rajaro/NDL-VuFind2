@@ -2,7 +2,6 @@
 finna.linkedEvents = (function finnaLinkedEvents() {
   function getEvents(params, callback, append, container) {
     var spinner = $('<i>').addClass('fa fa-spinner fa-spin');
-    var app = typeof append !== 'undefined' ? append : false;
     if (append) {
       container.find($('.linked-events-content')).append(spinner);
     } else {
@@ -16,7 +15,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     })
       .done(function onGetEventsDone(response) {
         if (response.data) {
-          callback(response.data, app, container);
+          callback(response.data, append, container);
         } else {
           var err = '<div class="linked-events-noresults infobox">' + VuFind.translate('nohit_heading') + '</div>'
           container.find($('.linked-events-content')).html(err)
@@ -119,15 +118,16 @@ finna.linkedEvents = (function finnaLinkedEvents() {
   function initEventsTabs(id) {
     var container = $('.linked-events-tabs-container[id="' + id + '"]');
     var initial = container.find($('li.nav-item.event-tab.active'));
+    var limit = {'page_size': container.data('limit')};
     var initialParams = {};
-    initialParams.query = initial.data('params');
+    initialParams.query = $.extend(initial.data('params'), limit);
     getEvents(initialParams, handleMultipleEvents, false, container);
     container.find($('li.nav-item.event-tab')).click(function eventTabClick() {
       if ($(this).hasClass('active')) {
         return false;
       }
       var params = {};
-      params.query = $(this).data('params');
+      params.query = $.extend($(this).data('params'), limit);
       container.find($('li.nav-item.event-tab')).removeClass('active').attr('aria-selected', 'false');
       $(this).addClass('active').attr('aria-selected', 'true');
       container.find('.accordion[data-title="' + $(this).id + '"]').addClass('active');
@@ -148,9 +148,9 @@ finna.linkedEvents = (function finnaLinkedEvents() {
         }
       });
     }
-
+    var datepickerLang = container.find('.event-date-container').data('lang');
     $('.event-datepicker').datepicker({
-      'language': 'fi',
+      'language': datepickerLang,
       'format': 'dd.mm.yyyy',
       'weekStart': 1,
       'autoclose': true

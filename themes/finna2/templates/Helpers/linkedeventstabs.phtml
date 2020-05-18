@@ -1,6 +1,6 @@
 <!-- START of: finna - Helpers/linkedeventstabs.phtml -->
-<div class="linked-events-tabs-container" id="<?= $this->id ?>">
-  <div class="events-tabs feed-tabs-container feed-tabs" data-tabs="<?= $this->escapeHtmlAttr(json_encode($this->tabs)); ?>">
+<div class="linked-events-tabs-container" id="<?= $this->id ?>" data-limit="<?= $this->limit ?>">
+  <div class="events-tabs feed-tabs-container feed-tabs">
     <h2><?= $this->transEsc('Events'); ?></h2>
     <ul class="nav nav-tabs" role="tablist">
       <?php foreach ($this->tabs as $id => $tab): ?>
@@ -26,7 +26,7 @@
         }
       ?>
       <div class="<?=$this->escapeHtmlAttr(implode(' ', $classes))?>"
-           data-params="<?=$this->escapeHtmlAttr(json_encode($tab['params']))?>"
+           data-params="<?= isset($tab['params']) ? $this->escapeHtmlAttr(json_encode($tab['params'])) : ''?>"
            data-title="<?=$tab['title']?>"
            role="tab"
            tabindex="0"
@@ -42,7 +42,7 @@
       <span class="event-search-container">
         <input class="event-text-search" type="text" placeholder="<?= $this->transEsc('event_name_or_place') ?>" size="26">
       </span>
-      <span class="event-date-container">
+      <span class="event-date-container" data-lang="<?= $this->layout()->userLang; ?>">
         <span class="event-date-title"><?= $this->transEsc('Time Period'); ?>:</span>
         <input class="event-date-start event-datepicker"> &ndash; <input class="event-date-end event-datepicker">
       </span>
@@ -57,7 +57,7 @@
   </div>
   <div class="linked-events-buttons">
     <button class="btn btn-outline-primary linked-events-next"><?= ucfirst($this->transEsc('more')) ?></button>
-    <a class="btn btn-outline-primary events-more-link <?= $this->allEventsLink ? '' : 'hidden' ?>" href="<?= $this->allEventsLink; ?>"><?= $this->transEsc('Näytä kaikki tapahtumat') ?></a>
+    <a class="btn btn-outline-primary events-more-link <?= $this->allEventsLink ? '' : 'hidden' ?>" href="<?= $this->allEventsLink; ?>"><?= ucfirst($this->transEsc('see all')) ?></a>
   </div>
 </div>
 <?php
