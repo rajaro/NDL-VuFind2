@@ -19,8 +19,8 @@ finna.linkedEvents = (function finnaLinkedEvents() {
         if (response.data) {
           callback(response.data, append, container);
         } else {
-          var err = '<div class="linked-events-noresults infobox">' + VuFind.translate('nohit_heading') + '</div>'
-          container.find($('.linked-events-content')).html(err)
+          var err = '<div class="linked-events-noresults infobox">' + VuFind.translate('nohit_heading') + '</div>';
+          container.find($('.linked-events-content')).html(err);
           container.find($('.linked-events-next')).addClass('hidden');
         }
         spinner.remove();
@@ -51,13 +51,6 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       {icon: icon}
     ).addTo(map.map);
     map.map.setZoom(15);
-  }
-
-  function getEventContent(id) {
-    var params = {};
-    params.query = {'id': id};
-    var container = $('.linked-event-content');
-    getEvents(params, handleSingleEvent, false, container);
   }
 
   var handleSingleEvent = function handleSingleEvent(data) {
@@ -96,7 +89,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       $('.related-events').append(data.relatedEvents).removeClass('hidden');
       $('.related-events .linked-event.grid-item').css('flex-basis', '100%');
     }
-  }
+  };
 
   var handleMultipleEvents = function handleMultipleEvents(data, append, container) {
     var content = container.find($('.linked-events-content'));
@@ -114,6 +107,76 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       });
     } else {
       container.find($('.linked-events-next')).addClass('hidden');
+    }
+  };
+
+  function getEventContent(id) {
+    var params = {};
+    params.query = {'id': id};
+    var container = $('.linked-event-content');
+    getEvents(params, handleSingleEvent, false, container);
+  }
+
+  function keyHandler(e/*, cb*/) {
+    if (e.which === 13 || e.which === 32) {
+      $(e.target).click();
+      e.preventDefault();
+      return false;
+    }
+    return true;
+  }
+
+  function initAccordions() {
+    $('.event-accordions .accordion').click(function accordionClicked(/*e*/) {
+      var accordion = $(this);
+      var tabParams = {};
+      tabParams.query = accordion.data('params');
+      var container = accordion.closest('.linked-events-tabs-container');
+      var tabs = accordion.closest('.event-tabs');
+      tabs.find('.event-tab').removeClass('active');
+      if (toggleAccordion(container, accordion)) {
+        getEvents(tabParams, handleMultipleEvents, false, container);
+      }
+      return false;
+    }).keyup(function onKeyUp(e) {
+      return keyHandler(e);
+    });
+
+    function toggleAccordion(container, accordion) {
+      var tabContent = container.find('.linked-events-content').detach();
+      var searchTools = container.find('.events-searchtools-container').detach();
+      var moreButtons = container.find('.linked-events-buttons').detach();
+      var toggleSearch = container.find('.events-searchtools-toggle').detach();
+      var loadContent = false;
+      var accordions = container.find('.event-accordions');
+      if (!accordion.hasClass('active') || accordion.hasClass('initial-active')) {
+        accordions.find('.accordion.active')
+          .removeClass('active')
+          .attr('aria-selected', false);
+
+        container.find('.event-tab.active')
+          .removeClass('active')
+          .attr('aria-selected', false);
+
+        accordions.toggleClass('all-closed', false);
+
+        accordion
+          .addClass('active')
+          .attr('aria-selected', true);
+
+        container.find('.event-tab[id="' + accordion.data('title') + '"]')
+          .addClass('active')
+          .attr('aria-selected', true);
+
+        loadContent = true;
+      }
+      moreButtons.insertAfter(accordion);
+      tabContent.insertAfter(accordion);
+      searchTools.insertAfter(accordion);
+      toggleSearch.insertAfter(accordion);
+      accordion.removeClass('initial-active');
+
+      return loadContent;
     }
   }
 
@@ -176,69 +239,6 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       });
     }
     initAccordions();
-  }
-
-  function initAccordions() {
-    $('.event-accordions .accordion').click(function accordionClicked(/*e*/) {
-      var accordion = $(this);
-      var tabParams = {};
-      tabParams.query = accordion.data('params');
-      var container = accordion.closest('.linked-events-tabs-container');
-      var tabs = accordion.closest('.event-tabs');
-      tabs.find('.event-tab').removeClass('active');
-      if (toggleAccordion(container, accordion)) {
-        getEvents(tabParams, handleMultipleEvents, false, container);
-      }
-      return false;
-    }).keyup(function onKeyUp(e) {
-      return keyHandler(e);
-    });
-
-    function toggleAccordion(container, accordion) {
-      var tabContent = container.find('.linked-events-content').detach();
-      var searchTools = container.find('.events-searchtools-container').detach();
-      var moreButtons = container.find('.linked-events-buttons').detach();
-      var toggleSearch = container.find('.events-searchtools-toggle').detach();
-      var loadContent = false;
-      var accordions = container.find('.event-accordions');
-      if (!accordion.hasClass('active') || accordion.hasClass('initial-active')) {
-        accordions.find('.accordion.active')
-          .removeClass('active')
-          .attr('aria-selected', false);
-
-        container.find('.event-tab.active')
-          .removeClass('active')
-          .attr('aria-selected', false);
-
-        accordions.toggleClass('all-closed', false);
-
-        accordion
-          .addClass('active')
-          .attr('aria-selected', true);
-
-        container.find('.event-tab[id="' + accordion.data('title') + '"]')
-          .addClass('active')
-          .attr('aria-selected', true);
-
-        loadContent = true;
-      }
-      moreButtons.insertAfter(accordion);
-      tabContent.insertAfter(accordion);
-      searchTools.insertAfter(accordion);
-      toggleSearch.insertAfter(accordion);
-      accordion.removeClass('initial-active');
-
-      return loadContent;
-    }
-  }
-
-  function keyHandler(e/*, cb*/) {
-    if (e.which === 13 || e.which === 32) {
-      $(e.target).click();
-      e.preventDefault();
-      return false;
-    }
-    return true;
   }
 
   var my = {
