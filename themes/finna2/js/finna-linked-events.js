@@ -1,6 +1,8 @@
 /*global VuFind, finna, L */
 finna.linkedEvents = (function finnaLinkedEvents() {
   function getEvents(params, callback, append, container) {
+    var limit = {'page_size': container.data('limit')};
+    params.query = $.extend(params.query, limit);
     var spinner = $('<i>').addClass('fa fa-spinner fa-spin');
     if (append) {
       container.find($('.linked-events-content')).append(spinner);
@@ -118,16 +120,15 @@ finna.linkedEvents = (function finnaLinkedEvents() {
   function initEventsTabs(id) {
     var container = $('.linked-events-tabs-container[id="' + id + '"]');
     var initial = container.find($('li.nav-item.event-tab.active'));
-    var limit = {'page_size': container.data('limit')};
     var initialParams = {};
-    initialParams.query = $.extend(initial.data('params'), limit);
+    initialParams.query = initial.data('params');
     getEvents(initialParams, handleMultipleEvents, false, container);
     container.find($('li.nav-item.event-tab')).click(function eventTabClick() {
       if ($(this).hasClass('active')) {
         return false;
       }
       var params = {};
-      params.query = $.extend($(this).data('params'), limit);
+      params.query = $(this).data('params');
       container.find($('li.nav-item.event-tab')).removeClass('active').attr('aria-selected', 'false');
       $(this).addClass('active').attr('aria-selected', 'true');
       container.find('.accordion[data-title="' + $(this).id + '"]').addClass('active');
