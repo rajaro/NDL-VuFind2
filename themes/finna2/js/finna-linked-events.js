@@ -55,7 +55,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
 
   var handleSingleEvent = function handleSingleEvent(data) {
     var events = data.events;
-    for (var field in events) {
+    for (let field in events) {
       if (events[field]) {
         if (field === 'location') {
           initEventMap(events[field]);
@@ -127,21 +127,6 @@ finna.linkedEvents = (function finnaLinkedEvents() {
   }
 
   function initAccordions() {
-    $('.event-accordions .accordion').click(function accordionClicked(/*e*/) {
-      var accordion = $(this);
-      var tabParams = {};
-      tabParams.query = accordion.data('params');
-      var container = accordion.closest('.linked-events-tabs-container');
-      var tabs = accordion.closest('.event-tabs');
-      tabs.find('.event-tab').removeClass('active');
-      if (toggleAccordion(container, accordion)) {
-        getEvents(tabParams, handleMultipleEvents, false, container);
-      }
-      return false;
-    }).keyup(function onKeyUp(e) {
-      return keyHandler(e);
-    });
-
     function toggleAccordion(container, accordion) {
       var tabContent = container.find('.linked-events-content').detach();
       var searchTools = container.find('.events-searchtools-container').detach();
@@ -178,6 +163,20 @@ finna.linkedEvents = (function finnaLinkedEvents() {
 
       return loadContent;
     }
+    $('.event-accordions .accordion').click(function accordionClicked(/*e*/) {
+      var accordion = $(this);
+      var tabParams = {};
+      tabParams.query = accordion.data('params');
+      var container = accordion.closest('.linked-events-tabs-container');
+      var tabs = accordion.closest('.event-tabs');
+      tabs.find('.event-tab').removeClass('active');
+      if (toggleAccordion(container, accordion)) {
+        getEvents(tabParams, handleMultipleEvents, false, container);
+      }
+      return false;
+    }).keyup(function onKeyUp(e) {
+      return keyHandler(e);
+    });
   }
 
   function initEventsTabs(id) {
