@@ -20,6 +20,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
         } else {
           var err = '<div class="linked-events-noresults infobox">' + VuFind.translate('nohit_heading') + '</div>'
           container.find($('.linked-events-content')).html(err)
+          container.find($('.linked-events-next')).addClass('hidden');
         }
         spinner.remove();
       })
@@ -62,7 +63,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     var events = data.events;
     for (var field in events) {
       if (events[field]) {
-        if (field === 'position') {
+        if (field === 'location') {
           initEventMap(events[field]);
         }
         if (field === 'endDate' && events.startDate === events.endDate) {
@@ -239,16 +240,9 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     return true;
   }
 
-  function getOrganisationPageEvents(url, callback) {
-    var params = {};
-    params.url = url;
-    getEvents(params, callback);
-  }
-
   var my = {
     initEventsTabs: initEventsTabs,
     getEventContent: getEventContent,
-    getOrganisationPageEvents: getOrganisationPageEvents
   };
 
   return my;

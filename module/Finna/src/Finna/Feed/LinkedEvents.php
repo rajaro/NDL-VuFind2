@@ -180,9 +180,15 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
                         'startDate' => $this->formatDate($eventData['start_time']),
                         'endDate' => $this->formatDate($eventData['end_time']),
                         'info_url' => $this->getField($eventData, 'info_url'),
-                        'location' =>
+                        'location-info' =>
                             $this->getField($eventData, 'location_extra_info'),
-                        'position' => $this->getField($eventData, 'location'),
+                        'location' => $this->getField($eventData, 'location'),
+                        'telephone' =>
+                            $this->getField($eventData['location'], 'telephone'),
+                        'address' =>
+                            $this->getField(
+                                $eventData['location'], 'street_address'
+                            ),
                         'price' => $this->getField($eventData, 'offers'),
                         'audience' => $this->getField($eventData, 'audience'),
                         'provider' => $this->getField($eventData, 'provider_name'),
@@ -241,16 +247,13 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
             $data = $data[0]['name'] ?? '';
         }
 
-        // SatakuntaEvents and LinkedEvents have different ways
-        // of handling coordinates, support both:
-        if ($field === 'position' || $field === 'location') {
+        if ($field === 'location') {
+            $coordinates = [];
             if (isset($data['position']['coordinates'])) {
                 $coordinates = [
                     'lng' => $data['position']['coordinates'][0],
                     'lat' => $data['position']['coordinates'][1]
                 ];
-            } else {
-                $coordinates = $data;
             }
             return $coordinates;
         }
@@ -277,10 +280,7 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
         if ($this->language === null) {
             $this->language = $this->translator->getLocale();
         }
-        $map = ['sv' => 'se'];
-        if (isset($map[$this->language])) {
-            $this->language = $map[$this->language];
-        }
+
         return $this->language;
     }
 

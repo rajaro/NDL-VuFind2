@@ -41,12 +41,7 @@ class LinkedEventsTabs extends \Zend\View\Helper\AbstractHelper
     /**
      * Returns HTML for the widget.
      *
-     * @param array $params e.g. ['tabs' => [
-     *                      ['title' => 'Music', 'params' => [
-     *                      'keyword' => 'music', 'page_size' => 6]],
-     *                      ['title' => 'Sports', 'params' => [
-     *                      'keyword' => 'sports', 'page_size' => 6]]
-     *                      ], 'searchTools' => 'show'].
+     * @param array $params parameters
      *
      * @return string
      */
@@ -54,7 +49,7 @@ class LinkedEventsTabs extends \Zend\View\Helper\AbstractHelper
     {
         $tabs = $params['tabs'] ?? [];
         $active = $params['active'] ?? $tabs[0]['title'];
-        $moreLink = $params['link'] ?? '';
+        $allEventsLink = $params['link'] ?? '';
         $searchTools = $params['searchTools'] ?? 'show';
 
         return $this->getView()->render(
@@ -62,7 +57,7 @@ class LinkedEventsTabs extends \Zend\View\Helper\AbstractHelper
             [
                 'tabs' => $tabs,
                 'active' => $active,
-                'moreLink' => $moreLink,
+                'allEventsLink' => $allEventsLink,
                 'searchTools' => $searchTools,
                 'id' => md5(json_encode($tabs)),
             ]

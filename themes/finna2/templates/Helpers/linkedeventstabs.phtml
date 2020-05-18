@@ -37,13 +37,13 @@
     <?php endforeach; ?>
   </div>
   <?php if ($this->searchTools !== 'hide'): ?>
-    <div class="events-searchtools-toggle"><?= $this->transEsc('Näytä rajaimet') ?> <i class="fa fa-arrow-down"></i></div>
+    <div class="events-searchtools-toggle"><?= $this->transEsc('show_filters') ?> <i class="fa fa-arrow-down"></i></div>
     <div class="events-searchtools-container <?= $this->searchTools === 'show' ? '' : 'hidden'; ?>">
       <span class="event-search-container">
-        <input class="event-text-search" type="text" placeholder="<?= $this->transEsc('Tapahtuman nimi tai paikka') ?>" size="26">
+        <input class="event-text-search" type="text" placeholder="<?= $this->transEsc('event_name_or_place') ?>" size="26">
       </span>
       <span class="event-date-container">
-        <span class="event-date-title"><?= $this->transEsc('Etsi vain ajalta'); ?>:</span>
+        <span class="event-date-title"><?= $this->transEsc('Time Period'); ?>:</span>
         <input class="event-date-start event-datepicker"> &ndash; <input class="event-date-end event-datepicker">
       </span>
       <button class="btn btn-primary linked-event-search"><?= $this->transEsc('Find') ?></button>
@@ -56,8 +56,8 @@
     <div class="linked-events-content"></div>
   </div>
   <div class="linked-events-buttons">
-    <button class="btn btn-outline-primary linked-events-next"><?= $this->transEsc('Näytä lisää') ?></button>
-    <a class="btn btn-outline-primary events-more-link <?= $this->moreLink ? '' : 'hidden' ?>" href="<?= $this->moreLink; ?>"><?= $this->transEsc('Näytä kaikki tapahtumat') ?></a>
+    <button class="btn btn-outline-primary linked-events-next"><?= ucfirst($this->transEsc('more')) ?></button>
+    <a class="btn btn-outline-primary events-more-link <?= $this->allEventsLink ? '' : 'hidden' ?>" href="<?= $this->allEventsLink; ?>"><?= $this->transEsc('Näytä kaikki tapahtumat') ?></a>
   </div>
 </div>
 <?php

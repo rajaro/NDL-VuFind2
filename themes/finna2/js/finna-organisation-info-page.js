@@ -423,16 +423,6 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
     $('.office-quick-information').show();
     $('.office-information').show();
     setOfficeInformationLoader(false);
-
-    if ('linkedEvents' in data.details) {
-      finna.linkedEvents.getOrganisationPageEvents(data.details.linkedEvents, handleLinkedEvents);
-    }
-  }
-
-  function handleLinkedEvents(data) {
-    $('.organisation-linked-events').append(data).show();
-    $('.linked-events-container').show();
-    $('.linked-event.grid-item').css('flex-basis', '100%');
   }
 
   function updateServices(data) {

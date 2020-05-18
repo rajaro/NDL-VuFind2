@@ -96,8 +96,10 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
                         ['events' => $relatedEvents, 'limit' => 5]
                     );
                 }
-                $response = ['events' => $events['events'][0],
-                    'relatedEvents' => $html];
+                $response = [
+                    'events' => $events['events'][0],
+                    'relatedEvents' => $html
+                ];
             } elseif (!empty($events['events'])) {
                 $response['html'] = $this->viewRenderer->partial(
                     'ajax/linked-events.phtml', ['events' => $events['events']]
