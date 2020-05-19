@@ -55,36 +55,36 @@ finna.linkedEvents = (function finnaLinkedEvents() {
 
   var handleSingleEvent = function handleSingleEvent(data) {
     var events = data.events;
-    for (let field in events) {
-      if (events[field]) {
+    $.each(events, function handleEvent(field, value) {
+      if (value) {
         if (field === 'location') {
-          initEventMap(events[field]);
+          initEventMap(value);
         }
         if (field === 'endDate' && events.startDate === events.endDate) {
           $('.linked-event-endDate').addClass('hidden');
-          continue;
+          return true;
         }
         if ((field === 'startTime' || field === 'endTime') && events.startDate !== events.endDate) {
-          continue;
+          return true;
         }
         if (field === 'providerLink') {
-          $('.linked-event-providerLink').attr('href', events[field]);
+          $('.linked-event-providerLink').attr('href', value);
           $('.linked-event-' + field).closest('.linked-event-field').removeClass('hidden');
-          continue;
+          return true;
         }
         if (field === 'imageurl') {
-          $('.linked-event-image').attr('src', events[field]);
+          $('.linked-event-image').attr('src', value);
         } if (field === 'keywords') {
-          $.each(events[field], function initKeywords(key, val) {
+          $.each(value, function initKeywords(key, val) {
             var html = '<span class="linked-event-keyword">#' + val + '</span>';
             $('.linked-event-keywords').append(html);
           });
         } else {
-          $('.linked-event-' + field).append(events[field]);
+          $('.linked-event-' + field).append(value);
           $('.linked-event-' + field).closest('.linked-event-field').removeClass('hidden');
         }
       }
-    }
+    });
     if (data.relatedEvents) {
       $('.related-events').append(data.relatedEvents).removeClass('hidden');
       $('.related-events .linked-event.grid-item').css('flex-basis', '100%');
