@@ -1,0 +1,8 @@
+<ul>
+<?php foreach ($this->emails as $email): ?>
+  <?php if (isset($email['name'])): ?>
+  <dt><?=$this->escapeHtml($email['name'])?></dt>
+  <?php endif ?>
+  <dl><a href="mailto:<?=$this->escapeHtmlAttr($email['email'])?>"><?=$this->escapeHtml($email['email'])?></a></dl>
+<?php endforeach ?>
+</li>
