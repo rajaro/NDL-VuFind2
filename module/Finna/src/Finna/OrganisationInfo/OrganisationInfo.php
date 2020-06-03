@@ -841,7 +841,8 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
 
         if (!empty($response['emailAddresses'])) {
             $emails = [];
-            foreach ($response['emailAddresses'] as $address) {
+            $dedupEmails = array_unique($response['emailAddresses'], SORT_REGULAR);
+            foreach ($dedupEmails as $address) {
                 $emails[]
                     = ['name' => $address['name'], 'email' => $address['email']];
             }
