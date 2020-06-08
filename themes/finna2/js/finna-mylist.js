@@ -34,7 +34,7 @@ finna.myList = (function finnaMyList() {
       insertElement(truncateEl, mdeditor);
       var doc = editor.codemirror.getDoc();
       var cursorPos = getEditorCursorPos(editor);
-      doc.setCursor({line: cursorPos.line - 2, ch: '<truncate><summary>'.length})
+      doc.setCursor({line: cursorPos.line - 2, ch: '<truncate><summary>'.length});
     }
   }
 
