@@ -123,8 +123,12 @@ finna.myList = (function finnaMyList() {
     var desc = description;
     var summaryText = '';
     var truncateEl = '';
-    var tempDom = $('<div>').append($($.parseHTML(desc)));
+    var tempDom = '';
     if (trunc && description.indexOf(truncateTag) !== -1) {
+      // Fixes preview bug
+      desc = desc.replace('<p><truncate>', '<truncate>');
+
+      tempDom = $('<div>').append($.parseHTML(desc));
       // Replace <truncate> with <div class="truncate-field"..>
       truncateEl = $(tempDom).find('truncate');
       truncateEl.wrap(truncateDone + '>');
@@ -134,14 +138,15 @@ finna.myList = (function finnaMyList() {
       // Remove <summary> element and add its value to data-label attribute
       if (newTruncate.find(':first-child').is('summary')) {
         summaryText = newTruncate.find(':first-child')[0];
-        if (typeof summaryText.innerHTML !== 'undefined') {
-          newTruncate.attr('data-label', summaryText.innerHTML);
-        }
         newTruncate.find(':first-child')[0].remove();
+      }
+      if (typeof summaryText.innerHTML !== 'undefined') {
+        newTruncate.attr('data-label', summaryText.innerHTML);
       }
       desc = tempDom[0].innerHTML;
     } else if (desc.indexOf(truncateDone) !== -1) {
-      // Replace <div class="truncate-field"..> with <truncate> tag
+      tempDom = $('<div>').append($.parseHTML(desc));
+      // Replace <div class="truncate-field"..> with <truncate> tag and create summary element
       truncateEl = $(tempDom).find('.truncate-field');
       summaryText = truncateEl.attr('data-label');
       if (typeof summaryText === 'undefined') {
