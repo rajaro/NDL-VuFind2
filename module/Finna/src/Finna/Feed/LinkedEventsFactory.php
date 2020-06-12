@@ -1,11 +1,10 @@
 <?php
 /**
- * Feed factory.
+ * LinkedEvents factory.
  *
  * PHP version 7
  *
- * Copyright (C) Villanova University 2019.
- * Copyright (C) The National Library of Finland 2019.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -32,7 +31,7 @@ use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
- * Feed factory.
+ * LinkedEvents factory.
  *
  * @category VuFind
  * @package  Service
@@ -67,7 +66,7 @@ class LinkedEventsFactory implements FactoryInterface
             $config->get('OrganisationInfo'),
             $container->get(\VuFind\Date\Converter::class),
             $container->get('ControllerPluginManager')->get('url'),
-            $container->get('ViewRenderer')
+            $container->get('ViewRenderer')->plugin('cleanHtml')
         );
     }
 }

@@ -4,10 +4,10 @@
   <?php foreach ($this->events as $event): ?>
     <?php if (isset($this->limit) && $i++ === $this->limit): break; endif; ?>
     <div class="linked-event grid-item">
-    <?php if (isset($event['link'])): ?><a class="grid-link" href="<?= $event['link'] ?>"><?php endif; ?>
+    <?php if (isset($event['link'])): ?><a class="grid-link" href="<?= $this->escapeHtmlAttr($event['link']) ?>"><?php endif; ?>
       <span class="linked-events-image grid-image <?= !empty($event['imageurl']) ? '' : 'no-image' ?>">
         <?php if (!empty($event['imageurl'])): ?>
-          <img src=<?= $event['imageurl'] ?>>
+          <img src=<?= $this->escapeHtmlAttr($event['imageurl']) ?>>
         <?php else: ?>
           <i class="fa fa-calendar-o image-placeholder"></i>
         <?php endif; ?>

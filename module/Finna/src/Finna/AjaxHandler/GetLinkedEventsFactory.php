@@ -1,10 +1,10 @@
 <?php
 /**
- * Factory for GetFeed AJAX handler.
+ * Factory for LinkedEvents AJAX handler.
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2018.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -30,7 +30,7 @@ namespace Finna\AjaxHandler;
 use Interop\Container\ContainerInterface;
 
 /**
- * Factory for GetFeed AJAX handler.
+ * Factory for GetLinkedEvents AJAX handler.
  *
  * @category VuFind
  * @package  AJAX

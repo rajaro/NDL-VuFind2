@@ -1,10 +1,10 @@
 <?php
 /**
- * Feed service
+ * Linked events service
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2016-2019.
+ * Copyright (C) The National Library of Finland 2016-2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -28,7 +28,7 @@
 namespace Finna\Feed;
 
 /**
- * Feed service
+ * Linked events service
  *
  * @category VuFind
  * @package  Content
@@ -36,7 +36,9 @@ namespace Finna\Feed;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
+class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
+    \VuFind\I18n\Translator\TranslatorAwareInterface,
+    \Zend\Log\LoggerAwareInterface
 {
     use \VuFindHttp\HttpServiceAwareTrait;
     use \VuFind\Log\LoggerAwareTrait;
@@ -51,6 +53,8 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
 
     /**
      * Publisher ID
+     *
+     * @var string
      */
     protected $publisherId = '';
 
@@ -85,19 +89,21 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface
     /**
      * Constructor
      *
-     * @param \Zend\Config\Config             $config        OrganisationInfo config
-     * @param \VuFind\Date\Converter          $dateConverter Date converter
-     * @param Url                             $url           Url helper
-     * @param \Zend\View\Renderer\PhpRenderer $viewRenderer  View Renderer
+     * @param \Zend\Config\Config    $config        OrganisationInfo config
+     * @param \VuFind\Date\Converter $dateConverter Date converter
+     * @param Url                    $url           Url helper
+     * @param CleanHtml              $cleanHtml     cleanHtml helper
      */
-    public function __construct($config, $dateConverter, $url, $viewRenderer)
-    {
+    public function __construct(
+        Config $config, Converter $dateConverter, Url $url,
+        CleanHtml $cleanHtml
+    ) {
         $this->apiUrl = $config->LinkedEvents->api_url ?? '';
         $this->publisherId = $config->LinkedEvents->publisher_id ?? '';
         $this->language = $config->General->language ?? '';
         $this->dateConverter = $dateConverter;
         $this->url = $url;
-        $this->cleanHtml = $viewRenderer->plugin('cleanHtml');
+        $this->cleanHtml = $cleanHtml;
     }
 
     /**

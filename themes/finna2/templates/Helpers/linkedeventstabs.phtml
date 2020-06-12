@@ -1,15 +1,15 @@
 <!-- START of: finna - Helpers/linkedeventstabs.phtml -->
-<div class="linked-events-tabs-container" id="<?= $this->id ?>" data-limit="<?= $this->limit ?>">
+<div class="linked-events-tabs-container" id="<?= $this->id ?>" data-limit="<?= $this->escapeHtmlAttr($this->limit) ?>">
   <div class="events-tabs feed-tabs-container feed-tabs">
     <h2><?= $this->transEsc('Events'); ?></h2>
     <ul class="nav nav-tabs" role="tablist">
       <?php foreach ($this->tabs as $id => $tab): ?>
         <?php $isActive = $this->active === $tab['title'] ?>
-        <li class="nav-item event-tab feed-tab <?= $isActive ? 'active' : ''; ?>" id="<?=$tab['title']?>"
+        <li class="nav-item event-tab feed-tab <?= $isActive ? 'active' : ''; ?>" id="<?=$this->escapeHtmlAttr($tab['title'])?>"
           tabindex="0"
           aria-selected="<?= $isActive ? 'true' : 'false'; ?>"
           data-params="<?= isset($tab['params']) ? $this->escapeHtmlAttr(json_encode($tab['params'])) : ''?>"
-          aria-label="<?= $tab['title']; ?>"
+          aria-label="<?= $this->escapeHtmlAttr($tab['title']); ?>"
           ><?= $tab['title'] ?></li>
       <?php endforeach; ?>
     </ul>
@@ -27,7 +27,7 @@
       ?>
       <div class="<?=$this->escapeHtmlAttr(implode(' ', $classes))?>"
            data-params="<?= isset($tab['params']) ? $this->escapeHtmlAttr(json_encode($tab['params'])) : ''?>"
-           data-title="<?=$tab['title']?>"
+           data-title="<?=$this->escapeHtmlAttr($tab['title'])?>"
            role="tab"
            tabindex="0"
            aria-selected="<?= $isActive ? 'true' : 'false' ?>">
@@ -57,15 +57,15 @@
   </div>
   <div class="linked-events-buttons">
     <button class="btn btn-outline-primary linked-events-next"><?= ucfirst($this->transEsc('more')) ?></button>
-    <a class="btn btn-outline-primary events-more-link <?= $this->allEventsLink ? '' : 'hidden' ?>" href="<?= $this->allEventsLink; ?>"><?= ucfirst($this->transEsc('see all')) ?></a>
+    <a class="btn btn-outline-primary events-more-link <?= $this->allEventsLink ? '' : 'hidden' ?>" href="<?= $this->escapeHtmlAttr($this->allEventsLink); ?>"><?= ucfirst($this->transEsc('see all')) ?></a>
   </div>
 </div>
 <?php
-$this->headScript()->appendFile("finna-linked-events.js");
 $this->jsTranslations()->addStrings(
   [
     'nohit_heading' => 'nohit_heading',
-  ]);
+  ]
+);
 $translations = $this->jsTranslations()->getJSON();
 $js = <<<JS
 $(document).ready(function(){

@@ -1,10 +1,10 @@
 <?php
 /**
- * GetFeed AJAX handler
+ * GetLinkedEvents AJAX handler
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2015-2018.
+ * Copyright (C) The National Library of Finland 2015-2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -62,8 +62,9 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
      * @param LinkedEvents $linkedEvents linkedEvents service
      * @param ViewRenderer $viewRenderer view renderer
      */
-    public function __construct($linkedEvents, $viewRenderer)
-    {
+    public function __construct(
+        LinkedEvents $linkedEvents, ViewRenderer $viewRenderer
+    ) {
         $this->linkedEvents = $linkedEvents;
         $this->viewRenderer = $viewRenderer;
     }
