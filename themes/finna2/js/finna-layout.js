@@ -113,8 +113,10 @@ finna.layout = (function finnaLayout() {
       // truncate only if there's more than one line to hide
       if (self.height() > (truncation[index] + rowHeight[index] + 1)) {
         self.css('height', truncation[index] - 1 + 'px');
-        self.before('<button type="button" class="less-link-top">' + VuFind.translate('show_less') + ' <i class="fa fa-arrow-up" aria-hidden="true"></i></button>');
-        self.after('<button type="button" class="more-link">' + VuFind.translate('show_more') + ' <i class="fa fa-arrow-down" aria-hidden="true"></i></button><button type="button" class="less-link">' + VuFind.translate('show_less') + ' <i class="fa fa-arrow-up" aria-hidden="true"></i></button>');
+        var moreLabel = self.data('label') ? self.data('label') : VuFind.translate('show_more');
+        var lessLabel = self.data('label') ? self.data('label') : VuFind.translate('show_less');
+        self.before('<button type="button" class="less-link-top">' + lessLabel + ' <i class="fa fa-arrow-up" aria-hidden="true"></i></button>');
+        self.after('<button type="button" class="more-link">' + moreLabel + ' <i class="fa fa-arrow-down" aria-hidden="true"></i></button><button type="button" class="less-link">' + lessLabel + ' <i class="fa fa-arrow-up" aria-hidden="true"></i></button>');
         $('.less-link-top').hide();
         $('.less-link').hide();
 
@@ -170,7 +172,7 @@ finna.layout = (function finnaLayout() {
             $('.content-navigation-menu').css({'bottom': $('footer').height() + 20 + 'px', 'top': 'auto'});
           }
           else {
-            $('.content-navigation-menu').css({'bottom': 'auto', 'top': '0px'});
+            $('.content-navigation-menu').css({'bottom': 'auto'});
           }
         }
         else {
@@ -361,17 +363,25 @@ finna.layout = (function finnaLayout() {
 
   function initToolTips(_holder) {
     var holder = typeof _holder === 'undefined' ? $(document) : _holder;
+    // show hover tooltips on grid image notes
+    if (window.matchMedia("(min-width: 768px)").matches) {
+      holder.find('.grid-image .note-button').tooltip();
+      holder.find('.grid-image .note-button').click(function clickHideTooltip() {
+        $("[data-toggle='tooltip']").tooltip('hide');
+      });
+    }
+    // other tooltips
     holder.find('[data-toggle="tooltip"]')
-      .on('show.bs.tooltip', function() {
+      .on('show.bs.tooltip', function onShowTooltip() {
         var self = $(this);
-        $(currentOpenTooltips).each(function() {
+        $(currentOpenTooltips).each(function hideOtherTooltips() {
           if ($(this)[0] !== self[0]) {
             $(this).tooltip('hide');
           }
         });
         currentOpenTooltips = [self];
       })
-      .on('hidden.bs.tooltip', function (e) {
+      .on('hidden.bs.tooltip', function onHideTooltip(e) {
         $(e.target).data('bs.tooltip').inState.click = false;
       })
       .tooltip({trigger: 'click', viewport: '.container'});

@@ -340,7 +340,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                 }
             }
         }
-        if ($amount > ($paymentConfig['minimumFee'] ?? 0)) {
+        if ($amount >= ($paymentConfig['minimumFee'] ?? 0)) {
             return [
                 'payable' => true,
                 'amount' => $amount
@@ -1662,7 +1662,9 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
      */
     public function getCancelHoldDetails($holdDetails)
     {
-        return empty($holdDetails['available']) ? $holdDetails['id'] : '';
+        return (empty($holdDetails['available'])
+            || !empty($this->config['Holds']['allowCancelingAvailableRequests']))
+            ? $holdDetails['id'] : '';
     }
 
     /**
@@ -1715,20 +1717,37 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     $itemsResult,
                     $id,
                     $patron,
+                    true,
                     true
                 );
 
                 $result = [
                     'holdings' => $items['items'],
-                    'total' => $totalItems
+                    'total' => $items['total'],
+                ];
+
+                // Add summary
+                $externalInterfaceUrl = str_replace(
+                    '%%id%%',
+                    $id,
+                    $this->config['Holdings']['externalInterfaceUrl'] ?? ''
+                );
+                $summary = [
+                    'available' => $items['available'],
+                    'total' => $items['total'],
+                    'availability' => null,
+                    'callnumber' => null,
+                    'location' => '__HOLDINGSSUMMARYLOCATION__',
+                    'externalInterfaceUrl' => $externalInterfaceUrl,
                 ];
 
                 if ($displayRequests) {
                     $bib = $this->makeRequest(
                         '/bibs/' . urlencode($id) . '?expand=requests'
                     );
-                    $result['reservations'] = (int)$bib->requests ?? 0;
+                    $summary['reservations'] = (int)$bib->requests ?? 0;
                 }
+                $result['holdings'][] = $summary;
 
                 return $result;
             }
@@ -2076,15 +2095,17 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
     /**
      * Get items as holdings entries
      *
-     * @param \SimpleXMLElement $itemsResult Items from Alma
-     * @param string            $id          Record id
-     * @param array             $patron      Patron
-     * @param bool              $sortItems   Whether to sort the items
+     * @param \SimpleXMLElement $itemsResult         Items from Alma
+     * @param string            $id                  Record id
+     * @param array             $patron              Patron
+     * @param bool              $sortItems           Whether to sort the items
+     * @param bool              $addItemlessHoldings Whether to include holdings that
+     * don't have items
      *
      * @return array
      */
     protected function getHoldingsItems($itemsResult, $id, $patron = null,
-        $sortItems = false
+        $sortItems = false, $addItemlessHoldings = false
     ) {
         // For checking for suppressed holdings. This is a bit complicated,
         // but the holding information in items is missing this crucial bit.
@@ -2097,6 +2118,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
         $sort = 0;
         $items = [];
         $totalItems = 0;
+        $availableItems = 0;
         $itemHolds = $this->config['Holds']['enableItemHolds'] ?? null;
         if ($itemsResult) {
             $totalItems = (int)$itemsResult->attributes()->total_record_count;
@@ -2150,11 +2172,15 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                         $addLink = false;
                     }
                 }
+                $available = $this->getAvailabilityFromItem($item);
+                if ($available) {
+                    ++$availableItems;
+                }
 
                 $items[] = [
                     'id' => $id,
                     'source' => 'Solr',
-                    'availability' => $this->getAvailabilityFromItem($item),
+                    'availability' => $available,
                     'status' => $status,
                     'location' => $this->getItemLocation($item),
                     'location_code' => (string)$item->item_data->location,
@@ -2177,20 +2203,46 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     'sort' => $sort++
                 ];
             }
-            if ($sortItems) {
-                usort($items, [$this, 'statusSortFunction']);
+        }
+
+        if ($addItemlessHoldings) {
+            $noItemsHoldings = [];
+            foreach ($almaHoldings as $record) {
+                if ('true' === (string)$record->suppress_from_publishing) {
+                    continue;
+                }
+                foreach ($items as $item) {
+                    if ($item['holding_id'] === (string)$record->holding_id) {
+                        continue 2;
+                    }
+                }
+                $noItemsHoldings[] = $record;
             }
 
-            // Return locations to strings
-            foreach ($items as &$item) {
-                $item['location'] = $this->translate($item['location']);
+            foreach ($noItemsHoldings as $record) {
+                $entry = $this->createHoldingEntry($id, $record);
+                $entry['details_ajax'] = $entry['holding_id'];
+                $entry['sort'] = $sort++;
+                $entry['detailsGroupKey'] = $entry['holding_id'] . '||||';
+                $items[] = $entry;
+                ++$totalItems;
             }
-            unset($item);
         }
+
+        if ($sortItems) {
+            usort($items, [$this, 'statusSortFunction']);
+        }
+
+        // Return locations to strings
+        foreach ($items as &$item) {
+            $item['location'] = $this->translate($item['location']);
+        }
+        unset($item);
 
         return [
             'items' => $items,
             'total' => $totalItems,
+            'available' => $availableItems,
         ];
     }
 
@@ -2198,7 +2250,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
      * Create a holding entry
      *
      * @param string $id      Bib ID
-     * @param array  $holding Holding
+     * @param object $holding Holding
      *
      * @return array
      */
@@ -2364,6 +2416,12 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                 ];
                 $sort = 0;
                 if ($record = $marc->next()) {
+                    $externalInterfaceUrl = str_replace(
+                        '%%id%%',
+                        (string)$bib->mms_id,
+                        $this->config['Holdings']['externalInterfaceUrl'] ?? ''
+                    );
+
                     // Physical
                     $physicalItems = $record->getFields('AVA');
                     foreach ($physicalItems as $field) {
@@ -2382,6 +2440,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                         );
                         $item['callnumber'] = $this->getMarcSubfield($field, 'd');
                         $item['sort'] = $sort++;
+                        $item['externalInterfaceUrl'] = $externalInterfaceUrl;
                         $status[] = $item;
                     }
                     // Electronic
@@ -2415,6 +2474,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                             $item['item_notes'] = [$note];
                         }
                         $item['sort'] = $sort++;
+                        $item['externalInterfaceUrl'] = $externalInterfaceUrl;
                         $status[] = $item;
                     }
                     // Digital

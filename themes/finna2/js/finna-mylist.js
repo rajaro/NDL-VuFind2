@@ -6,17 +6,50 @@ finna.myList = (function finnaMyList() {
   var save = false;
   var listUrl = null;
   var refreshLists = null;
-  var truncateField = '<div class="truncate-field" data-rows="1" data-row-height="5" markdown="1">';
-  var truncateTag = '[[more]]';
+  var truncateDone = '<div class="truncate-field" data-rows="1" data-row-height="5" markdown="1"';
+  var truncateTag = '<truncate>';
+  var truncateCloseTag = '</truncate>';
+  function getEditorCursorPos(mdeditor) {
+    var doc = mdeditor.codemirror.getDoc();
+    var cursorPos = doc.getCursor();
+    var position = {
+      line: cursorPos.line,
+      ch: cursorPos.ch
+    };
+    return position;
+  }
+
+  function insertElement(element, mdeditor) {
+    var doc = mdeditor.codemirror.getDoc();
+    doc.replaceRange(element, getEditorCursorPos(mdeditor));
+    mdeditor.codemirror.focus();
+  }
 
   function toggleTruncateField(mdeditor) {
     var value = mdeditor.value();
     if (value.indexOf(truncateTag) !== -1) {
       return;
     } else {
-      var moreTag = '\n' + truncateTag + '\n';
-      insertElement(moreTag, mdeditor);
+      var truncateEl = '\n' + truncateTag + '<summary></summary>\n\n' + truncateCloseTag;
+      insertElement(truncateEl, mdeditor);
+      var doc = editor.codemirror.getDoc();
+      var cursorPos = getEditorCursorPos(editor);
+      doc.setCursor({line: cursorPos.line - 2, ch: '<truncate><summary>'.length});
     }
+  }
+
+  function insertDetails(mdeditor) {
+    var summaryPlaceholder = VuFind.translate('details_summary_placeholder');
+    var detailsElement = '\n<details class="favorite-list-details" markdown="1">' +
+     '<summary markdown="1">' + summaryPlaceholder + '</summary>\n' +
+     VuFind.translate('details_text_placeholder') + '\n' +
+     '</details>';
+
+    insertElement(detailsElement, mdeditor);
+    var doc = editor.codemirror.getDoc();
+    var cursorPos = getEditorCursorPos(editor);
+    var summaryAndPlaceholder = '<summary>' + summaryPlaceholder;
+    doc.setCursor({line: cursorPos.line - 1, ch: summaryAndPlaceholder.length});
   }
 
   var mdeToolbar = [
@@ -42,7 +75,7 @@ finna.myList = (function finnaMyList() {
       className: 'fa fa-pagebreak',
       title: 'Truncate'
     }
-  ]
+  ];
 
   function initDetailsElements() {
     $('.favorite-list-details').click(function onDetailsClick() {
@@ -52,36 +85,6 @@ finna.myList = (function finnaMyList() {
         $(this).attr('open', 'open');
       }
     });
-  }
-
-  function insertElement(element, mdeditor) {
-    var doc = mdeditor.codemirror.getDoc();
-    doc.replaceRange(element, getEditorCursorPos(mdeditor));
-    mdeditor.codemirror.focus();
-  }
-
-  function getEditorCursorPos(mdeditor) {
-    var doc = mdeditor.codemirror.getDoc();
-    var cursorPos = doc.getCursor();
-    var position = {
-      line: cursorPos.line,
-      ch: cursorPos.ch
-    }
-    return position;
-  }
-
-  function insertDetails(mdeditor) {
-    var summaryPlaceholder = VuFind.translate('details_summary_placeholder')
-    var detailsElement = '\n<details class="favorite-list-details">\n' +
-     '<summary>' + summaryPlaceholder + '</summary>' +
-     '<p>' + VuFind.translate('details_text_placeholder') + '</p>\n' + 
-     '</details>';
-
-    insertElement(detailsElement, mdeditor);
-    var doc = editor.codemirror.getDoc();
-    var cursorPos = getEditorCursorPos(editor);
-    var summaryAndPlaceholder = '<summary>' + summaryPlaceholder;
-    doc.setCursor({line: cursorPos.line - 1, ch: summaryAndPlaceholder.length});
   }
 
   // This is duplicated in image-popup.js to avoid dependency
@@ -118,14 +121,41 @@ finna.myList = (function finnaMyList() {
   function handleTruncateField(description, addTruncate) {
     var trunc = typeof addTruncate !== 'undefined' ? addTruncate : true;
     var desc = description;
+    var summaryText = '';
+    var truncateEl = '';
+    var tempDom = '';
     if (trunc && description.indexOf(truncateTag) !== -1) {
-      desc = description.replace(truncateTag, truncateField);
-      desc += '</div>';
-    } else if (description.indexOf(truncateField) !== -1) {
-      // replace <div class="truncate-field"...> with [[more]] and
-      // get rid of the closing tag
-      desc = description.replace(truncateField, truncateTag);
-      desc = desc.substr(0, desc.length - 6);
+      // Fixes preview bug
+      desc = desc.replace('<p><truncate>', '<truncate>');
+
+      tempDom = $('<div>').append($.parseHTML(desc));
+      // Replace <truncate> with <div class="truncate-field"..>
+      truncateEl = $(tempDom).find('truncate');
+      truncateEl.wrap(truncateDone + '>');
+      var newTruncate = tempDom.find('.truncate-field');
+      truncateEl.contents().unwrap();
+
+      // Remove <summary> element and add its value to data-label attribute
+      if (newTruncate.find(':first-child').is('summary')) {
+        summaryText = newTruncate.find(':first-child')[0];
+        newTruncate.find(':first-child')[0].remove();
+      }
+      if (typeof summaryText.innerHTML !== 'undefined') {
+        newTruncate.attr('data-label', summaryText.innerHTML);
+      }
+      desc = tempDom[0].innerHTML;
+    } else if (desc.indexOf(truncateDone) !== -1) {
+      tempDom = $('<div>').append($.parseHTML(desc));
+      // Replace <div class="truncate-field"..> with <truncate> tag and create summary element
+      truncateEl = $(tempDom).find('.truncate-field');
+      summaryText = truncateEl.attr('data-label');
+      if (typeof summaryText === 'undefined') {
+        summaryText = '';
+      }
+      truncateEl.prepend($('<summary>' + summaryText + '</summary>'));
+      truncateEl.wrap("<truncate>");
+      tempDom.find('.truncate-field').children().unwrap();
+      desc = tempDom[0].innerHTML;
     }
     return desc;
   }

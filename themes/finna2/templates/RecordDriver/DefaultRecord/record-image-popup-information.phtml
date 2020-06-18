@@ -163,13 +163,9 @@
   <?php if ($this->resolver('record/record-organisation-menu.phtml')): ?>
     <?=$this->render('record/record-organisation-menu.phtml') ?>
   <?php endif; ?>
-  <?= $this->context($this)->renderInContext('RecordDriver/DefaultRecord/image-rights.phtml', ['rights' => $rights]); ?>
+  <?= $this->context($this)->renderInContext('RecordDriver/DefaultRecord/image-rights.phtml', ['rights' => $rights, 'truncateLicense' => true]); ?>
   <div style="clear: both;"></div>
 </div>
-<?php
-  // NOTE: Piwik js-script must be inserted inside an element (not at the template root).
-  // Otherwise Magnific popup close button gets appended to the script tag which causes a js-error...
-?>
 <?=
 $this->piwik([
   'lightbox' => true, 'record' => $this->driver, 'action' => 'imagePopup',

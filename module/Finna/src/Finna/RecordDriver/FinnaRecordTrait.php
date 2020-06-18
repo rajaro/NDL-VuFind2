@@ -50,6 +50,13 @@ trait FinnaRecordTrait
     protected $preferredLanguage = null;
 
     /**
+     * Search settings
+     *
+     * @var array
+     */
+    protected $datasourceSettings = null;
+
+    /**
      * Get inappropriate comments for this record reported by the given user.
      *
      * @param object $userId Reporter ID
@@ -186,5 +193,94 @@ trait FinnaRecordTrait
     public function allowRecordImageDownload()
     {
         return true;
+    }
+
+    /**
+     * Is authority functionality enabled?
+     *
+     * @param string $type Authority type
+     *
+     * @return bool
+     */
+    public function isAuthorityEnabled($type = '*')
+    {
+        return !empty($this->getAuthoritySource($type));
+    }
+
+    /**
+     * Format authority id by prefixing the given id with authority record source.
+     *
+     * @param string $id   Authority id
+     * @param string $type Authority type (e.g. author)
+     *
+     * @return null|string
+     */
+    public function getAuthorityId($id, $type = '*')
+    {
+        if (!$this->datasourceSettings) {
+            return $id;
+        }
+
+        $recordSource = $this->getDataSource();
+        if (!($authSrc = $this->getAuthoritySource($type))) {
+            return null;
+        }
+
+        $idRegex
+            = $this->datasourceSettings[$recordSource]['authority_id_regex'][$type]
+            ?? $this->datasourceSettings[$recordSource]['authority_id_regex']['*']
+            ?? null;
+
+        if ($idRegex && !preg_match($idRegex, $id)) {
+            return null;
+        }
+        return "$authSrc.$id";
+    }
+
+    /**
+     * Attach datasource settings to the driver.
+     *
+     * @param array $settings Settings
+     *
+     * @return void
+     */
+    public function attachDatasourceSettings($settings)
+    {
+        $this->datasourceSettings = $settings;
+    }
+
+    /**
+     * Get authority record source.
+     *
+     * @param string $type Authority type
+     *
+     * @return string|null
+     */
+    protected function getAuthoritySource($type = '*')
+    {
+        if (!is_callable([$this, 'getDatasource'])) {
+            return null;
+        }
+        $recordSource = $this->getDataSource();
+        return $this->datasourceSettings[$recordSource]['authority'][$type]
+            ?? $this->datasourceSettings[$recordSource]['authority']['*']
+            ?? null;
+    }
+
+    /**
+     * Whether to show record labels for this record.
+     *
+     * @return boolean
+     */
+    public function getRecordLabelsEnabled()
+    {
+        $labelsConfig = $this->mainConfig->RecordLabels->showLabels ?? null;
+        if (!$labelsConfig) {
+            return false;
+        }
+        $backend = $this->getSourceIdentifier();
+        return $labelsConfig[$backend]
+            ?? $labelsConfig['*']
+            ?? false;
     }
 }
