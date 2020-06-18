@@ -32,6 +32,6 @@ $(document).ready(function() {
    finna.linkedEvents.getEventContent("$id");
 });
 JS;
-    echo $this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $setupJS, 'SET');
+    echo $this->inlineScript(\Laminas\View\Helper\HeadScript::SCRIPT, $setupJS, 'SET');
 ?>
 <!-- END of: finna - feedcontent/linked-events.phtml -->

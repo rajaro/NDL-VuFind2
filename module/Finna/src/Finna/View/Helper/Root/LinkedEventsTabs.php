@@ -36,7 +36,7 @@ namespace Finna\View\Helper\Root;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-class LinkedEventsTabs extends \Zend\View\Helper\AbstractHelper
+class LinkedEventsTabs extends \Laminas\View\Helper\AbstractHelper
 {
     /**
      * Returns HTML for the widget.

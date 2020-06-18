@@ -27,7 +27,7 @@
  */
 namespace Finna\AjaxHandler;
 
-use Zend\Mvc\Controller\Plugin\Params;
+use Laminas\Mvc\Controller\Plugin\Params;
 use VuFind\I18n\Translator\TranslatorAwareInterface;
 
 /**
@@ -66,7 +66,7 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
      */
     public function __construct(
         \Finna\Feed\LinkedEvents $linkedEvents,
-        \Zend\View\Renderer\PhpRenderer $viewRenderer
+        \Laminas\View\Renderer\PhpRenderer $viewRenderer
     ) {
         $this->linkedEvents = $linkedEvents;
         $this->viewRenderer = $viewRenderer;

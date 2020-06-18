@@ -37,7 +37,7 @@ namespace Finna\Feed;
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
-    \Zend\Log\LoggerAwareInterface
+    \Laminas\Log\LoggerAwareInterface
 {
     use \VuFindHttp\HttpServiceAwareTrait;
     use \VuFind\Log\LoggerAwareTrait;
@@ -87,14 +87,14 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
     /**
      * Constructor
      *
-     * @param \Zend\Config\Config    $config        OrganisationInfo config
+     * @param \Laminas\Config\Config    $config        OrganisationInfo config
      * @param \VuFind\Date\Converter $dateConverter Date converter
      * @param Url                    $url           Url helper
      * @param CleanHtml              $cleanHtml     cleanHtml helper
      */
     public function __construct(
-        \Zend\Config\Config $config, \VuFind\Date\Converter $dateConverter,
-        \Zend\Mvc\Controller\Plugin\Url $url,
+        \Laminas\Config\Config $config, \VuFind\Date\Converter $dateConverter,
+        \Laminas\Mvc\Controller\Plugin\Url $url,
         \Finna\View\Helper\Root\CleanHtml $cleanHtml
     ) {
         $this->apiUrl = $config->LinkedEvents->api_url ?? '';
