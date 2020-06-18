@@ -22,8 +22,16 @@
         <?php if (isset($event['startTime']) && isset($event['endDate']) && $event['startDate'] === $event['endDate']): ?>
           <p class="event-info"> <i class="fa fa-clock-o"></i> <?= $event['startTime']; ?><?php if (isset($event['endTime'])): ?>&nbsp;&ndash;&nbsp;<?=$event['endTime'];?><?php endif; ?></p>
         <?php endif; ?>
-        <?php if (isset($event['location']) && $event['location']): ?>
-          <p class="event-info"><i class="fa fa-map-marker"></i> <?= $event['location']; ?></p>
+        <?php
+          $location = '';
+          if (isset($event['address']) && !empty($event['address'])) {
+            $location = $event['address'];
+          } else if (isset($event['location-info']) && !empty($event['location-info'])) {
+            $location = $event['location-info'];
+          }
+          if ($location):
+        ?>
+          <p class="event-info"><i class="fa fa-map-marker"></i> <?= $event['location-info']; ?></p>
         <?php endif; ?>
         <?php if (isset($event['short_description'])): ?>
           <p class="event-info"><?= $this->truncate($event['short_description'], 60) ?></p>

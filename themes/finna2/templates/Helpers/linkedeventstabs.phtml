@@ -1,11 +1,14 @@
 <!-- START of: finna - Helpers/linkedeventstabs.phtml -->
-<div class="linked-events-tabs-container" id="<?= $this->id ?>" data-limit="<?= $this->escapeHtmlAttr($this->limit) ?>">
+<div class="linked-events-tabs-container" id="<?= $this->escapeHtmlAttr($this->id) ?>" data-limit="<?= $this->escapeHtmlAttr($this->limit) ?>" data-lang="<?= $this->layout()->userLang; ?>">
   <div class="events-tabs feed-tabs-container feed-tabs">
     <h2><?= $this->transEsc('Events'); ?></h2>
     <ul class="nav nav-tabs" role="tablist">
-      <?php foreach ($this->tabs as $id => $tab): ?>
-        <?php $isActive = $this->active === $tab['title'] ?>
-        <li class="nav-item event-tab feed-tab <?= $isActive ? 'active' : ''; ?>" id="<?=$this->escapeHtmlAttr($tab['title'])?>"
+      <?php $i = 0; foreach ($this->tabs as $id => $tab): ?>
+        <?php
+          $tabId = $this->id . '-' . $i++;
+          $isActive = $this->active === $tab['title'];
+        ?>
+        <li class="nav-item event-tab feed-tab <?= $isActive ? 'active' : ''; ?>" id="<?=$this->escapeHtmlAttr($tabId)?>"
           tabindex="0"
           aria-selected="<?= $isActive ? 'true' : 'false'; ?>"
           data-params="<?= isset($tab['params']) ? $this->escapeHtmlAttr(json_encode($tab['params'])) : ''?>"
@@ -19,15 +22,12 @@
     <h2 class="feed-accordions-title event-accordions-title"><?= $this->transEsc('Events'); ?></h2>
     <?php $i = 0; foreach ($this->tabs as $id => $tab): ?>
       <?php
-        $classes = ['accordion', 'accordion-' . $tab['title']];
+        $tabId = $this->id . '-' . $i++;
         $isActive = 0 === strcasecmp($this->active, $tab['title']);
-        if ($isActive) {
-          $classes[] = 'active initial-active';
-        }
       ?>
-      <div class="<?=$this->escapeHtmlAttr(implode(' ', $classes))?>"
+      <div class="accordion <?= $isActive ? 'active initial-active' : '' ?>"
            data-params="<?= isset($tab['params']) ? $this->escapeHtmlAttr(json_encode($tab['params'])) : ''?>"
-           data-title="<?=$this->escapeHtmlAttr($tab['title'])?>"
+           data-id="<?=$this->escapeHtmlAttr($tabId)?>"
            role="tab"
            tabindex="0"
            aria-selected="<?= $isActive ? 'true' : 'false' ?>">
@@ -42,7 +42,7 @@
       <span class="event-search-container">
         <input class="event-text-search" type="text" placeholder="<?= $this->transEsc('event_name_or_place') ?>" size="26">
       </span>
-      <span class="event-date-container" data-lang="<?= $this->layout()->userLang; ?>">
+      <span class="event-date-container">
         <span class="event-date-title"><?= $this->transEsc('Time Period'); ?>:</span>
         <input class="event-date-start event-datepicker"> &ndash; <input class="event-date-end event-datepicker">
       </span>

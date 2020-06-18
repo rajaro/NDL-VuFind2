@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2015-2020.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -28,6 +28,7 @@
 namespace Finna\AjaxHandler;
 
 use Zend\Mvc\Controller\Plugin\Params;
+use VuFind\I18n\Translator\TranslatorAwareInterface;
 
 /**
  * GetLinkedEvents AJAX handler
@@ -39,8 +40,9 @@ use Zend\Mvc\Controller\Plugin\Params;
  * @link     https://vufind.org/wiki/development Wiki
  */
 class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
+    implements TranslatorAwareInterface
 {
-    use \VuFindHttp\HttpServiceAwareTrait;
+    use \VuFind\I18n\Translator\TranslatorAwareTrait;
 
     /**
      * Linked Events
@@ -63,7 +65,8 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
      * @param ViewRenderer $viewRenderer view renderer
      */
     public function __construct(
-        LinkedEvents $linkedEvents, ViewRenderer $viewRenderer
+        \Finna\Feed\LinkedEvents $linkedEvents,
+        \Zend\View\Renderer\PhpRenderer $viewRenderer
     ) {
         $this->linkedEvents = $linkedEvents;
         $this->viewRenderer = $viewRenderer;
@@ -84,7 +87,10 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
         try {
             $events = $this->linkedEvents->getEvents($param);
         } catch (\Exception $e) {
-            return $this->formatResponse($e->getMessage());
+            return $this->formatResponse(
+                $this->translate('An error has occurred'),
+                self::STATUS_HTTP_ERROR
+            );
         }
         $response = false;
         if (!empty($events)) {

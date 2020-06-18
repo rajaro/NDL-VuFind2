@@ -1,5 +1,5 @@
 <!-- START of: finna - feedcontent/linked-events.phtml -->
-<div class="linked-event-content">
+<div class="linked-event-content" data-lang="<?= $this->layout()->userLang; ?>">
    <div class="linked-events-left-col">
       <h2 class="linked-event-name"></h2>
       <span class="linked-event-info">
@@ -26,7 +26,6 @@
    </div>
 </div>
 <?php
-  $this->headScript()->appendFile('finna-linked-events.js');
   $id = $this->event['id'];
   $setupJS = <<<JS
 $(document).ready(function() {

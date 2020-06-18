@@ -2,7 +2,13 @@
 finna.linkedEvents = (function finnaLinkedEvents() {
   function getEvents(params, callback, append, container) {
     var limit = {'page_size': container.data('limit')};
-    params.query = $.extend(params.query, limit);
+    var lang = {};
+    if ($('.linked-events-tabs-container').data('lang')) {
+      lang = {'language': $('.linked-events-tabs-container').data('lang')}
+    } else if ($('.linked-event-content').data('lang')) {
+      lang = {'language': $('.linked-event-content').data('lang')}
+    }
+    params.query = $.extend(params.query, limit, lang);
     var spinner = $('<i>').addClass('fa fa-spinner fa-spin');
     if (append) {
       container.find($('.linked-events-content')).append(spinner);
@@ -19,18 +25,17 @@ finna.linkedEvents = (function finnaLinkedEvents() {
         if (response.data) {
           callback(response.data, append, container);
         } else {
-          var err = '<div class="linked-events-noresults infobox">' + VuFind.translate('nohit_heading') + '</div>';
+          var err = $('<div></div>').attr('class', 'linked-events-noresults infobox').text(VuFind.translate('nohit_heading'));
           container.find($('.linked-events-content')).html(err);
           container.find($('.linked-events-next')).addClass('hidden');
         }
         spinner.remove();
       })
       .fail(function getEventsFail(response/*, textStatus, err*/) {
-        var err = '<!-- Events could not be loaded';
+        var err = '';
         if (typeof response.responseJSON !== 'undefined') {
-          err += ': ' + response.responseJSON.data;
+          err = $('<div></div>').attr('class', 'alert alert-danger').text(response.responseJSON.data);
         }
-        err += ' -->';
         $('.linked-events-content').html(err);
       });
   }
@@ -126,48 +131,46 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     return true;
   }
 
-  function initAccordions() {
-    function toggleAccordion(container, accordion) {
-      var tabContent = container.find('.linked-events-content').detach();
-      var searchTools = container.find('.events-searchtools-container').detach();
-      var moreButtons = container.find('.linked-events-buttons').detach();
-      var toggleSearch = container.find('.events-searchtools-toggle').detach();
-      var loadContent = false;
-      var accordions = container.find('.event-accordions');
-      if (!accordion.hasClass('active') || accordion.hasClass('initial-active')) {
-        accordions.find('.accordion.active')
-          .removeClass('active')
-          .attr('aria-selected', false);
+  function toggleAccordion(container, accordion) {
+    var tabContent = container.find('.linked-events-content').detach();
+    var searchTools = container.find('.events-searchtools-container').detach();
+    var moreButtons = container.find('.linked-events-buttons').detach();
+    var toggleSearch = container.find('.events-searchtools-toggle').detach();
+    var loadContent = false;
+    var accordions = container.find('.event-accordions');
+    if (!accordion.hasClass('active') || accordion.hasClass('initial-active')) {
+      accordions.find('.accordion')
+        .removeClass('active')
+        .attr('aria-selected', false);
 
-        container.find('.event-tab.active')
-          .removeClass('active')
-          .attr('aria-selected', false);
+      container.find('.event-tab.active')
+        .removeClass('active')
+        .attr('aria-selected', false);
 
-        accordions.toggleClass('all-closed', false);
+      accordion
+        .addClass('active')
+        .attr('aria-selected', true);
 
-        accordion
-          .addClass('active')
-          .attr('aria-selected', true);
+      container.find('.event-tab[id="' + accordion.data('id') + '"]')
+        .addClass('active')
+        .attr('aria-selected', true);
 
-        container.find('.event-tab[id="' + accordion.data('title') + '"]')
-          .addClass('active')
-          .attr('aria-selected', true);
-
-        loadContent = true;
-      }
-      moreButtons.insertAfter(accordion);
-      tabContent.insertAfter(accordion);
-      searchTools.insertAfter(accordion);
-      toggleSearch.insertAfter(accordion);
-      accordion.removeClass('initial-active');
-
-      return loadContent;
+      loadContent = true;
     }
-    $('.event-accordions .accordion').click(function accordionClicked(/*e*/) {
+    moreButtons.insertAfter(accordion);
+    tabContent.insertAfter(accordion);
+    searchTools.insertAfter(accordion);
+    toggleSearch.insertAfter(accordion);
+    accordion.removeClass('initial-active');
+
+    return loadContent;
+  }
+
+  function initAccordions(container) {
+    container.find($('.event-accordions .accordion')).click(function accordionClicked(/*e*/) {
       var accordion = $(this);
       var tabParams = {};
       tabParams.query = accordion.data('params');
-      var container = accordion.closest('.linked-events-tabs-container');
       var tabs = accordion.closest('.event-tabs');
       tabs.find('.event-tab').removeClass('active');
       if (toggleAccordion(container, accordion)) {
@@ -177,6 +180,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     }).keyup(function onKeyUp(e) {
       return keyHandler(e);
     });
+    container.find('.accordion.active').click();
   }
 
   function initEventsTabs(id) {
@@ -193,7 +197,10 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       params.query = $(this).data('params');
       container.find($('li.nav-item.event-tab')).removeClass('active').attr('aria-selected', 'false');
       $(this).addClass('active').attr('aria-selected', 'true');
-      container.find('.accordion[data-title="' + $(this).id + '"]').addClass('active');
+      var accordion = container.find('.accordion[data-id="' + $(this).attr('id') + '"');
+      container.find('.accordion').removeClass('active');
+      accordion.addClass('active');
+      toggleAccordion(container, accordion);
       getEvents(params, handleMultipleEvents, false, container);
     }).keyup(function onKeyUp(e) {
       return keyHandler(e);
@@ -211,7 +218,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
         }
       });
     }
-    var datepickerLang = container.find('.event-date-container').data('lang');
+    var datepickerLang = container.data('lang');
     $('.event-datepicker').datepicker({
       'language': datepickerLang,
       'format': 'dd.mm.yyyy',
@@ -237,7 +244,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
         getEvents(newParams, handleMultipleEvents, false, container);
       });
     }
-    initAccordions();
+    initAccordions(container);
   }
 
   var my = {

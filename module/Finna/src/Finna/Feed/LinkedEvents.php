@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2016-2020.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -37,12 +37,10 @@ namespace Finna\Feed;
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
-    \VuFind\I18n\Translator\TranslatorAwareInterface,
     \Zend\Log\LoggerAwareInterface
 {
     use \VuFindHttp\HttpServiceAwareTrait;
     use \VuFind\Log\LoggerAwareTrait;
-    use \VuFind\I18n\Translator\TranslatorAwareTrait;
 
     /**
      * Api url
@@ -95,8 +93,9 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
      * @param CleanHtml              $cleanHtml     cleanHtml helper
      */
     public function __construct(
-        Config $config, Converter $dateConverter, Url $url,
-        CleanHtml $cleanHtml
+        \Zend\Config\Config $config, \VuFind\Date\Converter $dateConverter,
+        \Zend\Mvc\Controller\Plugin\Url $url,
+        \Finna\View\Helper\Root\CleanHtml $cleanHtml
     ) {
         $this->apiUrl = $config->LinkedEvents->api_url ?? '';
         $this->publisherId = $config->LinkedEvents->publisher_id ?? '';
@@ -140,6 +139,11 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
                     'd-m-Y', 'Y-m-d', $paramArray['end']
                 );
             }
+            if (isset($paramArray['language'])) {
+                $map = ['en-gb' => 'en'];
+                $this->language
+                    = $map[$paramArray['language']] ?? $paramArray['language'];
+            }
 
             $url = $this->apiUrl . 'event/';
             if (!empty($paramArray['id'])) {
@@ -149,15 +153,15 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
                 $url .= '?'
                 . 'publisher=' . $this->publisherId . '&'
                 . http_build_query($paramArray)
-                . '&sort=start_time';
+                . '&sort=start_time'
+                . '&include=location';
             }
         }
         $client = $this->httpService->createClient($url);
         $result = $client->send();
         if (!$result->isSuccess()) {
-            return $this->logError(
-                'API request failed, url: ' . $url
-            );
+            $this->logError('LinkedEvents API request failed, url: ' . $url);
+            return false;
         }
 
         $response = json_decode($result->getBody(), true);
@@ -271,23 +275,11 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
             return $keywords;
         }
         if (is_array($data)) {
-            $data = $data[$this->getLanguage()] ?? $data['fi'] ?? '';
+            $data = !empty($data[$this->language])
+                ? $data[$this->language]
+                : $data['fi'];
         }
         return $data;
-    }
-
-    /**
-     * Get language
-     *
-     * @return string
-     */
-    public function getLanguage()
-    {
-        if ($this->language === null) {
-            $this->language = $this->translator->getLocale();
-        }
-
-        return $this->language;
     }
 
     /**
