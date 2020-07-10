@@ -4,9 +4,9 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     var limit = {'page_size': container.data('limit')};
     var lang = {};
     if ($('.linked-events-tabs-container').data('lang')) {
-      lang = {'language': $('.linked-events-tabs-container').data('lang')}
+      lang = {'language': $('.linked-events-tabs-container').data('lang')};
     } else if ($('.linked-event-content').data('lang')) {
-      lang = {'language': $('.linked-event-content').data('lang')}
+      lang = {'language': $('.linked-event-content').data('lang')};
     }
     params.query = $.extend(params.query, limit, lang);
     var spinner = $('<i>').addClass('fa fa-spinner fa-spin');
