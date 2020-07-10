@@ -87,7 +87,7 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
     /**
      * Constructor
      *
-     * @param \Laminas\Config\Config    $config        OrganisationInfo config
+     * @param \Laminas\Config\Config $config        OrganisationInfo config
      * @param \VuFind\Date\Converter $dateConverter Date converter
      * @param Url                    $url           Url helper
      * @param CleanHtml              $cleanHtml     cleanHtml helper

@@ -26,7 +26,7 @@
           $location = '';
           if (isset($event['address']) && !empty($event['address'])) {
             $location = $event['address'];
-          } else if (isset($event['location-info']) && !empty($event['location-info'])) {
+          } elseif (isset($event['location-info']) && !empty($event['location-info'])) {
             $location = $event['location-info'];
           }
           if ($location):
