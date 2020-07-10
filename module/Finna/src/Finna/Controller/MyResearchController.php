@@ -32,6 +32,10 @@
  */
 namespace Finna\Controller;
 
+use VuFind\Exception\Forbidden as ForbiddenException;
+use VuFind\Exception\ILS as ILSException;
+use VuFind\Exception\ListPermission as ListPermissionException;
+
 /**
  * Controller for the user account area.
  *
@@ -82,6 +86,22 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         $result->requestedAction = $requestedAction;
 
         return $result;
+    }
+
+    /**
+     * Login Action
+     *
+     * @return mixed
+     */
+    public function loginAction()
+    {
+        $view = parent::loginAction();
+        if ($view instanceof \Laminas\View\Model\ViewModel) {
+            if ($defaultTarget = $this->params()->fromQuery('target')) {
+                $view->defaultTarget = $defaultTarget;
+            }
+        }
+        return $view;
     }
 
     /**
@@ -189,7 +209,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                     $bDate = isset($b['duedate'])
                         ? $date->convertFromDisplayDate('U', $b['duedate'])
                         : 0;
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     return 0;
                 }
 
@@ -495,7 +515,6 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         }
 
         $view = parent::profileAction();
-        $profile = $view->profile;
         $patron = $this->catalogLogin();
 
         if (is_array($patron) && $this->formWasSubmitted('saveLibraryProfile')) {
@@ -504,7 +523,6 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                     ->addMessage('profile_update');
             }
             $view = parent::profileAction();
-            $profile = $view->profile;
         }
 
         // Check if due date reminder settings should be displayed
