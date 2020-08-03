@@ -3,7 +3,7 @@
   $rights = $this->driver->getAccessRestrictionsType($this->layout()->userLang);
   $descriptions = $this->driver->getDescription();
   $aoeLink = $this->driver->getAoeLink();
-  $materials = $this->driver->getMaterials();
+  $materials = $this->driver->getMaterials($this->layout()->userLang);
   $dateCreated = $this->driver->getDateCreated();
   $dateModified = $this->driver->getDateModified();
   $img = $this->recordImage($this->record($this->driver));
@@ -12,9 +12,7 @@
   $formats = $this->driver->getFormats();
   ob_start(); ?>
   <div class="media-<?=$thumbnailAlignment ?>">
-
-    <?=$this->record($this->driver)->renderTemplate('record-image-information.phtml', ['img' => $img]);?>
-
+    <?=$this->record($this->driver)->renderTemplate('record-image-information.phtml', ['img' => $img, 'displayIcon' => true]);?>
     <?=$this->record($this->driver)->renderTemplate('record-post-thumbnail.phtml');?>
   </div>
   <?php $thumbnail = ob_get_contents(); ?>
@@ -50,13 +48,12 @@
       <?/* Display Main Details */?>
       <?php
         $formatter = $this->recordDataFormatter();
-        $coreFields = $formatter->getData(
-            $driver, $formatter->filterLrmiFields($formatter->getDefaults('core'))
-        );
+        $filteredFields = $formatter->filterLrmiFields($formatter->getDefaults('core'));
+        $coreFields = $formatter->getGroupedData($driver, $formatter->getGroupedFields([], $filteredFields));
       ?>
       <?php if (!empty($coreFields)): ?>
-        <table class="table table-finna-record record-details record-details-more">
-          <?=$this->record($this->driver)->renderTemplate('core-fields.phtml', ['coreFields' => $coreFields]);?>
+        <table class="table table-finna-record record-details record-details-more record-field-groups">
+          <?=$this->record($this->driver)->renderTemplate('core-field-groups.phtml', ['data' => $coreFields]);?>
         </table>
         <button class="btn show-details-button hidden"><?=$this->transEsc('show_more_details');?> <i class="fa fa-arrow-down"></i></button>
         <button class="btn hide-details-button hidden"><?=$this->transEsc('show_less_details');?> <i class="fa fa-arrow-up"></i></button>
@@ -71,7 +68,7 @@
                 <div class="fulltextField">
                   <span><?= $this->escapeHtml($material['title']) ?></span>
                   <?php if ($material['format']): ?>
-                    <span>(.<?=$this->escapeHtml($material['format'])?>)</span>
+                    <span>(<?=$this->escapeHtml($material['format'])?>)</span>
                   <?php endif; ?>
                   <?php if (!empty($material['url'])): ?>
                     <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($material['url'])) ?>" aria-label="<?=$this->escapeHtmlAttr($this->translate('external_online_link'))?>"><b><i class="fa fa-download"></i><?= $this->transEsc('Download') ?></b></a>
