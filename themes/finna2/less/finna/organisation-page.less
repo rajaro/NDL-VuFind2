@@ -129,8 +129,24 @@
         margin-top: -1px;
         margin-bottom: -1px;
     }
-
+    .expand-map, .contract-map {
+        display: inline-block;
+        font-size: 1em;
+        i {
+            margin-left: 20px;
+            margin-right: 0px;
+        }
+        @media(max-width: @screen-xs-max) {
+            margin-left: -3px;
+            font-size: 1em;
+            i {
+                margin-right: 2px;
+            }
+        }
+    }
     .map-control-bar{
+        background-color: @gray-ultralight;
+        margin-bottom: 10px;
         @media (min-width: @screen-sm) {
             display: flex;
             .flex-item {
@@ -140,11 +156,13 @@
     }
     .map-control-buttons {
         margin-top: 5px;
+        margin-bottom: 15px;
         @media (min-width: @screen-sm-min) {
-            margin-top: 25px;
+            margin-top: 15px;
         }
         @media (max-width: @screen-xs-max) {
             margin-bottom: 3px;
+            margin-left: 10px;
         }
         span {
             color: @link-color;
@@ -160,28 +178,25 @@
                 margin-left: 5px;
             }
         }
-        .expand-map, .contract-map {
-            display: inline-block;
-            font-size: 1em;
-            i {
-                margin-left: 20px;
-                margin-right: 0px;
-            }
-            @media(max-width: @screen-xs-max) {
-                margin-left: -3px;
-                font-size: 1em;
-                i {
-                    margin-right: 2px;
-                }
-            }
-        }
-        .show-all {
-            float: left;
+        
+        .show-all, .show-map {
+            font-weight: bold;
+            text-transform: uppercase; 
+            margin-right: 10px;
+            font-size: 0.9em;
             @media(min-width: @screen-sm-min) {
                 margin-left: 15px;
 
                 margin-top: -8px;
 
+            }
+        }
+        .show-map.toggled {
+            a {
+                background-color: @link-color;
+                padding: 3px 5px 3px 5px;
+                color: white;
+                border-radius: 4px;
             }
         }
     }
@@ -272,7 +287,9 @@
             .map-widget {
                 height: 320px;
                 width: 100%;
-                &.expand {
+            }
+            &.expand {
+                .map-widget {
                     height: 600px;
                 }
             }
@@ -318,9 +335,13 @@
                 }
             }
             .marker {
-                margin-top: -200%;
-                margin-left: -50%;
+                // margin-top: -200%;
+                // margin-left: -50%;
                 cursor: pointer;
+            }
+            .map-marker-text, .marker {
+                font-size: 1.5em;
+                padding-right: 5px;
             }
 
             #marker-tooltip {
@@ -379,13 +400,13 @@
 
                 .input-group {
                     width: 100%;
+                    margin-left: 10px;
                 }
 
                 input {
                     background: none;
+                    background-color: white;
                     border-right: none;
-                    border-top-left-radius: 10px;
-                    border-bottom-left-radius: 10px;
                     padding-left: 5px;
                     padding-right: 0px;
                     width: 100%;
@@ -400,10 +421,8 @@
                 }
 
                 .btn-office-search {
-                    border-top-right-radius: 10px;
-                    border-bottom-right-radius: 10px;
                     height: 30px;
-                    padding-top: 0.5em;
+                    padding-top: 0.35em;
                     i {
                         font-size: 1.2em;
                     }
@@ -603,9 +622,8 @@
             }
             .organisation-feeds {
                 @media(min-width: @screen-sm) {
-                    width: 33%;
+                    width: 100%;
                     float: right;
-                    padding-right: 15px;
                 }
             }
             .services {
@@ -614,9 +632,8 @@
                     font-size: 1.5em;
                 }
                 @media(min-width: @screen-sm) {
-                    width: 66%;
+                    width: 100%;
                     display: inline-block;
-                    padding-left: 15px;
                 }
                 .service-list {
                     column-count: 1;
@@ -677,6 +694,7 @@
             }
             .consortium-logo {
                 float: left;
+                width: 40%;
                 img {
                     max-width: 250px;
                     max-height: 150px;
@@ -689,7 +707,71 @@
                 }
             }
             .description {
+                width: 60%;
+                float: right;
                 max-width: 900px;
+                @media (max-width: @screen-xs-max) {
+                    float: none;
+                    width: 100%;
+                }
+            }
+            .organisation-info-panel {
+                background-color: @gray-ultralight;
+                outline: 1px solid @gray-lighter;
+                box-shadow: 1px 1px 1px 1px @gray-lighter;
+            }
+            .organisation-info-panel, #collapse-usage, #collapse-links {
+                width: 60%;
+                float: right;
+                margin-top: 20px;
+                @media (max-width: @screen-xs-max) {
+                    float: none;
+                    width: 100%;
+                }
+            }
+            #collapse-usage, #collapse-links {
+                background-color: @gray-ultralight;
+                margin-top: 2px;
+                outline: 1px solid @gray-lighter;
+                padding: 10px;
+            }
+            .collapse-usage, .collapse-links {
+                display: block;
+                padding: 10px;
+            }
+            .consortium-search-usage {
+                float: right;
+                width: 60%;
+                @media (max-width: @screen-xs-max) {
+                    float: none;
+                    width: 100%;
+                }
+                .gauge-meter {
+                    margin-top: -5px;
+                    float: right;
+                    width: 50%;
+                    #finna-coverage-gauge {
+                        float: left;
+                        @media (min-width: @screen-sm-min) {
+                            margin-left: -20px;
+                        }
+                    }
+                    .gauge-value {
+                        margin-top: 20px;
+                        position: absolute;
+                        margin-left: -52px;
+                        font-weight: bold;
+                    }
+                    .gauge-label {
+                        margin-top: 20px;
+                        position: absolute;
+                    }
+                    @media (max-width: @screen-md-max) {
+                        display: block;
+                        float: none;
+                        margin-top: 20px;
+                    }
+                }
             }
         }
         .consortium-usage-rights {
@@ -740,25 +822,6 @@
                             padding-top: 5px;
                         }
                     }
-                }
-            }
-            .gauge-meter {
-                margin-top: 10px;
-                #finna-coverage-gauge {
-                    float: left;
-                    @media (min-width: @screen-sm-min) {
-                        margin-left: -20px;
-                    }
-                }
-                .gauge-value {
-                    margin-top: 20px;
-                    position: absolute;
-                    margin-left: -52px;
-                    font-weight: bold;
-                }
-                .gauge-label {
-                    margin-top: 20px;
-                    position: absolute;
                 }
             }
             .searchbox-consortium.searchForm {
