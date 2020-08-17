@@ -553,12 +553,19 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
       if (mapHolder.hasClass('hidden')) {
         mapHolder.removeClass('hidden');
         $(this).addClass('toggled');
+        map.resize();
+        map.reset();
+        var id = getOrganisationFromURL();
+        if (id in organisationList) {
+          var data = organisationList[id];
+          if ('address' in data && 'coordinates' in data.address) {
+            map.selectMarker(id);
+          }
+        }
       } else {
         mapHolder.addClass('hidden');
         $(this).removeClass('toggled');
       }
-      map.resize();
-      map.reset();
       return false;
     });
 
