@@ -13,7 +13,7 @@
           aria-selected="<?= $isActive ? 'true' : 'false'; ?>"
           data-params="<?= isset($tab['params']) ? $this->escapeHtmlAttr(json_encode($tab['params'])) : ''?>"
           aria-label="<?= $this->escapeHtmlAttr($tab['title']); ?>"
-          ><?= $tab['title'] ?></li>
+          ><?= $this->escapeHtml($tab['title']) ?></li>
       <?php endforeach; ?>
     </ul>
   </div>

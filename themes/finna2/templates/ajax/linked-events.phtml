@@ -31,7 +31,7 @@
           }
           if ($location):
         ?>
-          <p class="event-info"><i class="fa fa-map-marker"></i> <?= $event['location-info']; ?></p>
+        <p class="event-info"><i class="fa fa-map-marker"></i> <?= $location; ?></p>
         <?php endif; ?>
         <?php if (isset($event['short_description'])): ?>
           <p class="event-info"><?= $this->truncate($event['short_description'], 60) ?></p>

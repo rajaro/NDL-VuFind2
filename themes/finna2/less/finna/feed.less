@@ -599,12 +599,18 @@
 }
 .events-searchtools-container {
     display: block;
+    margin-bottom: 15px;
     @media (max-width: @screen-xs-max) {
         display: none;
     }
     .event-search-container, .event-date-container {
         margin-right: 10px;
         margin-left: 5px;
+    }
+    .event-date-container {
+        @media (max-width: @screen-xs-max) {
+            display: block;
+         }
     }
     input {
         border-radius: 5px;
@@ -621,7 +627,6 @@
     }
     .linked-event-search {
         @media (max-width: @screen-xs-max) {
-            width: 25%;
             margin-top: 10px;
             margin-bottom: 10px;
         }
