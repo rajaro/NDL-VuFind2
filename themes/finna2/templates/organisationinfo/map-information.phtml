@@ -19,10 +19,13 @@
       </form>
       <div class="autocomplete-container"></div>
     </div>
-    <div class="flex-item">
+    <div class="flex-item map-buttons">
       <div class="map-ui map-control-buttons" aria-hidden="true">
         <span class="show-map"><a href="#"><?=$this->translate('organisation_info_page_map_show')?></a></span>
-        <span class="show-all"><a href="#"><?=$this->translate('organisation_info_page_map_show_all')?></a></span>
+        <span class="map-controls hidden">
+          <span class="show-service-point"><a href="#"><?= $this->translate('zoom_center') ?></a>
+          <span class="show-all"><a href="#"><?=$this->translate('organisation_info_page_map_show_all')?></a></span>
+        </span>
       </div>
     </div>
   </div>

@@ -552,6 +552,7 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
       mapHolder = $('.office.map-ui.map');
       if (mapHolder.hasClass('hidden')) {
         mapHolder.removeClass('hidden');
+        holder.find('.map-controls').removeClass('hidden');
         $(this).addClass('toggled');
         map.resize();
         map.reset();
@@ -564,7 +565,19 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
         }
       } else {
         mapHolder.addClass('hidden');
+        holder.find('.map-controls').addClass('hidden');
         $(this).removeClass('toggled');
+      }
+      return false;
+    });
+
+    holder.find('.map-control-buttons .show-service-point').click(function onClickShowServicePoint() {
+      var id = getOrganisationFromURL();
+      if (id in organisationList) {
+        var data = organisationList[id];
+        if ('address' in data && 'coordinates' in data.address) {
+          map.selectMarker(id);
+        }
       }
       return false;
     });

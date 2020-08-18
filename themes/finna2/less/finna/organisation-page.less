@@ -150,13 +150,18 @@
         @media (min-width: @screen-sm) {
             display: flex;
             .flex-item {
-                flex: auto;
+                display: flex;
+                width: 40%;
+                &.map-buttons {
+                    width: 60%;
+                }
             }
         }
     }
     .map-control-buttons {
         margin-top: 5px;
         margin-bottom: 15px;
+        width: 100%;
         @media (min-width: @screen-sm-min) {
             margin-top: 19px;
         }
@@ -164,6 +169,18 @@
             margin-bottom: 3px;
             margin-left: 10px;
             padding-bottom: 10px;
+        }
+        .map-controls {
+            float: right;
+            a {
+                color: @gray;
+                font-weight: 300;
+                text-decoration: underline;
+                margin-right: 5px;
+            }
+            @media (max-width: @screen-md-max) {
+                float: none;
+            }
         }
         span {
             color: @link-color;
@@ -179,8 +196,7 @@
                 margin-left: 5px;
             }
         }
-        
-        .show-all, .show-map {
+        .show-map {
             font-weight: 600;
             text-transform: uppercase; 
             margin-right: 10px;
