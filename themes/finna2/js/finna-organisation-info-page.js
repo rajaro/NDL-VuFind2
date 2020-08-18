@@ -576,6 +576,7 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
       if (id in organisationList) {
         var data = organisationList[id];
         if ('address' in data && 'coordinates' in data.address) {
+          map.reset();
           map.selectMarker(id);
         }
       }
