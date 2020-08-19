@@ -184,6 +184,13 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
                     $link = $this->url->fromRoute('linked-events-content')
                         . '?id=' . $eventData['id'];
 
+                    $providerLink = $this->getField($eventData, 'provider_link');
+                    if ($providerLink
+                        && !preg_match('/^https?:\/\//', $providerLink)
+                    ) {
+                        $providerLink = 'http://' . $providerLink;
+                    }
+
                     $event = [
                         'id' => $eventData['id'],
                         'title' => $this->getField($eventData, 'name'),
@@ -216,8 +223,7 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
                         'price' => $this->getField($eventData, 'offers'),
                         'audience' => $this->getField($eventData, 'audience'),
                         'provider' => $this->getField($eventData, 'provider_name'),
-                        'providerLink' =>
-                            $this->getField($eventData, 'provider_link'),
+                        'providerLink' => $providerLink,
                         'link' => $link,
                         'keywords' => $this->getField($eventData, 'keywords'),
                         'superEvent' => $eventData['super_event'],
