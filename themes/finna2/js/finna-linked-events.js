@@ -80,7 +80,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
                 $('.linked-event-endDate').addClass('hidden');
                 return true;
               }
-              if ((k === 'startTime' || k === 'endTime') && events.xcal.startDate !== events.xcal.endDate) {
+              if ((k === 'startTime' || k === 'endTime') && (events.xcal.endDate && events.xcal.startDate !== events.xcal.endDate)) {
                 return true;
               }
               $('.linked-event-' + k).append(v);
