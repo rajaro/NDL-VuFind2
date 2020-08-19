@@ -19,8 +19,12 @@
     <div class="grid-item <?= isset($this->visualItems) ? ($itemCount++ >= $this->visualItems ? 'hidden truncate' : '') : ''; ?> ">
       <a class="grid-link" <?= $this->htmlElement()->getAttributes($linkElement);?>>
         <?php if (isset($item['image']) && isset($item['image']['url'])): ?>
-          <span class="grid-image">
-            <img src="<?= $item['image']['url']; ?>" alt="" />
+          <span class="grid-image <?= empty($item['image']['url']) ? 'no-image' : ''; ?>">
+            <?php if (!empty($item['image']['url'])): ?>
+              <img src="<?= $item['image']['url']; ?>" alt="" />
+            <?php else: ?>
+              <i class="fa fa-calendar-o image-placeholder"></i>
+            <?php endif; ?>
           </span>
         <?php endif; ?>
         <span class="grid-info">
