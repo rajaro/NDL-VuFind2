@@ -228,10 +228,10 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     if (toggleSearchTools[0]) {
       toggleSearchTools.click(function onToggleSeachTools() {
         if (container.find($('.events-searchtools-toggle')).hasClass('open')) {
-          container.find($('.events-searchtools-container')).hide();
+          container.find($('.events-searchtools-container')).removeClass('open');
           container.find($('.events-searchtools-toggle')).removeClass('open');
         } else {
-          container.find($('.events-searchtools-container')).show();
+          container.find($('.events-searchtools-container')).addClass('open');
           container.find($('.events-searchtools-toggle')).addClass('open');      
         }
       });
