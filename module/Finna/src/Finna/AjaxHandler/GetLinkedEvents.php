@@ -99,8 +99,8 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
                 $html = '';
                 if ($relatedEvents) {
                     $html = $this->viewRenderer->partial(
-                        'ajax/linked-events.phtml',
-                        ['events' => $relatedEvents, 'limit' => 5]
+                        'ajax/feed-grid.phtml',
+                        ['items' => $relatedEvents, 'images' => true]
                     );
                 }
                 $response = [
@@ -109,7 +109,8 @@ class GetLinkedEvents extends \VuFind\AjaxHandler\AbstractBase
                 ];
             } elseif (!empty($events['events'])) {
                 $response['html'] = $this->viewRenderer->partial(
-                    'ajax/linked-events.phtml', ['events' => $events['events']]
+                    'ajax/feed-grid.phtml',
+                    ['items' => $events['events'], 'images' => true]
                 );
                 $response['next'] = $events['next'];
             }

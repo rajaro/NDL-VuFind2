@@ -65,20 +65,30 @@ finna.linkedEvents = (function finnaLinkedEvents() {
         if (field === 'location') {
           initEventMap(value);
         }
-        if (field === 'endDate' && events.startDate === events.endDate) {
-          $('.linked-event-endDate').addClass('hidden');
-          return true;
-        }
-        if ((field === 'startTime' || field === 'endTime') && events.startDate !== events.endDate) {
-          return true;
+        if (field === 'xcal') {
+          $.each(value, function initXcal(k, v) {
+            if (v) {
+              if (k === 'endDate' && events.xcal.startDate === events.xcal.endDate) {
+                $('.linked-event-endDate').addClass('hidden');
+                return true;
+              }
+              if ((k === 'startTime' || k === 'endTime') && events.xcal.startDate !== events.xcal.endDate) {
+                return true;
+              }
+              $('.linked-event-' + k).append(v);
+              $('.linked-event-' + k).closest('.linked-event-field').removeClass('hidden');
+              $('.linked-event-' + k).removeClass('hidden');
+              return true;
+            }
+          });
         }
         if (field === 'providerLink') {
           $('.linked-event-providerLink').attr('href', value);
           $('.linked-event-' + field).closest('.linked-event-field').removeClass('hidden');
           return true;
         }
-        if (field === 'imageurl') {
-          $('.linked-event-image').attr('src', value);
+        if (field === 'image') {
+          $('.linked-event-image').attr('src', value.url);
         } if (field === 'keywords') {
           $.each(value, function initKeywords(key, val) {
             var html = '<span class="linked-event-keyword">#' + val + '</span>';
@@ -92,7 +102,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     });
     if (data.relatedEvents) {
       $('.related-events').append(data.relatedEvents).removeClass('hidden');
-      $('.related-events .linked-event.grid-item').css('flex-basis', '100%');
+      $('.related-events .grid-item').css('flex-basis', '100%');
     }
   };
 
@@ -227,7 +237,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     });
 
     if (container.find($('.events-searchtools-container'))[0]) {
-      container.find($('.linked-event-search')).click(function onSearchClick() {
+      var searchClick = function onSearchClick() {
         var activeParams = container.find($('.event-tab.active')).data('params');
         var startDate = container.find($('.event-date-start'))[0].value
           ? {'start': container.find($('.event-date-start'))[0].value.replace(/\./g, '-')}
@@ -242,6 +252,15 @@ finna.linkedEvents = (function finnaLinkedEvents() {
         var newParams = {};
         newParams.query = $.extend(newParams.query, activeParams, startDate, endDate, textSearch);
         getEvents(newParams, handleMultipleEvents, false, container);
+      }
+      container.find($('.linked-event-search')).click(searchClick);
+      container.find($('.event-text-search')).keyup(function onKeyUp(e) {
+        if (e.which === 13) {
+          searchClick();
+          e.preventDefault();
+          return false;
+        }
+        return true;
       });
     }
     initAccordions(container);

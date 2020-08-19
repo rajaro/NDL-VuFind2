@@ -85,6 +85,14 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
     protected $cleanHtml;
 
     /**
+     * How many related events (if available) are displayed on
+     * the events content page
+     *
+     * @var int
+     */
+    protected $relatedEventsAmount = 5;
+
+    /**
      * Constructor
      *
      * @param \Laminas\Config\Config $config        OrganisationInfo config
@@ -131,7 +139,7 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
                 $paramArray['start'] = $this->dateConverter->convert(
                     'd-m-Y', 'Y-m-d', $paramArray['start']
                 );
-            } else {
+            } elseif (empty($paramArray['end'])) {
                 $paramArray['start'] = date('Y-m-d');
             }
             if (isset($paramArray['end'])) {
@@ -178,17 +186,23 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
 
                     $event = [
                         'id' => $eventData['id'],
-                        'name' => $this->getField($eventData, 'name'),
+                        'title' => $this->getField($eventData, 'name'),
                         'description' => $this->cleanHtml->__invoke(
                             $this->getField($eventData, 'description')
                         ),
-                        'imageurl' => $eventData['images'][0]['url'] ?? '',
+                        'image' => ['url' => $eventData['images'][0]['url'] ?? ''],
                         'short_description' =>
                             $this->getField($eventData, 'short_description'),
-                        'startTime' => $this->formatTime($eventData['start_time']),
-                        'endTime' => $this->formatTime($eventData['end_time']),
-                        'startDate' => $this->formatDate($eventData['start_time']),
-                        'endDate' => $this->formatDate($eventData['end_time']),
+                        'xcal' => [
+                            'startTime' =>
+                                $this->formatTime($eventData['start_time']),
+                            'endTime' => $this->formatTime($eventData['end_time']),
+                            'startDate' =>
+                                $this->formatDate($eventData['start_time']),
+                            'endDate' => $this->formatDate($eventData['end_time']),
+                            'location' =>
+                                $this->getField($eventData, 'location_extra_info'),
+                        ],
                         'info_url' => $this->getField($eventData, 'info_url'),
                         'location-info' =>
                             $this->getField($eventData, 'location_extra_info'),
@@ -216,7 +230,8 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
                     ) {
                         $superEventId = $eventData['super_event']['id'];
                         $newApiUrl = $this->apiUrl . 'event/?super_event='
-                            . $superEventId;
+                            . $superEventId . '&page_size='
+                            . $this->relatedEventsAmount;
                         $relatedEvents = $this->getEvents(['url' => $newApiUrl]);
                         $events['relatedEvents'] = $relatedEvents['events'];
                     }
@@ -287,11 +302,14 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
      *
      * @param string $date date to format
      *
-     * @return string
+     * @return string|null
      */
     public function formatDate($date)
     {
-        return $this->dateConverter->convertToDisplayDate('Y-m-d', $date);
+        if ($date) {
+            return $this->dateConverter->convertToDisplayDate('Y-m-d', $date);
+        }
+        return null;
     }
 
     /**
@@ -299,10 +317,13 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
      *
      * @param string $time time to format
      *
-     * @return string
+     * @return string|null
      */
     public function formatTime($time)
     {
-        return $this->dateConverter->convertToDisplayTime('Y-m-d', $time);
+        if ($time) {
+            return $this->dateConverter->convertToDisplayTime('Y-m-d', $time);
+        }
+        return null;
     }
 }
