@@ -40,11 +40,13 @@
     <div class="events-searchtools-toggle"><?= $this->transEsc('show_filters') ?> <i class="fa fa-arrow-down"></i></div>
     <div class="events-searchtools-container <?= $this->searchTools === 'show' ? '' : 'hidden'; ?>">
       <span class="event-search-container">
-        <input class="event-text-search" type="text" placeholder="<?= $this->transEsc('event_name_or_place') ?>" size="26">
+        <label for="event-search" class="sr-only"><?= $this->transEsc('event_name_or_place') ?></label>
+        <input id="event-search" class="event-text-search" type="text" placeholder="<?= $this->transEsc('event_name_or_place') ?>" size="26">
       </span>
       <span class="event-date-container">
         <span class="event-date-title"><?= $this->transEsc('Time Period'); ?>:</span>
-        <input class="event-date-start event-datepicker"> &ndash; <input class="event-date-end event-datepicker">
+        <label for="event-date-start" class="sr-only"><?=$this->transEsc('Date');?></label>
+        <input id="event-date-start" class="event-date-start event-datepicker"> &ndash; <label for="event-date-end" class="sr-only"><?=$this->transEsc('Date');?></label><input id="event-date-end" class="event-date-end event-datepicker">
       </span>
       <button class="btn btn-primary linked-event-search"><?= $this->transEsc('Find') ?></button>
       <span class="event-geolocation-container hidden">
