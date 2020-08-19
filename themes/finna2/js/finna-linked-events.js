@@ -1,6 +1,6 @@
 /*global VuFind, finna, L */
 finna.linkedEvents = (function finnaLinkedEvents() {
-  function getEvents(params, callback, append, container) {
+  function getEvents(params, callback, append, container, showSpinner) {
     var limit = {'page_size': container.data('limit')};
     var lang = {};
     if ($('.linked-events-tabs-container').data('lang')) {
@@ -9,11 +9,16 @@ finna.linkedEvents = (function finnaLinkedEvents() {
       lang = {'language': $('.linked-event-content').data('lang')};
     }
     params.query = $.extend(params.query, limit, lang);
-    var spinner = $('<i>').addClass('fa fa-spinner fa-spin');
-    if (append) {
-      container.find($('.linked-events-content')).append(spinner);
+    var spinner = null;
+    if (typeof showSpinner === 'undefined' || showSpinner) {
+      spinner = $('<i>').addClass('fa fa-spinner fa-spin');
+      if (append) {
+        container.find($('.linked-events-content')).append(spinner);
+      } else {
+        container.find($('.linked-events-content')).html(spinner);
+      }
     } else {
-      container.find($('.linked-events-content')).html(spinner);
+      spinner = container.find('.fa-spinner');
     }
     var url = VuFind.path + '/AJAX/JSON?method=getLinkedEvents';
     $.ajax({
@@ -132,7 +137,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
     var params = {};
     params.query = {'id': id};
     var container = $('.linked-event-content');
-    getEvents(params, handleSingleEvent, false, container);
+    getEvents(params, handleSingleEvent, false, container, false);
   }
 
   function keyHandler(e/*, cb*/) {
