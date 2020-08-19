@@ -252,7 +252,7 @@ finna.linkedEvents = (function finnaLinkedEvents() {
         var newParams = {};
         newParams.query = $.extend(newParams.query, activeParams, startDate, endDate, textSearch);
         getEvents(newParams, handleMultipleEvents, false, container);
-      }
+      };
       container.find($('.linked-event-search')).click(searchClick);
       container.find($('.event-text-search')).keyup(function onKeyUp(e) {
         if (e.which === 13) {
