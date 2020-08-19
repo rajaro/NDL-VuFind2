@@ -225,10 +225,12 @@ class LinkedEvents implements \VuFindHttp\HttpServiceAwareInterface,
                     ];
 
                     $events[] = $event;
-                    if ($eventData['super_event'] !== null
+                    if (($eventData['super_event'] !== null
+                        || $eventData['sub_events'] !== null)
                         && !empty($paramArray['id'])
                     ) {
-                        $superEventId = $eventData['super_event']['id'];
+                        $superEventId
+                            = $eventData['super_event']['id'] ?? $eventData['id'];
                         $newApiUrl = $this->apiUrl . 'event/?super_event='
                             . $superEventId . '&page_size='
                             . $this->relatedEventsAmount;
