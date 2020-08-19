@@ -65,6 +65,9 @@ finna.linkedEvents = (function finnaLinkedEvents() {
         if (field === 'location') {
           initEventMap(value);
         }
+        if (field === 'title') {
+          document.title = value + ' | ' + document.title;
+        }
         if (field === 'xcal') {
           $.each(value, function initXcal(k, v) {
             if (v) {
