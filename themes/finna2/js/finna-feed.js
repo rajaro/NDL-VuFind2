@@ -234,12 +234,6 @@ finna.feed = (function finnaFeed() {
           holder.find('.show-more-feeds').removeClass('hidden');
           $(this).addClass('hidden');
         });
-        var feedGrid = holder.find('.feed-grid');
-        if (feedGrid.width() <= 500) {
-          feedGrid.find('.grid-item').css('flex-basis', '100%');
-        } else if (feedGrid.width() <= 800) {
-          feedGrid.find('.grid-item').css('flex-basis', '50%');
-        }
       })
       .fail(function loadFeedFail(response/*, textStatus, err*/) {
         var err = '<!-- Feed could not be loaded';
