@@ -502,7 +502,7 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
         // Organisation list for a consortium with schedules for the current week
         $params = [
             'consortium' => $response['id'],
-            'with' => 'schedules,primaryContactInfo',
+            'with' => 'schedules,primaryContactInfo,mailAddress',
             'period.start' => $startDate,
             'period.end' => $endDate,
             'status' => '',
@@ -727,6 +727,14 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
                     'street' => $item['address']['street'],
                     'zipcode' => $item['address']['zipcode'],
                 ];
+                if (!empty($item['mailAddress'])) {
+                    $address['mailAddress'] = [
+                        'area' => $item['mailAddress']['area'],
+                        'boxNumber' => $item['mailAddress']['boxNumber'],
+                        'street' => $item['mailAddress']['street'],
+                        'zipcode' => $item['mailAddress']['zipcode']
+                    ];
+                }
 
                 if (!empty($item['address']['area'])) {
                     $address['city']

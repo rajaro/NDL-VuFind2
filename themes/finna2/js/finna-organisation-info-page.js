@@ -280,7 +280,7 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
       holder.find('.office-links.address').html(data.address);
       if (!data.details.museum) {
         var address = holder.find('.address-contact');
-        address.show().find('> p').html(data.address);
+        address.show().find('> p').html(data.mailAddress);
       }
     }
     if ('email' in data) {

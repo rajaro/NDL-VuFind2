@@ -111,6 +111,7 @@ finna.organisationInfo = (function finnaOrganisationInfo() {
       });
 
     var address = '';
+    var mailAddress = '';
     var street = getField(data.address, 'street');
     if (street) {
       address += street;
@@ -125,6 +126,27 @@ finna.organisationInfo = (function finnaOrganisationInfo() {
     }
 
     details.address = address;
+
+    var mail = getField(data.address, 'mailAddress');
+    if (mail) {
+      mailStreet = getField(data.address.mailAddress, 'street');
+      if (mailStreet) {
+        mailAddress += mailStreet + '<br>';
+      }
+      mailBoxnumber = getField(data.address.mailAddress, 'boxNumber');
+      if (mailBoxnumber) {
+        mailAddress += VuFind.translate('organisation_info_box_number') + ' ' + mailBoxnumber + '<br>';
+      }
+      mailZipcode = getField(data.address.mailAddress, 'zipcode');
+      if (mailZipcode) {
+        mailAddress += mailZipcode;
+      }
+      mailArea = getField(data.address.mailAddress, 'area');
+      if (mailArea) {
+        mailAddress += ' ' + mailArea;
+      }
+      details.mailAddress = mailAddress;
+    }
 
     var cached = getCachedDetails(id);
     if (cached) {
