@@ -127,21 +127,21 @@ finna.organisationInfo = (function finnaOrganisationInfo() {
 
     details.address = address;
 
-    var mail = getField(data.address, 'mailAddress');
+    var mail = getField(data, 'mailAddress');
     if (mail) {
-      var mailStreet = getField(data.address.mailAddress, 'street');
+      var mailStreet = getField(mail, 'street');
       if (mailStreet) {
         mailAddress += mailStreet + '<br>';
       }
-      var mailBoxnumber = getField(data.address.mailAddress, 'boxNumber');
+      var mailBoxnumber = getField(mail, 'boxNumber');
       if (mailBoxnumber) {
         mailAddress += VuFind.translate('organisation_info_box_number') + ' ' + mailBoxnumber + '<br>';
       }
-      var mailZipcode = getField(data.address.mailAddress, 'zipcode');
+      var mailZipcode = getField(mail, 'zipcode');
       if (mailZipcode) {
         mailAddress += mailZipcode;
       }
-      var mailArea = getField(data.address.mailAddress, 'area');
+      var mailArea = getField(mail, 'area');
       if (mailArea) {
         mailAddress += ' ' + mailArea;
       }

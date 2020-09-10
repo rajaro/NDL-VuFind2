@@ -1,8 +1,7 @@
-<h4><?= $this->transEsc('organisation_info_phone_numbers') ?></h4>
 <ul>
   <?php foreach ($this->phones as $phone): ?>
     <?php if (isset($phone['name'])): ?>
-      <li><?=$this->escapeHtml($phone['name'])?></li>
+      <li><b><?=$this->escapeHtml($phone['name'])?></b></li>
     <?php endif ?>
     <li><a href="tel:<?=$this->escapeHtmlAttr($phone['number'])?>"><?=$this->escapeHtml($phone['number'])?></a></li>
   <?php endforeach ?>

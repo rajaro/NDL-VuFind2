@@ -722,19 +722,23 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
                 'homepage' => $item['primaryContactInfo']['homepage']['url'] ?? null
             ];
 
+            if (!empty($item['mailAddress'])) {
+                $mailAddress = [
+                    'area' => $item['mailAddress']['area'],
+                    'boxNumber' => $item['mailAddress']['boxNumber'],
+                    'street' => $item['mailAddress']['street'],
+                    'zipcode' => $item['mailAddress']['zipcode']
+                ];
+            }
+            if (!empty($mailAddress)) {
+                $data['mailAddress'] = $mailAddress;
+            }
+
             if (!empty($item['address'])) {
                 $address = [
                     'street' => $item['address']['street'],
                     'zipcode' => $item['address']['zipcode'],
                 ];
-                if (!empty($item['mailAddress'])) {
-                    $address['mailAddress'] = [
-                        'area' => $item['mailAddress']['area'],
-                        'boxNumber' => $item['mailAddress']['boxNumber'],
-                        'street' => $item['mailAddress']['street'],
-                        'zipcode' => $item['mailAddress']['zipcode']
-                    ];
-                }
 
                 if (!empty($item['address']['area'])) {
                     $address['city']
