@@ -185,6 +185,10 @@ finna.feed = (function finnaFeed() {
                 }
               });
             });
+            holder.find('.slick-slider').on('afterChange', function onSlickChange() {
+              holder.find('ul.slick-dots li').removeAttr('aria-current');
+              holder.find('ul.slick-dots li.slick-active').attr('aria-current', true);
+            })
 
             // Text hover for touch devices
             if (finna.layout.isTouchDevice() && typeof settings.linkText === 'undefined') {
