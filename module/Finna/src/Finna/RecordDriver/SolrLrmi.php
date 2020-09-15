@@ -45,7 +45,7 @@ class SolrLrmi extends SolrQdc
      * @var array
      */
     protected $downloadableFileFormats = [
-        'pdf', 'pptx', 'ppt', 'docx', 'mp4', 'mp3',
+        'pdf', 'pptx', 'ppt', 'docx', 'mp4', 'mp3', 'html',
         'avi', 'odt', 'rtf', 'txt', 'odp', 'png', 'jpeg', 'm4a'
     ];
 
@@ -221,8 +221,10 @@ class SolrLrmi extends SolrQdc
         $topics = [];
         foreach ($xml->about as $about) {
             $thing = $about->thing;
-            if ($val = $thing->name ?? null) {
-                $topics[] = (string)trim($val);
+            if ($thing->name
+                && strpos((string)$thing->identifier, 'yso') !== false
+            ) {
+                $topics[] = (string)trim($thing->name);
             }
         }
         return $topics;
@@ -302,12 +304,10 @@ class SolrLrmi extends SolrQdc
         $lang = $lang === 'en-gb' ? 'en' : $lang;
         foreach ($xml->material as $material) {
             if (isset($material->format)) {
-                $format = '.';
-                if ((string)$material->format !== 'text/html') {
-                    $format .= $this->getFileFormat((string)$material->url);
-                } else {
-                    $format = 'format_webresource';
-                }
+                $mime = (string)$material->format;
+                $format = $mime === 'text/html'
+                    ? 'html'
+                    : $this->getFileFormat((string)$material->url);
 
                 $url = $this->checkAllowedFileFormat($format)
                     ? (string)$material->url : '';
