@@ -27,6 +27,9 @@
  */
 namespace Finna\View\Helper\Root;
 
+use League\CommonMark\CommonMarkConverter;
+use League\CommonMark\Environment;
+
 /**
  * Markdown view helper
  *
@@ -39,41 +42,35 @@ namespace Finna\View\Helper\Root;
 class Markdown extends \VuFind\View\Helper\Root\Markdown
 {
     /**
-     * Parsedown parser
-     *
-     * @var \Parsedown
+     * Constructor
      */
-    protected $parsedown = null;
-
-    /**
-     * Return HTML.
-     *
-     * @param string $markdown Markdown
-     *
-     * @return string
-     */
-    public function toHtml($markdown)
+    public function __construct()
     {
-        $cleanHtml = $this->getView()->plugin('cleanHtml');
-        if (null === $this->parsedown) {
-            $this->parsedown = new \ParsedownExtra();
-            $this->parsedown->setBreaksEnabled(true);
-        }
-        $text = $this->parsedown->text($markdown);
-        return $cleanHtml($text);
+        $environment = Environment::createCommonMarkEnvironment();
+        $environment->addBlockRenderer(
+            'League\CommonMark\Block\Element\HtmlBlock',
+            new BlockRenderer()
+        );
+        $environment->addBlockRenderer(
+            '\League\CommonMark\Block\Element\Heading',
+            new HeadingRenderer()
+        );
+        $config = [];
+        $converter = new CommonMarkConverter($config, $environment);
+        parent::__construct($converter);
     }
 
     /**
      * Converts markdown to html
      *
-     * Finna: back-compatibility with default param and call logic
-     *
      * @param string $markdown Markdown formatted text
      *
      * @return string
      */
-    public function __invoke(string $markdown = null)
+    public function __invoke(string $markdown = '')
     {
-        return null === $markdown ? $this : parent::__invoke($markdown);
+        $cleanHtml = $this->getView()->plugin('cleanHtml');
+        $text = $cleanHtml($this->converter->convertToHtml($markdown));
+        return $text;
     }
 }

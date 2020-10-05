@@ -149,7 +149,7 @@
                 <i class="fa fa-pen icon js-edit"></i>
                 <div data-empty="<?= $hasNote ? '0' : '1' ?>" data-markdown="<?=$hasNote && $notes ? $this->escapeHtmlAttr($notes) : ''?>">
                 <?php if ($notes): ?>
-                  <?= $this->markdown()->toHtml($notes); ?>
+                  <?= $this->markdown($notes); ?>
                 <?php else: ?>
                   <?=$this->transEsc('Add note')?>
                 <?php endif; ?>
