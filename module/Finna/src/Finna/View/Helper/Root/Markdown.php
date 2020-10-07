@@ -49,11 +49,11 @@ class Markdown extends \VuFind\View\Helper\Root\Markdown
         $environment = Environment::createCommonMarkEnvironment();
         $environment->addBlockRenderer(
             'League\CommonMark\Block\Element\HtmlBlock',
-            new BlockRenderer()
+            new MarkdownBlockRenderer()
         );
         $environment->addBlockRenderer(
-            '\League\CommonMark\Block\Element\Heading',
-            new HeadingRenderer()
+            'League\CommonMark\Block\Element\Heading',
+            new MarkdownHeadingRenderer()
         );
         $config = [];
         $converter = new CommonMarkConverter($config, $environment);

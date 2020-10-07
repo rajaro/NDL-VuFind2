@@ -1,6 +1,6 @@
 <?php
 /**
- * Custom Heading renderer for CommonMark
+ * Custom html block renderer for CommonMark
  *
  * PHP version 7
  *
@@ -30,10 +30,10 @@ namespace Finna\View\Helper\Root;
 use League\CommonMark\Block\Element\AbstractBlock;
 use League\CommonMark\Block\Renderer\BlockRendererInterface;
 use League\CommonMark\ElementRendererInterface;
-use League\CommonMark\HtmlElement;
+use League\CommonMark\Util\RegexHelper;
 
 /**
- * Custom Heading renderer for CommonMark
+ * Custom html block renderer for CommonMark
  *
  * @category VuFind
  * @package  View_Helpers
@@ -41,25 +41,30 @@ use League\CommonMark\HtmlElement;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-class HeadingRenderer implements BlockRendererInterface
+class MarkdownBlockRenderer implements BlockRendererInterface
 {
     /**
-     * Render headings. Start headings from h2 (add 1 to heading level)
+     * Render the children of html block elements with attribute markdown="1"
+     * as inline to enable markdown syntax inside them
      *
      * @param AbstractBlock            $block        block element
      * @param ElementRendererInterface $htmlRenderer html renderer
      * @param bool                     $inTightList  Whether the element is being
      *                                               rendered in a tight list or not
      *
-     * @return HtmlElement
+     * @return string
      */
     public function render(
         \League\CommonMark\Block\Element\AbstractBlock $block,
         \League\CommonMark\ElementRendererInterface $htmlRenderer,
         bool $inTightList = false
     ) {
-        $level = $block->getLevel() + 1;
-        $content = $block->getStringContents();
-        return new HtmlElement('h' + $level, [], $content);
+        $openHtmlTag = '/(' . RegexHelper::PARTIAL_OPENBLOCKTAG . ')/';
+        if (preg_match($openHtmlTag, $block->getStringContent(), $matches)) {
+            if (preg_match('/markdown\=\"1\"/', $matches[1])) {
+                return $htmlRenderer->renderInlines($block->children());
+            }
+        }
+        return $block->getStringContent();
     }
 }
