@@ -177,7 +177,7 @@ class GetDescription extends \VuFind\AjaxHandler\AbstractBase
                 $summary = str_replace('##', "\n\n", $summary);
 
                 // Process markdown
-                $summary = $this->renderer->plugin('markdown')->toHtml($summary);
+                $summary = $this->renderer->plugin('markdown')->__invoke($summary);
 
                 return $this->formatResponse(['html' => $summary]);
             }
