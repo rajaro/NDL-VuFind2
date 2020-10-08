@@ -306,7 +306,7 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
     }
 
     if ('email' in data) {
-      holder.find('.email.info-element').wrap($('<a/>').attr('href', 'mailto:' + data.email)).show();
+      holder.find('.email.info-element').show();
     }
 
     var detailsLinkHolder = holder.find('.details-link').show();
