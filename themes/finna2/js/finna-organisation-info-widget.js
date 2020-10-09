@@ -252,7 +252,7 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
       holder.find('.phone')
         .attr('data-original-title', response.phone)
         .on('keydown', function onPhoneKeydown(e) {
-          keyHandler(e, $(this))
+          keyHandler(e, $(this));
         }).show();
     }
     if ('emails' in response) {
@@ -260,7 +260,7 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
         .attr('data-original-title', response.emails)
         .attr('data-toggle', 'tooltip')
         .on('keydown', function onEmailsKeydown(e) {
-          keyHandler(e, $(this))
+          keyHandler(e, $(this));
         }).show();
       finna.layout.initToolTips(holder);
     }
