@@ -2,7 +2,7 @@
 <?php
   $rights = $this->driver->getAccessRestrictionsType($this->layout()->userLang);
   $summary = $this->driver->getSummary();
-  $aoeLink = $this->driver->getAoeLink();
+  $aoeLink = $this->driver->getExternalLink();
   $materials = $this->driver->getMaterials($this->layout()->userLang);
   $dateCreated = $this->driver->getDateCreated();
   $dateModified = $this->driver->getDateModified();
