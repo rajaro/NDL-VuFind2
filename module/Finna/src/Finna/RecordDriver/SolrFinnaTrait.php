@@ -1078,7 +1078,7 @@ trait SolrFinnaTrait
 
     /**
      * Returns the locale used by translator
-     * 
+     *
      * @return string
      */
     protected function getLocale()
