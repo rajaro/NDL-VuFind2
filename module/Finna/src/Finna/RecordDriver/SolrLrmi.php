@@ -161,7 +161,7 @@ class SolrLrmi extends SolrQdc
         $rootLevels = [];
         foreach ($this->fields['educational_level_str_mv'] ?? [] as $level) {
             if (substr($level, 0, 1) === '0') {
-                $rootLevels[] = $level;
+                $rootLevels[] = trim((string)$level);
             }
         }
         return $rootLevels;
