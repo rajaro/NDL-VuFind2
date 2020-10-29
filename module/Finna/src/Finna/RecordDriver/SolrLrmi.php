@@ -127,18 +127,16 @@ class SolrLrmi extends SolrQdc
     {
         $xml = $this->getXmlRecord();
         $result = [];
-        if (!empty($xml->author)) {
-            foreach ($xml->author->person as $author) {
-                $result[] = [
-                  'name' => trim((string)$author->name),
-                  'affiliation' => trim((string)$author->affiliation)
-                ];
-            }
-            foreach ($xml->author->organization as $org) {
-                $result[] = [
-                  'name' => trim((string)$org->legalName)
-                ];
-            }
+        foreach ($xml->author->person ?? [] as $author) {
+            $result[] = [
+                'name' => trim((string)$author->name),
+                'affiliation' => trim((string)$author->affiliation)
+            ];
+        }
+        foreach ($xml->author->organization ?? [] as $org) {
+            $result[] = [
+                'name' => trim((string)$org->legalName)
+            ];
         }
         return $result;
     }
@@ -255,8 +253,7 @@ class SolrLrmi extends SolrQdc
      */
     protected function getFileFormat($filename)
     {
-        $parts = explode('.', $filename);
-        return end($parts);
+        return pathinfo($filename)['extension'] ?? '';
     }
 
     /**
@@ -271,9 +268,11 @@ class SolrLrmi extends SolrQdc
     {
         $xml = $this->getXmlRecord();
         $result = [];
+        $images = ['image/png', 'image/jpeg'];
         foreach ($xml->description as $desc) {
             $attr = $desc->attributes();
-            if (isset($attr['format']) && (string)$attr['format'] === 'image/png') {
+            $format = trim((string)($attr['format'] ?? ''));
+            if ($format && in_array($format, $images)) {
                 $url = (string)$desc;
                 $result[] = [
                     'urls' => [
