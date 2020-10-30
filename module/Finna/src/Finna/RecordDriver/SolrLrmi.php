@@ -23,8 +23,9 @@
  * @package  RecordDrivers
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Jaro Ravila <jaro.ravila@helsinki.fi>
- * @author   Juha Luoma  <juha.luoma@helsinki.fi>
- * @author   Samuli Sillanpää  <samuli.sillanpaa@helsinki.fi>
+ * @author   Juha Luoma <juha.luoma@helsinki.fi>
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @author   Aleksi Peebles <aleksi.peebles@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
@@ -37,8 +38,9 @@ namespace Finna\RecordDriver;
  * @package  RecordDrivers
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Jaro Ravila <jaro.ravila@helsinki.fi>
- * @author   Juha Luoma  <juha.luoma@helsinki.fi>
- * @author   Samuli Sillanpää  <samuli.sillanpaa@helsinki.fi>
+ * @author   Juha Luoma <juha.luoma@helsinki.fi>
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @author   Aleksi Peebles <aleksi.peebles@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
@@ -333,6 +335,7 @@ class SolrLrmi extends SolrQdc
      * -url: download link for allowed file types, otherwise empty
      * -title: material title
      * -format: material format
+     * -filesize: material file size in bytes
      * -position: order of listing
      *
      * @return array
@@ -353,8 +356,11 @@ class SolrLrmi extends SolrQdc
                     ? (string)$material->url : '';
                 $titles = $this->getMaterialTitles($material->name, $locale);
                 $title = $titles[$locale] ?? $titles['default'];
-                $position = $material->position ?? 0;
-                $materials[] = compact('url', 'title', 'format', 'position');
+                $position = (int)$material->position ?? 0;
+                $filesize = (string)$material->filesize ?? null;
+                $materials[] = compact(
+                    'url', 'title', 'format', 'filesize', 'position'
+                );
             }
         }
 
