@@ -24,6 +24,7 @@
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Jaro Ravila <jaro.ravila@helsinki.fi>
  * @author   Juha Luoma  <juha.luoma@helsinki.fi>
+ * @author   Samuli Sillanpää  <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
@@ -37,6 +38,7 @@ namespace Finna\RecordDriver;
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Jaro Ravila <jaro.ravila@helsinki.fi>
  * @author   Juha Luoma  <juha.luoma@helsinki.fi>
+ * @author   Samuli Sillanpää  <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
@@ -268,12 +270,19 @@ class SolrLrmi extends SolrQdc
     }
 
     /**
-     * Get all image urls
+     * Return an array of image URLs associated with this record with keys:
+     * - url         Image URL
+     * - description Description text
+     * - rights      Rights
+     *   - copyright   Copyright (e.g. 'CC BY 4.0') (optional)
+     *   - description Human readable description (array)
+     *   - link        Link to copyright info
      *
-     * @param string $language   to get rights
-     * @param string $includePdf from parent call
+     * @param string $language   Language for copyright information
+     * @param bool   $includePdf Whether to include first PDF file when no image
+     * links are found
      *
-     * @return array
+     * @return mixed
      */
     public function getAllImages($language = 'fi', $includePdf = true)
     {
@@ -294,6 +303,25 @@ class SolrLrmi extends SolrQdc
                     'description' => '',
                     'rights' => []
                 ];
+            }
+        }
+
+        // Attempt to find a PDF file to be converted to a coverimage
+        if ($includePdf && empty($result) && $materials = $this->getMaterials()) {
+            foreach ($materials as $material) {
+                if ($material['format'] === 'pdf') {
+                    $url = $material['url'];
+                    $result[] = [
+                         'urls' => [
+                             'small' => $url,
+                             'medium' => $url,
+                             'large' => $url
+                         ],
+                         'description' => '',
+                         'rights' => []
+                    ];
+                    break;
+                }
             }
         }
 
