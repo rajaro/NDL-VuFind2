@@ -248,13 +248,13 @@ class SolrLrmi extends SolrQdc
     }
 
     /**
-     * Check if provided filetype is allowed for download
+     * Is the provided filetype allowed for download?
      *
      * @param string $format file format
      *
      * @return boolean
      */
-    protected function checkAllowedFileFormat($format)
+    protected function isDownloadableFileFormat($format)
     {
         return in_array($format, $this->downloadableFileFormats);
     }
@@ -352,7 +352,7 @@ class SolrLrmi extends SolrQdc
                     ? 'html'
                     : $this->getFileFormat((string)$material->url);
 
-                $url = $this->checkAllowedFileFormat($format)
+                $url = $this->isDownloadableFileFormat($format)
                     ? (string)$material->url : '';
                 $titles = $this->getMaterialTitles($material->name, $locale);
                 $title = $titles[$locale] ?? $titles['default'];
