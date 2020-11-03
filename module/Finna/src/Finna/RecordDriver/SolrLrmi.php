@@ -238,7 +238,7 @@ class SolrLrmi extends SolrQdc
         $topics = [];
         foreach ($xml->about as $about) {
             $thing = $about->thing;
-            $name = (string)trim($thing->name);
+            $name = trim((string)$thing->name);
             if ($name && strpos((string)$thing->identifier, $type) !== false
             ) {
                 $topics[] = $name;
