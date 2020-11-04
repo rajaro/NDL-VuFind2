@@ -105,9 +105,9 @@ class SolrLrmi extends SolrQdc
     }
 
     /**
-     * Get descriptions
+     * Get summary
      *
-     * @return array descriptions with languages as keys
+     * @return string summary found with locale or an empty string
      */
     public function getSummary()
     {
@@ -121,6 +121,7 @@ class SolrLrmi extends SolrQdc
                 return (string)$d;
             }
         }
+        return '';
     }
 
     /**
