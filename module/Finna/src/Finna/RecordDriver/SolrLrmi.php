@@ -105,9 +105,9 @@ class SolrLrmi extends SolrQdc
     }
 
     /**
-     * Get summary
+     * Get an array of summary strings for the record
      *
-     * @return string summary found with locale or an empty string
+     * @return array
      */
     public function getSummary()
     {
@@ -118,10 +118,10 @@ class SolrLrmi extends SolrQdc
                 continue;
             }
             if ($locale === (string)$d['lang']) {
-                return (string)$d;
+                return [(string)$d];
             }
         }
-        return '';
+        return [];
     }
 
     /**
