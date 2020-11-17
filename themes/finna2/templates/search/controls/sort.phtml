@@ -1,7 +1,7 @@
 <!-- START of: finna - search/controls/sort.phtml -->
 <?php $list = $this->sortList ? $this->sortList : $this->params->getSortList(); if (!empty($list)): ?>
 <div class="sort-option-container">
-  <span class="hidden-sm hidden-xs hidden-md button-label"><?=$this->transEsc('Sort')?></span>
+  <span class="hidden-sm hidden-xs hidden-md button-label" id="sort-label"><?=$this->transEsc('Sort')?></span>
   <span class="sr-only hidden-lg hidden-md"><?=$this->transEsc('Sort')?></span>
   <div class="sort-button">
   <div class="dropdown">
@@ -19,7 +19,7 @@
         <span><?=$this->transEsc('choose_from_list')?></span> <i class="fa fa-arrow-down"></i>
       </a>
     <?php endif; ?>
-    <ul class="dropdown-menu" role="menu">
+    <ul class="dropdown-menu" role="menu" aria-labelledby="sort-label">
       <?php foreach ($list as $sortType => $sortData): ?>
       <li role="menuitem">
         <a href="<?=isset($sortData['url']) ? $this->escapeHtmlAttr($sortData['url']) : $this->results->getUrlQuery()->setSort($sortType)?>"><?=$this->transEsc($sortData['desc'])?></a>
