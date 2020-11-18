@@ -15,8 +15,8 @@
       <?php endforeach; ?>
       <ul class="dropdown-menu" role="menu" aria-labelledby="limit-label">
         <?php foreach ($limitList as $limitVal => $limitData): ?>
-        <li role="menuitem">
-          <a href="<?=$this->results->getUrlQuery()->setLimit($limitVal)?>" aria-label="<?=$this->transEsc('Results per page') . ': ' . $this->transEsc($limitData['desc'])?>"><?=$this->transEsc($limitData['desc'])?></a>
+        <li>
+          <a href="<?=$this->results->getUrlQuery()->setLimit($limitVal)?>" role="menuitem" aria-label="<?=$this->transEsc('Results per page') . ': ' . $this->transEsc($limitData['desc'])?>"><?=$this->transEsc($limitData['desc'])?></a>
         <?php endforeach; ?>
         </li>
       </ul>

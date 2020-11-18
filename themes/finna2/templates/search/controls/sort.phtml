@@ -21,8 +21,8 @@
     <?php endif; ?>
     <ul class="dropdown-menu" role="menu" aria-labelledby="sort-label">
       <?php foreach ($list as $sortType => $sortData): ?>
-      <li role="menuitem">
-        <a href="<?=isset($sortData['url']) ? $this->escapeHtmlAttr($sortData['url']) : $this->results->getUrlQuery()->setSort($sortType)?>" aria-label="<?= $this->transEsc('Sort') . ': ' . $this->transEsc($sortData['desc'])?>"><?=$this->transEsc($sortData['desc'])?></a>
+      <li>
+        <a href="<?=isset($sortData['url']) ? $this->escapeHtmlAttr($sortData['url']) : $this->results->getUrlQuery()->setSort($sortType)?>" role="menuitem" aria-label="<?= $this->transEsc('Sort') . ': ' . $this->transEsc($sortData['desc'])?>"><?=$this->transEsc($sortData['desc'])?></a>
       <?php endforeach; ?>
       </li>
     </ul>
