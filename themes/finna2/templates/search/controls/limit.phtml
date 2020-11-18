@@ -8,7 +8,7 @@
     <div class="dropdown">
       <?php foreach ($limitList as $limitVal => $limitData): ?>
         <?php if ($limitData['selected']): ?>
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-label="<?=$this->transEsc('Results per page') . ': ' . $this->transEsc($limitData['desc'])?>">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-label="<?=$this->transEsc('Results per page') . ': ' . $this->transEsc($limitData['desc'])?>">
           <span><?=$this->transEsc($limitData['desc'])?></span> <i class="fa fa-arrow-down"></i>
         </a>
         <?php endif; ?>

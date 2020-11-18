@@ -25,7 +25,7 @@
       <div class="dropdown">
         <?php foreach ($viewList as $viewType => $viewData): ?>
           <?php if ($viewData['selected']): ?>
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-label="<?=$this->transEsc('show_as') . ': ' . $this->transEsc('Show As ' . $viewData['desc'])?>"><i class="fa fa-<?=$viewType ?>"></i><span class="<?=isset($isCollection) && $isCollection ? 'hidden-xs hidden-sm' : '' ?>"><?=$this->transEsc('Show As ' . $viewData['desc'])?></span> <i class="fa fa-arrow-down"></i></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-label="<?=$this->transEsc('show_as') . ': ' . $this->transEsc('Show As ' . $viewData['desc'])?>"><i class="fa fa-<?=$viewType ?>"></i><span class="<?=isset($isCollection) && $isCollection ? 'hidden-xs hidden-sm' : '' ?>"><?=$this->transEsc('Show As ' . $viewData['desc'])?></span> <i class="fa fa-arrow-down"></i></a>
           <?php endif; ?>
         <?php endforeach; ?>
 
