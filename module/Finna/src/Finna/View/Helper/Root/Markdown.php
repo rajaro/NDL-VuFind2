@@ -27,9 +27,6 @@
  */
 namespace Finna\View\Helper\Root;
 
-use League\CommonMark\CommonMarkConverter;
-use League\CommonMark\Environment;
-
 /**
  * Markdown view helper
  *

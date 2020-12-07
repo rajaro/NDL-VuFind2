@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Markdown view helper factory
  *
