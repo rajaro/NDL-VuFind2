@@ -42,25 +42,6 @@ use League\CommonMark\Environment;
 class Markdown extends \VuFind\View\Helper\Root\Markdown
 {
     /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $environment = Environment::createCommonMarkEnvironment();
-        $environment->addBlockRenderer(
-            'League\CommonMark\Block\Element\HtmlBlock',
-            new MarkdownBlockRenderer()
-        );
-        $environment->addBlockRenderer(
-            'League\CommonMark\Block\Element\Heading',
-            new MarkdownHeadingRenderer()
-        );
-        $config = [];
-        $converter = new CommonMarkConverter($config, $environment);
-        parent::__construct($converter);
-    }
-
-    /**
      * Return HTML.
      *
      * @param string $markdown Markdown
@@ -83,7 +64,7 @@ class Markdown extends \VuFind\View\Helper\Root\Markdown
      *
      * @return string
      */
-    public function __invoke(string $markdown = '')
+    public function __invoke(string $markdown = null)
     {
         return null === $markdown ? $this : parent::__invoke($markdown);
     }
