@@ -1,0 +1,24 @@
+<?php
+  $user = $this->auth()->isLoggedIn();
+  $prices = $this->driver->getPriceTypesAndPrices();
+  $images = $this->driver->getAllImages();
+?>
+<h1>Kuvatilaus</h1>
+<div class="infobox">Valitse kuvan hinnoitteluperuste ja kuvan koko, jotta voimme laskea kuvalle hinnan. Kun kuvatilaus on maksettu, ohjaudut takaisin Finnaan</div>
+<div>PALJO-tunnukseen liitetty sähköposti: <?= $user->getPaljoId(); ?></div>
+<div class="paljo-image-info">
+  <div class="paljo-image-id">
+      <span>Kuvan ID</span> <span><?=$this->id?></span>
+  </div>
+  <div class="paljo-price-type">
+    <span>Hinnoitteluperuste</span>
+    <label
+    <?php foreach ($prices as $price): ?>
+      <span data-price="<?= $this->escapeHtmlAttr($price['price'])?>"><?= $price['priceType'] ?></span>
+    <?php endforeach; ?>
+  </div>
+  <div class="paljo-image-size">
+    Kuvan koko
+    <?= var_dump($images)?>
+  </div>
+</div>

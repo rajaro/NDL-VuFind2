@@ -148,6 +148,16 @@ $config = [
                     ]
                 ],
             ],
+            'paljo-subscription' => [
+                'type' => 'Laminas\Router\Http\Segment',
+                'options' => [
+                    'route'    => '/Paljo/Subscription[/:recordId]',
+                    'defaults' => [
+                        'controller' => 'Paljo',
+                        'action'     => 'Subscription',
+                    ]
+                ],
+            ],
             'record-feedback' => [
                 'type'    => 'Laminas\Router\Http\Segment',
                 'options' => [
@@ -232,6 +242,7 @@ $config = [
             'Finna\Controller\MetalibRecordController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\MyResearchController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\OrganisationInfoController' => 'VuFind\Controller\AbstractBaseFactory',
+            'Finna\Controller\PaljoController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\PCIController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\PrimoController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\PrimoRecordController' => 'VuFind\Controller\AbstractBaseFactory',
@@ -259,6 +270,8 @@ $config = [
             'metalibrecord' => 'Finna\Controller\MetaLibrecordController',
             'OrganisationInfo' => 'Finna\Controller\OrganisationInfoController',
             'organisationinfo' => 'Finna\Controller\OrganisationInfoController',
+            'paljo' => 'Finna\Controller\PaljoController',
+            'Paljo' => 'Finna\Controller\PaljoController',
             'ListPage' => 'Finna\Controller\ListController',
             'listpage' => 'Finna\Controller\ListController',
             'r2feedback' => 'Finna\Controller\R2FeedbackController',
@@ -333,6 +346,7 @@ $config = [
             'Finna\Search\Solr\HierarchicalFacetHelper' => 'Laminas\ServiceManager\Factory\InvokableFactory',
             'Finna\Service\R2SupportService' => 'Finna\Service\R2SupportServiceFactory',
             'Finna\Favorites\FavoritesService' => 'Finna\Favorites\FavoritesServiceFactory',
+            'Finna\Service\PaljoService' => 'Finna\Service\PaljoServiceFactory',
             'Finna\Service\RemsService' => 'Finna\Service\RemsServiceFactory',
             'FinnaSearch\Service' => 'VuFind\Service\SearchServiceFactory',
 

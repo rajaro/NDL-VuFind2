@@ -39,6 +39,7 @@ $config = [
             'Finna\View\Helper\Root\OrganisationDisplayName' => 'Laminas\ServiceManager\Factory\InvokableFactory',
             'Finna\View\Helper\Root\OrganisationInfo' => 'Finna\View\Helper\Root\OrganisationInfoFactory',
             'Finna\View\Helper\Root\OrganisationsList' => 'Finna\View\Helper\Root\OrganisationsListFactory',
+            'Finna\View\Helper\Root\Paljo' => 'Finna\View\Helper\Root\PaljoFactory',
             'Finna\View\Helper\Root\PersonaAuth' => 'Laminas\ServiceManager\Factory\InvokableFactory',
             'Finna\View\Helper\Root\Piwik' => 'VuFind\View\Helper\Root\PiwikFactory',
             'Finna\View\Helper\Root\Primo' => 'Finna\View\Helper\Root\PrimoFactory',
@@ -103,6 +104,7 @@ $config = [
             'organisationInfo' => 'Finna\View\Helper\Root\OrganisationInfo',
             'organisationDisplayName' => 'Finna\View\Helper\Root\OrganisationDisplayName',
             'organisationsList' => 'Finna\View\Helper\Root\OrganisationsList',
+            'paljo' => 'Finna\View\Helper\Root\Paljo',
             'personaAuth' => 'Finna\View\Helper\Root\PersonaAuth',
             'primo' => 'Finna\View\Helper\Root\Primo',
             // recaptcha only exists for back-compatibility
