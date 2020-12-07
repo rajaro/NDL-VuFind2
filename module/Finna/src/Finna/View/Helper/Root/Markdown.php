@@ -61,7 +61,23 @@ class Markdown extends \VuFind\View\Helper\Root\Markdown
     }
 
     /**
+     * Return HTML.
+     *
+     * @param string $markdown Markdown
+     *
+     * @return string
+     */
+    public function toHtml($markdown)
+    {
+        $cleanHtml = $this->getView()->plugin('cleanHtml');
+        $text = $cleanHtml($this->converter->convertToHtml($markdown));
+        return $text;
+    }
+
+    /**
      * Converts markdown to html
+     *
+     * Finna: back-compatibility with default param and call logic
      *
      * @param string $markdown Markdown formatted text
      *
@@ -69,8 +85,6 @@ class Markdown extends \VuFind\View\Helper\Root\Markdown
      */
     public function __invoke(string $markdown = '')
     {
-        $cleanHtml = $this->getView()->plugin('cleanHtml');
-        $text = $cleanHtml($this->converter->convertToHtml($markdown));
-        return $text;
+        return null === $markdown ? $this : parent::__invoke($markdown);
     }
 }
