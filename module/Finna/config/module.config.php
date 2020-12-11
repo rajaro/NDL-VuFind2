@@ -158,6 +158,26 @@ $config = [
                     ]
                 ],
             ],
+            'paljo-subscriptions' => [
+                'type' => 'Laminas\Router\Http\Literal',
+                'options' => [
+                    'route'    => '/Paljo/Subscriptions',
+                    'defaults' => [
+                        'controller' => 'Paljo',
+                        'action'     => 'MySubscriptions',
+                    ]
+                ],
+            ],
+            'paljo-account-creation' => [
+                'type' => 'Laminas\Router\Http\Literal',
+                'options' => [
+                    'route'    => '/Paljo/Subscription/Register',
+                    'defaults' => [
+                        'controller' => 'Paljo',
+                        'action'     => 'PaljoAccountCreation',
+                    ]
+                ],
+            ],
             'record-feedback' => [
                 'type'    => 'Laminas\Router\Http\Segment',
                 'options' => [

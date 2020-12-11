@@ -1122,6 +1122,34 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
     }
 
     /**
+     * Get image size for paljo subscription
+     *
+     * @return array
+     */
+    public function getPaljoImageSize()
+    {
+        $imageSize = [];
+        foreach ($this->getXmlRecord()->xpath(
+            'lido/administrativeMetadata/resourceWrap/resourceSet/'
+            . 'resourceRepresentation[@type="image_master"]/resourceMeasurementsSet'
+        ) as $node) {
+            $type = '';
+            foreach ($node->measurementType as $mtype) { 
+                if ((string)$mtype->attributes()->lang === 'en') {
+                    $type = (string)$mtype;
+                }
+            }
+            $value = (string)$node->measurementValue;
+            $unit = (string)$node->measurementUnit;
+            $imageSize[$type] = [
+                'value' => $value,
+                'unit' => $unit
+            ];
+        }
+        return $imageSize;
+    }
+
+    /**
      * Return an XML representation of the record using the specified format.
      * Return false if the format is unsupported.
      *

@@ -50,6 +50,11 @@ class PaljoController extends \VuFind\Controller\AbstractBase
     public function subscriptionAction()
     {
         $user = $this->getUser();
+        if (!$user) {
+            return $this->redirect()->toRoute(
+                'default', ['controller' => 'MyResearch', 'action' => 'Login']
+            );
+        }
         $id = $this->params()->fromRoute('id', '');
         $recordId = $this->params()->fromRoute('recordId', '');
         $driver = $this->getRecordLoader()->load($recordId, 'Solr', true);
@@ -59,20 +64,30 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             ]
         );
 
-        // user not logged in, redirect to login
-        if (!$user) {
-            return $this->redirect()->toRoute(
-                'default', ['controller' => 'MyResearch', 'action' => 'Login']
-            );
-        }
-
-        // user has no paljo id
         if ($user->getPaljoId() === null) {
             $view->setTemplate('RecordDriver/SolrLido/paljo-account-creation');
         } else {
-            // user has paljo id
             $view->setTemplate('RecordDriver/SolrLido/paljo-subscribe');
         }
         return $view;
+    }
+
+    /**
+     * Paljo account creation action
+     *
+     * @return \Laminas\View
+     */
+    public function paljoAccountCreationAction()
+    {
+        $user = $this->getUser();
+        $email = $this->params()->fromPost('email', '');
+        $user->setPaljoId($email);
+    }
+
+    /**
+     * 
+     */
+    public function myPaljoSubscriptions() {
+
     }
 }

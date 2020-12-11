@@ -207,6 +207,7 @@ $config = [
         'finna-layout.js',
         'finna-linked-events.js',
         'finna-openurl.js',
+        'finna-paljo.js',
         'finna-map.js',
         'finna-map-facet.js',
         'finna-menu.js',

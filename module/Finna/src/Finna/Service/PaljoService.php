@@ -81,18 +81,6 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
     }
 
     /**
-     * Send a PALJO ID creation confirmation email to user
-     *
-     * @param string $email email address to send the mail to
-     *
-     * @return boolean
-     */
-    public function sendConfirmationEmail($email)
-    {
-        
-    }
-
-    /**
      * Check image availability from PALJO API
      *
      * @param string $orgId   organisation id
@@ -102,8 +90,8 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
      */
     public function checkAvailability($orgId, $imageId)
     {
-        $orgId = '1';
-        $imageId = '273';
+        $orgId = '1';       // Test data
+        $imageId = '273';  // Test data
         $path = 'organisations/' . $orgId . '/images/' . $imageId;
         $response = $this->sendRequest(
             $path,

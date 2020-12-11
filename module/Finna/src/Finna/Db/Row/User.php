@@ -122,6 +122,7 @@ class User extends \VuFind\Db\Row\User
     public function setPaljoId($paljoId)
     {
         $this->paljo_id = $paljoId;
+        $this->save();
     }
 
     /**
