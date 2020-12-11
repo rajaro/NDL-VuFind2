@@ -1,24 +1,40 @@
 <?php
   $user = $this->auth()->isLoggedIn();
   $prices = $this->driver->getPriceTypesAndPrices();
+  $imageSize = $this->driver->getPaljoImageSize();
   $images = $this->driver->getAllImages();
 ?>
 <h1>Kuvatilaus</h1>
-<div class="infobox">Valitse kuvan hinnoitteluperuste ja kuvan koko, jotta voimme laskea kuvalle hinnan. Kun kuvatilaus on maksettu, ohjaudut takaisin Finnaan</div>
+<div class="infobox">Valitse kuvan hinnoitteluperuste ja kuvan koko, jotta voimme laskea kuvalle hinnan. Kun kuvatilaus on makimageSizetu, ohjaudut takaisin Finnaan</div>
 <div>PALJO-tunnukseen liitetty sähköposti: <?= $user->getPaljoId(); ?></div>
+<div class="paljo-image">
+  <img src="<?php $images[0]['urls']['medium'] ?>" />
+</div>
 <div class="paljo-image-info">
   <div class="paljo-image-id">
       <span>Kuvan ID</span> <span><?=$this->id?></span>
   </div>
   <div class="paljo-price-type">
     <span>Hinnoitteluperuste</span>
-    <label
-    <?php foreach ($prices as $price): ?>
-      <span data-price="<?= $this->escapeHtmlAttr($price['price'])?>"><?= $price['priceType'] ?></span>
-    <?php endforeach; ?>
+    <select class="paljo-price-type-menu">
+      <?php foreach ($prices as $price): ?>
+        <option class="paljo-price-type" value="<?= $this->escapeHtmlAttr($price['price'])?>"><?= $price['priceType'] ?></option>
+      <?php endforeach; ?>
+    </select>
   </div>
   <div class="paljo-image-size">
     Kuvan koko
-    <?= var_dump($images)?>
+      <?= $imageSize['height']['value']?> * <?= $imageSize['width']['value'] ?> <?= $imageSize['width']['unit'] ?> (<?=$imageSize['type']['value']?>)
+  </div>
+  <div class="paljo-price-container">
+    Hinta <span class="paljo-price"></span>
   </div>
 </div>
+<?php
+$js = <<<JS
+$(document).ready(function(){
+  finna.paljo.initPaljoPrice();
+});
+JS;
+$this->headScript()->appendScript($js);
+?>

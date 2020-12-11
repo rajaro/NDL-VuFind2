@@ -3,9 +3,14 @@
 <div class="infobox">
   <p>Finna-tiliisi ei ole liitetty kuvatilaustunnusta. Tämä kuvatilaus käsitellään PALJO-kuvatilausjärjestelmässä. Luo liitos täydentämällä oheiset tiedot</p>
 </div>
-<div>
-  <p><b><?=$this->transEsc('Email')?></b></p>
-  <input type="text">
-</div>
-
+<form name="paljo-account-creation" method="post" action="<?=$this->url('paljo-account-creation')?>">
+  <div>
+    <p><b><?=$this->transEsc('Email')?></b></p>
+    <input type="text" class="paljo-email" name="email">
+  </div>
+  <div>
+    <input type="checkbox" required class="paljo-tos">Hyväksyn PALJO-tunnuksen käyttöehdot
+  </div>
+  <input class="btn btn-primary" type="submit" value="Luo paljo tunnus" />
+</form>
 <!-- END of: finna - myresearch/paljo-account-creation.phtml -->
