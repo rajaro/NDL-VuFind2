@@ -1,0 +1,24 @@
+<!-- START of: finna - myresearch/paljo-subscriptions.phtml -->
+
+<!-- Leftside navigationbar -->
+<?= $this->context($this)->renderInContext("myresearch/menu.phtml", ['active' => 'paljo-subscriptions']); ?>
+<div class="mainbody right myresearch-body">
+  <div class="myresearch-paljo-container">
+    <h2>Kuvatilaukset:</h2>
+    <div>PALJO-tiliin liitetty sähköposti: <b><?=$this->paljoId?></b></div>
+    <?php foreach ($this->transactions as $transaction): ?>
+      <div class="myresearch-paljo-sub">
+        <div class="paljo-sub-info">
+          <span class="paljo-field">id: </span><span class="paljo-value"><?=$transaction['id']?></span>
+        </div>
+        <div class="paljo-sub-info">
+          <span class="paljo-field">resoluutio: </span><span class="paljo-value"><?=$transaction['resolution']?></span>
+        </div>
+        <div class="paljo-sub-info">
+          <span class="paljo-field">hinta: </span><span class="paljo-value"><?=$transaction['cost']?></span>
+        </div>
+      </div>
+    <?php endforeach; ?>
+  </div>
+</div>
+<!-- END of: finna - myresearch/paljo-subscriptions.phtml -->

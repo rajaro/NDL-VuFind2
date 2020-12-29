@@ -105,6 +105,36 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
     }
 
     /**
+     * Get user transactions from PALJO API
+     *
+     * @param string $paljoId paljo ID
+     *
+     * @return array
+     */
+    public function getMyTransactions($paljoId)
+    {
+        $paljoId = 'finna@finna.fi';
+        $response = $this->sendRequest(
+            'transactions',
+            ['paljo_id' => $paljoId],
+            'GET'
+        );
+        $transactions = [];
+        if ($response['data']) {
+            foreach ($response['data'] as $transaction) {
+                $resource = $transaction['transaction_resources'][0];
+                $transactions[] = [
+                  'id' => $resource['image_id'],
+                  'resolution' => $resource['resolution'],
+                  'cost' => $resource['cost'],
+                  'license' => $resource['license']
+                ];
+            }
+        }
+        return $transactions;
+    }
+
+    /**
      * Send a request to PALJO API
      *
      * @param string $path   relative path

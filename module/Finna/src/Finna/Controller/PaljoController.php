@@ -85,9 +85,25 @@ class PaljoController extends \VuFind\Controller\AbstractBase
     }
 
     /**
-     * 
+     * Paljo subscriptions for user
+     *
+     * @return \Laminas\View
      */
-    public function myPaljoSubscriptions() {
-
+    public function myPaljoSubscriptionsAction()
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirect()->toRoute(
+                'default', ['controller' => 'MyResearch', 'action' => 'Login']
+            );
+        }
+        $userPaljoId = $user->getPaljoId();
+        $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
+        $transactions = $paljo->getMyTransactions($userPaljoId);
+        $view = $this->createViewModel(
+            ['transactions' => $transactions, 'paljoId' => $userPaljoId]
+        );
+        $view->setTemplate('myresearch/paljo-subscriptions');
+        return $view;
     }
 }

@@ -164,7 +164,7 @@ $config = [
                     'route'    => '/Paljo/Subscriptions',
                     'defaults' => [
                         'controller' => 'Paljo',
-                        'action'     => 'MySubscriptions',
+                        'action'     => 'MyPaljoSubscriptions',
                     ]
                 ],
             ],
