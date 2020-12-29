@@ -1,4 +1,4 @@
-/*global VuFind, finna, SimpleMDE */
+/*global VuFind, finna, EasyMDE */
 finna.myList = (function finnaMyList() {
 
   var editor = null;
@@ -463,14 +463,14 @@ finna.myList = (function finnaMyList() {
         status: false
       };
 
-      editor = new SimpleMDE(editorSettings);
+      editor = new EasyMDE(editorSettings);
       currentVal = editor.value();
 
       if (currentVal.indexOf(truncateTag) !== -1) {
         $('.fa-pagebreak').addClass('pagebreak-toggled');
       }
       // Preview
-      var html = SimpleMDE.prototype.markdown(editor.value());
+      var html = editor.options.previewRender(editor.value());
       html = handleTruncateField(html);
       $('.markdown-preview').remove();
       var preview = $('<div/>').addClass('markdown-preview')
@@ -481,7 +481,7 @@ finna.myList = (function finnaMyList() {
       initDetailsElements();
 
       editor.codemirror.on('change', function onChangeEditor() {
-        var result = SimpleMDE.prototype.markdown(editor.value());
+        var result = editor.options.previewRender(editor.value());
         if (result.indexOf(truncateTag) !== -1) {
           if (!$('.fa-pagebreak').hasClass('pagebreak-toggled')) {
             $('.fa-pagebreak').addClass('pagebreak-toggled');
@@ -498,7 +498,7 @@ finna.myList = (function finnaMyList() {
       // Close editor and save when user clicks outside the editor
       $(document).one('click', function onClickDocument() {
         var markdown = editor.value();
-        var resultHtml = SimpleMDE.prototype.markdown(markdown);
+        var resultHtml = editor.options.previewRender(markdown)
 
         editor.toTextArea();
         editor = null;
