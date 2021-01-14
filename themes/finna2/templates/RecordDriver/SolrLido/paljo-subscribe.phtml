@@ -6,7 +6,7 @@
 ?>
 <h1>Kuvatilaus <i class="fa fa-info-big"></i></h1>
 <div class="infobox">Valitse kuvan hinnoitteluperuste ja kuvan koko, jotta voimme laskea kuvalle hinnan. Kun kuvatilaus on maksettu, ohjaudut takaisin Finnaan</div>
-<div>PALJO-tunnukseen liitetty sähköposti: <b><?= $user->getPaljoId(); ?></b></div>
+<div>PALJO-tunnukseen liitetty sähköposti: <b><span class="paljo-user-email"><?= $user->getPaljoId(); ?></span></b></div>
 <div class="paljo-sub-container">
   <div class="paljo-image">
     <img src="<?= $images[0]['urls']['medium'] ?>" />
@@ -32,7 +32,7 @@
       <textarea class="paljo-additional-info" type="text" name="additionalInfo" rows="3" cols="20"></textarea>
     </div>
     <div>
-      <b><span class="paljo-image-info">Sopimusasiakaskoodi</span></b>
+      <b><span class="paljo-image-info">Sopimusasiakaskoodi</span></b><button class="discount"> hae alennus</button>
       <input type="text" name="volume-code" class="paljo-volume-code" placeholder="<?= $this->escapeHtmlAttr($this->translate('Input'))?>"><i class="fa fa-info-big volume-code-info"></i>
     </div>
     <div class="paljo-price-container">

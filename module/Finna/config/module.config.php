@@ -178,6 +178,16 @@ $config = [
                     ]
                 ],
             ],
+            'paljo-verifyemail' => [
+                'type' => 'Laminas\Router\Http\Literal',
+                'options' => [
+                    'route'    => '/Paljo/Subscription/VerifyEmail',
+                    'defaults' => [
+                        'controller' => 'Paljo',
+                        'action'     => 'VerifyEmail',
+                    ]
+                ],
+            ],
             'record-feedback' => [
                 'type'    => 'Laminas\Router\Http\Segment',
                 'options' => [
@@ -453,6 +463,8 @@ $config = [
                         'Finna\AjaxHandler\GetOrganisationPageFeedFactory',
                     'Finna\AjaxHandler\GetPiwikPopularSearches' =>
                         'Finna\AjaxHandler\GetPiwikPopularSearchesFactory',
+                    'Finna\AjaxHandler\GetPaljoDiscount' =>
+                        'Finna\AjaxHandler\GetPaljoDiscountFactory',
                     'Finna\AjaxHandler\GetRecordDriverRelatedRecords' =>
                         'Finna\AjaxHandler\GetRecordDriverRelatedRecordsFactory',
                     'Finna\AjaxHandler\GetRecordInfoByAuthority' =>
@@ -500,6 +512,7 @@ $config = [
                     'getOrganisationPageFeed' => 'Finna\AjaxHandler\GetOrganisationPageFeed',
                     'getMyLists' => 'Finna\AjaxHandler\GetUserLists',
                     'getOrganisationInfo' => 'Finna\AjaxHandler\GetOrganisationInfo',
+                    'getPaljoDiscount' => 'Finna\AjaxHandler\GetPaljoDiscount',
                     'getPiwikPopularSearches' => 'Finna\AjaxHandler\GetPiwikPopularSearches',
                     'getRecordDriverRelatedRecords' => 'Finna\AjaxHandler\GetRecordDriverRelatedRecords',
                     'getRecordInfoByAuthority' => 'Finna\AjaxHandler\GetRecordInfoByAuthority',

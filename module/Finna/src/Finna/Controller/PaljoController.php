@@ -27,9 +27,7 @@
  */
 namespace Finna\Controller;
 
-use VuFind\Exception\Forbidden as ForbiddenException;
-use VuFind\Exception\ILS as ILSException;
-use VuFind\Exception\ListPermission as ListPermissionException;
+use VuFind\Exception\Mail as MailException;
 
 /**
  * Paljo controller
@@ -81,7 +79,84 @@ class PaljoController extends \VuFind\Controller\AbstractBase
     {
         $user = $this->getUser();
         $email = $this->params()->fromPost('email', '');
-        $user->setPaljoId($email);
+        $this->sendVerificationEmail($user, $email);
+        $view = $this->createViewModel(
+            [
+                'url' => $this->getServerUrl('paljo-verifyemail')
+                . '?hash=' . $user->verify_hash
+                . '&email=' . $email            ]
+        );
+        $view->setTemplate(
+            'Email/paljo-verify-email.phtml',
+            [
+            'url' => $this->getServerUrl('paljo-verifyemail')
+            . '?hash=' . $user->verify_hash
+            ]
+        );
+        return $view;
+    }
+
+    /**
+     * Send a verification email to users to email address
+     * that contains a link to create a paljo account
+     *
+     * @param \Finna\Db\Row\User $user  User object
+     * @param string             $email email address to use as paljo id
+     *
+     * @return boolean
+     */
+    public function sendVerificationEmail($user, $email)
+    {
+        if (!$user) {
+            return false;
+        }
+        try {
+            $config = $this->getConfig();
+            $user->updateHash();
+            $renderer = $this->getViewRenderer();
+            $message = $renderer->render(
+                'Email/paljo-verify-email.phtml',
+                [
+                    'url' => $this->getServerUrl('paljo-verifyemail')
+                    . '?hash=' . $user->verify_hash
+                ]
+            );
+            $to = $email;
+            $to = 'jaro.ravila@helsinki.fi';
+            return $message;
+            $this->serviceLocator->get(\VuFind\Mailer\Mailer::class)->send(
+                $to,
+                $config->Site->email,
+                $this->translate('verification_email_subject'),
+                $message
+            );
+            $flashMessage = 'paljo_email_verification_sent';
+            $this->flashMessenger()->addMessage($flashMessage, 'info');
+        } catch (MailException $e) {
+            $this->flashMessenger()->addMessage($e->getMessage(), 'error');
+        }
+        return true;
+    }
+
+    /**
+     * Verify users email and create a paljo username
+     *
+     * @return view
+     */
+    public function verifyEmailAction()
+    {
+        $hash = $this->params()->fromQuery('hash');
+        $email = $this->params()->fromQuery('email');
+        $table = $this->getTable('User');
+        $user = $table->getByVerifyHash($hash);
+        if (!$user) {
+            return false;
+        }
+        $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
+        if ($paljo->createPaljoAccount($email)) {
+            $user->setPaljoId($email);
+        }
+        return $this->forwardTo('MyResearch', 'Home');
     }
 
     /**

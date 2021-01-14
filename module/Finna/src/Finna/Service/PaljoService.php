@@ -68,16 +68,19 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
      *
      * @param string $email email
      *
-     * @return string
+     * @return boolean
      */
     public function createPaljoAccount($email)
     {
         $response = $this->sendRequest(
             'paljos',
-            ['email' => 'testipaljo@testausta.fi'],
+            ['email' => $email],
             'POST'
         );
-        return $response;
+        if ($response->getStatusCode() === 201) {
+            return true;
+        }
+        return $false;
     }
 
     /**
@@ -98,7 +101,7 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
             [],
             'GET'
         );
-        if ($response['message'] === 'Image exists') {
+        if ($response->getStatusCode() === 200) {
             return true;
         }
         return false;
@@ -119,9 +122,10 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
             ['paljo_id' => $paljoId],
             'GET'
         );
+        $result = json_decode($response->getBody(), true);
         $transactions = [];
-        if ($response['data']) {
-            foreach ($response['data'] as $transaction) {
+        if ($result['data']) {
+            foreach ($result['data'] as $transaction) {
                 $resource = $transaction['transaction_resources'][0];
                 $transactions[] = [
                   'id' => $resource['image_id'],
@@ -132,6 +136,36 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
             }
         }
         return $transactions;
+    }
+
+    /**
+     * Get discount for user
+     *
+     * @param string $email user paljo id
+     * @param string $code  volume code
+     *
+     * @return array
+     */
+    public function getDiscountForUser($email, $code)
+    {
+        // test
+        $email = 'finna@finna.fi';
+        $code = 'cde0e73c-d011-4b14-9dad-7e30e15b01de';
+        // test
+
+        $response = $this->sendRequest(
+            'volume-queries',
+            [
+                'paljo_id' => $email,
+                'volume_code' => $code
+            ],
+            'POST'
+        );
+        $result = json_decode($response->getBody(), true);
+        $data = [];
+        if ($result['data']) {
+            $data['discount'] = $response['data']['discount'];
+        }
     }
 
     /**
@@ -159,11 +193,10 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
             $response = $client->send();
         } catch (\Exception $e) {
             $this->error(
-                "POST request for '$apiUrl' failed: " . $e->getMessage()
+                "Request for '$apiUrl' failed: " . $e->getMessage()
             );
             return $e->getMessage();
         }
-        $result = json_decode($response->getBody(), true);
-        return $result;
+        return $response;
     }
 }

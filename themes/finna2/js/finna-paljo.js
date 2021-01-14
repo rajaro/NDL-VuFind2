@@ -1,10 +1,16 @@
 /*global VuFind, finna */
 finna.paljo = (function finnaPaljo() {
-  function createPaljoAccount() {
-      if ($('input.paljo-tos:checked') && $('input.paljo-email').text) {
-        var email = $('input.paljo-email').text;
-        var url = VuFind.path;
-      }
+    function getPaljoDiscount() {
+      var email = $('.paljo-user-email')[0].innerHTML;
+      var code = $('input.paljo-volume-code')[0].value;
+      $.ajax({
+        type: 'GET',
+        dataType: 'json',
+        url: VuFind.path + '/AJAX/JSON?method=getPaljoDiscount',
+        data: {'email': email, 'code': code}
+      })
+        .done(function onGetDiscount() {
+        });
   }
   function initPaljoPrice() {
     var price = $('option.paljo-price-type')[0].value
@@ -16,10 +22,15 @@ finna.paljo = (function finnaPaljo() {
       $('span.paljo-price').html(price);
 
     });
+
+    // test
+    $('button.discount').click(function ondiscountclick() {
+      getPaljoDiscount();
+    });
+    // test
   }
 
   var my = {
-    createPaljoAccount: createPaljoAccount,
     initPaljoPrice: initPaljoPrice
   };
 
