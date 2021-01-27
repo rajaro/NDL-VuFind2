@@ -1102,26 +1102,6 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
     }
 
     /**
-     * Get price types and their prices
-     *
-     * @return array array of price types and their prices
-     */
-    public function getPriceTypesAndPrices()
-    {
-        $priceTypes = [];
-        foreach ($this->getXmlRecord()->xpath(
-            'lido/administrativeMetadata/resourceWrap/resourceSet/'
-            . 'resourceRepresentation[@type="image_master"]/resourcePriceSet'
-        ) as $node) {
-            $priceTypes[] = [
-                'priceType' => (string)$node->priceType,
-                'price' => (string)$node->price
-            ];
-        }
-        return $priceTypes;
-    }
-
-    /**
      * Get image size for paljo subscription
      *
      * @return array

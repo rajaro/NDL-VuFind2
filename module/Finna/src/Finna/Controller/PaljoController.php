@@ -54,17 +54,22 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             );
         }
         $id = $this->params()->fromRoute('id', '');
+        $organisationId = $this->params()->fromRoute('organisationId', '');
         $recordId = $this->params()->fromRoute('recordId', '');
         $driver = $this->getRecordLoader()->load($recordId, 'Solr', true);
-        $view = $this->createViewModel(
-            [
-                'driver' => $driver, 'id' => $id, 'recordId' => $recordId
-            ]
-        );
 
         if ($user->getPaljoId() === null) {
+            $view = $this->createViewModel();
             $view->setTemplate('RecordDriver/SolrLido/paljo-account-creation');
         } else {
+            $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
+            $prices = $paljo->getImagePrice($id, $organisationId);
+            $view = $this->createViewModel(
+                [
+                    'driver' => $driver, 'id' => $id,
+                    'recordId' => $recordId, 'prices' => $prices
+                ]
+            );
             $view->setTemplate('RecordDriver/SolrLido/paljo-subscribe');
         }
         return $view;
@@ -84,7 +89,8 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             [
                 'url' => $this->getServerUrl('paljo-verifyemail')
                 . '?hash=' . $user->verify_hash
-                . '&email=' . $email            ]
+                . '&email=' . $email
+            ]
         );
         $view->setTemplate(
             'Email/paljo-verify-email.phtml',

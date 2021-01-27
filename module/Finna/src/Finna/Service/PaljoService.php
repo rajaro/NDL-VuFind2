@@ -108,6 +108,57 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
     }
 
     /**
+     * Get image price
+     *
+     * @param string $id    image id
+     * @param string $orgId organisation id
+     *
+     * @return array
+     */
+    public function getImagePrice($id, $orgId)
+    {
+        $path = 'organisations/' . $orgId . '/images/' . $imageId . '/prices';
+        $response = $this->sendRequest(
+            $path,
+            [],
+            'GET'
+        );
+    //    $result = json_decode($response->getBody(), true);
+    // TEST
+        $result = [
+            'data' => [
+                'price' => [
+                    'private' => 12,
+                    'non-profit' => 32
+                ],
+                'license' => [
+                    'private' => 'CC BY 4.0',
+                    'non-profit' => 'CC BY 4.0'
+                ],
+                'currency' => [
+                    'private' => '€',
+                    'non-profit' => '€'
+                ]
+            ]
+        ];
+
+    // TEST
+
+        $imageInfo = [];
+        if (!empty($result['data']['price'])) {
+            $imageInfo['price'] = $result['data']['price'];
+        }
+        if (!empty($result['data']['license'])) {
+            $imageInfo['license'] = $result['data']['license'];
+        }
+        if (!empty($result['data']['currency'])) {
+            $imageInfo['currency'] = $result['data']['license'];
+        }
+        return $imageInfo;
+    }
+
+
+    /**
      * Get user transactions from PALJO API
      *
      * @param string $paljoId paljo ID

@@ -1,6 +1,5 @@
 <?php
   $user = $this->auth()->isLoggedIn();
-  $prices = $this->driver->getPriceTypesAndPrices();
   $imageSize = $this->driver->getPaljoImageSize();
   $images = $this->driver->getAllImages();
 ?>
@@ -18,7 +17,7 @@
     <div class="paljo-price-type">
       <b><span class="paljo-image-info">Hinnoitteluperuste</span></b>
       <select class="paljo-price-type-menu">
-        <?php foreach ($prices as $price): ?>
+        <?php foreach ($this->prices as $price): ?>
           <option class="paljo-price-type" value="<?= $this->escapeHtmlAttr($price['price'])?>"><?= $price['priceType'] ?></option>
         <?php endforeach; ?>
       </select>
