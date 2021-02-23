@@ -56,7 +56,6 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $id = $this->params()->fromRoute('id', '');
         $organisationId = $this->params()->fromRoute('organisationId', '');
         $recordId = $this->params()->fromRoute('recordId', '');
-        $driver = $this->getRecordLoader()->load($recordId, 'Solr', true);
 
         if ($user->getPaljoId() === null) {
             $view = $this->createViewModel();
@@ -64,6 +63,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         } else {
             $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
             $prices = $paljo->getImagePrice($id, $organisationId);
+            $driver = $this->getRecordLoader()->load($recordId, 'Solr', true);
             $view = $this->createViewModel(
                 [
                     'driver' => $driver, 'id' => $id,

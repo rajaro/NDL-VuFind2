@@ -20,10 +20,10 @@
         <?php if ($this->record($this->driver)->allowRecordImageDownload()): ?>
           <?= $this->record($this->driver)->renderTemplate('image-download.phtml', ['index' => $ind, 'rights' => $rights, 'image' => $image, 'hiRes' => $image['highResolution'] ?? false]) ?>
         <?php endif; ?>
-        <?php if ($this->paljo()->checkPaljoAvailability(1, 1)): ?>
-          <a href="<?= $this->url('paljo-subscription', ['id' => $this->driver->getIdentifier()[0], 'recordId' => $this->driver->getUniqueID()]) ?>"><?=$this->transEsc('TILAA KUVA')?></a>
+        <?php if ($this->paljo()->checkPaljoAvailability(0, 1)): ?>
+          <a href="<?= $this->url('paljo-subscription', ['id' => $this->driver->getIdentifier()[0], 'recordId' => $this->driver->getUniqueID()]) ?>"><?=$this->transEsc('paljo_subscribe')?></a>
         <?php endif;?>
-      <?= $this->record($this->driver)->renderTemplate('image-rights.phtml', ['imageRightsLabel' => $imageRightsLabel, 'rights' => $rights, 'truncateLicense' => $ind === 0]); ?>
+        <?= $this->record($this->driver)->renderTemplate('image-rights.phtml', ['imageRightsLabel' => $imageRightsLabel, 'rights' => $rights, 'truncateLicense' => $ind === 0]); ?>
       </div>
       <?php $ind++; ?>
     <?php endforeach; ?>

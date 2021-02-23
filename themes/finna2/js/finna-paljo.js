@@ -9,7 +9,13 @@ finna.paljo = (function finnaPaljo() {
         url: VuFind.path + '/AJAX/JSON?method=getPaljoDiscount',
         data: {'email': email, 'code': code}
       })
-        .done(function onGetDiscount() {
+        .done(function onGetDiscount(response) {
+          console.log(response.data)
+          var discount = response.data.discount;
+          var currentPrice = $('span.paljo-price').html();
+          var newPrice = (1 - discount / 100) * currentPrice
+          newPrice = newPrice.toFixed(2);
+          $('span.paljo-price').html(newPrice);
         });
   }
   function initPaljoPrice() {

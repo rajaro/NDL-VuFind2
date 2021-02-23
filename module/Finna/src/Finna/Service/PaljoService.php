@@ -117,42 +117,46 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
      */
     public function getImagePrice($id, $orgId)
     {
-        $path = 'organisations/' . $orgId . '/images/' . $imageId . '/prices';
+        //TEST
+        $id = 273;
+        $orgId = 1;
+        //TEST
+        $path = 'organisations/' . $orgId . '/images/' . $id . '/pricing';
         $response = $this->sendRequest(
             $path,
             [],
             'GET'
         );
-    //    $result = json_decode($response->getBody(), true);
+        $result = json_decode($response->getBody(), true);
     // TEST
-        $result = [
-            'data' => [
-                'price' => [
-                    'private' => 12,
-                    'non-profit' => 32
-                ],
-                'license' => [
-                    'private' => 'CC BY 4.0',
-                    'non-profit' => 'CC BY 4.0'
-                ],
-                'currency' => [
-                    'private' => '€',
-                    'non-profit' => '€'
-                ]
-            ]
-        ];
+        // $result = [
+        //     'data' => [
+        //         'price' => [
+        //             'private' => 12,
+        //             'non-profit' => 32
+        //         ],
+        //         'license' => [
+        //             'private' => 'CC BY 4.0',
+        //             'non-profit' => 'CC BY 4.0'
+        //         ],
+        //         'currency' => [
+        //             'private' => '€',
+        //             'non-profit' => '€'
+        //         ]
+        //     ]
+        // ];
 
     // TEST
 
         $imageInfo = [];
-        if (!empty($result['data']['price'])) {
-            $imageInfo['price'] = $result['data']['price'];
+        if (!empty($result['price'])) {
+            $imageInfo['price'] = $result['price'];
         }
-        if (!empty($result['data']['license'])) {
-            $imageInfo['license'] = $result['data']['license'];
+        if (!empty($result['license'])) {
+            $imageInfo['license'] = $result['license'];
         }
-        if (!empty($result['data']['currency'])) {
-            $imageInfo['currency'] = $result['data']['license'];
+        if (!empty($result['currency'])) {
+            $imageInfo['currency'] = $result['license'];
         }
         return $imageInfo;
     }
@@ -214,9 +218,10 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
         );
         $result = json_decode($response->getBody(), true);
         $data = [];
-        if ($result['data']) {
-            $data['discount'] = $response['data']['discount'];
+        if (isset($result['data'][0])) {
+            $data['discount'] = $result['data'][0]['discount'];
         }
+        return $data;
     }
 
     /**

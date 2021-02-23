@@ -1,7 +1,7 @@
 <!-- START of: finna - myresearch/paljo-account-creation.phtml -->
-<h1><?=$this->transEsc('Kuvatilaustunnus')?></h1>
+<h1><?=$this->transEsc('paljo_id')?></h1>
 <div class="infobox">
-  <p>Finna-tiliisi ei ole liitetty kuvatilaustunnusta. Tämä kuvatilaus käsitellään PALJO-kuvatilausjärjestelmässä. Luo liitos täydentämällä oheiset tiedot</p>
+  <p><?=$this->transEsc('paljo_create_account_info')?></p>
 </div>
 <form name="paljo-account-creation" method="post" action="<?=$this->url('paljo-account-creation')?>">
   <div>
@@ -9,8 +9,8 @@
     <input type="text" class="paljo-email" name="email">
   </div>
   <div>
-    <input type="checkbox" required class="paljo-tos">Hyväksyn PALJO-tunnuksen käyttöehdot
+    <input type="checkbox" required class="paljo-tos"><?=$this->transEsc('paljo_accept_tos')?>
   </div>
-  <input class="btn btn-primary" type="submit" value="Luo paljo tunnus" />
+  <input class="btn btn-primary" type="submit" value="<?=$this->transEscAttr('paljo_create_account')?>" />
 </form>
 <!-- END of: finna - myresearch/paljo-account-creation.phtml -->
