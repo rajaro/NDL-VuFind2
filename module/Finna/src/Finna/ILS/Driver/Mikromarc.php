@@ -1976,13 +1976,8 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
         $startTime = microtime(true);
         $client->setMethod($method);
 
-        if (false == $params) {
-            $params = [];
-        }
-
         $page = 0;
         $data = [];
-        $nextPage = false;
         do {
             $client->setUri($apiUrl);
             $response = $client->send();
@@ -2015,28 +2010,41 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
                 throw new ILSException('Problem with Mikromarc REST API.');
             }
 
-            // More results available?
-            if ($nextPage = !empty($decodedResult['@odata.nextLink'])) {
-                $client->setParameterPost([]);
-                $client->setParameterGet([]);
-                $apiUrl = $decodedResult['@odata.nextLink'];
-            }
-
-            if (isset($decodedResult['value'])) {
-                $decodedResult = $decodedResult['value'];
-            }
-
-            if ($page == 0) {
-                $data = $decodedResult;
+            $resultData = $decodedResult['value'] ?? $decodedResult;
+            if ($page === 0) {
+                $data = $resultData;
             } else {
-                $data = array_merge($data, $decodedResult);
+                $data = array_merge($data, $resultData);
             }
 
-            $page++;
-        } while ($nextPage);
+            // More results available?
+            $nextLink = $decodedResult['@odata.nextLink'] ?? '';
+            if (!$nextLink) {
+                break;
+            }
 
-        return $returnCode ? [$response->getStatusCode(), $data]
-            : $data;
+            // At least with LibraryUnits, Mikromarc may repeat the same link over
+            // and over again. Try to fix.
+            if ($apiUrl === $nextLink) {
+                if (is_array($data)) {
+                    $nextLink = preg_replace(
+                        '/\$skip=(\d+)/',
+                        '$skip=' . count($data),
+                        $nextLink
+                    );
+                }
+                if ($apiUrl === $nextLink) {
+                    $this->logError('Could not rewrite $skip parameter');
+                    break;
+                }
+            }
+
+            $client->setParameterPost([]);
+            $apiUrl = $nextLink;
+            $page++;
+        } while ($page < 100); // safety valve
+
+        return $returnCode ? [$response->getStatusCode(), $data] : $data;
     }
 
     /**
