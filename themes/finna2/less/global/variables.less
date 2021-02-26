@@ -163,7 +163,7 @@
 // ## Settings for some of the most global styles.
 
 @body-bg: #fff;
-@text-color: @gray;
+@text-color: @gray-dark;
 @link-color:  #007c90; // defines all link color, also for linked icons
 @link-hover-color: @link-color;
 @link-hover-decoration: #fff;
@@ -233,7 +233,8 @@
 @full-text-icon-color: #037c90;
 @open-access-icon-color: #e88636;
 @peer-reviewed-icon-color: #179003;
-@r2-restricted-metadata-available-icon-color: #302a78;
+@R2-restricted-metadata-available-icon-color: #302a78;
+@R2-restricted-metadata-included-icon-color: #302a78;
 
 //== Components
 //
@@ -485,17 +486,18 @@
 //== Breadcrumbs
 //
 //##
-
-@breadcrumb-padding-vertical:   5px;
-@breadcrumb-padding-horizontal: 5px;
+//** @breadcrumbs: false/true
+@breadcrumbs: false;
 //** Breadcrumb background color
-@breadcrumb-bg:                 rgba(1, 1, 1, 0.4);
+@breadcrumb-bg                : #fff;
 //** Breadcrumb text color
-@breadcrumb-color:              #fff;
+@breadcrumb-color             : @gray-light;
 //** Text color of current page in the breadcrumb
-@breadcrumb-active-color:       #fff;
+@breadcrumb-active-color      : @gray-dark;
+@breadcrumb-padding-vertical:   10px;
+@breadcrumb-padding-horizontal: 10px;
 //** Textual separator for between breadcrumb elements
-@breadcrumb-separator:          "/ ";
+@breadcrumb-separator:          "|";
 
 
 //== Wells

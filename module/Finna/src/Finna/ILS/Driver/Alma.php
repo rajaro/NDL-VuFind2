@@ -28,6 +28,7 @@
 namespace Finna\ILS\Driver;
 
 use VuFind\Exception\ILS as ILSException;
+use VuFind\I18n\TranslatableString;
 use VuFind\I18n\Translator\TranslatorAwareInterface;
 
 /**
@@ -93,6 +94,13 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
     ];
 
     /**
+     * Mappings from location type to item status. Overrides any other item status.
+     *
+     * @var array
+     */
+    protected $locationTypeToItemStatus = [];
+
+    /**
      * Initialize the driver.
      *
      * Validate configuration and perform all resource-intensive tasks needed to
@@ -112,7 +120,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             );
             foreach ($values as $i => $value) {
                 $parts = explode('=', $value, 2);
-                $idx = $parts[1] ?? $i;
+                $idx = is_numeric($parts[1] ?? null) ? $parts[1] : $i;
                 $this->holdingsLocationOrder[$parts[0]] = $idx;
             }
         }
@@ -132,6 +140,11 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             $this->feeTypeMappings = array_merge(
                 $this->feeTypeMappings, $this->config['FeeTypeMappings']
             );
+        }
+
+        if (!empty($this->config['Holdings']['locationTypeItemStatus'])) {
+            $this->locationTypeToItemStatus
+                = $this->config['Holdings']['locationTypeItemStatus'];
         }
     }
 
@@ -286,6 +299,9 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     : false;
                 //$loan['message'] = ;
                 $loan['title'] = (string)$itemLoan->title;
+                if ($description = (string)$itemLoan->description) {
+                    $loan['title'] .= " $description";
+                }
                 $loan['item_id'] = (string)$itemLoan->loan_id;
                 $loan['institution_name']
                     = $this->getTranslatableString($itemLoan->library);
@@ -1199,35 +1215,41 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     = explode(':', $config['titleHoldBibLevels']);
             }
             if (!empty($params['id']) && !empty($params['patron']['id'])) {
-                $cacheKey = md5(
-                    'request-options-' . $params['id'] . '-'
-                    . $params['patron']['id']
-                );
-                $requestOptions = $this->getCachedData($cacheKey);
-                if (null === $requestOptions) {
+                if (empty($params['details']['item_id'])) {
                     // Check if we require the part_issue (description) field
-                    $requestOptionsPath = '/bibs/' . rawurlencode($params['id'])
-                        . '/request-options?user_id='
-                        . urlencode($params['patron']['id']);
-                    // Make the API request
-                    $requestOptions = $this->makeRequest($requestOptionsPath);
-                    $this->putCachedData($cacheKey, $requestOptions->asXML(), 120);
-                } else {
-                    $requestOptions = simplexml_load_string($requestOptions);
-                }
-                // Check possible request types from the API answer
-                $requestTypes = $requestOptions->xpath(
-                    '/request_options/request_option//type'
-                );
-                $types = [];
-                foreach ($requestTypes as $requestType) {
-                    $types[] = (string)$requestType;
-                }
-                if ($types === ['PURCHASE']) {
-                    $config['extraHoldFields']
-                        = empty($config['extraHoldFields'])
-                            ? 'part_issue'
-                            : $config['extraHoldFields'] . ':part_issue';
+                    $cacheKey = md5(
+                        'request-options-' . $params['id'] . '-'
+                        . $params['patron']['id']
+                    );
+                    $requestOptions = $this->getCachedData($cacheKey);
+                    if (null === $requestOptions) {
+                        $requestOptionsPath = '/bibs/' . rawurlencode($params['id'])
+                            . '/request-options?user_id='
+                            . urlencode($params['patron']['id']);
+                        // Make the API request
+                        $requestOptions = $this->makeRequest($requestOptionsPath);
+                        $this->putCachedData(
+                            $cacheKey,
+                            $requestOptions->asXML(),
+                            120
+                        );
+                    } else {
+                        $requestOptions = simplexml_load_string($requestOptions);
+                    }
+                    // Check possible request types from the API answer
+                    $requestTypes = $requestOptions->xpath(
+                        '/request_options/request_option//type'
+                    );
+                    $types = [];
+                    foreach ($requestTypes as $requestType) {
+                        $types[] = (string)$requestType;
+                    }
+                    if ($types === ['PURCHASE']) {
+                        $config['extraHoldFields']
+                            = empty($config['extraHoldFields'])
+                                ? 'part_issue'
+                                : $config['extraHoldFields'] . ':part_issue';
+                    }
                 }
 
                 // Add a flag so that checkRequestIsValid knows to check valid pickup
@@ -1258,7 +1280,46 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
      */
     public function getPickupLocations($patron, $holdDetails)
     {
+        // This may get called multiple times. Cache results during execution since
+        // this is quite expensive.
+        static $cachedPickups = [];
+        $cacheKey = md5(json_encode($patron) . json_encode($holdDetails));
+        if (isset($cachedPickups[$cacheKey])) {
+            return $cachedPickups[$cacheKey];
+        }
+
         $libraries = parent::getPickupLocations($patron, $holdDetails);
+
+        $libraries = array_map(
+            function ($entry) {
+                $entry['locationDisplay'] = $this->getTranslatableStringForCode(
+                    'pickup_location_' . $entry['locationID'],
+                    $entry['locationDisplay']
+                );
+                return $entry;
+            },
+            $libraries
+        );
+
+        $libs2str = function ($libraries) {
+            $result = [];
+            foreach ($libraries as $library) {
+                $result[] = '    ' . $library['locationID'] . '='
+                    . $library['locationDisplay'];
+            }
+            return implode("\n", $result);
+        };
+
+        $items2str = function ($items) {
+            $result = [];
+            foreach ($items as $item) {
+                $result[] = '    lib: ' . $item['lib'] . ', loc: ' . $item['loc'] .
+                    ', policy: ' . $item['policy'];
+            }
+            return implode("\n", $result);
+        };
+
+        $this->debug("Considering pickup locations:\n" . $libs2str($libraries));
 
         if ($patron && $holdDetails
             && !empty($this->config['Holds']['pickupLocationRules'])
@@ -1283,10 +1344,26 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                 );
                 $items = [$item];
             } else {
-                $items = $this->makeRequest(
-                    '/bibs/' . rawurlencode($bibId) . '/holdings/ALL/items'
-                );
-                $items = $items->item;
+                $items = [];
+                // NOTE: According to documentation offset is 0-based, but in reality
+                // it seems to be 1-based.
+                $offset = 1;
+                $limit = 10;
+                do {
+                    $itemsResult = $this->makeRequest(
+                        '/bibs/' . rawurlencode($bibId) . '/holdings/ALL/items',
+                        [
+                            'offset' => $offset,
+                            'limit' => $limit
+                        ]
+                    );
+                    foreach ($itemsResult->item as $item) {
+                        $items[] = $item;
+                    }
+                    $total = (string)$itemsResult->attributes()
+                        ->{'total_record_count'};
+                    $offset += $limit;
+                } while ($offset < $total);
             }
             foreach ($items as $item) {
                 $lib = (string)$item->item_data->library;
@@ -1322,10 +1399,17 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             $libraryFilter = null;
             $work = false;
             $home = false;
+            $this->debug("All items:\n" . $items2str($allItems));
+            $this->debug("Available items:\n" . $items2str($availableItems));
+            $this->debug("Unavailable items:\n" . $items2str($unavailableItems));
+            $this->debug("Patron group: $patronGroup");
+            $this->debug("Request level: $level");
+
             foreach ($rules as $rule) {
                 if (!empty($rule['level'])
                     && !$this->compareRuleWithArray($rule['level'], (array)$level)
                 ) {
+                    $this->debug('No match: rule level: ' . $rule['_str']);
                     continue;
                 }
 
@@ -1338,6 +1422,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                         $allItems
                     )
                 ) {
+                    $this->debug('No match: loc, lib, policy: ' . $rule['_str']);
                     continue;
                 }
                 if ((!empty($rule['avail']) || !empty($rule['availlib'])
@@ -1349,6 +1434,9 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                         $availableItems
                     )
                 ) {
+                    $this->debug(
+                        'No match: avail, availlib, availpolicy: ' . $rule['_str']
+                    );
                     continue;
                 }
                 if ((!empty($rule['unavail']) || !empty($rule['unavaillib'])
@@ -1360,6 +1448,10 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                         $unavailableItems
                     )
                 ) {
+                    $this->debug(
+                        'No match: unavail, unavaillib, unavailpolicy: '
+                        . $rule['_str']
+                    );
                     continue;
                 }
 
@@ -1368,6 +1460,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                         $rule['group'], (array)$patronGroup
                     );
                     if (!$match) {
+                        $this->debug('No match: group: ' . $rule['_str']);
                         continue;
                     }
                 }
@@ -1377,6 +1470,8 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     $libraryFilter = [];
                 }
                 $libraryFilter = array_merge($libraryFilter, $rule['pickup'] ?? []);
+
+                $this->debug('Rule match: ' . $rule['_str']);
 
                 if (!empty($rule['home'])) {
                     $home = !empty($profile['homeAddress'])
@@ -1392,6 +1487,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                 }
 
                 if (in_array('stop', $rule['match'] ?? [])) {
+                    $this->debug('Stop further processing: ' . print_r($rule, true));
                     break;
                 }
             }
@@ -1427,7 +1523,11 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     ];
                 }
             }
+
+            $this->debug("Filtered pickup locations:\n" . $libs2str($libraries));
         }
+
+        $cachedPickups[$cacheKey] = $libraries;
 
         return $libraries;
     }
@@ -2074,9 +2174,8 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             // Get Notes
             $data = $this->getHoldingsMarc(
                 $marc,
-                isset($this->config['Holdings']['notes'])
-                ? $this->config['Holdings']['notes']
-                : '852z'
+                $this->config['Holdings']['notes']
+                ?? '852z'
             );
             if ($data) {
                 $marcDetails['notes'] = $data;
@@ -2085,9 +2184,8 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             // Get Summary (may be multiple lines)
             $data = $this->getHoldingsMarc(
                 $marc,
-                isset($this->config['Holdings']['summary'])
-                ? $this->config['Holdings']['summary']
-                : '866a'
+                $this->config['Holdings']['summary']
+                ?? '866a'
             );
             if ($data) {
                 $marcDetails['summary'] = $data;
@@ -2229,16 +2327,40 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     ? $this->parseDate((string)$item->item_data->due_date) : null;
                 if ($duedate && 'Item not in place' === $status) {
                     $status = 'Checked Out';
-                }
-
-                $itemNotes = !empty($item->item_data->public_note)
-                    ? [(string)$item->item_data->public_note] : null;
-
-                if ($processType && 'LOAN' !== $processType) {
+                } elseif ($processType && 'LOAN' !== $processType) {
                     $status = $this->getTranslatableStatusString(
                         $item->item_data->process_type
                     );
                 }
+
+                $available = null;
+                $statusDisplayText = null;
+                if ($this->locationTypeToItemStatus) {
+                    $locationType = $this->getItemLocationType($item);
+                    if ($locationType
+                        && isset($this->locationTypeToItemStatus[$locationType])
+                    ) {
+                        $parts = explode(
+                            ':',
+                            $this->locationTypeToItemStatus[$locationType]
+                        );
+                        $statusDisplayText = $status
+                            = new TranslatableString($parts[0], $parts[0]);
+                        if (isset($parts[1])) {
+                            $available = 'unavailable' !== $parts[1];
+                        }
+                    }
+                }
+
+                if (null === $available) {
+                    $available = $this->getAvailabilityFromItem($item);
+                }
+                if ($available) {
+                    ++$availableItems;
+                }
+
+                $itemNotes = !empty($item->item_data->public_note)
+                    ? [(string)$item->item_data->public_note] : null;
 
                 $description = null;
                 $number = null;
@@ -2254,10 +2376,6 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     } elseif (!$itemHolds) {
                         $addLink = false;
                     }
-                }
-                $available = $this->getAvailabilityFromItem($item);
-                if ($available) {
-                    ++$availableItems;
                 }
 
                 $items[] = [
@@ -2283,7 +2401,10 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     // For Alma title-level hold requests
                     'description' => $description ?? null,
                     'detailsGroupKey' => $holdingId ? "$holdingId||||" : '',
-                    'sort' => $sort++
+                    'sort' => $sort++,
+                    'availabilityInfo' => [
+                        'displayText' => $statusDisplayText ?? null
+                    ],
                 ];
             }
         }
@@ -2430,16 +2551,38 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
     }
 
     /**
-     * Get the external name of a location
+     * Get location type for an item
      *
-     * @param string $library  Library
-     * @param string $location Location
+     * @param SimpleXMLElement $item Item
      *
      * @return string
      */
-    protected function getLocationExternalName($library, $location)
+    protected function getItemLocationType($item)
     {
-        $cacheId = 'alma|locations|' . $library;
+        // Yes, temporary location is in holding data while permanent location is in
+        // item data.
+        if ('true' === (string)$item->holding_data->in_temp_location) {
+            $library = $item->holding_data->temp_library
+                ?: $item->item_data->library;
+            $location = $item->holding_data->temp_location
+                ?: $item->item_data->location;
+        } else {
+            $library = $item->item_data->library;
+            $location = $item->item_data->location;
+        }
+        return $this->getLocationType((string)$library, (string)$location);
+    }
+
+    /**
+     * Get the locations for a library
+     *
+     * @param string $library Library
+     *
+     * @return array
+     */
+    protected function getLocations($library)
+    {
+        $cacheId = 'alma|locations2|' . $library;
         $locations = $this->getCachedData($cacheId);
 
         if (null === $locations) {
@@ -2450,14 +2593,43 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             foreach ($xml as $entry) {
                 $locations[(string)$entry->code] = [
                     'name' => (string)$entry->name,
-                    'externalName' => (string)$entry->external_name
+                    'externalName' => (string)$entry->external_name,
+                    'type' => (string)$entry->type,
                 ];
             }
             $this->putCachedData($cacheId, $locations, 3600);
         }
+        return $locations;
+    }
+
+    /**
+     * Get the external name of a location
+     *
+     * @param string $library  Library
+     * @param string $location Location
+     *
+     * @return string
+     */
+    protected function getLocationExternalName($library, $location)
+    {
+        $locations = $this->getLocations($library);
         return !empty($locations[$location]['externalName'])
             ? $locations[$location]['externalName']
             : ($locations[$location]['name'] ?? null);
+    }
+
+    /**
+     * Get type of a location
+     *
+     * @param string $library  Library
+     * @param string $location Location
+     *
+     * @return string
+     */
+    protected function getLocationType($library, $location)
+    {
+        $locations = $this->getLocations($library);
+        return $locations[$location]['type'] ?? '';
     }
 
     /**
@@ -2510,17 +2682,47 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                         if ($mmsId !== (string)$bib->mms_id) {
                             continue;
                         }
-                        $avail = $this->getMarcSubfield($field, 'e');
+                        $available = null;
+                        $statusDisplayText = null;
+                        $location = $this->getMarcSubfield($field, 'j');
+                        if ($this->locationTypeToItemStatus) {
+                            $library = $this->getMarcSubfield($field, 'b');
+                            $type = $this->getLocationType($library, $location);
+                            if ($type
+                                && isset($this->locationTypeToItemStatus[$type])
+                            ) {
+                                $parts = explode(
+                                    ':',
+                                    $this->locationTypeToItemStatus[$type]
+                                );
+                                $statusDisplayText
+                                    = new TranslatableString($parts[0], $parts[0]);
+                                if (isset($parts[1])) {
+                                    $available = 'unavailable' !== $parts[1];
+                                }
+                            }
+                        }
+
+                        if (null === $available) {
+                            $availStr
+                                = strtolower($this->getMarcSubfield($field, 'e'));
+                            $available = 'available' === $availStr;
+                        }
+
                         $item = $tmpl;
-                        $item['availability'] = strtolower($avail) === 'available';
-                        $item['location_code'] = $this->getMarcSubfield($field, 'j');
+                        $item['availability'] = $available;
+                        $item['location_code'] = $location;
                         $item['location'] = $this->getTranslatableStringForCode(
-                            $item['location_code'],
+                            $location,
                             $this->getMarcSubfield($field, 'c')
                         );
                         $item['callnumber'] = $this->getMarcSubfield($field, 'd');
                         $item['sort'] = $sort++;
                         $item['externalInterfaceUrl'] = $externalInterfaceUrl;
+                        if ($statusDisplayText) {
+                            $item['availabilityInfo']['displayText']
+                                = $statusDisplayText;
+                        }
                         $status[] = $item;
                     }
                     // Electronic
@@ -2671,6 +2873,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                         array_map('trim', str_getcsv($value, ',', "'"))
                     );
                 }
+                $ruleParts['_str'] = $rule;
             }
             $rules[] = $ruleParts;
         }
@@ -2872,8 +3075,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
      */
     protected function getUpdateProfileFields()
     {
-        $fieldConfig = isset($this->config['updateProfile']['fields'])
-            ? $this->config['updateProfile']['fields'] : [];
+        $fieldConfig = $this->config['updateProfile']['fields'] ?? [];
         if ($disabled = ($this->config['updateProfile']['disabledFields'] ?? '')) {
             $result = [];
             $disabled = explode(':', $disabled);
