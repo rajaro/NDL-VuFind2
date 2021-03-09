@@ -80,7 +80,7 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
         if ($response->getStatusCode() === 201) {
             return true;
         }
-        return $false;
+        return false;
     }
 
     /**
@@ -128,25 +128,6 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
             'GET'
         );
         $result = json_decode($response->getBody(), true);
-    // TEST
-        // $result = [
-        //     'data' => [
-        //         'price' => [
-        //             'private' => 12,
-        //             'non-profit' => 32
-        //         ],
-        //         'license' => [
-        //             'private' => 'CC BY 4.0',
-        //             'non-profit' => 'CC BY 4.0'
-        //         ],
-        //         'currency' => [
-        //             'private' => '€',
-        //             'non-profit' => '€'
-        //         ]
-        //     ]
-        // ];
-
-    // TEST
 
         $imageInfo = [];
         if (!empty($result['price'])) {
@@ -169,7 +150,7 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
      *
      * @return array
      */
-    public function getMyTransactions($paljoId)
+    public function getUserTransactions($paljoId)
     {
         $paljoId = 'finna@finna.fi';
         $response = $this->sendRequest(
@@ -222,6 +203,42 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
             $data['discount'] = $result['data'][0]['discount'];
         }
         return $data;
+    }
+
+    /**
+     * Create a new PALJO transaction
+     *
+     * @param string $user       users paljo ID
+     * @param string $imageId    Image ID from Collecte
+     * @param string $volumeCode Volume code used for discount
+     * @param string $imageSize  Image resolution
+     *
+     * @return string|array
+     */
+    public function createTransaction($user, $imageId, $volumeCode, $imageSize)
+    {
+        $orgId = 1;
+        $response = $this->sendRequest(
+            'transactions',
+            [
+                'paljo_id' => $user,
+                'resources' => [
+                    [
+                        'organisation_id' => $orgId,
+                        'image_id' => $imageId,
+                        'cost' => $cost,
+                        'resolution' => $imageSize,
+                        'license' => $license
+                    ]
+                ]
+            ],
+            'POST'
+        );
+        $result = json_decode($response->getBody(), true);
+        if ($result['token']) {
+            return $result['token'];
+        }
+        return false;
     }
 
     /**

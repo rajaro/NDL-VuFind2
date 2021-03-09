@@ -84,7 +84,12 @@ class PaljoController extends \VuFind\Controller\AbstractBase
     {
         $user = $this->getUser();
         $email = $this->params()->fromPost('email', '');
-        $this->sendVerificationEmail($user, $email);
+        try {
+            $this->sendVerificationEmail($user, $email);
+        } catch (\Exception $e) {
+
+            return var_dump($e->getMessage());
+        }
         $view = $this->createViewModel(
             [
                 'url' => $this->getServerUrl('paljo-verifyemail')
@@ -103,7 +108,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
     }
 
     /**
-     * Send a verification email to users to email address
+     * Send a verification email to users email address
      * that contains a link to create a paljo account
      *
      * @param \Finna\Db\Row\User $user  User object
@@ -128,19 +133,18 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 ]
             );
             $to = $email;
-            $to = 'jaro.ravila@helsinki.fi';
-            return $message;
             $this->serviceLocator->get(\VuFind\Mailer\Mailer::class)->send(
                 $to,
                 $config->Site->email,
                 $this->translate('verification_email_subject'),
                 $message
             );
-            $flashMessage = 'paljo_email_verification_sent';
-            $this->flashMessenger()->addMessage($flashMessage, 'info');
         } catch (MailException $e) {
             $this->flashMessenger()->addMessage($e->getMessage(), 'error');
+            return false;
         }
+        $flashMessage = 'paljo_email_verification_sent';
+        $this->flashMessenger()->addMessage($flashMessage, 'info');
         return true;
     }
 
@@ -161,8 +165,48 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
         if ($paljo->createPaljoAccount($email)) {
             $user->setPaljoId($email);
+            $this->flashMessenger()->addMessage(
+                'paljo_account_creation_success', 'success'
+            );
+            return $this->forwardto('Paljo', 'Subscriptions');
+        } else {
+            $this->flashMessenger()->addMessage(
+                'paljo_account_creation_error', 'error'
+            );
         }
         return $this->forwardTo('MyResearch', 'Home');
+    }
+
+    /**
+     * Create a new subscription
+     *
+     * @return view
+     */
+    public function createSubscription()
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirect()->toRoute(
+                'default', ['controller' => 'MyResearch', 'action' => 'Login']
+            );
+        }
+        $userPaljoId = $user->getPaljoId();
+        $imageId = $this->params()->fromPost('id', '');
+        $volumeCode = $this->params()->fromPost('volume-code', '');
+        $imageSize = $this->params()->fromPost('image-size', '');
+        $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
+        $payment = true; // handle the payment
+        if ($payment) {
+            $transaction = $paljo->createTransaction(
+                $user, $imageId, $volumeCode, $imageSize
+            );
+            if ($transaction) {
+                return $this->redirect()->toRoute(
+                    'default',
+                    ['controller' => 'Paljo', 'action' => 'MyPaljoSubscriptions']
+                );
+            }
+        }
     }
 
     /**
@@ -180,7 +224,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         }
         $userPaljoId = $user->getPaljoId();
         $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
-        $transactions = $paljo->getMyTransactions($userPaljoId);
+        $transactions = $paljo->getUserTransactions($userPaljoId);
         $view = $this->createViewModel(
             ['transactions' => $transactions, 'paljoId' => $userPaljoId]
         );
