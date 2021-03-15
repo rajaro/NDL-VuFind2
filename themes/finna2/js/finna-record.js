@@ -383,6 +383,7 @@ finna.record = (function finnaRecord() {
     loadSimilarRecords();
     loadRecordDriverRelatedRecords();
     finna.authority.initAuthorityResultInfo();
+    finna.paljo.checkPaljoAvailability();
   }
 
   var my = {

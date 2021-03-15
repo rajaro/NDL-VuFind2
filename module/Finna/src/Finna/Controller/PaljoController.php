@@ -53,9 +53,9 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 'default', ['controller' => 'MyResearch', 'action' => 'Login']
             );
         }
-        $id = $this->params()->fromRoute('id', '');
-        $organisationId = $this->params()->fromRoute('organisationId', '');
-        $recordId = $this->params()->fromRoute('recordId', '');
+        $id = $this->params()->fromQuery('imageId', '');
+        $organisationId = $this->params()->fromQuery('organisationId', '');
+        $recordId = $this->params()->fromQuery('recordId', '');
 
         if ($user->getPaljoId() === null) {
             $view = $this->createViewModel();
@@ -67,7 +67,8 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             $view = $this->createViewModel(
                 [
                     'driver' => $driver, 'id' => $id,
-                    'recordId' => $recordId, 'prices' => $prices
+                    'recordId' => $recordId, 'prices' => $prices,
+                    'organisationId' => $organisationId
                 ]
             );
             $view->setTemplate('RecordDriver/SolrLido/paljo-subscribe');
@@ -160,19 +161,22 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $table = $this->getTable('User');
         $user = $table->getByVerifyHash($hash);
         if (!$user) {
-            return false;
-        }
-        $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
-        if ($paljo->createPaljoAccount($email)) {
-            $user->setPaljoId($email);
-            $this->flashMessenger()->addMessage(
-                'paljo_account_creation_success', 'success'
-            );
-            return $this->forwardto('Paljo', 'Subscriptions');
-        } else {
             $this->flashMessenger()->addMessage(
                 'paljo_account_creation_error', 'error'
             );
+        } else {
+            $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
+            if ($paljo->createPaljoAccount($email)) {
+                $user->setPaljoId($email);
+                $this->flashMessenger()->addMessage(
+                    'paljo_account_creation_success', 'success'
+                );
+                return $this->forwardto('Paljo', 'Subscriptions');
+            } else {
+                $this->flashMessenger()->addMessage(
+                    'paljo_account_creation_error', 'error'
+                );
+            }
         }
         return $this->forwardTo('MyResearch', 'Home');
     }
@@ -182,7 +186,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
      *
      * @return view
      */
-    public function createSubscription()
+    public function createSubscriptionAction()
     {
         $user = $this->getUser();
         if (!$user) {
@@ -194,11 +198,13 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $imageId = $this->params()->fromPost('id', '');
         $volumeCode = $this->params()->fromPost('volume-code', '');
         $imageSize = $this->params()->fromPost('image-size', '');
+        $cost = $this->params()->fromPost('cost', '');
+        $license = $this->params()->fromPost('license', '');
         $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
         $payment = true; // handle the payment
         if ($payment) {
             $transaction = $paljo->createTransaction(
-                $user, $imageId, $volumeCode, $imageSize
+                $user, $imageId, $volumeCode, $imageSize, $license
             );
             if ($transaction) {
                 return $this->redirect()->toRoute(
@@ -207,6 +213,15 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 );
             }
         }
+    }
+
+    public function saveVolumeCodeAction()
+    {
+        $userId = $this->getUser()->id;
+        $volumeCode = $this->params()->fromQuery('volumeCode', '');
+        $volumeCodeTable = $this->getTable('volumeCode');
+        $feedback->saveVolumeCode($user, $volumeCode);
+
     }
 
     /**

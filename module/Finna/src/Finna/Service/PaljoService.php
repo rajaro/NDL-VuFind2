@@ -117,10 +117,7 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
      */
     public function getImagePrice($id, $orgId)
     {
-        //TEST
-        $id = 273;
-        $orgId = 1;
-        //TEST
+        $orgId = 1; //TESTDATA
         $path = 'organisations/' . $orgId . '/images/' . $id . '/pricing';
         $response = $this->sendRequest(
             $path,
@@ -128,7 +125,6 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
             'GET'
         );
         $result = json_decode($response->getBody(), true);
-
         $imageInfo = [];
         if (!empty($result['price'])) {
             $imageInfo['price'] = $result['price'];
@@ -215,7 +211,7 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
      *
      * @return string|array
      */
-    public function createTransaction($user, $imageId, $volumeCode, $imageSize)
+    public function createTransaction($user, $imageId, $volumeCode, $imageSize, $license)
     {
         $orgId = 1;
         $response = $this->sendRequest(

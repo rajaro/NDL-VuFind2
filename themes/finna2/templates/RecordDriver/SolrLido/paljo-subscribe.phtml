@@ -10,7 +10,7 @@
   <div class="paljo-image">
     <img src="<?= $images[0]['urls']['medium'] ?>" />
   </div>
-  <form id="paljo-form" action="<?=$this->url('paljo-payment')?>" method="post">
+  <form id="paljo-form" action="<?=$this->url('paljo-create-subscription')?>" method="post">
     <div class="paljo-image-info-container">
       <div class="paljo-image-id">
         <input type="hidden" name="image-id" value="<?=$this->id?>" />
@@ -18,26 +18,28 @@
       </div>
       <div class="paljo-price-type">
         <b><span class="paljo-image-info"><?=$this->transEsc('paljo_price_type')?></span></b>
-        <select class="paljo-price-type-menu" id="paljo-price-menu" name="paljo-price-type">
+        <select class="paljo-price-type-menu" id="paljo-price-menu">
           <?php foreach ($this->prices['price'] as $type => $price): ?>
-            <option class="paljo-price-type" value="<?= $this->escapeHtmlAttr($price)?>" data-license="<?=$this->escapeHtmlAttr()?>"><?=$type?></option>
+            <option class="paljo-price-type" value="<?= $this->escapeHtmlAttr($price)?>" data-license="<?=$this->escapeHtmlAttr($this->prices['license'][$type]['name'])?>"><?=$type?></option>
           <?php endforeach; ?>
         </select>
       </div>
       <?php if (!empty($imageSize)): ?>
         <div class="paljo-image-size">
           <b><span class="paljo-image-info"><?=$this->transEsc('paljo_image_size')?></span></b>
-            <?=$imageSize['height']['value']?> * <?=$imageSize['width']['value']?> <?=$imageSize['width']['unit']?> (<?php //=$imageSize['type']['value']?>)
+            <input type="hidden" name="image-size" value="<?=$imageSize['height']['value']?>x<?=$imageSize['width']['value']?>">
+            <?=$imageSize['height']['value']?> x <?=$imageSize['width']['value']?> <?=$imageSize['width']['unit']?>
         </div>
       <?php endif; ?>
       <div class="paljo-license">
-        <input type="hidden" name="license" value="" />
+        <input type="hidden" name="license" value="CC BY 0" />
         <b><span class="paljo-image-info"><?=$this->transEsc('paljo_license')?>: </span></b> <span class="paljo-image-license"></span>
       </div>
       <div>
         <b><span class="paljo-image-info"><?=$this->transEsc('paljo_additional_information')?></span></b>
         <textarea class="paljo-additional-info" type="text" name="additionalInfo" rows="3" cols="20"></textarea>
       </div>
+      <input type="hidden" name="organisationId" value="<?=$this->organisationId?>">
       <div>
         <b><span class="paljo-volume"><?=$this->transEsc('paljo_volume_code')?></span></b>
         <input type="text" name="volume-code" class="paljo-volume-code" placeholder="<?=$this->escapeHtmlAttr($this->translate('Input'))?>"><button class="discount btn btn-primary"> hae alennus</button><i class="fa fa-info-big volume-code-info"></i>

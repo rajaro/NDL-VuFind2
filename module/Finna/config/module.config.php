@@ -151,7 +151,7 @@ $config = [
             'paljo-subscription' => [
                 'type' => 'Laminas\Router\Http\Segment',
                 'options' => [
-                    'route'    => '/Paljo/Subscription[/:recordId]',
+                    'route'    => '/Paljo/Subscription[/:recordId][/:id]',
                     'defaults' => [
                         'controller' => 'Paljo',
                         'action'     => 'Subscription',
@@ -167,6 +167,16 @@ $config = [
                         'action'     => 'MyPaljoSubscriptions',
                     ]
                 ],
+            ],
+            'paljo-create-subscription' => [
+                'type' => 'Laminas\Router\Http\Literal',
+                'options' => [
+                    'route' => '/Paljo/CreateSubscription',
+                    'defaults' => [
+                        'controller' => 'Paljo',
+                        'action' => 'CreateSubscription'
+                    ]
+                ]
             ],
             'paljo-account-creation' => [
                 'type' => 'Laminas\Router\Http\Literal',
@@ -469,6 +479,8 @@ $config = [
                         'Finna\AjaxHandler\GetOrganisationPageFeedFactory',
                     'Finna\AjaxHandler\GetPiwikPopularSearches' =>
                         'Finna\AjaxHandler\GetPiwikPopularSearchesFactory',
+                    'Finna\AjaxHandler\GetPaljoAvailability' =>
+                        'Finna\AjaxHandler\GetPaljoAvailabilityFactory',
                     'Finna\AjaxHandler\GetPaljoDiscount' =>
                         'Finna\AjaxHandler\GetPaljoDiscountFactory',
                     'Finna\AjaxHandler\GetRecordDriverRelatedRecords' =>
@@ -517,6 +529,7 @@ $config = [
                     'getMyLists' => 'Finna\AjaxHandler\GetUserLists',
                     'getOrganisationInfo' => 'Finna\AjaxHandler\GetOrganisationInfo',
                     'getPaljoDiscount' => 'Finna\AjaxHandler\GetPaljoDiscount',
+                    'getPaljoAvailability' => 'Finna\AjaxHandler\GetPaljoAvailability',
                     'getPiwikPopularSearches' => 'Finna\AjaxHandler\GetPiwikPopularSearches',
                     'getRecordDriverRelatedRecords' => 'Finna\AjaxHandler\GetRecordDriverRelatedRecords',
                     'getRecordInfoByAuthority' => 'Finna\AjaxHandler\GetRecordInfoByAuthority',

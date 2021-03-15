@@ -1094,6 +1094,20 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
     }
 
     /**
+     * Get record image Collecte id
+     *
+     * @return string
+     */
+    public function getCollecteId()
+    {
+        $nodes = $this->getXmlRecord()->xpath(
+            'lido/administrativeMetadata/resourceWrap/resourceSet/resourceID'
+        );
+        $id = explode(':', $nodes[0]);
+        return end($id);
+    }
+
+    /**
      * Set raw data to initialize the object.
      *
      * @param mixed $data Raw data representing the record; Record Model
