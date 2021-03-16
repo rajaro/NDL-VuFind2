@@ -177,6 +177,9 @@ finna.feed = (function finnaFeed() {
               if (titleBottom) {
                 adjustTitles(holder);
                 holder.find('.carousel-hover-title').hide();
+                holder.find('.carousel-hover-date').hide();
+              } else {
+                holder.find('.carousel-header-date').hide();
               }
 
               holder.find('.slick-slide')
