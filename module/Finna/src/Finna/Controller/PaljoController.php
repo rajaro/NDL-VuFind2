@@ -88,24 +88,49 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         try {
             $this->sendVerificationEmail($user, $email);
         } catch (\Exception $e) {
-
             return var_dump($e->getMessage());
         }
-        $view = $this->createViewModel(
-            [
-                'url' => $this->getServerUrl('paljo-verifyemail')
-                . '?hash=' . $user->verify_hash
-                . '&email=' . $email
-            ]
+        $flashMessage = 'paljo_email_verification_sent';
+        $this->flashMessenger()->addMessage($flashMessage, 'info');
+        return $this->redirect()->toRoute(
+            'default',
+            ['controller' => 'Paljo', 'action' => 'MyPaljoSubscriptions']
         );
-        $view->setTemplate(
-            'Email/paljo-verify-email.phtml',
-            [
-            'url' => $this->getServerUrl('paljo-verifyemail')
-            . '?hash=' . $user->verify_hash
-            ]
-        );
-        return $view;
+    }
+
+    /**
+     * Send email containing a download link to
+     * the subscribed image
+     *
+     * @param string $paljoId      users paljo id (email address)
+     * @param string $downloadLink link to the downloadable image 
+     *                             in paljo api
+     *
+     * @return boolean
+     */
+    public function sendDownloadEmail($paljoId, $downloadLink)
+    {
+        try {
+            $config = $this->getConfig();
+            $renderer = $this->getViewRenderer();
+            $message = $renderer->render(
+                'Email/paljo-download-link.phtml',
+                [
+                    'link' => $downloadLink
+                ]
+            );
+            $to = 'jaro.ravila@helsinki.fi';//$paljoId;
+            $this->serviceLocator->get(\VuFind\Mailer\Mailer::class)->send(
+                $to,
+                $config->Site->email,
+                $this->translate('verification_email_subject'),
+                $message
+            );
+        } catch (MailException $e) {
+            $this->flashMessenger()->addMessage('paljo_download_link_email_error', 'error');
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -131,9 +156,10 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 [
                     'url' => $this->getServerUrl('paljo-verifyemail')
                     . '?hash=' . $user->verify_hash
+                    . '&email=' . $email
                 ]
             );
-            $to = $email;
+            $to = 'jaro.ravila@helsinki.fi';//$email;
             $this->serviceLocator->get(\VuFind\Mailer\Mailer::class)->send(
                 $to,
                 $config->Site->email,
@@ -144,8 +170,6 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             $this->flashMessenger()->addMessage($e->getMessage(), 'error');
             return false;
         }
-        $flashMessage = 'paljo_email_verification_sent';
-        $this->flashMessenger()->addMessage($flashMessage, 'info');
         return true;
     }
 
@@ -162,7 +186,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $user = $table->getByVerifyHash($hash);
         if (!$user) {
             $this->flashMessenger()->addMessage(
-                'paljo_account_creation_error', 'error'
+                'paljo_account_creation_error_user_not_found', 'error'
             );
         } else {
             $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
@@ -171,7 +195,10 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 $this->flashMessenger()->addMessage(
                     'paljo_account_creation_success', 'success'
                 );
-                return $this->forwardto('Paljo', 'Subscriptions');
+                return $this->redirect()->toRoute(
+                    'default',
+                    ['controller' => 'Paljo', 'action' => 'MyPaljoSubscriptions']
+                );
             } else {
                 $this->flashMessenger()->addMessage(
                     'paljo_account_creation_error', 'error'
@@ -179,6 +206,18 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             }
         }
         return $this->forwardTo('MyResearch', 'Home');
+    }
+
+    public function changePaljoIdAction()
+    {
+        $userId = $this->params()->fromPost('user');
+        $newId = $this->params()->fromPost('new-id');
+        $user = $this->getUser();
+        $user->setPaljoId($newId);
+        return $this->redirect()->toRoute(
+            'default',
+            ['controller' => 'Paljo', 'action' => 'MyPaljoSubscriptions']
+        );
     }
 
     /**
@@ -195,33 +234,52 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             );
         }
         $userPaljoId = $user->getPaljoId();
-        $imageId = $this->params()->fromPost('id', '');
+        $imageId = $this->params()->fromPost('image-id', '');
         $volumeCode = $this->params()->fromPost('volume-code', '');
         $imageSize = $this->params()->fromPost('image-size', '');
+        $orgId = $this->params()->fromPost('organisationId', '');
         $cost = $this->params()->fromPost('cost', '');
         $license = $this->params()->fromPost('license', '');
+        $priceType = $this->params()->fromPost('price-type', 'private');
         $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
+       // return;
         $payment = true; // handle the payment
         if ($payment) {
             $transaction = $paljo->createTransaction(
-                $user, $imageId, $volumeCode, $imageSize, $license
+                $userPaljoId, $imageId, $volumeCode, $imageSize, $license, $priceType
             );
             if ($transaction) {
-                return $this->redirect()->toRoute(
-                    'default',
-                    ['controller' => 'Paljo', 'action' => 'MyPaljoSubscriptions']
-                );
+                $this->sendDownloadEmail($userPaljoId, $transaction['downloadLink']);   
             }
+            $this->flashMessenger()->addMessage(
+                'paljo_subscription_success', 'success'
+            );
+            return $this->redirect()->toRoute(
+                'default',
+                ['controller' => 'Paljo', 'action' => 'MyPaljoSubscriptions']
+            );
         }
+        $this->flashMessenger()->addMessage(
+            'paljo_subscription_creation_error', 'error'
+        );
+        return $this->redirect()->toRoute(
+            'default',
+            ['controller' => 'Paljo', 'action' => 'MyPaljoSubscriptions']
+        );
     }
 
-    public function saveVolumeCodeAction()
+    public function saveVolumeCode()
     {
         $userId = $this->getUser()->id;
         $volumeCode = $this->params()->fromQuery('volumeCode', '');
-        $volumeCodeTable = $this->getTable('volumeCode');
-        $feedback->saveVolumeCode($user, $volumeCode);
-
+        $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
+        $response = $paljo->getDiscountForUser($userId, $volumeCode);
+        if ($response) {
+            $volumeCodeTable = $this->getTable('volumeCode');
+            $feedback->saveVolumeCode($user, $volumeCode);
+            return $response;
+        }
+        return false;
     }
 
     /**
@@ -240,8 +298,19 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $userPaljoId = $user->getPaljoId();
         $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
         $transactions = $paljo->getUserTransactions($userPaljoId);
+        $table = $this->getTable('PaljoVolumeCode');
+        $volumeCodes = $table->getVolumeCodesForUser($userPaljoId);
+        $codes = [];
+        if ($volumeCodes) {
+            $codes = [
+                'code' => $volumeCodes['volume_code']
+            ];
+        }
         $view = $this->createViewModel(
-            ['transactions' => $transactions, 'paljoId' => $userPaljoId]
+            [
+                'transactions' => $transactions, 'paljoId' => $userPaljoId,
+                'volumeCodes' => $codes
+            ]
         );
         $view->setTemplate('myresearch/paljo-subscriptions');
         return $view;

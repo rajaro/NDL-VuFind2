@@ -505,6 +505,8 @@ $config = [
                         'Finna\AjaxHandler\AbstractOnlinePaymentActionFactory',
                     'Finna\AjaxHandler\RegisterOnlinePayment' =>
                         'Finna\AjaxHandler\AbstractOnlinePaymentActionFactory',
+                    'Finna\AjaxHandler\SavePaljoVolumeCode' =>
+                        'Finna\AjaxHandler\SavePaljoVolumeCodeFactory',
                     'Finna\AjaxHandler\SystemStatus' =>
                         'VuFind\AjaxHandler\SystemStatusFactory',
                 ],
@@ -539,6 +541,7 @@ $config = [
                     'importFavorites' => 'Finna\AjaxHandler\ImportFavorites',
                     'onlinePaymentNotify' => 'Finna\AjaxHandler\OnlinePaymentNotify',
                     'registerOnlinePayment' => 'Finna\AjaxHandler\RegisterOnlinePayment',
+                    'savePaljoVolumeCode' => 'Finna\AjaxHandler\SavePaljoVolumeCode',
 
                     // Overrides:
                     'VuFind\AjaxHandler\CommentRecord' => 'Finna\AjaxHandler\CommentRecord',
@@ -586,6 +589,7 @@ $config = [
                     'Finna\Db\Row\FinnaCache' => 'VuFind\Db\Row\RowGatewayFactory',
                     'Finna\Db\Row\PrivateUser' => 'VuFind\Db\Row\UserFactory',
                     'Finna\Db\Row\Resource' => 'VuFind\Db\Row\RowGatewayFactory',
+                    'Finna\Db\Row\PaljoVolumeCode' => 'VuFind\Db\Row\RowGatewayFactory',
                     'Finna\Db\Row\Search' => 'VuFind\Db\Row\RowGatewayFactory',
                     'Finna\Db\Row\Transaction' => 'VuFind\Db\Row\RowGatewayFactory',
                     'Finna\Db\Row\User' => 'Finna\Db\Row\UserFactory',
@@ -612,6 +616,7 @@ $config = [
                     'fee' => 'Finna\Db\Row\Fee',
                     'finnacache' => 'Finna\Db\Row\FinnaCache',
                     'transaction' => 'Finna\Db\Row\Transaction',
+                    'paljovolumecode' => 'Finna\Db\Row\PaljoVolumeCode'
                 ]
             ],
             'db_table' => [
@@ -623,6 +628,7 @@ $config = [
                     'Finna\Db\Table\Fee' => 'VuFind\Db\Table\GatewayFactory',
                     'Finna\Db\Table\Feedback' => 'VuFind\Db\Table\GatewayFactory',
                     'Finna\Db\Table\FinnaCache' => 'VuFind\Db\Table\GatewayFactory',
+                    'Finna\Db\Table\PaljoVolumeCode' => 'Vufind\Db\Table\GatewayFactory',
                     'Finna\Db\Table\Resource' => 'VuFind\Db\Table\ResourceFactory',
                     'Finna\Db\Table\Search' => 'VuFind\Db\Table\GatewayFactory',
                     'Finna\Db\Table\Session' => 'VuFind\Db\Table\GatewayFactory',
@@ -647,6 +653,7 @@ $config = [
                     'feedback' => 'Finna\Db\Table\Feedback',
                     'finnacache' => 'Finna\Db\Table\FinnaCache',
                     'transaction' => 'Finna\Db\Table\Transaction',
+                    'paljovolumecode' => 'Finna\Db\Table\PaljoVolumeCode'
                 ]
             ],
             'ils_driver' => [

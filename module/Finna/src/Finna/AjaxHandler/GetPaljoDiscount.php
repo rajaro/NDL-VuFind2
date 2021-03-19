@@ -63,7 +63,21 @@ class GetPaljoDiscount extends \VuFind\AjaxHandler\AbstractBase
     {
         $email = $params->fromQuery('email', '');
         $code = $params->fromQuery('code', '');
-        $response = $this->paljoService->getDiscountForUser($email, $code);
+        $orgId = $params->fromQuery('orgId', '');
+        $orgId = 1; //TEST STUFF
+        $imageId = $params->fromQuery('imageId', '');
+        $priceType = $params->fromQuery('priceType', '');
+        $imageInfo = $this->paljoService->getImagePrice($imageId, $orgId);
+        $discount = $this->paljoService->getDiscountForUser($email, $code);
+        $response = [];
+        if ($discount) {
+            if ($discount['organisation'] === $orgId || true /*TEST STUFF*/) {
+                $discountAmount = $discount['discount'];
+                $currentPrice = $imageInfo['price'][$priceType];
+                $newPrice = (1 - $discountAmount / 100) * $currentPrice;
+                $response['price'] = $newPrice;
+            }
+        }
         return $this->formatResponse($response);
     }
 }

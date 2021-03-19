@@ -36,9 +36,14 @@ namespace Finna\Service;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
+class PaljoService implements
+    \VuFindHttp\HttpServiceAwareInterface,
+    \Laminas\Log\LoggerAwareInterface
 {
     use \VuFindHttp\HttpServiceAwareTrait;
+    use \VuFind\Log\LoggerAwareTrait {
+        logError as error;
+    }
 
     /**
      * PALJO api url
@@ -94,7 +99,6 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
     public function checkAvailability($orgId, $imageId)
     {
         $orgId = '1';       // Test data
-        $imageId = '273';  // Test data
         $path = 'organisations/' . $orgId . '/images/' . $imageId;
         $response = $this->sendRequest(
             $path,
@@ -148,7 +152,7 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
      */
     public function getUserTransactions($paljoId)
     {
-        $paljoId = 'finna@finna.fi';
+      //  $paljoId = 'finna@finna.fi';
         $response = $this->sendRequest(
             'transactions',
             ['paljo_id' => $paljoId],
@@ -156,7 +160,7 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
         );
         $result = json_decode($response->getBody(), true);
         $transactions = [];
-        if ($result['data']) {
+        if (isset($result['data'])) {
             foreach ($result['data'] as $transaction) {
                 $resource = $transaction['transaction_resources'][0];
                 $transactions[] = [
@@ -182,7 +186,7 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
     {
         // test
         $email = 'finna@finna.fi';
-        $code = 'cde0e73c-d011-4b14-9dad-7e30e15b01de';
+    //    $code = 'cde0e73c-d011-4b14-9dad-7e30e15b01de';
         // test
 
         $response = $this->sendRequest(
@@ -197,6 +201,7 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
         $data = [];
         if (isset($result['data'][0])) {
             $data['discount'] = $result['data'][0]['discount'];
+            $data['organisation'] = $result['data'][0]['organisation_id'];
         }
         return $data;
     }
@@ -209,11 +214,18 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
      * @param string $volumeCode Volume code used for discount
      * @param string $imageSize  Image resolution
      *
-     * @return string|array
+     * @return boolean|array
      */
-    public function createTransaction($user, $imageId, $volumeCode, $imageSize, $license)
+    public function createTransaction($user, $imageId, $volumeCode, $imageSize, $license, $priceType)
     {
         $orgId = 1;
+        $imageDetails = $this->getImagePrice($imageId, $orgId);
+        $cost = $imageDetails['price'][$priceType];
+        $license = $imageDetails['license'][$priceType]['name'];
+        $headers = [
+            'Content-Type: application/json',
+            'Accept: application/json',
+        ];
         $response = $this->sendRequest(
             'transactions',
             [
@@ -228,11 +240,23 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
                     ]
                 ]
             ],
-            'POST'
+            'POST',
+            $headers
         );
-        $result = json_decode($response->getBody(), true);
-        if ($result['token']) {
-            return $result['token'];
+        if ($response) {
+            $result = json_decode($response->getBody(), true);
+            if (isset($result['token'])) {
+                $transaction = [
+                    'downloadLink' => $this->apiUrl . 'transactions/'
+                    . $result['token'] . '/package',
+                    'token' => $result['token']
+                ];
+                return $transaction;
+            } else {
+                $this->error(
+                    'Problem with PALJO API: ' . var_dump($result)
+                );
+            }
         }
         return false;
     }
@@ -243,28 +267,41 @@ class PaljoService implements \VuFindHttp\HttpServiceAwareInterface
      * @param string $path   relative path
      * @param array  $params array of parameters
      * @param string $method GET|POST
+     * @param array  $headers request headers
      *
      * @return string
      */
-    public function sendRequest($path, $params, $method)
+    protected function sendRequest($path, $params, $method, $headers = null)
     {
         $url = $this->apiUrl . $path;
         $client = $this->httpService->createClient($url);
 
-        if ($method === 'POST') {
+        if ($method === 'POST' && !$headers) {
             $client->setParameterPost($params);
         } else if ($method === 'GET') {
             $client->setParameterGet($params);
         }
+
         $client->setAuth('paljo', 'paljo2019');
+        if ($headers) {
+            $client->setHeaders($headers);
+            $rawBody = json_encode($params);
+            $client->setRawBody($rawBody);
+        }
         $client->setMethod($method);
         try {
             $response = $client->send();
         } catch (\Exception $e) {
             $this->error(
-                "Request for '$apiUrl' failed: " . $e->getMessage()
+                "Request for '$url' failed: " . $e->getMessage()
             );
-            return $e->getMessage();
+            return false;
+        }
+        if (!$response->isSuccess()) {
+            $this->error(
+                'Request for ' . $url . ' failed '
+                . 'with status ' . $response->getStatusCode() 
+            );
         }
         return $response;
     }
