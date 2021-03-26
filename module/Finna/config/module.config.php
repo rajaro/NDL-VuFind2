@@ -589,6 +589,7 @@ $config = [
                     'Finna\Db\Row\FinnaCache' => 'VuFind\Db\Row\RowGatewayFactory',
                     'Finna\Db\Row\PrivateUser' => 'VuFind\Db\Row\UserFactory',
                     'Finna\Db\Row\Resource' => 'VuFind\Db\Row\RowGatewayFactory',
+                    'Finna\Db\Row\PaljoTransaction' => 'VuFind\Db\Row\RowGatewayFactory',
                     'Finna\Db\Row\PaljoVolumeCode' => 'VuFind\Db\Row\RowGatewayFactory',
                     'Finna\Db\Row\Search' => 'VuFind\Db\Row\RowGatewayFactory',
                     'Finna\Db\Row\Transaction' => 'VuFind\Db\Row\RowGatewayFactory',
@@ -616,6 +617,7 @@ $config = [
                     'fee' => 'Finna\Db\Row\Fee',
                     'finnacache' => 'Finna\Db\Row\FinnaCache',
                     'transaction' => 'Finna\Db\Row\Transaction',
+                    'paljotransaction' => 'Finna\Db\Row\PaljoTransaction',
                     'paljovolumecode' => 'Finna\Db\Row\PaljoVolumeCode'
                 ]
             ],
@@ -628,6 +630,7 @@ $config = [
                     'Finna\Db\Table\Fee' => 'VuFind\Db\Table\GatewayFactory',
                     'Finna\Db\Table\Feedback' => 'VuFind\Db\Table\GatewayFactory',
                     'Finna\Db\Table\FinnaCache' => 'VuFind\Db\Table\GatewayFactory',
+                    'Finna\Db\Table\PaljoTransaction' => 'Vufind\Db\Table\GatewayFactory',
                     'Finna\Db\Table\PaljoVolumeCode' => 'Vufind\Db\Table\GatewayFactory',
                     'Finna\Db\Table\Resource' => 'VuFind\Db\Table\ResourceFactory',
                     'Finna\Db\Table\Search' => 'VuFind\Db\Table\GatewayFactory',
@@ -653,6 +656,7 @@ $config = [
                     'feedback' => 'Finna\Db\Table\Feedback',
                     'finnacache' => 'Finna\Db\Table\FinnaCache',
                     'transaction' => 'Finna\Db\Table\Transaction',
+                    'paljotransaction' => 'Finna\Db\Table\PaljoTransaction',
                     'paljovolumecode' => 'Finna\Db\Table\PaljoVolumeCode'
                 ]
             ],

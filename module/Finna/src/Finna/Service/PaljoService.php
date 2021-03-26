@@ -137,7 +137,7 @@ class PaljoService implements
             $imageInfo['license'] = $result['license'];
         }
         if (!empty($result['currency'])) {
-            $imageInfo['currency'] = $result['license'];
+            $imageInfo['currency'] = $result['currency'];
         }
         return $imageInfo;
     }
@@ -216,16 +216,14 @@ class PaljoService implements
      *
      * @return boolean|array
      */
-    public function createTransaction($user, $imageId, $volumeCode, $imageSize, $license, $priceType)
+    public function createTransaction($user, $imageId, $volumeCode, $imageSize, $cost, $license)
     {
         $orgId = 1;
-        $imageDetails = $this->getImagePrice($imageId, $orgId);
-        $cost = $imageDetails['price'][$priceType];
-        $license = $imageDetails['license'][$priceType]['name'];
         $headers = [
             'Content-Type: application/json',
             'Accept: application/json',
         ];
+      //  return ['token' => 'testitoken', 'downloadLink' => 'testilinkki'];
         $response = $this->sendRequest(
             'transactions',
             [

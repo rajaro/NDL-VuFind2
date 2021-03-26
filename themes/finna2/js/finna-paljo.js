@@ -41,7 +41,7 @@ finna.paljo = (function finnaPaljo() {
         })
         .done(function onSaveCode(response) {
           if (typeof response.data.discount === undefined) {
-            
+
           }
         });
       }
@@ -84,14 +84,21 @@ finna.paljo = (function finnaPaljo() {
       $('span.paljo-price').html(price);
     }
     var license = priceType[0].dataset.license;
+    var licenseDesc = priceType[0].dataset.licenseDesc;
     if (license) {
       $('span.paljo-image-license').html(license);
+    }
+    if (licenseDesc) {
+      $('span.paljo-image-license').append('<br>' + licenseDesc);
+
     }
     $('select.paljo-price-type-menu').change(function onPriceTypeChange() {
       price = $(this).find('.paljo-price-type:selected').data('price');
       $('span.paljo-price').html(price);
       license = $(this).find('.paljo-price-type:selected').data('license');
-      $('span.paljo-image-license').html(license)
+      $('span.paljo-image-license').html(license);
+      licenseDesc = $(this).find('.paljo-price-type:selected').data('licenseDesc');
+      $('span.paljo-image-license').append('<br>' + licenseDesc);
     });
 
     // test

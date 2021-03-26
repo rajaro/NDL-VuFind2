@@ -78,15 +78,12 @@ class PaljoVolumeCode extends \VuFind\Db\Table\Gateway
     /**
      * Get volume codes associated with a user
      *
-     * @param string $userId User id
+     * @param string $paljoId User paljo id
      *
      * @return \Laminas\Db\ResultSet\AbstractResultSet
      */
-    public function getVolumeCodesForUser($userId)
+    public function getVolumeCodesForUser($paljoId)
     {
-        $callback = function ($select) use ($userId) {
-            $select->where->equalTo('paljo_id', $userId);
-        };
-        return $this->select($callback)->current();
+        return $this->select(['paljo_id' => $paljoId])->current();
     }
 }
