@@ -60,16 +60,20 @@ class PaljoVolumeCode extends \VuFind\Db\Table\Gateway
     /**
      * Save volume code to database
      *
-     * @param string $paljoId User paljo ID
-     * @param string $volumeCode volume code
+     * @param string $paljoId User Valjo ID
+     * @param string $volumeCode   Volume code
+     * @param string $organisation Organisation associated with the code
+     * @param string $discount     The discount percentage
      *
      * @return PaljoVolumeCodeRow
      */
-    public function saveVolumeCode($paljoId, $code)
+    public function saveVolumeCode($paljoId, $code, $organisation, $discount)
     {
         $volumeCode = $this->createRow();
         $volumeCode->paljo_id = $paljoId;
         $volumeCode->volume_code = $code;
+        $volumeCode->organisation_id = $organisation;
+        $volumeCode->discount = $discount;
         $volumeCode->save();
 
         return $volumeCode;
@@ -84,6 +88,6 @@ class PaljoVolumeCode extends \VuFind\Db\Table\Gateway
      */
     public function getVolumeCodesForUser($paljoId)
     {
-        return $this->select(['paljo_id' => $paljoId])->current();
+        return $this->select(['paljo_id' => $paljoId]);
     }
 }

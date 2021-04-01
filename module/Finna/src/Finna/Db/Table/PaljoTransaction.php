@@ -60,7 +60,8 @@ class PaljoTransaction extends \VuFind\Db\Table\Gateway
     /**
      * Save PALJO transaction to database
      *
-     * @param string $userId User id
+     * @param string $userId      User id
+     * @param string $paljoId     Paljo ID
      * @param string $recordId    Record id
      * @param string $token Paljo transaction token
      * @param string $userMessage Users message about the transaction
@@ -69,10 +70,11 @@ class PaljoTransaction extends \VuFind\Db\Table\Gateway
      * @param Date   $expires     The date the subscription expires
      */
     public function saveTransaction(
-        $userId, $recordId, $imageId, $token, $userMessage, $imageSize, $amount, $currency, $priceType, $expires
+        $userId, $paljoId, $recordId, $imageId, $token, $userMessage, $imageSize, $amount, $currency, $priceType, $expires
     ) {
         $pt = $this->createRow();
         $pt->user_id = $userId;
+        $pt->paljo_id = $paljoId;
         $pt->record_id = $recordId;
         $pt->image_id = $imageId;
         $pt->token = $token;
@@ -94,44 +96,24 @@ class PaljoTransaction extends \VuFind\Db\Table\Gateway
      *
      * @return PaljoTransaction paljo transaction or false on error
      */
-    public function getTransactions($userId)
+    public function getTransactions($paljoId)
     {
-        $activeCallback = function ($select) use ($userId) {
-            $select->where->equalTo('user_id', $userId);
+        $activeCallback = function ($select) use ($paljoId) {
+            $select->where->equalTo('paljo_id', $paljoId);
             $select->where->greaterThan('expires', date('Y-m-d H:i:s'));
         };
-        $expiredCallback = function($select) use ($userId) {
-            $select->where->equalTo('user_id', $userId);
+        $expiredCallback = function($select) use ($paljoId) {
+            $select->where->equalTo('paljo_id', $paljoId);
             $select->where->lessThan('expires', date('Y-m-d H:i:s'));
         };
-      //  $row = $this->select(['user_id' => $userId])->current();
         $transactions = [];
         foreach ($this->select($activeCallback) as $result) {
-            $transactions['active'][] = [
-                'recordId' => $result->record_id,
-                'imageId' => $result->image_id,
-                'token' => $result->token,
-                'userMessage' => $result->user_message,
-                'imageSize' => $result->image_size,
-                'amount' => $result->amount,
-                'priceType' => $result->price_type,
-                'expires' => $result->expires
-            ];
+            $transactions['active'][] = $result;
         }
         foreach ($this->select($expiredCallback) as $result) {
-          $transactions['expired'][] = [
-              'recordId' => $result->record_id,
-              'imageId' => $result->image_id,
-              'token' => $result->token,
-              'userMessage' => $result->user_message,
-              'imageSize' => $result->image_size,
-              'amount' => $result->amount,
-              'priceType' => $result->price_type,
-              'expires' => $result->expires
-          ];
-      }
+          $transactions['expired'][] = $result;
+        }
         return $transactions;
-        return empty($row) ? false : $row;
     }
 
 

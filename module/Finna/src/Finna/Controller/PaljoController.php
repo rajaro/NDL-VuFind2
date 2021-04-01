@@ -56,7 +56,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $id = $this->params()->fromQuery('imageId', '');
         $organisationId = $this->params()->fromQuery('organisationId', '');
         $recordId = $this->params()->fromQuery('recordId', '');
-        $userPaljoId = $user->getPaljoId();
+        $userPaljoId = $user->paljo_id;
         if ($userPaljoId === null) {
             $view = $this->createViewModel();
             $view->setTemplate('RecordDriver/SolrLido/paljo-account-creation');
@@ -65,11 +65,11 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             $table = $this->getTable('PaljoVolumeCode');
             $volumeCodes = $table->getVolumeCodesForUser($userPaljoId);
             $codes = [];
-            if ($volumeCodes) {
-                $codes = [
-                    'code' => $volumeCodes['volume_code']
-                ];
-            }
+            // if ($volumeCodes) {
+            //     $codes = [
+            //         'code' => $volumeCodes['volume_code']
+            //     ];
+            // }
             $prices = $paljo->getImagePrice($id, $organisationId);
             $driver = $this->getRecordLoader()->load($recordId, 'Solr', true);
             $view = $this->createViewModel(
@@ -77,7 +77,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                     'driver' => $driver, 'id' => $id,
                     'recordId' => $recordId, 'prices' => $prices,
                     'organisationId' => $organisationId,
-                    'volumeCodes' => $codes,
+                    'volumeCodes' => $volumeCodes,
                 ]
             );
             $view->setTemplate('RecordDriver/SolrLido/paljo-subscribe');
@@ -242,7 +242,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 'default', ['controller' => 'MyResearch', 'action' => 'Login']
             );
         }
-        $userPaljoId = $user->getPaljoId();
+        $userPaljoId = $user->paljo_id;
         $imageId = $this->params()->fromPost('image-id', '');
         $volumeCode = $this->params()->fromPost('volume-code', '');
         $imageSize = $this->params()->fromPost('image-size', '');
@@ -256,6 +256,13 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             $cost = $imageDetails['price'][$priceType];
             $license = $imageDetails['license'][$priceType]['name'];
             $currency = $imageDetails['currency'][$priceType];
+            $discount = $paljo->getDiscountForUser($user->paljo_id, $volumeCode);
+            if ($discount) {
+                if ($discount['organisation'] === $orgId || true /*TEST STUFF*/) {
+                    $discountAmount = $discount['discount'];
+                    $cost = (1 - $discountAmount / 100) * $cost;
+                }
+            }
             $payment = true; // handle the payment
             if ($payment) {
                 $transaction = $paljo->createTransaction(
@@ -263,7 +270,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 );
                 $paljoTransactions = $this->getTable('PaljoTransaction');
                 $paljoTransactions->saveTransaction(
-                    $user->id, $recordId, $imageId, $transaction['token'], $userMessage, $imageSize,
+                    $user->id, $user->paljo_id, $recordId, $imageId, $transaction['token'], $userMessage, $imageSize,
                     $cost, $currency, $priceType, date('Y-m-d H:i:s') // current date for testing purposes
                 );
                 if ($transaction) {
@@ -284,20 +291,6 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         );
     }
 
-    public function saveVolumeCode()
-    {
-        $userId = $this->getUser()->id;
-        $volumeCode = $this->params()->fromQuery('volumeCode', '');
-        $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
-        $response = $paljo->getDiscountForUser($userId, $volumeCode);
-        if ($response) {
-            $volumeCodeTable = $this->getTable('volumeCode');
-            $feedback->saveVolumeCode($user, $volumeCode);
-            return $response;
-        }
-        return false;
-    }
-
     /**
      * Paljo subscriptions for user
      *
@@ -311,23 +304,28 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 'default', ['controller' => 'MyResearch', 'action' => 'Login']
             );
         }
-        $userPaljoId = $user->getPaljoId();
+        $userPaljoId = $user->paljo_id;
         $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
         $volumeCodetable = $this->getTable('PaljoVolumeCode');
         $volumeCodes = $volumeCodetable->getVolumeCodesForUser($userPaljoId);
         $transactionTable = $this->getTable('PaljoTransaction');
-        $transactions = $transactionTable->getTransactions($user->id);
-        $apiUrl = 'https://paljo.userix.fi/api/v1/' . 'transactions/';
-        $codes = [];
-        if ($volumeCodes) {
-            $codes = [
-                'code' => $volumeCodes['volume_code']
-            ];
+        $transactions = $transactionTable->getTransactions($user->paljo_id);
+        $driver = '';
+        $records = [];
+        if (!empty($transactions)) {
+            $recordIds = [];
+            foreach ($transactions as $transaction) {
+                foreach ($transaction as $tr) {
+                    $records[$tr->record_id] = $this->getRecordLoader()->load(
+                        $tr->record_id, 'Solr', true);
+                }
+            }
         }
+        $apiUrl = 'https://paljo.userix.fi/api/v1/' . 'transactions/';
         $view = $this->createViewModel(
             [
                 'transactions' => $transactions, 'paljoId' => $userPaljoId,
-                'volumeCodes' => $codes, 'apiurl' => $apiUrl
+                'volumeCodes' => $volumeCodes, 'apiurl' => $apiUrl, 'records' => $records
             ]
         );
         $view->setTemplate('myresearch/paljo-subscriptions');

@@ -63,6 +63,8 @@ class PaljoServiceFactory implements FactoryInterface
         }
 
         return new $requestedName(
+            $container->get(\VuFind\Config\PluginManager::class)
+                ->get('paljo'),
             $container->get(\VuFind\Mailer\Mailer::class)
         );
     }

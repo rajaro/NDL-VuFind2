@@ -64,7 +64,6 @@ class GetPaljoDiscount extends \VuFind\AjaxHandler\AbstractBase
         $email = $params->fromQuery('email', '');
         $code = $params->fromQuery('code', '');
         $orgId = $params->fromQuery('orgId', '');
-        $orgId = 1; //TEST STUFF
         $imageId = $params->fromQuery('imageId', '');
         $priceType = $params->fromQuery('priceType', '');
         $imageInfo = $this->paljoService->getImagePrice($imageId, $orgId);

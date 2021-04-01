@@ -46,11 +46,18 @@ class PaljoService implements
     }
 
     /**
+     * Paljo config
+     *
+     * @var \Laminas\Config\Config
+     */
+    protected $config;
+
+    /**
      * PALJO api url
      *
      * @var string
      */
-    protected $apiUrl = 'https://paljo.userix.fi/api/v1/';
+    protected $apiUrl = '';
 
     /**
      * Mailer
@@ -60,13 +67,25 @@ class PaljoService implements
     protected $mailer;
 
     /**
-     * Constructor
+     * Organisation map from Paljo to Finna
      *
-     * @param \VuFind\Mailer\Mailer $mailer mailer
+     * @var array
      */
-    public function __construct($mailer)
+    protected $organisationMap;
+
+    /**
+     * Constructor
+     * @param \Laminas\Config\Config $config paljo config
+     * @param \VuFind\Mailer\Mailer $mailer  mailer
+     */
+    public function __construct($config, $mailer)
     {
+        $this->config = $config;
         $this->mailer = $mailer;
+        $this->apiUrl = $config->General->api_url;
+        foreach ($config->Organisations as $paljoId => $finnaId) {
+            $this->organisationMap[$paljoId] = $finnaId;
+        }
     }
     /**
      * Create paljo account
@@ -152,7 +171,6 @@ class PaljoService implements
      */
     public function getUserTransactions($paljoId)
     {
-      //  $paljoId = 'finna@finna.fi';
         $response = $this->sendRequest(
             'transactions',
             ['paljo_id' => $paljoId],
@@ -186,8 +204,7 @@ class PaljoService implements
     {
         // test
         $email = 'finna@finna.fi';
-    //    $code = 'cde0e73c-d011-4b14-9dad-7e30e15b01de';
-        // test
+
 
         $response = $this->sendRequest(
             'volume-queries',
@@ -201,7 +218,8 @@ class PaljoService implements
         $data = [];
         if (isset($result['data'][0])) {
             $data['discount'] = $result['data'][0]['discount'];
-            $data['organisation'] = $result['data'][0]['organisation_id'];
+            $data['organisation'] =
+                $this->organisationMap[$result['data'][0]['organisation_id']];
         }
         return $data;
     }
@@ -223,7 +241,6 @@ class PaljoService implements
             'Content-Type: application/json',
             'Accept: application/json',
         ];
-      //  return ['token' => 'testitoken', 'downloadLink' => 'testilinkki'];
         $response = $this->sendRequest(
             'transactions',
             [

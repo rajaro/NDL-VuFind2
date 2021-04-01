@@ -96,17 +96,18 @@ class SavePaljoVolumeCode extends \VuFind\AjaxHandler\AbstractBase
                 self::STATUS_HTTP_NEED_AUTH
             );
         }
-        if ($this->user->getPaljoId() === null) {
+        if ($this->user->paljo_id === null) {
           return $this->formatResponse(
                 $this->translate('paljo_id_required')
           );
         }
-        $paljoId = $this->user->getPaljoId();
+        $paljoId = $this->user->paljo_id;
         $volumeCode = $params->fromPost('volumeCode', '');
 
         $response = $this->paljo->getDiscountForUser($paljoId, $volumeCode);
         if (!empty($response)) {
-            $this->paljoVolumeCode->saveVolumeCode($paljoId, $volumeCode);
+            $this->paljoVolumeCode->saveVolumeCode(
+              $paljoId, $volumeCode, $response['organisation'], $response['discount']);
         }
         return $this->formatResponse($response);
     }
