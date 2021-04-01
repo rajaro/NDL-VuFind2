@@ -1,22 +1,82 @@
 .myresearch-paljo-container {
   margin-left: 20px;
+  .paljo-active-btn, .paljo-expired-btn {
+    padding: 10px;
+    font-size: 2em;
+    border: none;
+    &.selected {
+      border-top: 5px solid @brand-primary;
+      border-left: 1px solid black;
+      border-right: 1px solid black;
+    }
+  }
+  .change-paljo-id-btn {
+    padding: 3px;
+    margin-left: 5px;
+  }
+  .paljo-volume-codes {
+    margin-bottom: 10px;
+    margin-top: 5px;
+    .volume-code-toggle {
+      cursor: pointer;
+      > .caret {
+        transform: rotate(80deg);
+        -ms-transform: rotate(80deg);
+        -webkit-transform: rotate(80deg);
+        -moz-transform: rotate(80deg);
+      }
+    }
+    .paljo-volume-code {
+      margin-bottom: 7px;
+      span {
+        display: block;
+        font-weight: 400;
+        color: @gray-light;
+        font-size: 0.9em;
+      }
+    }
+  }
+  .save-volume-code {
+    margin-right: 5px;
+    background-color: @gray-ultralight;
+    padding: 5px;
+    border: 1px solid @gray-lighter;
+    border-radius: 5px;
+    width: 250px;
+  }
   .myresearch-paljo-sub {
-    border-top: 1px solid @gray-lighter;
+    border-bottom: 1px solid @gray-lighter;
     padding-top: 10px;
     padding-bottom: 10px;
-    .paljo-sub-info {
-      width: 50%;
-      &.right {
-        float: right;
+    .paljo-cols {
+      display: flex;
+    }
+    .paljo-col {
+      display: flex;
+      flex-basis: 33%;
+      flex-direction: column;
+      &.left {
+        flex-basis: 25%;
+        margin-right: 15px;
       }
+      &.right {
+        margin-top: 45px;
+      }
+    }
+    .paljo-record-title {
+      margin-top: 0px;
+    }
+    .paljo-sub-info {
+      margin-bottom: 10px;
     }
     .paljo-field {
       font-weight: bold;
-      width: 50%;
     }
-    .paljo-value {
-      width: 50%;
-      float: right;
+    .paljo-sub-image {
+      display: flex;
+      flex-basis: 33%;
+      margin-right: 40px;
+      max-width: 40%;
     }
   }
 }

@@ -5,7 +5,7 @@
 ?>
 <h1><?=$this->transEsc('paljo_image_subscription')?> <i class="fa fa-info-big"></i></h1>
 <div class="infobox"><?=$this->transEsc('paljo_image_subscription_info')?></div>
-<div><?=$this->transEsc('paljo_user_email')?> <b><span class="paljo-user-email"><?=$user->getPaljoId()?></span></b></div>
+<div><?=$this->transEsc('paljo_user_email')?> <b><span class="paljo-user-email"><?=$user->paljo_id?></span></b></div>
 <div class="paljo-sub-container">
   <div class="paljo-image">
     <img src="<?= $images[0]['urls']['medium'] ?>" />
@@ -44,11 +44,13 @@
         <span class="paljo-image-info"><b><?=$this->transEsc('paljo_volume_code')?></b></span>
         <span class="paljo-code-input">
           <span>
-          <input type="text" name="volume-code" class="paljo-volume-code" placeholder="<?=$this->escapeHtmlAttr($this->translate('Input'))?>"><i class="fa fa-info-big volume-code-info"></i>
+          <input list="volume-codes" type="text" name="volume-code" class="paljo-volume-code" placeholder="<?=$this->escapeHtmlAttr($this->translate('Input'))?>"><i class="fa fa-info-big volume-code-info"></i>
           <?php if (isset($this->volumeCodes)): ?>
-            <br>Tiliin liitetyt alennuskoodit:<br>
+            <datalist id="volume-codes">
             <?php foreach ($this->volumeCodes as $code): ?>
-              <span><?=$code?></span><br>
+              <?php if ($code->organisation_id === $this->organisationId): ?>
+                <option value="<?=$code->volume_code?>"><?=$this->transEsc('Discount')?>: <?=$code->discount?> %</option>
+              <?php endif; ?>
             <?php endforeach; ?>
           <?php endif; ?>
           </span>

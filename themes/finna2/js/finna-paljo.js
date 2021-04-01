@@ -21,15 +21,19 @@ finna.paljo = (function finnaPaljo() {
         .done(function onGetDiscount(response) {
           if (typeof response.data.price !== undefined)
           $('span.paljo-price').html(response.data.price);
-          // var discount = response.data.discount;
-          // var currentPrice = $('span.paljo-price').html();
-          // var newPrice = (1 - discount / 100) * currentPrice
-          // newPrice = newPrice.toFixed(2);
-          // $('span.paljo-price').html(newPrice);
         });
   }
 
+  function initPaljoMyresearch() {
+    initVolumeCode();
+    initChangePaljoId();
+    initPaljoTabs();
+  }
+
   function initVolumeCode() {
+    $('.volume-code-toggle').click(function onVolumeCodeToggleClick() {
+      $('.paljo-volume-code').toggleClass('hidden');
+    })
     var volumeCode = $('.save-volume-code')[0];
     $('.save-volume-code-btn').click(function onSaveVolumeCode() {
       if (volumeCode.value) {
@@ -45,6 +49,33 @@ finna.paljo = (function finnaPaljo() {
           }
         });
       }
+    });
+  }
+
+  function initChangePaljoId() {
+    var toggleBtn = $('.change-paljo-id-btn');
+    var changeForm = $('#change-paljo-id-form');
+    toggleBtn.click(function onToggleClick() {
+      changeForm.toggleClass('hidden');
+    });
+  }
+
+  function initPaljoTabs() {
+    var activeBtn = $('.paljo-active-btn');
+    var expiredBtn = $('.paljo-expired-btn');
+    var activeTab = $('.myresearch-paljo-sub.active');
+    var expiredTab = $('.myresearch-paljo-sub.expired');
+    activeBtn.click(function onActiveClick() {
+      $(this).addClass('selected');
+      expiredBtn.removeClass('selected');
+      expiredTab.addClass('hidden');
+      activeTab.removeClass('hidden');
+    });
+    expiredBtn.click(function onExpiredClick() {
+      $(this).addClass('selected');
+      activeBtn.removeClass('selected');
+      expiredTab.removeClass('hidden');
+      activeTab.addClass('hidden');
     });
   }
 
@@ -111,6 +142,8 @@ finna.paljo = (function finnaPaljo() {
   var my = {
     initPaljoPrice: initPaljoPrice,
     initVolumeCode: initVolumeCode,
+    initPaljoTabs: initPaljoTabs,
+    initPaljoMyresearch: initPaljoMyresearch,
     checkPaljoAvailability: checkPaljoAvailability
   };
 

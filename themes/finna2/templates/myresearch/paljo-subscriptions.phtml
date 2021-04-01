@@ -1,74 +1,109 @@
 <!-- START of: finna - myresearch/paljo-subscriptions.phtml -->
-
+<?php 
+  $user = $this->auth()->isLoggedIn();
+?>
 <!-- Leftside navigationbar -->
 <?= $this->context($this)->renderInContext("myresearch/menu.phtml", ['active' => 'paljo-subscriptions']); ?>
 <div class="mainbody right myresearch-body">
   <?=$this->flashmessages()?>
-  <div class="myresearch-paljo-container">
-    <h2>Kuvatilaukset:</h2>
-    <div>PALJO-tiliin liitetty sähköposti: <b><?=$this->paljoId?></b></div>
-    <form id="change-paljo-id-form" action="change-paljo-id" method="post">
-    <input type="text" name="new-id"><input type="submit" class="btn btn-primary" value="Vaihda">
-    </form>
-    <div class="paljo-volume-codes">
-      Tiliin liitetyt alennuskoodit:
-      <?php if (isset($this->volumeCodes)): ?>
-        <?php foreach ($this->volumeCodes as $code): ?>
-          <div class="paljo-volume-code"><?=$code?></div>
+  <?php if (!$user->paljo_id): ?>
+    <?=$this->render('RecordDriver/SolrLido/paljo-account-creation.phtml');?>
+  <?php else: ?>
+    <div class="myresearch-paljo-container">
+      <h2>Kuvatilaukset:</h2>
+      <div>
+        PALJO-tiliin liitetty sähköposti: <b><?=$this->paljoId?></b>
+        <button class="btn btn-primary change-paljo-id-btn">Vaihda</button>
+      </div>
+      <form id="change-paljo-id-form" class="hidden" action="change-paljo-id" method="post">
+        <input type="text" name="new-id"><input type="submit" class="btn btn-primary" value="Vaihda">
+      </form>
+      <div class="paljo-volume-codes">
+        <a class="volume-code-toggle">Tiliin liitetyt alennuskoodit (<?=count($this->volumeCodes)?>) <b class="caret"></b></a>
+        <?php if (isset($this->volumeCodes)): ?>
+          <?php foreach ($this->volumeCodes as $code): ?>
+            <div class="paljo-volume-code hidden">
+              <?=$code->volume_code?> <span><?=$this->transEsc('Discount')?>: <?=$code->discount . '% (' . $code->organisation_id . ')'?></span>
+            </div>
+          <?php endforeach; ?>
+        <?php endif;?>
+      </div>
+      <input type="text" class="save-volume-code" placeholder="<?=$this->transEscAttr('Sopimusasiakaskoodi')?>"><button class="btn btn-primary save-volume-code-btn">Liitä</button>
+      <ul class="nav nav-tabs">
+        <li class="btn-default paljo-active-btn selected">Aktiiviset</li>
+        <li class="btn-default paljo-expired-btn">Vanhentuneet</li>
+      </ul>
+      <?php if (isset($this->transactions['active'])): ?>
+        <?php foreach ($this->transactions['active'] as $transaction): ?>
+          <?php
+            $driver = $this->record($transaction->record_id)->getDriver();
+            $images = $driver->getAllImages();
+          ?>
+          <div class="myresearch-paljo-sub active">
+            <div class="paljo-cols">
+              <div class="paljo-col left"><img src="<?= $images[0]['urls']['medium'] ?>" /></div>
+              <div class="paljo-col">
+                <h3 class="paljo-record-title"><a href="<?=$this->url('record', ['id' => $transaction->record_id])?>"><?=$driver->getFullTitle()?></a></h3>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field">id: </span><span class="paljo-value"><?=$transaction->image_id?></span>
+                </div>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field">resoluutio: </span><span class="paljo-value"><?=$transaction->image_size?></span>
+                </div>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field">hinta: </span><span class="paljo-value"><?=$transaction->amount . ' ' . $transaction->currency?></span>
+                </div>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field">hinnoitteluperuste: </span><span class="paljo-value"><?=$transaction->price_type?></span>
+                </div>
+              </div>
+              <div class="paljo-sub-info paljo-col right">
+                <a class="paljo-field" href="<?=$this->apiurl . $transaction->token . '/package'?>" target="_blank">Avaa latauslinkki</a>
+                <br>
+                <span class="paljo-field">vanhentuu: </span><span class="paljo-value"><?=$transaction->expires?></span>
+              </div>
+            </div>
+          </div>
         <?php endforeach; ?>
-      <?php endif;?>
-      <input type="text" class="save-volume-code"><button class="btn btn-primary save-volume-code-btn">Lisää uusi</button>
+      <?php endif; ?>
+      <?php if (isset($transactions['expired'])): ?>
+        <?php foreach ($this->transactions['expired'] as $transaction): ?>
+          <?php
+            $driver = $this->record($transaction->record_id)->getDriver();
+            $images = $driver->getAllImages();
+          ?>
+          <div class="myresearch-paljo-sub expired hidden">
+            <div class="paljo-cols">
+              <div class="paljo-col left"><img src="<?= $images[0]['urls']['medium'] ?>" /></div>
+              <div class="paljo-col">
+                <h3 class="paljo-record-title"><a href="<?=$this->url('record', ['id' => $transaction->record_id])?>"><?=$driver->getFullTitle()?></a></h3>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field">id: </span><span class="paljo-value"><?=$transaction->image_id?></span>
+                </div>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field">resoluutio: </span><span class="paljo-value"><?=$transaction->image_size?></span>
+                </div>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field">hinta: </span><span class="paljo-value"><?=$transaction->amount . ' ' . $transaction->currency?></span>
+                </div>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field">hinnoitteluperuste: </span><span class="paljo-value"><?=$transaction->price_type?></span>
+                </div>
+              </div>
+              <div class="paljo-col right">
+                <span class="paljo-field">vanhentunut: </span><span class="paljo-value"><?=$transaction->expires?></span>
+              </div>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </div>
-    <h3>Aktiiviset</h3>
-    <?php foreach ($this->transactions['active'] as $transaction): ?>
-      <div class="myresearch-paljo-sub">
-       <div class="paljo-sub-info right">
-          <a class="paljo-field" href="<?=$this->apiurl . $transaction['token'] . '/package'?>" target="_blank">Avaa latauslinkki</a>
-          <br>
-          <span class="paljo-field">vanhentuu: </span><span class="paljo-value"><?=$transaction['expires']?></span>
-        </div>
-        <div class="paljo-sub-info">
-          <span class="paljo-field">id: </span><span class="paljo-value"><?=$transaction['imageId']?></span>
-        </div>
-        <div class="paljo-sub-info">
-          <span class="paljo-field">resoluutio: </span><span class="paljo-value"><?=$transaction['imageSize']?></span>
-        </div>
-        <div class="paljo-sub-info">
-          <span class="paljo-field">hinta: </span><span class="paljo-value"><?=$transaction['amount']?></span>
-        </div>
-        <div class="paljo-sub-info">
-          <span class="paljo-field">hinnoitteluperuste: </span><span class="paljo-value"><?=$transaction['priceType']?></span>
-        </div>
-      </div>
-    <?php endforeach; ?>
-    <h3>Vanhentuneet</h3>
-    <?php foreach ($this->transactions['expired'] as $transaction): ?>
-      <div class="myresearch-paljo-sub">
-       <div class="paljo-sub-info right">
-          <a class="paljo-field" href="<?=$this->apiurl . $transaction['token'] . '/package'?>" target="_blank">Avaa latauslinkki</a>
-          <br>
-          <span class="paljo-field">vanhentuu: </span><span class="paljo-value"><?=$transaction['expires']?></span>
-        </div>
-        <div class="paljo-sub-info">
-          <span class="paljo-field">id: </span><span class="paljo-value"><?=$transaction['imageId']?></span>
-        </div>
-        <div class="paljo-sub-info">
-          <span class="paljo-field">resoluutio: </span><span class="paljo-value"><?=$transaction['imageSize']?></span>
-        </div>
-        <div class="paljo-sub-info">
-          <span class="paljo-field">hinta: </span><span class="paljo-value"><?=$transaction['amount']?></span>
-        </div>
-        <div class="paljo-sub-info">
-          <span class="paljo-field">hinnoitteluperuste: </span><span class="paljo-value"><?=$transaction['priceType']?></span>
-        </div>
-      </div>
-    <?php endforeach; ?>
-  </div>
+  <?php endif; ?>
 </div>
 <?php
 $js = <<<JS
 $(document).ready(function(){
-  finna.paljo.initVolumeCode();
+  finna.paljo.initPaljoMyresearch();
 });
 JS;
 $this->headScript()->appendScript($js);
