@@ -44,7 +44,7 @@
         <span class="paljo-image-info"><b><?=$this->transEsc('paljo_volume_code')?></b></span>
         <span class="paljo-code-input">
           <span>
-          <input list="volume-codes" type="text" name="volume-code" class="paljo-volume-code" placeholder="<?=$this->escapeHtmlAttr($this->translate('Input'))?>"><i class="fa fa-info-big volume-code-info"></i>
+          <input list="volume-codes" type="text" name="volume-code" class="paljo-volume-code" placeholder="<?=$this->escapeHtmlAttr($this->translate('Input'))?>"><button class="discount btn btn-primary"> hae alennus</button><i class="fa fa-info-big volume-code-info"></i>
           <?php if (isset($this->volumeCodes)): ?>
             <datalist id="volume-codes">
             <?php foreach ($this->volumeCodes as $code): ?>
@@ -65,7 +65,6 @@
     </div>
   </form>
 </div>
-<button class="discount btn btn-primary"> hae alennus</button>
 <?php
 $js = <<<JS
 $(document).ready(function(){

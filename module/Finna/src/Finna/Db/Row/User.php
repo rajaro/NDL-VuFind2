@@ -126,16 +126,6 @@ class User extends \VuFind\Db\Row\User
     }
 
     /**
-     * Get PALJO ID
-     *
-     * @return string|null return paljo id if it is set, otherwise return null
-     */
-    public function getPaljoId()
-    {
-        return $this->paljo_id;
-    }
-
-    /**
      * Add/update a resource in the user's account.
      *
      * @param array                   $resources       The resources to add/update

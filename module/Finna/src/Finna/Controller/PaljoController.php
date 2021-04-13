@@ -64,12 +64,6 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
             $table = $this->getTable('PaljoVolumeCode');
             $volumeCodes = $table->getVolumeCodesForUser($userPaljoId);
-            $codes = [];
-            // if ($volumeCodes) {
-            //     $codes = [
-            //         'code' => $volumeCodes['volume_code']
-            //     ];
-            // }
             $prices = $paljo->getImagePrice($id, $organisationId);
             $driver = $this->getRecordLoader()->load($recordId, 'Solr', true);
             $view = $this->createViewModel(
@@ -132,7 +126,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             $this->serviceLocator->get(\VuFind\Mailer\Mailer::class)->send(
                 $to,
                 $config->Site->email,
-                $this->translate('verification_email_subject'),
+                $this->translate('paljo_download_email_subject'),
                 $message
             );
         } catch (MailException $e) {
@@ -172,7 +166,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             $this->serviceLocator->get(\VuFind\Mailer\Mailer::class)->send(
                 $to,
                 $config->Site->email,
-                $this->translate('verification_email_subject'),
+                $this->translate('paljo_verification_email_subject'),
                 $message
             );
         } catch (MailException $e) {
@@ -277,7 +271,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                     $this->sendDownloadEmail($userPaljoId, $transaction['downloadLink']);   
                 }
                 $this->flashMessenger()->addMessage(
-                    'paljo_subscription_success', 'success'
+                    'paljo_subscription_success', 'info'
                 );
             } else {
                 $this->flashMessenger()->addMessage(
@@ -313,7 +307,6 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $driver = '';
         $records = [];
         if (!empty($transactions)) {
-            $recordIds = [];
             foreach ($transactions as $transaction) {
                 foreach ($transaction as $tr) {
                     $records[$tr->record_id] = $this->getRecordLoader()->load(

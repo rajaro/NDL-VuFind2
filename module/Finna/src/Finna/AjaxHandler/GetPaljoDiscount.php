@@ -70,7 +70,7 @@ class GetPaljoDiscount extends \VuFind\AjaxHandler\AbstractBase
         $discount = $this->paljoService->getDiscountForUser($email, $code);
         $response = [];
         if ($discount) {
-            if ($discount['organisation'] === $orgId || true /*TEST STUFF*/) {
+            if ($discount['organisation'] === $orgId) {
                 $discountAmount = $discount['discount'];
                 $currentPrice = $imageInfo['price'][$priceType];
                 $newPrice = (1 - $discountAmount / 100) * $currentPrice;

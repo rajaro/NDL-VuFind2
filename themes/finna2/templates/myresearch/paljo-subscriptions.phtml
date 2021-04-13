@@ -30,8 +30,8 @@
       </div>
       <input type="text" class="save-volume-code" placeholder="<?=$this->transEscAttr('Sopimusasiakaskoodi')?>"><button class="btn btn-primary save-volume-code-btn">Liitä</button>
       <ul class="nav nav-tabs">
-        <li class="btn-default paljo-active-btn selected">Aktiiviset</li>
-        <li class="btn-default paljo-expired-btn">Vanhentuneet</li>
+        <li class="btn-default paljo-active-btn selected">Aktiiviset latauslinkit</li>
+        <li class="btn-default paljo-expired-btn">Vanhentuneet latauslinkit</li>
       </ul>
       <?php if (isset($this->transactions['active'])): ?>
         <?php foreach ($this->transactions['active'] as $transaction): ?>
@@ -49,6 +49,9 @@
                 </div>
                 <div class="paljo-sub-info">
                   <span class="paljo-field">resoluutio: </span><span class="paljo-value"><?=$transaction->image_size?></span>
+                </div>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field">tilausaika: </span><span class="paljo-value"><?=$transaction->created?></span>
                 </div>
                 <div class="paljo-sub-info">
                   <span class="paljo-field">hinta: </span><span class="paljo-value"><?=$transaction->amount . ' ' . $transaction->currency?></span>

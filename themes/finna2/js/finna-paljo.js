@@ -133,7 +133,8 @@ finna.paljo = (function finnaPaljo() {
     });
 
     // test
-    $('button.discount').click(function ondiscountclick() {
+    $('button.discount').click(function ondiscountclick(e) {
+      e.preventDefault();
       getPaljoDiscount();
     });
     // test
