@@ -79,18 +79,20 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
      * @var array
      */
     protected $feeTypeMappings = [
-        'OVERDUEFINE' => 'Overdue',
-        'OVERDUENOTIFICATIONFINE' => 'Overdue',
-        'RECALLEDOVERDUEFINE' => 'Overdue',
-        'LOSTITEMREPLACEMENTFEE' => 'Lost Item Replacement',
-        'LOSTITEMPROCESSFEE' => 'Lost Item Processing',
-        'LIBRARYCARDREPLACEMENT' => 'New Card',
         'CARDRENEWAL' => 'New Card',
+        'DAMAGEDITEMFINE' => 'Damaged Item',
+        'FINEFEENOTIFICATIONFEE' => 'Processing Fee for Overdue Notice',
         'ISSUELIBRARYCARD' => 'New Card',
-        'SERVICEFEE' => 'Service Fee',
+        'LIBRARYCARDREPLACEMENT' => 'New Card',
         'LOCKERKEY' => 'Locker Key',
+        'LOSTITEMPROCESSFEE' => 'Lost Item Processing',
+        'LOSTITEMREPLACEMENTFEE' => 'Lost Item Replacement',
+        'NOTIFICATIONFEE' => 'Processing Fee for Overdue Notice',
         'OTHER' => 'Other',
-        'DAMAGEDITEMFINE' => 'Damaged Item'
+        'OVERDUEFINE' => 'Overdue',
+        'OVERDUENOTIFICATIONFINE' => 'Overdue Notice',
+        'RECALLEDOVERDUEFINE' => 'Overdue',
+        'SERVICEFEE' => 'Service Fee',
     ];
 
     /**
@@ -906,7 +908,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
         if ($overrideFields) {
             $queryParams = '?override=' . implode(',', $overrideFields);
         }
-        list($response, $code) = $this->makeRequest(
+        [$response, $code] = $this->makeRequest(
             '/users/' . rawurlencode($patron['id']) . $queryParams,
             [],
             [],
@@ -1066,7 +1068,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
         $userXml = $xml->asXML();
 
         // Create user in Alma
-        list($result, $statusCode) = $this->makeRequest(
+        [$result, $statusCode] = $this->makeRequest(
             '/users',
             [],
             [],
@@ -1127,7 +1129,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                 if ('external' === $profile['account_type']) {
                     $fields = [];
                     foreach ($config['fields'] as &$field) {
-                        list($label, $fieldId) = explode(':', $field);
+                        [$label, $fieldId] = explode(':', $field);
                         if (in_array($fieldId, ['self_service_pin'])) {
                             $fields[] = $field;
                         }
@@ -1345,10 +1347,8 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                 $items = [$item];
             } else {
                 $items = [];
-                // NOTE: According to documentation offset is 0-based, but in reality
-                // it seems to be 1-based.
-                $offset = 1;
-                $limit = 10;
+                $offset = 0;
+                $limit = 100;
                 do {
                     $itemsResult = $this->makeRequest(
                         '/bibs/' . rawurlencode($bibId) . '/holdings/ALL/items',
@@ -2149,7 +2149,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
     protected function getHoldingsDetails($id, $groupKey, $patron = null,
         $params = []
     ) {
-        list($holdingId, $libraryCode, $locationCode) = explode('||', $groupKey);
+        [$holdingId, $libraryCode, $locationCode] = explode('||', $groupKey);
 
         // Summary holdings
         if ($holdingId) {
@@ -2241,10 +2241,8 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                 $this->config['Holdings']['itemLimit'] ?? 100
             );
             $page = ($params['page'] ?? 1) - 1;
-            // NOTE: According to documentation offset is 0-based, but in reality it
-            // seems to be 1-based.
             $queryParams = [
-                'offset' => $page * $itemLimit + 1,
+                'offset' => $page * $itemLimit,
                 'limit' => $itemLimit,
                 'current_location' => $locationCode,
                 'order_by' => 'description,enum_a,enum_b',

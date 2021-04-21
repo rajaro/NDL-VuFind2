@@ -240,6 +240,10 @@ TitleStart:
   DismaxFields:
     - title_txtP_l^1000
 
+TitleExact:
+  DismaxFields:
+    - title_txtP_lr^1000
+
 Series:
   DismaxFields:
     - series^100
@@ -324,7 +328,7 @@ DeweyBrowse:
 
 LccBrowse:
   QueryFields:
-    callnumber-a:
+    callnumber-raw:
       - [onephrase, ~]
 
 CallNumber:
@@ -350,10 +354,10 @@ CallNumber:
       - [preg_replace, '/\*+$/', '']
       - [append, "*"]
   QueryFields:
-    callnumber:
+    callnumber-search:
       - [callnumber_exact, 1000]
       - [callnumber_fuzzy, ~]
-    dewey-full:
+    dewey-search:
       - [callnumber_exact, 1000]
       - [callnumber_fuzzy, ~]
 
@@ -457,6 +461,25 @@ WorkKeys:
       - [or, ~]
 
 description:
+  DismaxFields:
+    - description
+
+Identifier:
+  DismaxFields:
+    - isbn
+    - issn
+    - other_issn_isn_mv
+    - identifier
   QueryFields:
-    description:
+    issn:
+      - [and, 100]
+      - [or, ~]
+    isbn:
+      - [and, 100]
+      - [or, ~]
+    other_issn_isn_mv:
+      - [and, 100]
+      - [or, ~]
+    identifier:
+      - [and, 100]
       - [or, ~]
