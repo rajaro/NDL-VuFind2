@@ -70,6 +70,12 @@
             'translation' => 'R2_accessrights_menu_heading'
         ];
     }
+    if ($this->config()->paljoEnabled()) {
+        $nonLibraryItems['paljo-subscriptions'] = [
+            'url' => 'paljo-subscriptions',
+            'translation' => 'image_subscriptions'
+        ];
+    }
     $nonLibraryItems += [
       'profile' => [
         'url' => 'myresearch-profile',
@@ -86,10 +92,6 @@
         'url' => 'myresearch-favorites',
         'translation' => 'Favorites',
         'show' => $this->userlist()->getMode() !== 'disabled'
-      ],
-      'paljo-subscriptions' => [
-        'url' => 'paljo-subscriptions',
-        'translation' => 'image_subscriptions'
       ],
       'logout' => [
         'url' => 'myresearch-logout',

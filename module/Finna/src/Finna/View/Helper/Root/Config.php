@@ -48,4 +48,14 @@ class Config extends \VuFind\View\Helper\Root\Config
     {
         return !empty($this->get('config')->Record->embedVideo);
     }
+
+    /**
+     * Is PALJO enabled
+     *
+     * @return boolean
+     */
+    public function paljoEnabled()
+    {
+        return !empty($this->get('paljo')->General->enabled);
+    }
 }
