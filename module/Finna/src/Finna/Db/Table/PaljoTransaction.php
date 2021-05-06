@@ -60,17 +60,21 @@ class PaljoTransaction extends \VuFind\Db\Table\Gateway
     /**
      * Save PALJO transaction to database
      *
-     * @param string $userId      User id
-     * @param string $paljoId     Paljo ID
-     * @param string $recordId    Record id
-     * @param string $token Paljo transaction token
-     * @param string $userMessage Users message about the transaction
-     * @param string $amount      Amount paid
-     * @param string $currency    Currency used
-     * @param Date   $expires     The date the subscription expires
+     * @param string  $userId      User id
+     * @param string  $paljoId     Paljo ID
+     * @param string  $recordId    Record id
+     * @param string  $token Paljo transaction token
+     * @param string  $userMessage Users message about the transaction
+     * @param string  $amount      Amount paid
+     * @param string  $currency    Currency used
+     * @param Date    $expires     The date the subscription expires
+     * @param boolean $registered  Whether the transaction is registered to paljo
+     * @param string  $volumeCode  Volume code used in transaction
+     *
+     * @return PaljoTransaction paljo transaction
      */
     public function saveTransaction(
-        $userId, $paljoId, $recordId, $imageId, $token, $userMessage, $imageSize, $amount, $currency, $priceType, $expires
+        $userId, $paljoId, $recordId, $imageId, $token, $userMessage, $imageSize, $amount, $currency, $priceType, $expires, $registered, $volumeCode
     ) {
         $pt = $this->createRow();
         $pt->user_id = $userId;
@@ -85,36 +89,79 @@ class PaljoTransaction extends \VuFind\Db\Table\Gateway
         $pt->price_type = $priceType;
         $pt->created = date("Y-m-d H:i:s");
         $pt->expires = $expires;
+        $pt->registered = $registered;
+        $pt->volume_code = $volumeCode;
         $pt->save();
         return $pt;
     }
 
     /**
-     * Get transactions for user.
+     * Get users PALJO transactions
      *
-     * @param string $userId User ID.
-     *
-     * @return PaljoTransaction paljo transaction or false on error
+     * @param string $paljoId users paljo id
+     * @param int $offset 
+     * @param int $limit 
+     * @param boolean $active whether to return active or expired transactinos
      */
-    public function getTransactions($paljoId)
+    public function getTransactions($paljoId, $offset = 0, $limit = 50, $active = true)
     {
-        $activeCallback = function ($select) use ($paljoId) {
-            $select->where->equalTo('paljo_id', $paljoId);
+        $sql = $this->getSql();
+        $select = $sql->select();
+        $select->where->equalTo('paljo_id', $paljoId);
+        if ($active) {
             $select->where->greaterThan('expires', date('Y-m-d H:i:s'));
-        };
-        $expiredCallback = function($select) use ($paljoId) {
-            $select->where->equalTo('paljo_id', $paljoId);
+        } else {
             $select->where->lessThan('expires', date('Y-m-d H:i:s'));
-        };
-        $transactions = [];
-        foreach ($this->select($activeCallback) as $result) {
-            $transactions['active'][] = $result;
         }
-        foreach ($this->select($expiredCallback) as $result) {
-          $transactions['expired'][] = $result;
+        $select->offset($offset);
+        $select->limit($limit);
+        $select->order('created');
+
+        $adapter = new \Laminas\Paginator\Adapter\DbSelect($select, $sql);
+        $paginator = new \Laminas\Paginator\Paginator($adapter);
+        $paginator->setItemCountPerPage($limit);
+        if (null !== $offset) {
+            $paginator->setCurrentPageNumber($offset);
         }
-        return $transactions;
+        return $paginator;
     }
 
+    public function getTotalTransactions($paljoId, $active = true) {
+       $callback = function ($select) use ($paljoId, $active) {
+            $select->where->equalTo('paljo_id', $paljoId);
+            if ($active) {
+                $select->where->greaterThan('expires', date('Y-m-d'));
+            } else {
+                $select->where->lessThan('expires', date('Y-m-d'));
+            }
+       };
+       return count($this->select($callback));
+    }
+
+    public function getTotalExpiredTransactions($paljoId) {
+        $callback = function ($select) use ($paljoId) {
+          $select->where->equalTo('paljo_id', $paljoId);
+          $select->where->lessThan('expires', date('Y-m-d'));
+        };
+        return count($this->select($callback));
+   }
+
+    /**
+     * Get transaction by transaction ID
+     */
+    public function getById($transactionId) {
+        $row = $this->select(['id' => $transactionId])->current();
+        return (empty($row)) ? false : $row;
+    }
+
+    /**
+     * Mark transaction as registered to PALJO
+     */
+    public function registerTransaction($transactionId) {
+        $this->update(
+            ['registered' => true],
+            ['id' => $transactionId]
+        );
+    }
 
 }

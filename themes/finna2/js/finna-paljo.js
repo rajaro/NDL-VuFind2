@@ -27,13 +27,48 @@ finna.paljo = (function finnaPaljo() {
   function initPaljoMyresearch() {
     initVolumeCode();
     initChangePaljoId();
-    initPaljoTabs();
   }
 
   function initVolumeCode() {
     $('.volume-code-toggle').click(function onVolumeCodeToggleClick() {
       $('.paljo-volume-code').toggleClass('hidden');
-    })
+    });
+    // delete volume vode
+    $('.paljo-volume-codes').find('i.remove').off('click').on('click', function onClickRemove(e) {
+      var target = $(this);
+      var form = $('.delete-volume-code');
+      var prompt = form.find('.dropdown-menu');
+
+      function repositionPrompt(ev, data) {
+        var pos = target.offset();
+        var left = data.w / 2 - prompt.width() / 2;
+
+        prompt.css({
+          'left': left,
+          'top': pos.top + 30
+        });
+      }
+
+      function initRepositionListener() {
+        $(window).on('throttled-resize.finna', repositionPrompt);
+      }
+
+      prompt.find('.confirm').off('click').on('click', function onClickConfirm(ev) {
+        form.submit();
+        ev.preventDefault();
+      });
+      prompt.find('.cancel').off('click').on('click', function onClickCancel(ev) {
+        $(window).off('throttled-resize.finna', repositionPrompt);
+        prompt.hide();
+        ev.preventDefault();
+      });
+
+      repositionPrompt({}, {w: $(window).width(), h: $(window).height()});
+      initRepositionListener();
+      prompt.show();
+      prompt.find('.confirm a').focus();
+      e.preventDefault();
+    });
     var volumeCode = $('.save-volume-code')[0];
     $('.save-volume-code-btn').click(function onSaveVolumeCode() {
       if (volumeCode.value) {
@@ -57,25 +92,6 @@ finna.paljo = (function finnaPaljo() {
     var changeForm = $('#change-paljo-id-form');
     toggleBtn.click(function onToggleClick() {
       changeForm.toggleClass('hidden');
-    });
-  }
-
-  function initPaljoTabs() {
-    var activeBtn = $('.paljo-active-btn');
-    var expiredBtn = $('.paljo-expired-btn');
-    var activeTab = $('.myresearch-paljo-sub.active');
-    var expiredTab = $('.myresearch-paljo-sub.expired');
-    activeBtn.click(function onActiveClick() {
-      $(this).addClass('selected');
-      expiredBtn.removeClass('selected');
-      expiredTab.addClass('hidden');
-      activeTab.removeClass('hidden');
-    });
-    expiredBtn.click(function onExpiredClick() {
-      $(this).addClass('selected');
-      activeBtn.removeClass('selected');
-      expiredTab.removeClass('hidden');
-      activeTab.addClass('hidden');
     });
   }
 

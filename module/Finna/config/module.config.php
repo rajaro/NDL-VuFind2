@@ -158,16 +158,16 @@ $config = [
                     ]
                 ],
             ],
-            'paljo-subscriptions' => [
-                'type' => 'Laminas\Router\Http\Literal',
-                'options' => [
-                    'route'    => '/Paljo/Subscriptions',
-                    'defaults' => [
-                        'controller' => 'Paljo',
-                        'action'     => 'MyPaljoSubscriptions',
-                    ]
-                ],
-            ],
+            // 'paljo-subscriptions' => [
+            //     'type' => 'Laminas\Router\Http\Literal',
+            //     'options' => [
+            //         'route'    => '/Paljo/Subscriptions',
+            //         'defaults' => [
+            //             'controller' => 'Paljo',
+            //             'action'     => 'MyPaljoSubscriptions',
+            //         ]
+            //     ],
+            // ],
             'paljo-create-subscription' => [
                 'type' => 'Laminas\Router\Http\Literal',
                 'options' => [
@@ -1008,7 +1008,9 @@ $staticRoutes = [
     'R2/Home', 'R2/Results', 'R2/Advanced',
     'Search/StreetSearch',
     'Barcode/Show', 'Search/MapFacet', 'Search/Blended',
-    'L1/Advanced', 'L1/FacetList', 'L1/Home', 'L1/Results'
+    'L1/Advanced', 'L1/FacetList', 'L1/Home', 'L1/Results',
+    'Paljo/Deletevolumecode', 'Paljo/Subscriptions',
+    'Paljo/RegisterTransaction'
 ];
 
 $routeGenerator = new \VuFind\Route\RouteGenerator();

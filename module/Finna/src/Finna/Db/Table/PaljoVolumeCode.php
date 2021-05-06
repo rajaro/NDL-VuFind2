@@ -80,6 +80,21 @@ class PaljoVolumeCode extends \VuFind\Db\Table\Gateway
     }
 
     /**
+     * Delete a volume code
+     *
+     * @param string $codeId volume code ID
+     * @param string $userId user PALJO ID
+     */
+    public function deleteVolumeCode($codeId, $paljoId)
+    {
+        $matches = $this->select(['id' => $codeId, 'paljo_id' => $paljoId]);
+        if (count($matches) == 0 || !($row = $matches->current())) {
+            return false;
+        }
+        $row->delete();
+    }
+
+    /**
      * Get volume codes associated with a user
      *
      * @param string $paljoId User paljo id

@@ -97,7 +97,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $this->flashMessenger()->addMessage($flashMessage, 'info');
         return $this->redirect()->toRoute(
             'default',
-            ['controller' => 'Paljo', 'action' => 'MyPaljoSubscriptions']
+            ['controller' => 'Paljo', 'action' => 'Subscriptions']
         );
     }
 
@@ -200,7 +200,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 );
                 return $this->redirect()->toRoute(
                     'default',
-                    ['controller' => 'Paljo', 'action' => 'MyPaljoSubscriptions']
+                    ['controller' => 'Paljo', 'action' => 'Subscriptions']
                 );
             } else {
                 $this->flashMessenger()->addMessage(
@@ -219,7 +219,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $user->setPaljoId($newId);
         return $this->redirect()->toRoute(
             'default',
-            ['controller' => 'Paljo', 'action' => 'MyPaljoSubscriptions']
+            ['controller' => 'Paljo', 'action' => 'Subscriptions']
         );
     }
 
@@ -250,9 +250,11 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             $cost = $imageDetails['price'][$priceType];
             $license = $imageDetails['license'][$priceType]['name'];
             $currency = $imageDetails['currency'][$priceType];
-            $discount = $paljo->getDiscountForUser($user->paljo_id, $volumeCode);
+            $discount = $volumeCode
+                ? $paljo->getDiscountForUser($user->paljo_id, $volumeCode)
+                : '';
             if ($discount) {
-                if ($discount['organisation'] === $orgId || true /*TEST STUFF*/) {
+                if ($discount['organisation'] === $orgId) {
                     $discountAmount = $discount['discount'];
                     $cost = (1 - $discountAmount / 100) * $cost;
                 }
@@ -262,13 +264,15 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 $transaction = $paljo->createTransaction(
                     $userPaljoId, $imageId, $volumeCode, $imageSize, $cost, $license
                 );
+                $registered = 1;//!empty($transaction);
+                $token = $transaction['token'] ?? '';
                 $paljoTransactions = $this->getTable('PaljoTransaction');
                 $paljoTransactions->saveTransaction(
-                    $user->id, $user->paljo_id, $recordId, $imageId, $transaction['token'], $userMessage, $imageSize,
-                    $cost, $currency, $priceType, date('Y-m-d H:i:s') // current date for testing purposes
+                    $user->id, $user->paljo_id, $recordId, $imageId, $token, $userMessage, $imageSize,
+                    $cost, $currency, $priceType, '2021-05-28', $registered, $volumeCode //random date for testing purposes
                 );
                 if ($transaction) {
-                    $this->sendDownloadEmail($userPaljoId, $transaction['downloadLink']);   
+                    $this->sendDownloadEmail($userPaljoId, $transaction['downloadLink']);
                 }
                 $this->flashMessenger()->addMessage(
                     'paljo_subscription_success', 'info'
@@ -281,7 +285,60 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         }
         return $this->redirect()->toRoute(
             'default',
-            ['controller' => 'Paljo', 'action' => 'MyPaljoSubscriptions']
+            ['controller' => 'Paljo', 'action' => 'Subscriptions']
+        );
+    }
+
+    /**
+     * Attempt to register a failed transaction to Paljo
+     *
+     */
+    public function registerTransactionAction() {
+        $user = $this->getUser();
+        $transactionId = $this->params()->fromQuery('id', '');
+        $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
+        $paljoTransactions = $this->getTable('PaljoTransaction');
+        $transaction = $paljoTransactions->getById($transactionId);
+        if ($transaction) {
+            $response = $paljo->createTransaction(
+                $user->paljo_id, $transaction->image_id, '', $transaction->image_size, $transaction->amount, 'CC0'
+            );
+            if ($response) {
+                $paljoTransactions->registerTransaction($transactionId);
+                $this->sendDownloadEmail($user->paljo_id, $response['downloadLink']);
+                $this->flashMessenger()->addMessage(
+                    'paljo_subscription_success', 'info'
+                );
+            } else {
+                $this->flashMessenger()->addMessage(
+                    'paljo_subscription_creation_error', 'error'
+                );
+            }
+        } else {
+            $this->flashMessenger()->addMessage(
+                'paljo_transaction_not_found', 'error'
+            );
+        }
+        return $this->redirect()->toRoute(
+            'default',
+            ['controller' => 'Paljo', 'action' => 'Subscriptions']
+        );
+    }
+
+    public function deleteVolumeCodeAction()
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirect()->toRoute(
+                'default', ['controller' => 'MyResearch', 'action' => 'Login']
+            );
+        }
+        $codeId = $this->params()->fromQuery('codeid');
+        $volumeCodeTable = $this->getTable('PaljoVolumeCode');
+        $volumeCodeTable->deleteVolumeCode($codeId, $user->paljo_id);
+        return $this->redirect()->toRoute(
+            'default',
+            ['controller' => 'Paljo', 'action' => 'Subscriptions']
         );
     }
 
@@ -290,7 +347,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
      *
      * @return \Laminas\View
      */
-    public function myPaljoSubscriptionsAction()
+    public function subscriptionsAction()
     {
         $user = $this->getUser();
         if (!$user) {
@@ -303,22 +360,19 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $volumeCodetable = $this->getTable('PaljoVolumeCode');
         $volumeCodes = $volumeCodetable->getVolumeCodesForUser($userPaljoId);
         $transactionTable = $this->getTable('PaljoTransaction');
-        $transactions = $transactionTable->getTransactions($user->paljo_id);
-        $driver = '';
-        $records = [];
-        if (!empty($transactions)) {
-            foreach ($transactions as $transaction) {
-                foreach ($transaction as $tr) {
-                    $records[$tr->record_id] = $this->getRecordLoader()->load(
-                        $tr->record_id, 'Solr', true);
-                }
-            }
-        }
+        $limit = $this->params()->fromQuery('limit', '50');
+        $page = $this->params()->fromQuery('page', 1);
+        $active = $this->params()->fromQuery('show', 'active');
+
+        $transactions = $transactionTable->getTransactions($user->paljo_id, $page, $limit, $active === 'active');
+
+        $totalTransactions = $transactionTable->getTotalTransactions($user->paljo_id, $active === 'active');
         $apiUrl = 'https://paljo.userix.fi/api/v1/' . 'transactions/';
         $view = $this->createViewModel(
             [
-                'transactions' => $transactions, 'paljoId' => $userPaljoId,
-                'volumeCodes' => $volumeCodes, 'apiurl' => $apiUrl, 'records' => $records
+                'transactions' => $transactions, 'volumeCodes' => $volumeCodes,
+                'apiurl' => $apiUrl, 'show' => $active, 'limit' => $limit,
+                'page' => $page, 'total' => $totalTransactions
             ]
         );
         $view->setTemplate('myresearch/paljo-subscriptions');
