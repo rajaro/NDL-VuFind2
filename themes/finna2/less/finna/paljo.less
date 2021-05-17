@@ -47,27 +47,53 @@
     border-radius: 5px;
     width: 250px;
   }
+  .finna-nav.finna-nav-tabs {
+    font-size: 1.5em;
+  }
+  .paljo-controls {
+    .sort-button, .dropdown, .limit-option-container {
+      display: inline;
+      margin-right: 5px;
+    }
+    .paljo-limit {
+      display: inline;
+    }
+  }
   .myresearch-paljo-sub {
     border-bottom: 1px solid @gray-lighter;
     padding-top: 10px;
     padding-bottom: 10px;
     .paljo-cols {
       display: flex;
+      @media(max-width: @screen-xs) {
+        flex-direction: column;
+      }
     }
     .paljo-col {
       display: flex;
-      flex-basis: 33%;
+      flex-basis: 40%;
       flex-direction: column;
       &.left {
         flex-basis: 25%;
         margin-right: 15px;
+        img {
+          max-width: 70%;
+        }
       }
       &.right {
+        flex-basis: 25%;
+        align-items: center;
         margin-top: 45px;
+        @media(max-width: @screen-xs) {
+          align-items: baseline;
+          margin-top: 0px;
+        }
       }
     }
     .paljo-record-title {
       margin-top: 0px;
+      font-size: 1.2em;
+      font-weight: normal;
     }
     .paljo-sub-info {
       margin-bottom: 10px;
@@ -75,11 +101,9 @@
     .paljo-field {
       font-weight: bold;
     }
-    .paljo-sub-image {
-      display: flex;
-      flex-basis: 33%;
-      margin-right: 40px;
-      max-width: 40%;
+    .paljo-value {
+      float: right;
+      width: 45%;
     }
   }
 }

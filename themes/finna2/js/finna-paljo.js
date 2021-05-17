@@ -159,7 +159,6 @@ finna.paljo = (function finnaPaljo() {
   var my = {
     initPaljoPrice: initPaljoPrice,
     initVolumeCode: initVolumeCode,
-    initPaljoTabs: initPaljoTabs,
     initPaljoMyresearch: initPaljoMyresearch,
     checkPaljoAvailability: checkPaljoAvailability
   };

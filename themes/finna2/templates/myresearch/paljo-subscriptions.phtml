@@ -39,12 +39,12 @@
       <?php $items = [
           [
             'link' => $this->url('paljo-subscriptions') . '?show=active',
-            'label' => 'Aktiiviset',
+            'label' => $this->transEsc('paljo_active_links'),
             'active' => $this->show === 'active'
           ],
           [
             'link' => $this->url('paljo-subscriptions') . '?show=expired',
-            'label' => 'Vanhentuneet',
+            'label' => $this->transEsc('paljo_expired_links'),
             'active' => $this->show === 'expired'
           ],
         ]
@@ -67,8 +67,10 @@
           $defaultLimit = 50;
 
         ?>
-        <?=$this->render('myresearch/controls/paljo-limit.phtml', ['limit' => $this->limit, 'show' => $this->show])?>
-        <div><?=$this->translate('showing_results_of_html', $translateParams)?></div>
+        <div class="paljo-controls">
+          <?=$this->translate('showing_results_of_html', $translateParams)?>
+          <?=$this->render('myresearch/controls/paljo-limit.phtml', ['limit' => $this->limit, 'show' => $this->show])?>
+        </div>
         <?php foreach ($this->transactions as $transaction): ?>
           <?php
             $driver = $this->record($transaction->record_id)->getDriver();

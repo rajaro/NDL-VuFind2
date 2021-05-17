@@ -48,22 +48,6 @@ class Paljo extends \Laminas\View\Helper\AbstractHelper
         $this->paljo = $paljoService;
     }
 
-    /**
-     * Create a new PALJO ID
-     *
-     * @param $email email to use as the new id
-     *
-     * @return boolean whether paljo id creation was
-     */
-    public function registerUser($email)
-    {
-        $result = $this->paljo->createPaljoAccount($email);
-        if ($result) {
-            return true;
-        }
-        return false;
-    }
-
     public function checkPaljoAvailability($orgId, $imageId)
     {
         return $this->paljo->checkAvailability($orgId, $imageId);

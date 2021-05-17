@@ -395,7 +395,7 @@ finna.record = (function finnaRecord() {
     loadSimilarRecords();
     loadRecordDriverRelatedRecords();
     finna.authority.initAuthorityResultInfo();
-    finna.paljo.checkPaljoAvailability();
+    finna.paljo.checkPaljoAvailability(); //TODO: DELETE THIS
   }
 
   var my = {
