@@ -59,6 +59,10 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $userPaljoId = $user->paljo_id;
         if ($userPaljoId === null) {
             $view = $this->createViewModel();
+            $this->flashMessenger()->addMessage(
+                $this->transEsc('paljo_login_required'),
+                'info'
+            );
             $view->setTemplate('RecordDriver/SolrLido/paljo-account-creation');
         } else {
             $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
@@ -103,7 +107,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
 
     /**
      * Send email containing a download link to
-     * the subscribed image
+     * the ordered image
      *
      * @param string $paljoId      users paljo id (email address)
      * @param string $downloadLink link to the downloadable image 
@@ -187,30 +191,29 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $email = $this->params()->fromQuery('email');
         $table = $this->getTable('User');
         $user = $table->getByVerifyHash($hash);
-        if (!$user) {
-            $this->flashMessenger()->addMessage(
-                'paljo_account_creation_error_user_not_found', 'error'
-            );
-        } else {
+        if ($user) {
             $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
             if ($paljo->createPaljoAccount($email)) {
                 $user->setPaljoId($email);
-                $this->flashMessenger()->addMessage(
-                    'paljo_account_creation_success', 'success'
-                );
+
                 return $this->redirect()->toRoute(
                     'default',
                     ['controller' => 'Paljo', 'action' => 'Subscriptions']
                 );
-            } else {
-                $this->flashMessenger()->addMessage(
-                    'paljo_account_creation_error', 'error'
-                );
             }
+        } else {
+            $this->flashMessenger()->addMessage(
+                'paljo_account_creation_error', 'error'
+            );
         }
         return $this->forwardTo('MyResearch', 'Home');
     }
 
+    /**
+     * Change users paljo id
+     *
+     * @return view
+     */
     public function changePaljoIdAction()
     {
         $userId = $this->params()->fromPost('user');
@@ -273,13 +276,17 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 );
                 if ($transaction) {
                     $this->sendDownloadEmail($userPaljoId, $transaction['downloadLink']);
+                    $this->flashMessenger()->addMessage(
+                        'paljo_order_success', 'info'
+                    );
+                } else {
+                    $this->flashMessenger()->addMessage(
+                        'paljo_register_error_message', 'error'
+                    );
                 }
-                $this->flashMessenger()->addMessage(
-                    'paljo_subscription_success', 'info'
-                );
             } else {
                 $this->flashMessenger()->addMessage(
-                    'paljo_subscription_creation_error', 'error'
+                    'paljo_payment_error', 'error'
                 );
             }
         }
@@ -325,6 +332,11 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         );
     }
 
+    /**
+     * Delete a volume code
+     *
+     * @return \Laminas\View
+     */
     public function deleteVolumeCodeAction()
     {
         $user = $this->getUser();
@@ -367,7 +379,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $transactions = $transactionTable->getTransactions($user->paljo_id, $page, $limit, $active === 'active');
 
         $totalTransactions = $transactionTable->getTotalTransactions($user->paljo_id, $active === 'active');
-        $apiUrl = 'https://paljo.userix.fi/api/v1/' . 'transactions/';
+        $apiUrl = $this->getConfig('paljo')->General->api_url;
         $view = $this->createViewModel(
             [
                 'transactions' => $transactions, 'volumeCodes' => $volumeCodes,

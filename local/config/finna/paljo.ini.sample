@@ -1,0 +1,10 @@
+[General]
+enabled = 1
+api_url = "https://paljo.userix.fi/api/v1/"
+
+; Email used in error messages
+email = ""
+
+; Map organisations from PALJO to Finna
+[Organisations]
+1 = "VARKAUDENMUSEOT"
