@@ -6,12 +6,13 @@
 <h1><?=$this->transEsc('paljo_image_subscription')?> <i class="fa fa-info-big"></i></h1>
 <div class="infobox"><?=$this->transEsc('paljo_image_subscription_info')?></div>
 <div><?=$this->transEsc('paljo_user_email')?> <b><span class="paljo-user-email"><?=$user->paljo_id?></span></b></div>
-<div class="paljo-sub-container">
-  <div class="paljo-image">
-    <img src="<?= $images[0]['urls']['medium'] ?>" />
-  </div>
-  <form id="paljo-form" action="<?=$this->url('paljo-create-subscription')?>" method="post">
+<form id="paljo-form" action="<?=$this->url('paljo-create-subscription')?>" method="post">
+  <div class="paljo-sub-container">
+    <div class="paljo-image">
+      <img src="<?= $images[0]['urls']['medium'] ?? '' ?>" />
+    </div>
     <div class="paljo-image-info-container">
+      <h2><a href="<?=$this->url('record', ['id' => $this->recordId])?>"><?=$this->driver->getFullTitle()?></a></h2>
       <div class="paljo-flex">
         <input type="hidden" name="image-id" value="<?=$this->id?>" />
         <input type="hidden" name="record-id" value="<?=$this->recordId?>" />
@@ -27,9 +28,9 @@
       </div>
       <?php if (!empty($imageSize)): ?>
         <div class="paljo-flex">
-          <span class="paljo-image-info"><b><?=$this->transEsc('paljo_image_size')?></b></span>
+          <span class="paljo-image-info"><b><?=$this->transEsc('paljo_size')?></b></span>
             <input type="hidden" name="image-size" value="<?=$imageSize['height']['value']?>x<?=$imageSize['width']['value']?>">
-            <?=$imageSize['height']['value']?> x <?=$imageSize['width']['value']?> <?=$imageSize['width']['unit']?>
+            <?=$imageSize['height']['value']?> * <?=$imageSize['width']['value']?> <?=$imageSize['width']['unit']?>
         </div>
       <?php endif; ?>
       <div class="paljo-flex">
@@ -49,7 +50,7 @@
             <datalist id="volume-codes">
             <?php foreach ($this->volumeCodes as $code): ?>
               <?php if ($code->organisation_id === $this->organisationId): ?>
-                <option value="<?=$code->volume_code?>"><?=$this->transEsc('Discount')?>: <?=$code->discount?> %</option>
+                <option value="<?=$code->volume_code?>"><?=$this->transEsc('paljo_discount')?>: <?=$code->discount?> %</option>
               <?php endif; ?>
             <?php endforeach; ?>
           <?php endif; ?>
@@ -60,11 +61,12 @@
         <span class="paljo-image-info"><b><?=$this->transEsc('Cost')?></b></span> <span class="paljo-price"></span>
       </div>
     </div>
-    <div class="paljo-create-transaction">
-      <input class="btn btn-primary" type="submit" value="<?=$this->transEsc('paljo_pay')?>" name="paljo-pay" />
-    </div>
-  </form>
-</div>
+  </div>
+  <div class="paljo-create-transaction">
+    <input class="btn btn-primary" type="submit" value="<?=$this->transEsc('paljo_pay')?>" name="paljo-pay" />
+    <a href="<?=$this->url('record', ['id' => $this->recordId]);?>"><?=$this->transEsc('paljo_cancel_order')?></a>
+  </div>
+</form>
 <?php
 $js = <<<JS
 $(document).ready(function(){

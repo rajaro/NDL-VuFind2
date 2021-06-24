@@ -95,35 +95,6 @@ finna.paljo = (function finnaPaljo() {
     });
   }
 
-  function checkPaljoAvailability() {
-    if (typeof $('.paljo-link') === 'undefined') {
-      return;
-    }
-    var imageId = $('.paljo-link').data('collecteid');
-    var recordId = $('.record-main .hiddenId')[0]
-      ? $('.record-main .hiddenId')[0].value
-      : '';
-    var organisationId = $('.record-organisation-info .organisation-page-link').data('organisation');
-    $.ajax({
-      dataType: 'json',
-      url: VuFind.path + '/AJAX/JSON?method=getPaljoAvailability',
-      data: {
-        'imageId': imageId,
-        'organisationId': organisationId
-      }
-    })
-    .done(function onGetAvailability(response) {
-      if (response.data) {
-        $('.paljo-link').removeClass('hidden');
-        var url = VuFind.path + '/Paljo/Subscription'
-          + '?imageId=' + imageId
-          + '&recordId=' + recordId
-          + '&organisationId=' + organisationId;
-        $('.paljo-link').attr('href', url);
-      }
-    });
-  }
-
   function initPaljoPrice() {
     var priceType = $('select.paljo-price-type-menu').find(':selected');
     var price = priceType[0].dataset.price

@@ -1,0 +1,135 @@
+<!-- START of: finna - paljo/paljo-subscriptions.phtml -->
+<?php 
+  $user = $this->auth()->isLoggedIn();
+?>
+<!-- Leftside navigationbar -->
+<?= $this->context($this)->renderInContext("myresearch/menu.phtml", ['active' => 'paljo-subscriptions']); ?>
+<div class="mainbody right myresearch-body">
+  <?=$this->flashmessages()?>
+  <?php if (!$user->paljo_id): ?>
+    <?=$this->render('RecordDriver/SolrLido/paljo-account-creation.phtml');?>
+  <?php else: ?>
+    <div class="myresearch-paljo-container">
+      <h2><?=$this->transEsc('paljo_orders')?>:</h2>
+      <div>
+        <?=$this->transEsc('paljo_user_email')?>: <b><?=$user->paljo_id?></b>
+        <button class="btn btn-primary change-paljo-id-btn"><?=$this->transEsc('paljo_change_paljo_id')?></button>
+      </div>
+      <form id="change-paljo-id-form" class="hidden" action="change-paljo-id" method="post">
+        <input type="text" name="new-id"><input type="submit" class="btn btn-primary" value="Vaihda">
+      </form>
+      <div class="paljo-volume-codes">
+        <a class="volume-code-toggle"><?=$this->transEsc('paljo_user_volume_codes')?> (<?=count($this->volumeCodes)?>) <b class="caret"></b></a>
+        <?php if (isset($this->volumeCodes)): ?>
+          <?php foreach ($this->volumeCodes as $code): ?>
+            <div class="paljo-volume-code hidden">
+              <?=$code->volume_code?> <i class="remove fa fa-button fa-times"></i> <span><?=$this->transEsc('paljo_discount')?>: <?=$code->discount . '% (' . $code->organisation_id . ')'?></span>
+              <form class="delete-volume-code" action="<?=$this->url('paljo-deletevolumecode') ?>?codeid=<?=urlencode($code->id)?>&confirm=1" method="post">
+                <ul class="dropdown-menu">
+                  <li class="disabled"><a><?=$this->transEsc('confirm_delete_volume_code_text')?></a></li>
+                  <li class="confirm"><a href="#"><?=$this->transEsc('confirm_dialog_yes') ?></a></li>
+                  <li class="cancel"><a href="#"><?=$this->transEsc('confirm_dialog_no')?></a></li>
+                </ul>
+              </form>
+            </div>
+          <?php endforeach; ?>
+        <?php endif;?>
+      </div>
+      <input type="text" class="save-volume-code" placeholder="<?=$this->transEscAttr('paljo_volume_code')?>"><button class="btn btn-primary save-volume-code-btn"><?=$this->transEsc('paljo_volume_code_add')?></button>
+      <?php $items = [
+          [
+            'link' => $this->url('paljo-subscriptions') . '?show=active',
+            'label' => $this->transEsc('paljo_active_links'),
+            'active' => $this->show === 'active'
+          ],
+          [
+            'link' => $this->url('paljo-subscriptions') . '?show=expired',
+            'label' => $this->transEsc('paljo_expired_links'),
+            'active' => $this->show === 'expired'
+          ],
+        ]
+      ?>
+      <?= $this->render('components/organisms/navigation/finna-tabs-nav/finna-tabs-nav.phtml', ['items' => $items])?>
+      <?php if (!empty($this->transactions)): ?>
+        <?php
+          $total = $this->total;
+          $start = $this->page === 1
+            ? 1
+            : $this->limit * ($this->page - 1);
+          $end = $this->limit > $total
+            ? $total
+            : $start + $limit - 1;
+          $translateParams = [
+            '%%total%%' => $total,
+            '%%start%%' => $start,
+            '%%end%%' => $end
+          ];
+          $defaultLimit = 50;
+
+        ?>
+        <div class="paljo-controls">
+          <?=$this->translate('showing_results_of_html', $translateParams)?>
+          <?=$this->render('paljo/paljo-limit.phtml', ['limit' => $this->limit, 'show' => $this->show])?>
+        </div>
+        <?php foreach ($this->transactions as $transaction): ?>
+          <?php
+            $driver = $this->record($transaction->record_id)->getDriver();
+            $images = $driver->getAllImages();
+          ?>
+          <div class="myresearch-paljo-sub active">
+            <div class="paljo-cols">
+              <div class="paljo-col left"><img src="<?= $images[0]['urls']['medium'] ?>" /></div>
+              <div class="paljo-col">
+                <h3 class="paljo-record-title"><a href="<?=$this->url('record', ['id' => $transaction->record_id])?>"><?=$driver->getFullTitle()?></a></h3>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field"><?=$this->transEsc('paljo_image_id')?>: </span><span class="paljo-value"><?=$transaction->image_id?></span>
+                </div>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field"><?=$this->transEsc('paljo_size')?>: </span><span class="paljo-value"><?=$transaction->image_size?></span>
+                </div>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field"><?=$this->transEsc('paljo_order_date')?>: </span><span class="paljo-value"><?=$transaction->created?></span>
+                </div>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field"><?=$this->transEsc('paljo_order_cost')?>: </span><span class="paljo-value"><?=$transaction->amount . ' ' . $transaction->currency?></span>
+                </div>
+                <div class="paljo-sub-info">
+                  <span class="paljo-field"><?=$this->transEsc('paljo_price_type')?>: </span><span class="paljo-value"><?=$transaction->price_type?></span>
+                </div>
+              </div>
+              <div class="paljo-sub-info paljo-col right">
+                <?php if ($this->show === 'active'): ?>
+                  <?php if (!$transaction->registered): ?>
+                    </i><a class="paljo-register-transaction" href="<?=$this->url('paljo-registertransaction')?>?id=<?=$transaction->id?>"><?=$this->transEsc('paljo_register_payment')?></a>
+                  <?php else: ?>
+                    <a class="paljo-field" href="<?=$this->apiurl . $transaction->token . '/package'?>" target="_blank"><?=$this->transEsc('paljo_open_download_link')?></a>
+                    <br>
+                    <span class="paljo-field"><?=$this->transEsc('paljo_download_link_expires')?>: </span><span class="paljo-value"><?=$transaction->expires?></span>
+                  <?php endif;?>
+                <?php else: ?>
+                  <span class="paljo-field"><?=$this->transEsc('paljo_download_link_expired')?>: </span><span class="paljo-value"><?=$transaction->expires?></span>
+                <?php endif; ?>
+              </div>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
+      <?php
+        $this->params = [
+          'limit' => $this->limit,
+          'show' => $this->show
+        ];
+      ?>
+      <?=$this->transactions ? $this->paginationControl($this->transactions, 'Sliding', 'Helpers/pagination.phtml', ['params' => $this->params]) : ''?>
+    </div>
+  <?php endif; ?>
+</div>
+<?php
+$js = <<<JS
+$(document).ready(function(){
+  finna.paljo.initPaljoMyresearch();
+});
+JS;
+$this->headScript()->appendScript($js);
+?>
+<!-- END of: finna - paljo/paljo-subscriptions.phtml -->

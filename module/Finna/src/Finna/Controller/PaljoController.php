@@ -54,7 +54,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             );
         }
         $id = $this->params()->fromQuery('imageId', '');
-        $organisationId = $this->params()->fromQuery('organisationId', '');
+        $organisationId = $this->params()->fromQuery('organisation', '');
         $recordId = $this->params()->fromQuery('recordId', '');
         $userPaljoId = $user->paljo_id;
         if ($userPaljoId === null) {
@@ -63,7 +63,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 $this->transEsc('paljo_login_required'),
                 'info'
             );
-            $view->setTemplate('RecordDriver/SolrLido/paljo-account-creation');
+            $view->setTemplate('paljo/paljo-account-creation');
         } else {
             $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
             $table = $this->getTable('PaljoVolumeCode');
@@ -78,7 +78,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                     'volumeCodes' => $volumeCodes,
                 ]
             );
-            $view->setTemplate('RecordDriver/SolrLido/paljo-subscribe');
+            $view->setTemplate('paljo/paljo-subscribe');
         }
         return $view;
     }
@@ -387,7 +387,7 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 'page' => $page, 'total' => $totalTransactions
             ]
         );
-        $view->setTemplate('myresearch/paljo-subscriptions');
+        $view->setTemplate('paljo/paljo-subscriptions');
         return $view;
     }
 }

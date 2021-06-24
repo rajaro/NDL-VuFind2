@@ -108,6 +108,11 @@
   }
 }
 .paljo-sub-container {
+  h2 {
+    font-weight: normal;
+    font-size: 1.2em;
+    margin-top: 0px;
+  }
   display: flex;
   border-top: 1px solid @gray-lighter;
   border-bottom: 1px solid @gray-lighter;
@@ -134,8 +139,9 @@
       flex-basis: 30%;
       float: left;
     }
-    .paljo-price-type {
+    .paljo-price-type-menu {
       padding: 5px;
+      width: 200px;
     }
     .paljo-image-license {
       display: flex;
@@ -158,4 +164,10 @@
       color: @brand-primary;
     }
   }
+}
+.paljo-create-transaction {
+  input {
+    margin-right: 10px;
+  }
+  margin: 15px;
 }
