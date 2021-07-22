@@ -269,10 +269,11 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                 );
                 $registered = 1;//!empty($transaction);
                 $token = $transaction['token'] ?? '';
+                $tokenExpires = $transaction['token_expires'] ?? '';
                 $paljoTransactions = $this->getTable('PaljoTransaction');
                 $paljoTransactions->saveTransaction(
                     $user->id, $user->paljo_id, $recordId, $imageId, $token, $userMessage, $imageSize,
-                    $cost, $currency, $priceType, '2021-05-28', $registered, $volumeCode //random date for testing purposes
+                    $cost, $currency, $priceType, $tokenExpires, $registered, $volumeCode
                 );
                 if ($transaction) {
                     $this->sendDownloadEmail($userPaljoId, $transaction['downloadLink']);
