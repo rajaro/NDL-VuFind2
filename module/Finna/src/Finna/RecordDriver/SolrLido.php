@@ -1111,6 +1111,20 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
     }
 
     /**
+     * Check if resource has a PALJO image
+     *
+     * ©return boolean
+     */
+    public function checkPaljoImage()
+    {
+        $images = $this->getXmlRecord()->xpath(
+            'lido/administrativeMetadata/resourceWrap/resourceSet/' .
+            'resourceRepresentation[@type="image_master+paljo"]'
+        );
+        return !empty($images);
+    }
+
+    /**
      * Set raw data to initialize the object.
      *
      * @param mixed $data Raw data representing the record; Record Model
