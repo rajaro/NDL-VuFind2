@@ -148,15 +148,15 @@ class PaljoService implements
             'GET'
         );
         $result = json_decode($response->getBody(), true);
+        $prices = $result['prices'][0] ?? [];
         $imageInfo = [];
-        if (!empty($result['price'])) {
-            $imageInfo['price'] = $result['price'];
-        }
-        if (!empty($result['license'])) {
-            $imageInfo['license'] = $result['license'];
-        }
-        if (!empty($result['currency'])) {
-            $imageInfo['currency'] = $result['currency'];
+        foreach ($prices as $priceType) {
+            $imageInfo[] = [
+                'license' => $priceType['license_type'],
+                'price' => $priceType['price']['vat_price'],
+                'vat' => $priceType['price']['vat_percentage'],
+                'currency' => $priceType['price']['currency']
+            ];
         }
         return $imageInfo;
     }
