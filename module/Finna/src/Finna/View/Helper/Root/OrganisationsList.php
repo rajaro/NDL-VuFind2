@@ -121,9 +121,9 @@ class OrganisationsList extends \Laminas\View\Helper\AbstractHelper implements
                     $results = $this->resultsManager->get('Solr');
                     $params = $results->getParams();
                     $params->addFacet('building', 'Building', false);
-                    if (strstr($sector, 'lib') && $sector !== 'lib') {
-                        $sub = str_split($sector, 4);
-                        $params->addFilter('sector_str_mv:1/lib/' . $sub[1] . '/');
+                    $parts = explode('_', $sector, 2);
+                    if ('lib' === $parts[0] && isset($parts[1])) {
+                        $params->addFilter('sector_str_mv:1/lib/' . $parts[1] . '/');
                         $params->addFilter('-merged_boolean:true');
                     } else {
                         $params->addFilter('sector_str_mv:0/' . $sector . '/');
