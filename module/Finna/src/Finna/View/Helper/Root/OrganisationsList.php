@@ -111,14 +111,20 @@ class OrganisationsList extends \Laminas\View\Helper\AbstractHelper implements
         if (!$list) {
             $emptyResults = $this->resultsManager->get('EmptySet');
 
-            $sectors = ['arc', 'lib', 'mus', 'otherSector'];
+            $sectors = ['arc', 'lib', 'mus', 'otherSector', 'lib_pub', 'lib_uni', 'lib_poly', 'lib_spl'];
             try {
                 foreach ($sectors as $sector) {
                     $list[$sector] = [];
                     $results = $this->resultsManager->get('Solr');
                     $params = $results->getParams();
                     $params->addFacet('building', 'Building', false);
-                    $params->addFilter('sector_str_mv:0/' . $sector . '/');
+                    if (strstr($sector, 'lib') && $sector !== 'lib') {
+                        $sub = str_split($sector, 4);
+                        $params->addFilter('sector_str_mv:1/lib/' . $sub[1] . '/');
+                        $params->addFilter('-merged_boolean:true');
+                    } else {
+                        $params->addFilter('sector_str_mv:0/' . $sector . '/');
+                    }
                     $params->setLimit(0);
                     $params->setFacetPrefix('0');
                     $params->setFacetLimit('-1');
