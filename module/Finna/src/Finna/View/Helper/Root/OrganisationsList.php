@@ -111,7 +111,10 @@ class OrganisationsList extends \Laminas\View\Helper\AbstractHelper implements
         if (!$list) {
             $emptyResults = $this->resultsManager->get('EmptySet');
 
-            $sectors = ['arc', 'lib', 'mus', 'otherSector', 'lib_pub', 'lib_uni', 'lib_poly', 'lib_spl'];
+            $sectors = [
+                'arc', 'lib', 'mus', 'otherSector',
+                'lib_pub', 'lib_uni', 'lib_poly', 'lib_spl'
+            ];
             try {
                 foreach ($sectors as $sector) {
                     $list[$sector] = [];
