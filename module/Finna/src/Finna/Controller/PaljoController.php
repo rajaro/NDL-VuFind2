@@ -250,30 +250,31 @@ class PaljoController extends \VuFind\Controller\AbstractBase
         $paljo = $this->serviceLocator->get(\Finna\Service\PaljoService::class);
         $imageDetails = $paljo->getImagePrice($imageId, $orgId);
         if ($imageDetails && $priceType) {
-            $cost = $imageDetails['price'][$priceType];
-            $license = $imageDetails['license'][$priceType]['name'];
-            $currency = $imageDetails['currency'][$priceType];
+            $price = $imageDetails[$priceType]['price'];
+            $license = $imageDetails[$priceType]['license'];
+            $currency = $imageDetails[$priceType]['currency'];
             $discount = $volumeCode
                 ? $paljo->getDiscountForUser($user->paljo_id, $volumeCode)
                 : '';
             if ($discount) {
                 if ($discount['organisation'] === $orgId) {
                     $discountAmount = $discount['discount'];
-                    $cost = (1 - $discountAmount / 100) * $cost;
+                    $price = (1 - $discountAmount / 100) * $price;
                 }
             }
             $payment = true; // handle the payment
             if ($payment) {
                 $transaction = $paljo->createTransaction(
-                    $userPaljoId, $imageId, $volumeCode, $imageSize, $cost, $license
+                    $userPaljoId, $imageId, $volumeCode, $imageSize, $price, $license
                 );
                 $registered = 1;//!empty($transaction);
+
                 $token = $transaction['token'] ?? '';
-                $tokenExpires = $transaction['token_expires'] ?? '';
+                $tokenExpires = $transaction['token_expires'] ?? date('Y-m-d');
                 $paljoTransactions = $this->getTable('PaljoTransaction');
                 $paljoTransactions->saveTransaction(
                     $user->id, $user->paljo_id, $recordId, $imageId, $token, $userMessage, $imageSize,
-                    $cost, $currency, $priceType, $tokenExpires, $registered, $volumeCode
+                    $price, $currency, $priceType, $tokenExpires, $registered, $volumeCode
                 );
                 if ($transaction) {
                     $this->sendDownloadEmail($userPaljoId, $transaction['downloadLink']);

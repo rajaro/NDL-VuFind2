@@ -148,10 +148,10 @@ class PaljoService implements
             'GET'
         );
         $result = json_decode($response->getBody(), true);
-        $prices = $result['prices'][0] ?? [];
+        $prices = $result['prices'] ?? [];
         $imageInfo = [];
         foreach ($prices as $priceType) {
-            $imageInfo[] = [
+            $imageInfo[$priceType['license_type']] = [
                 'license' => $priceType['license_type'],
                 'price' => $priceType['price']['vat_price'],
                 'vat' => $priceType['price']['vat_percentage'],
@@ -264,7 +264,8 @@ class PaljoService implements
                 $transaction = [
                     'downloadLink' => $this->apiUrl . 'transactions/'
                     . $result['token'] . '/package',
-                    'token' => $result['token']
+                    'token' => $result['token'],
+                    'token_expires' => $result['token_expires']
                 ];
                 return $transaction;
             } else {
