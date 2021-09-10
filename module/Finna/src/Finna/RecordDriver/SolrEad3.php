@@ -991,8 +991,6 @@ class SolrEad3 extends SolrEad
                 }
             }
 
-            $result = [];
-
             // Sort
             $order = array_flip(self::ACCESS_RESTRICT_TYPES);
             $orderCnt = count($order);
