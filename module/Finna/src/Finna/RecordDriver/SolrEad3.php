@@ -972,35 +972,25 @@ class SolrEad3 extends SolrEad
             }
         };
 
-        if (isset($xml->accessrestrict)
-            && !isset($xml->accessrestrict->accessrestrict)
-        ) {
-            // Case 1: no nested accessrestrict elements
-            foreach ($xml->accessrestrict as $accessNode) {
-                $processNode($accessNode);
-            }
-        } else {
-            // Case 2: nested accessrestrict elements grouped under subheadings
-            foreach ($xml->accessrestrict ?? [] as $accessNode) {
+        foreach ($xml->accessrestrict ?? [] as $accessNode) {
+            $processNode($accessNode);
+            foreach ($accessNode->accessrestrict ?? [] as $accessNode) {
                 $processNode($accessNode);
                 foreach ($accessNode->accessrestrict ?? [] as $accessNode) {
                     $processNode($accessNode);
-                    foreach ($accessNode->accessrestrict ?? [] as $accessNode) {
-                        $processNode($accessNode);
-                    }
                 }
             }
-
-            // Sort
-            $order = array_flip(self::ACCESS_RESTRICT_TYPES);
-            $orderCnt = count($order);
-            $sortFn = function ($a, $b) use ($order, $orderCnt) {
-                $pos1 = $order[$a] ?? $orderCnt;
-                $pos2 = $order[$b] ?? $orderCnt;
-                return $pos1 - $pos2;
-            };
-            uksort($restrictions, $sortFn);
         }
+
+        // Sort
+        $order = array_flip(self::ACCESS_RESTRICT_TYPES);
+        $orderCnt = count($order);
+        $sortFn = function ($a, $b) use ($order, $orderCnt) {
+            $pos1 = $order[$a] ?? $orderCnt;
+            $pos2 = $order[$b] ?? $orderCnt;
+            return $pos1 - $pos2;
+        };
+        uksort($restrictions, $sortFn);
         // Rename keys to match translations and filter duplicates
         $renamedKeys = [];
         foreach ($restrictions as $key => $val) {
