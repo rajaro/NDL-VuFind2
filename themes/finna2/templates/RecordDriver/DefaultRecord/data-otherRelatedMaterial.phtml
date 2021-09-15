@@ -1,6 +1,6 @@
 <?php //Don't add START and END comments ?>
 <?php if (!empty($data)): ?>
-  <div>
+  <div class="other-related-material">
     <?php foreach ($data as $i => $item): ?>
       <?= $i > 0 ? '<br/>' : '' ?>
       <?= $this->escapeHtml($item['text']) ?>
