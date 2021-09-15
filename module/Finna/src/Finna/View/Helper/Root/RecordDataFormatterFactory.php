@@ -1323,6 +1323,14 @@ class RecordDataFormatterFactory
                 'context' => ['class' => 'recordMaterialArrangement']
             ]
         );
+        $setTemplateLine(
+            'Other Related Material',
+            'getOtherRelatedMaterial',
+            'data-otherRelatedMaterial.phtml',
+            [
+                'context' => ['class' => 'other-related-material']
+            ]
+        );
 
         return $lines;
     }

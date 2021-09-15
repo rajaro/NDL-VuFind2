@@ -1711,6 +1711,31 @@ class SolrEad3 extends SolrEad
     }
 
     /**
+     * Get related material
+     *
+     * @return array
+     */
+    protected function getOtherRelatedMaterial()
+    {
+        $xml = $this->getXmlRecord();
+        $result = [];
+        if (isset($xml->relatedmaterial)) {
+            foreach ($xml->relatedmaterial as $material) {
+                $text = $this->getDisplayLabel(
+                    $material->p,
+                    'ref'
+                );
+                $url = (string)$material->attributes()->href ?? '';
+                if ($this->urlBlocked($url, $text[0])) {
+                    $url = null;
+                }
+                $result[] = ['text' => $text[0], 'url' => $url];
+            }
+        }
+        return $result;
+    }
+
+    /**
      * Helper function for returning summary strings for the record.
      *
      * @param boolean $withLinks Whether to also return URL's related to

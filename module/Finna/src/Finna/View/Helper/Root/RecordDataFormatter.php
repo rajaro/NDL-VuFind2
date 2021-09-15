@@ -369,7 +369,8 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
             'Subject Detail', 'Subject Place', 'subjects_extended',
             'System Format', 'Terms of Use',
             'Time Period', 'Time Period of Creation', 'Trade Availability Note',
-            'Uncontrolled Title', 'Uniform Title', 'Unit IDs'
+            'Uncontrolled Title', 'Uniform Title', 'Unit IDs',
+            'Other Related Material'
         ];
 
         return array_intersect_key($coreFields, array_flip($include));
@@ -538,7 +539,7 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
             'Subjects', 'subjects_extended', 'System Format',
             'Terms of Use', 'Time Period', 'Time Period of Creation',
             'Trade Availability Note', 'Uncontrolled Title', 'Uniform Title',
-            'Unit ID', 'Unit IDs'
+            'Unit ID', 'Unit IDs', 'Other Related Material'
         ];
 
         $fields = array_intersect_key($coreFields, array_flip($include));
