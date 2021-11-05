@@ -1,27 +1,27 @@
 /*global VuFind, finna */
 finna.paljo = (function finnaPaljo() {
-    function getPaljoDiscount() {
-      var email = $('.paljo-user-email')[0].innerHTML;
-      var code = $('input.paljo-volume-code')[0].value;
-      var orgId = $('input[name="organisationId"]')[0].value;
-      var imageId = $('input[name="image-id"]')[0].value;
-      var priceType = $('.paljo-price-type:selected')[0].value;
-      $.ajax({
-        type: 'GET',
-        dataType: 'json',
-        url: VuFind.path + '/AJAX/JSON?method=getPaljoDiscount',
-        data: {
-          'email': email,
-          'code': code,
-          'orgId': orgId,
-          'imageId': imageId,
-          'priceType': priceType
-        }
-      })
-        .done(function onGetDiscount(response) {
-          if (typeof response.data.price !== undefined)
+  function getPaljoDiscount() {
+    var email = $('.paljo-user-email')[0].innerHTML;
+    var code = $('input.paljo-volume-code')[0].value;
+    var orgId = $('input[name="organisationId"]')[0].value;
+    var imageId = $('input[name="image-id"]')[0].value;
+    var priceType = $('.paljo-price-type:selected')[0].value;
+    $.ajax({
+      type: 'GET',
+      dataType: 'json',
+      url: VuFind.path + '/AJAX/JSON?method=getPaljoDiscount',
+      data: {
+        'email': email,
+        'code': code,
+        'orgId': orgId,
+        'imageId': imageId,
+        'priceType': priceType
+      }
+    })
+      .done(function onGetDiscount(response) {
+        if (typeof response.data.price !== undefined)
           $('span.paljo-price').html(response.data.price);
-        });
+      });
   }
 
   function initPaljoMyresearch() {
@@ -77,10 +77,8 @@ finna.paljo = (function finnaPaljo() {
           dataType: 'json',
           url: VuFind.path + '/AJAX/JSON?method=savePaljoVolumeCode',
           data: {'volumeCode': volumeCode.value}
-        })
-        .done(function onSaveCode(response) {
+        }).done(function onSaveCode(response) {
           if (typeof response.data.discount === undefined) {
-
           }
         });
       }
@@ -97,9 +95,13 @@ finna.paljo = (function finnaPaljo() {
 
   function initPaljoPrice() {
     var priceType = $('select.paljo-price-type-menu').find(':selected');
-    var price = priceType[0].dataset.price
+    var price = priceType[0].dataset.price;
     if (price) {
       $('span.paljo-price').html(price);
+    }
+    var vat = priceType[0].dataset.vat;
+    if (vat) {
+      $('span.paljo-vat span').html(vat);
     }
     var license = priceType[0].dataset.license;
     var licenseDesc = priceType[0].dataset.licenseDesc;

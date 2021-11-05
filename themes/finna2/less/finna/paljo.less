@@ -51,6 +51,9 @@
     font-size: 1.5em;
   }
   .paljo-controls {
+    .limit-option-container {
+      margin-left: 20px;
+    }
     .sort-button, .dropdown, .limit-option-container {
       display: inline;
       margin-right: 5px;
@@ -123,7 +126,7 @@
   .paljo-image {
     float: left;
     margin-right: 30px;
-    width: 30%;
+    width: 15%;
   }
   .paljo-flex {
     display: flex;
@@ -136,7 +139,7 @@
     }
     .paljo-image-info {
       display: flex;
-      flex-basis: 30%;
+      flex-basis: 40%;
       float: left;
     }
     .paljo-price-type-menu {
@@ -145,10 +148,9 @@
     }
     .paljo-image-license {
       display: flex;
-      flex-basis: 70%;
     }
     .paljo-additional-info {
-      width: 300px;
+      width: 250px;
       height: 100px;
     }
     .paljo-volume-code {
@@ -156,12 +158,19 @@
     }
     .paljo-code-input {
       display: flex;
-      flex-basis: 70%;
+      margin-left: 15px;
     }
     .volume-code-info {
       font-size: 1.5em;
       margin-left: 10px;
       color: @brand-primary;
+    }
+    .paljo-price-info {
+      display: flex;
+      flex-direction: column;
+      .paljo-vat {
+        color: @gray-light;
+      }
     }
   }
 }

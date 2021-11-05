@@ -153,43 +153,12 @@ class PaljoService implements
         foreach ($prices as $priceType) {
             $imageInfo[$priceType['license_type']] = [
                 'license' => $priceType['license_type'],
-                'price' => $priceType['price']['vat_price'],
-                'vat' => $priceType['price']['vat_percentage'],
+                'price' => round($priceType['price']['vat_price'], 2),
+                'vat' => round($priceType['price']['vat_percentage']),
                 'currency' => $priceType['price']['currency']
             ];
         }
         return $imageInfo;
-    }
-
-
-    /**
-     * Get user transactions from PALJO API
-     *
-     * @param string $paljoId paljo ID
-     *
-     * @return array
-     */
-    public function getUserTransactions($paljoId)
-    {
-        $response = $this->sendRequest(
-            'transactions',
-            ['paljo_id' => $paljoId],
-            'GET'
-        );
-        $result = json_decode($response->getBody(), true);
-        $transactions = [];
-        if (isset($result['data'])) {
-            foreach ($result['data'] as $transaction) {
-                $resource = $transaction['transaction_resources'][0];
-                $transactions[] = [
-                  'id' => $resource['image_id'],
-                  'resolution' => $resource['resolution'],
-                  'cost' => $resource['cost'],
-                  'license' => $resource['license']
-                ];
-            }
-        }
-        return $transactions;
     }
 
     /**

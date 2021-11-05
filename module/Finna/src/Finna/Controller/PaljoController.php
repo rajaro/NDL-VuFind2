@@ -277,10 +277,11 @@ class PaljoController extends \VuFind\Controller\AbstractBase
                     $price, $currency, $priceType, $tokenExpires, $registered, $volumeCode
                 );
                 if ($transaction) {
-                    $this->sendDownloadEmail($userPaljoId, $transaction['downloadLink']);
-                    $this->flashMessenger()->addMessage(
-                        'paljo_order_success', 'info'
-                    );
+                    if ($this->sendDownloadEmail($userPaljoId, $transaction['downloadLink'])) {
+                        $this->flashMessenger()->addMessage(
+                            'paljo_order_success', 'info'
+                        );
+                    }
                 } else {
                     $this->flashMessenger()->addMessage(
                         'paljo_register_error_message', 'error'
@@ -314,10 +315,11 @@ class PaljoController extends \VuFind\Controller\AbstractBase
             );
             if ($response) {
                 $paljoTransactions->registerTransaction($transactionId);
-                $this->sendDownloadEmail($user->paljo_id, $response['downloadLink']);
-                $this->flashMessenger()->addMessage(
-                    'paljo_subscription_success', 'info'
-                );
+                if ($this->sendDownloadEmail($user->paljo_id, $response['downloadLink'])) {
+                    $this->flashMessenger()->addMessage(
+                        'paljo_subscription_success', 'info'
+                    );
+                }
             } else {
                 $this->flashMessenger()->addMessage(
                     'paljo_subscription_creation_error', 'error'

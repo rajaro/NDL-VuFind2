@@ -22,7 +22,7 @@
         <span class="paljo-image-info"><b><?=$this->transEsc('paljo_price_type')?></b></span>
         <select class="paljo-price-type-menu" id="paljo-price-menu" name="price-type">
           <?php foreach ($this->prices as $price): ?>
-            <option class="paljo-price-type" value="<?= $this->escapeHtmlAttr($price['license'])?>" data-price="<?=$this->escapeHtmlAttr($price['price'])?>" data-license="<?=$this->escapeHtmlAttr($price['license'])?>" data-license-desc=""><?=$price['license']?></option>
+            <option class="paljo-price-type" value="<?= $this->escapeHtmlAttr($price['license'])?>" data-price="<?=$this->escapeHtmlAttr($price['price'])?>" data-vat="<?=$this->escapeHtmlAttr($price['vat'])?>" data-license="<?=$this->escapeHtmlAttr($price['license'])?>" data-license-desc=""><?=$price['license']?></option>
           <?php endforeach; ?>
         </select>
       </div>
@@ -58,7 +58,7 @@
         </span>
       </div>
       <div class="paljo-flex">
-        <span class="paljo-image-info"><b><?=$this->transEsc('Cost')?></b></span> <span class="paljo-price"></span>
+        <span class="paljo-image-info"><b><?=$this->transEsc('Cost')?></b></span> <div class="paljo-price-info"><span class="paljo-price"></span><span class="paljo-vat"><?=$this->transEsc('paljo_vat')?> <span></span>%</span></div>
       </div>
     </div>
   </div>

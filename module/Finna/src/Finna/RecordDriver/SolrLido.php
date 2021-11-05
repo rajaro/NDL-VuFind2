@@ -1307,7 +1307,7 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
         $imageSize = [];
         foreach ($this->getXmlRecord()->xpath(
             'lido/administrativeMetadata/resourceWrap/resourceSet/'
-            . 'resourceRepresentation[@type="image_master"]/resourceMeasurementsSet'
+            . 'resourceRepresentation[@type="image_master+paljo"]/resourceMeasurementsSet'
         ) as $node) {
             $type = '';
             foreach ($node->measurementType as $mtype) { 
