@@ -1971,6 +1971,22 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
     }
 
     /**
+     * Get audience characteristics from field 385
+     *
+     * @return array
+     */
+    public function getAudienceCharacteristics()
+    {
+        $results = [];
+        foreach ($this->getMarcReader()->getFields('385') as $field) {
+            foreach ($this->getSubfields($field, 'a') as $ch) {
+                $results[] = $this->stripTrailingPunctuation($ch);
+            }
+        }
+        return $results;
+    }
+
+    /**
      * Get time period of creation from field 388.
      *
      * @return string
