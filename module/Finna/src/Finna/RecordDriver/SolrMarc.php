@@ -1987,6 +1987,22 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
     }
 
     /**
+     * Get creator/contributor characteristics from field 386
+     *
+     * @return array
+     */
+    public function getCreatorCharacteristics()
+    {
+        $results = [];
+        foreach ($this->getMarcReader()->getFields('386') as $field) {
+            foreach ($this->getSubfields($field, 'a') as $ch) {
+                $results[] = $this->stripTrailingPunctuation($ch);
+            }
+        }
+        return $results;
+    }
+
+    /**
      * Get time period of creation from field 388.
      *
      * @return string
