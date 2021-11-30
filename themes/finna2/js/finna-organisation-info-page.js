@@ -161,7 +161,12 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
       });
       $(select).select2({
         placeholder: translation,
-        allowClear: true
+        allowClear: true,
+        sorter: function sortList(data) {
+          return data.sort(function compareText(a, b) {
+            return a.text > b.text ? 1 : -1
+          });
+        }
       }).on('select2:select', function updateHash(e) {
         updateWindowHash(encodeURIComponent(e.params.data.id || 'undefined'));
       });
