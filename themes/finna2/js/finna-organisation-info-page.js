@@ -143,7 +143,7 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
   }
 
   function initSearch(list) {
-    var count = Object.keys(organisationList).length;
+    var count = Object.keys(list).length;
     var translation = VuFind.translate('organisationInfoAutocomplete').replace('%%count%%', count);
 
     $(document).ready(function initSelect() {
