@@ -138,7 +138,13 @@ trait FinnaRecordTrait
     {
         $params = parent::getArticleOpenUrlParams();
         if ($doi = $this->tryMethod('getCleanDOI')) {
-            $params['rft.doi'] = $doi;
+            $doi = 'info:doi/' . $doi;
+            // rft_id can have multiple values (pmid and doi)
+            if (!empty($params['rft_id'])) {
+                $params['rft_id'] = [$params['rft_id'], $doi];
+            } else {
+                $params['rft_id'] = $doi;
+            }
         }
         if ($mmsId = $this->tryMethod('getAlmaMmsId')) {
             $params['rft.mms_id'] = $mmsId;

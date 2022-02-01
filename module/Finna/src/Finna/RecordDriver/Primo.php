@@ -556,4 +556,22 @@ class Primo extends \VuFind\RecordDriver\Primo
         }
         return $params;
     }
+
+    /**
+     * Get the OpenURL parameters to represent this record (useful for the
+     * title attribute of a COinS span tag).
+     *
+     * @param bool $overrideSupportsOpenUrl Flag to override checking
+     * supportsOpenUrl() (default is false)
+     *
+     * @return string OpenURL parameters.
+     */
+    public function getOpenUrl($overrideSupportsOpenUrl = false)
+    {
+        $url = parent::getOpenUrl($overrideSupportsOpenUrl);
+
+        // Remove array syntax from url parameters
+        $url = preg_replace('/%5B([0-9]?)%5D=/', '=', $url);
+        return $url;
+    }
 }
