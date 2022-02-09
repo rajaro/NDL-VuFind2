@@ -137,14 +137,12 @@ trait FinnaRecordTrait
     protected function getArticleOpenUrlParams()
     {
         $params = parent::getArticleOpenUrlParams();
-        if ($doi = $this->tryMethod('getCleanDOI')) {
+        if ($doiFull = $this->tryMethod('getCleanDOI')) {
+            $doi = preg_replace('/^doi:|^info:doi\//', '', $doiFull);
             $doi = 'info:doi/' . $doi;
-            // rft_id can have multiple values (pmid and doi)
-            if (!empty($params['rft_id'])) {
-                $params['rft_id'] = [$params['rft_id'], $doi];
-            } else {
-                $params['rft_id'] = $doi;
-            }
+
+            $params['rft_id'] = (array)($params['rft_id'] ?? []);
+            $params['rft_id'][] = $doi;
         }
         if ($mmsId = $this->tryMethod('getAlmaMmsId')) {
             $params['rft.mms_id'] = $mmsId;
