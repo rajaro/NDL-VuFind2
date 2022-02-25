@@ -1679,6 +1679,22 @@ class SolrEad3 extends SolrEad
     }
 
     /**
+     * Whether the record is series level record
+     *
+     * @return bool
+     */
+    public function isSeries()
+    {
+        $xml = $this->getXmlRecord();
+        if (isset($xml->attributes()->level)
+            && in_array((string)$xml->attributes()->level, self::SERIES_LEVELS))
+            {
+                return true;
+            }
+        return false;
+    }
+
+    /**
      * Sort an array of image URLs in place.
      *
      * @param array  $urls  URLs
