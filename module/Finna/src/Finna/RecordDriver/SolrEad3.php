@@ -1687,10 +1687,10 @@ class SolrEad3 extends SolrEad
     {
         $xml = $this->getXmlRecord();
         if (isset($xml->attributes()->level)
-            && in_array((string)$xml->attributes()->level, self::SERIES_LEVELS))
-            {
+            && in_array((string)$xml->attributes()->level, self::SERIES_LEVELS)
+            ) {
                 return true;
-            }
+        }
         return false;
     }
 
