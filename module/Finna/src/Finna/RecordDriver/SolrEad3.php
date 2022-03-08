@@ -1694,7 +1694,6 @@ class SolrEad3 extends SolrEad
     }
 
     /**
-<<<<<<< HEAD
      * Get fullresolution images.
      *
      * @return array
@@ -1790,8 +1789,6 @@ class SolrEad3 extends SolrEad
     }
 
     /**
-=======
->>>>>>> dev
      * Sort an array of image URLs in place.
      *
      * @param array  $urls  URLs
