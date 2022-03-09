@@ -1701,7 +1701,10 @@ class SolrEad3 extends SolrEad
     public function isSeries()
     {
         $xml = $this->getXmlRecord();
-        return in_array((string)($xml->attributes()->level ?? ''), self::SERIES_LEVELS);
+        return in_array(
+            (string)($xml->attributes()->level ?? ''),
+            self::SERIES_LEVELS
+        );
     }
 
     /**
