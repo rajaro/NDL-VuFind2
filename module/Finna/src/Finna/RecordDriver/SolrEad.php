@@ -338,6 +338,28 @@ class SolrEad extends SolrDefault
     }
 
     /**
+     * Get extended origination
+     *
+     * @return array
+     */
+    public function getOriginationExtended()
+    {
+        $record = $this->getXmlRecord();
+        $result = [];
+        $date = isset($record->did->origination->ref->date)
+            ? (string)$record->did->origination->ref->date
+            : '';
+        if (!empty($name = $this->getOrigination())) {
+            $result[] = [
+                'date' => $date,
+                'name' => $name,
+                'dateOnly' => true
+            ];
+        }
+        return $result;
+    }
+
+    /**
      * Get origination Id
      *
      * @return string

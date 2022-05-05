@@ -9,7 +9,11 @@
       $description .= $date;
     }
     $origination['description'] = $description;
-    unset($origination['date']);
+    if (!empty($origination['dateOnly'])) {
+      unset($origination['description']);
+    } else {
+      unset($origination['date']);
+    }
   ?>
   <?=$idx > 0 ? '<br/>' : ''?>
   <?=$this->record($this->driver)->getAuthorityLinkElement('author', $origination['name'], $origination, ['showInlineInfo' => true, 'authorityType' => $author['type'] ?? null, 'description' => true])?>
