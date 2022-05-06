@@ -1095,6 +1095,17 @@ class RecordDataFormatterFactory
             ]
         );
         $setTemplateLine(
+            'Finding Aid Extended',
+            'getFindingAidsExtended',
+            'data-findingAids.phtml',
+            [
+                'context' => [
+                    'class' => 'extendedFindingAids',
+                    'title' => 'Finding Aid'
+                ]
+            ]
+        );
+        $setTemplateLine(
             'Publication_Place',
             'getHierarchicalPlaceNames',
             'data-escapeHtml.phtml',
