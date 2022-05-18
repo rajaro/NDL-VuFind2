@@ -1695,9 +1695,8 @@ class SolrEad3 extends SolrEad
         $result = [];
         foreach ($xml->otherfindaid ?? [] as $aid) {
             if ($localeResult = $this->getDisplayLabel($aid, 'p')) {
-                $text = $localeResult[0];
                 $result[] = [
-                    'text' => $text,
+                    'text' => $localeResult[0],
                     'url' => (string)($aid->p->ref->attributes()->href ?? '')
                 ];
             }
