@@ -346,14 +346,13 @@ class SolrEad extends SolrDefault
     {
         $record = $this->getXmlRecord();
         $result = [];
-        $date = isset($record->did->origination->ref->date)
-            ? (string)$record->did->origination->ref->date
-            : '';
         if (!empty($name = $this->getOrigination())) {
+            $date = isset($record->did->origination->ref->date)
+                ? (string)$record->did->origination->ref->date
+                : '';
             $result[] = [
                 'date' => $date,
                 'name' => $name,
-                'dateOnly' => true
             ];
         }
         return $result;
