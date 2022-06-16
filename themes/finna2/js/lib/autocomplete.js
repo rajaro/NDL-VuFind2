@@ -120,6 +120,11 @@
           }
         } else if (type === 'facet' || type === 'filter') {
           item.attr('data-filters', data[i].filters);
+        } else if (type === 'isbn') {
+          item.attr('data-title', data[i].match.title);
+          item.append($('<div>ISBN: ' + data[i].match.isbn + '</div>'));    
+          item.attr('href', data[i].match.url);
+
         }
 
         if (typeof data[i].description !== 'undefined') {
@@ -135,7 +140,7 @@
         return;
       }
 
-      $(['suggestion', 'facet', 'filter', 'phrase', 'handler']).each(function eachSection(ind, obj) {
+      $(['isbn', 'suggestion', 'facet', 'filter', 'phrase', 'handler']).each(function eachSection(ind, obj) {
         var label = 'autocomplete_section_' + obj;
         var translated = VuFind.translate(label);
         var wrapper = $('<div/>').addClass('group ' + obj);
@@ -160,6 +165,9 @@
     var parseResponse = function parseResponse(data, filters, handlers, phraseSearch) {
       var datums = [];
       if (data.length) {
+        if (data.length > 2) {
+          datums.push({label: data[2].title, type: 'isbn', css: 'isbn', match: data[2]});
+        }
         // Suggestions
         if (typeof data[0] === 'string') {
           // Basic suggestions

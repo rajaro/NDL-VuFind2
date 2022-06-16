@@ -100,6 +100,13 @@ class Solr extends \VuFind\Autocomplete\Solr
     protected $request = null;
 
     /**
+     * Url helper
+     *
+     * @var Url
+     */
+    protected $urlHelper;
+
+    /**
      * Constructor
      *
      * @param PluginManager          $results      Results plugin manager
@@ -109,7 +116,8 @@ class Solr extends \VuFind\Autocomplete\Solr
     public function __construct(
         \VuFind\Search\Results\PluginManager $results,
         $facetConfig,
-        $searchConfig
+        $searchConfig,
+        $urlHelper
     ) {
         $settings = [];
         $facets = isset($searchConfig->Autocomplete_Sections->facets)
@@ -126,6 +134,7 @@ class Solr extends \VuFind\Autocomplete\Solr
                 $this->checkboxFacets[] = $field;
             }
         }
+        $this->urlHelper = $urlHelper;
         $pos = 0;
         foreach ($facets as $data) {
             $data = explode('|', $data);
@@ -202,7 +211,12 @@ class Solr extends \VuFind\Autocomplete\Solr
         $suggestionsLimit = $this->searchConfig->Autocomplete->suggestions ?? 5;
 
         $suggestions = parent::getSuggestions($query);
+        $isbnMatch = '';
         if (!empty($suggestions)) {
+            if (!empty($suggestions['isbnMatch'])) {
+                $isbnMatch = $suggestions['isbnMatch'];
+                unset($suggestions['isbnMatch']);
+            }
             $suggestions = array_splice($suggestions, 0, $suggestionsLimit);
         }
 
@@ -264,8 +278,52 @@ class Solr extends \VuFind\Autocomplete\Solr
         ksort($facets);
         $facets = array_values($facets);
 
-        $result = compact('suggestions', 'facets');
+        $result = compact('suggestions', 'facets', 'isbnMatch');
         return $result;
+    }
+
+    /**
+     * Try to turn an array of record drivers into an array of suggestions.
+     *
+     * @param array  $searchResults An array of record drivers
+     * @param string $query         User search query
+     * @param bool   $exact         Ignore non-exact matches?
+     *
+     * @return array
+     */
+    protected function getSuggestionsFromSearch($searchResults, $query, $exact)
+    {
+        $results = [];
+        foreach ($searchResults as $object) {
+            $current = $object->getRawData();
+            $this->displayField[] = 'isbn';
+            foreach ($this->displayField as $field) {
+                if (isset($current[$field])) {
+                    $q = $query;
+                    if ($field === 'isbn') {
+                        $q = str_replace('-', '', $query);
+                    }
+                    $bestMatch = $this->pickBestMatch(
+                        $current[$field],
+                        $q,
+                        $exact
+                    );
+                    if ($bestMatch) {
+                        if ($field === 'isbn' && $exact) {
+                            $href = ($this->urlHelper)('record', ['id' => $current['id']]);
+                            $results['isbnMatch'] = [
+                                'isbn' => $current['isbn'],
+                                'title' => $current['title'],
+                                'url' => $href
+                            ];
+                        }
+                        $results[] = $bestMatch;
+                        break;
+                    }
+                }
+            }
+        }
+        return $results;
     }
 
     /**
