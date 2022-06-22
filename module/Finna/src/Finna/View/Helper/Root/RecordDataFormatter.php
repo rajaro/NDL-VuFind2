@@ -347,7 +347,7 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
             'Education Programs', 'Event Notice', 'Events',
             'Extent', 'Exterior Images', 'Film Copies',
             'Film Festivals', 'Filming Date', 'Filming Location Notes',
-            'Finding Aid Extended', 'First Lyrics', 'Foreign Distribution',
+            'Finding Aid', 'First Lyrics', 'Foreign Distribution',
             'Format', 'Funding', 'Genre',
             'Inscriptions', 'Inspection Details', 'Interior Images',
             'ISBN', 'ISSN', 'Item Description',

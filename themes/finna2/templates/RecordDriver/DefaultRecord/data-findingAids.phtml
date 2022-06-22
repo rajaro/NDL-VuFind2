@@ -2,10 +2,14 @@
 <?php if (!empty($data)): ?>
     <div class="truncate-field" data-rows="5">
       <?php foreach ($data as $field): ?>
-        <?php if (!empty($field['url'])): ?>
-          <a href=<?=$this->escapeHtmlAttr($field['url'])?> target="_blank" aria-label="<?=$this->transEscAttr('external_online_link')?>"><i class="fa fa-external-link"></i> 
-        <?php endif;?>
-        <?=$this->escapeHtml($field['text'])?><?=!empty($field['url']) ? '</a>' : '';?>
+        <?php if (is_array($field)): ?>
+          <?php if (!empty($field['url'])): ?>
+            <a href=<?=$this->escapeHtmlAttr($field['url'])?> target="_blank" aria-label="<?=$this->transEscAttr('external_online_link')?>"><i class="fa fa-external-link"></i> 
+          <?php endif;?>
+          <?=$this->escapeHtml($field['text'])?><?=!empty($field['url']) ? '</a>' : '';?>
+        <?php else: ?>
+          <?=$this->escapeHtml($field)?>
+        <?php endif; ?>
       <?php endforeach; ?>
     </div>
 <?php endif; ?>

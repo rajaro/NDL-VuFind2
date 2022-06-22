@@ -1088,21 +1088,10 @@ class RecordDataFormatterFactory
         );
         $setTemplateLine(
             'Finding Aid',
-            'getFindingAids',
-            'data-escapeHtml.phtml',
-            [
-                'context' => ['class' => 'extendedFindingAids']
-            ]
-        );
-        $setTemplateLine(
-            'Finding Aid Extended',
             'getFindingAidsExtended',
             'data-findingAids.phtml',
             [
-                'context' => [
-                    'class' => 'extendedFindingAids',
-                    'title' => 'Finding Aid'
-                ]
+                'context' => ['class' => 'extendedFindingAids']
             ]
         );
         $setTemplateLine(
