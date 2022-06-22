@@ -207,7 +207,7 @@ class SolrQdc extends \VuFind\RecordDriver\SolrDefault
      */
     public function getAllImages($language = 'fi', $includePdf = true)
     {
-        $cacheKey = __FUNCTION__ . "/$language" . $includePdf ? '/1' : '/0';
+        $cacheKey = __FUNCTION__ . "/$language" . ($includePdf ? '/1' : '/0');
         if (isset($this->cache[$cacheKey])) {
             return $this->cache[$cacheKey];
         }
@@ -293,7 +293,6 @@ class SolrQdc extends \VuFind\RecordDriver\SolrDefault
                 ]
             );
         }
-
         // Attempt to find a PDF file to be converted to a coverimage
         if ($includePdf && empty($results)) {
             $urls = [];
@@ -382,6 +381,23 @@ class SolrQdc extends \VuFind\RecordDriver\SolrDefault
             }
         }
         return $record->asXML();
+    }
+
+    /**
+     * Get identifier
+     *
+     * @return array
+     */
+    public function getIdentifier()
+    {
+        $xml = $this->getXmlRecord();
+        foreach ($xml->identifier ?? [] as $identifier) {
+            // Inventory number
+            if ((string)$identifier['type'] === 'wikidata:P217') {
+                return [trim((string)$identifier)];
+            }
+        }
+        return [];
     }
 
     /**

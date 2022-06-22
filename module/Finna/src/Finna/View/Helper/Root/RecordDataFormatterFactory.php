@@ -285,7 +285,7 @@ class RecordDataFormatterFactory
         );
         $setTemplateLine(
             'Archive Origination',
-            'getOrigination',
+            'getOriginationExtended',
             'data-origination.phtml',
             [
                 'context' => ['class' => 'record-origination']
@@ -348,7 +348,7 @@ class RecordDataFormatterFactory
         $setTemplateLine(
             'Language',
             'getLanguages',
-            'data-transEsc.phtml',
+            'data-transEscLangcode.phtml',
             [
                 'context' => ['class' => 'recordLanguage']
             ]
@@ -356,7 +356,7 @@ class RecordDataFormatterFactory
         $setTemplateLine(
             'original_work_language',
             'getOriginalLanguages',
-            'data-transEsc.phtml',
+            'data-transEscLangcode.phtml',
             [
                 'context' => ['class' => 'originalLanguage']
             ]
@@ -455,7 +455,9 @@ class RecordDataFormatterFactory
                         'labelFunction'
                             => function ($data, $driver) use ($eventType) {
                                 $mainFormat = $driver->getMainFormat();
-                                return "lido_event_type_{$mainFormat}_$eventType";
+                                return $eventType
+                                    ? "lido_event_type_{$mainFormat}_$eventType"
+                                    : '';
                             },
                     ],
                 ];
@@ -563,10 +565,13 @@ class RecordDataFormatterFactory
         );
         $setTemplateLine(
             'Subject Place',
-            'getSubjectPlaces',
-            'data-escapeHtml.phtml',
+            'getSubjectPlacesExtended',
+            'data-allSubjectHeadingsExtended.phtml',
             [
-                'context' => ['class' => 'recordSubjects']
+                'context' => [
+                    'class' => 'recordSubjects',
+                    'headingType' => 'place',
+                ]
             ]
         );
         $setTemplateLine(
@@ -591,6 +596,14 @@ class RecordDataFormatterFactory
             'data-allSubjectHeadings.phtml',
             [
                 'context' => ['class' => 'recordSubjects']
+            ]
+        );
+        $setTemplateLine(
+            'SubjectsWithoutPlaces',
+            'getAllSubjectHeadingsWithoutPlaces',
+            'data-allSubjectHeadings.phtml',
+            [
+                'context' => ['class' => 'recordSubjects', 'title' => 'Subjects']
             ]
         );
         $setTemplateLine(
@@ -990,6 +1003,14 @@ class RecordDataFormatterFactory
             ]
         );
         $setTemplateLine(
+            'Hardware',
+            'getHardwareRequirements',
+            'data-hardwareRequirements.phtml',
+            [
+                'context' => ['class' => 'record-hardware']
+            ]
+        );
+        $setTemplateLine(
             'System Format',
             'getSystemDetails',
             'data-escapeHtml',
@@ -1303,6 +1324,16 @@ class RecordDataFormatterFactory
             ]
         );
         $setTemplateLine(
+            'Original Version Notes',
+            'getOriginalVersionNotes',
+            'data-originalVersionNotes.phtml',
+            [
+                'context' => [
+                    'class' => 'record-original-version-notes',
+                ],
+            ]
+        );
+        $setTemplateLine(
             'Place of Origin',
             'getAssociatedPlace',
             'data-escapeHtml.phtml',
@@ -1378,7 +1409,7 @@ class RecordDataFormatterFactory
         $setTemplateLine(
             'Uncontrolled Title',
             'getUncontrolledTitle',
-            'data-transEsc.phtml',
+            'data-escapeHtml.phtml',
             [
                 'context' => ['class' => 'record-uncontrolled-title']
             ]

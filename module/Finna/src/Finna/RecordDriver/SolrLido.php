@@ -154,19 +154,6 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
     protected $displayableModelFormats = ['gltf', 'glb'];
 
     /**
-     * Recognized model viewer settings
-     *
-     * @var array
-     */
-    protected $modelViewerSettings = [
-        'popup',
-        'ambientIntensity',
-        'hemisphereIntensity',
-        'viewerPaddingAngle',
-        'debug'
-    ];
-
-    /**
      * Events used for author information.
      *
      * Key is event type, value is priority (lower is more important),
@@ -929,14 +916,15 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
      */
     public function getModelSettings(): array
     {
+        $datasource = $this->getDataSource();
         $settings = [];
-        $iniData = $this->recordConfig->Models ?? [];
-        foreach ($this->modelViewerSettings as $setting) {
-            if (!empty($iniData->$setting)) {
-                $settings[$setting] = $iniData->$setting;
-            }
+        if ($iniData = $this->recordConfig->Models ?? []) {
+            $settings = [
+                'debug' => boolval($iniData->debug ?? 0),
+                'previewImages' => $this->allowModelPreviewImages()
+            ];
         }
-        $settings['previewImages'] = $this->allowModelPreviewImages();
+
         return $settings;
     }
 
@@ -975,14 +963,14 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
             . 'relatedWorkSet'
         ) as $node) {
             if (!empty($node->relatedWork->displayObject)) {
-                $title = (string)$node->relatedWork->displayObject;
+                $title = trim((string)$node->relatedWork->displayObject);
                 $attributes = $node->relatedWork->displayObject->attributes();
                 $label = !empty($attributes->label)
                     ? (string)$attributes->label : '';
                 $term = !empty($node->relatedWorkRelType->term)
                     ? (string)$node->relatedWorkRelType->term : '';
                 $termLC = mb_strtolower($term, 'UTF-8');
-                if (in_array($termLC, $publicationTypes)) {
+                if ($title && in_array($termLC, $publicationTypes)) {
                     $term = $termLC != 'julkaisu' ? $term : '';
                     $results[] = [
                       'title' => $title,
@@ -1042,8 +1030,9 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
             . 'relatedWorkSet'
         ) as $node) {
             $term = $node->relatedWorkRelType->term ?? '';
-            if (in_array($term, $allowedTypes)) {
-                $results[] = (string)$node->relatedWork->displayObject;
+            $collection = trim((string)$node->relatedWork->displayObject ?? '');
+            if ($collection && in_array($term, $allowedTypes)) {
+                $results[] = $collection;
             }
         }
         return $results;
@@ -1208,10 +1197,12 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                 }
             }
             $culture = (string)($node->culture->term ?? '');
-            $description = (string)(
-                $node->eventDescriptionSet->descriptiveNoteValue
-                ?? ''
-            );
+            $descriptions = [];
+            foreach ($node->eventDescriptionSet ?? [] as $set) {
+                if ($note = trim((string)($set->descriptiveNoteValue ?? ''))) {
+                    $descriptions[] = $note;
+                }
+            }
 
             $event = [
                 'type' => $type,
@@ -1222,7 +1213,9 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                 'places' => $places,
                 'actors' => $actors,
                 'culture' => $culture,
-                'description' => $description
+                'descriptions' => $descriptions,
+                // For backward compatibility
+                'description' => $descriptions[0] ?? ''
             ];
             // Only add the event if it has content
             foreach ($event as $key => $field) {
@@ -1347,12 +1340,16 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
         ) as $inscriptions) {
             $group = [];
             foreach ($inscriptions->inscriptionDescription as $node) {
-                $content = (string)$node->descriptiveNoteValue;
+                $content = trim((string)$node->descriptiveNoteValue ?? '');
                 $type = $node->attributes()->type ?? '';
                 $label = $node->descriptiveNoteValue->attributes()->label ?? '';
-                $group[] = compact('type', 'label', 'content');
+                if ($content) {
+                    $group[] = compact('type', 'label', 'content');
+                }
             }
-            $results[] = $group;
+            if ($group) {
+                $results[] = $group;
+            }
         }
         return $results;
     }
@@ -1407,28 +1404,13 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
     }
 
     /**
-     * Get measurements and augment them data source specifically if needed.
+     * Get measurements.
      *
      * @return array
      */
     public function getMeasurements()
     {
-        $results = [];
-        if (isset($this->fields['measurements'])) {
-            $results = $this->fields['measurements'];
-            $confParam = 'lido_augment_display_measurement_with_extent';
-            if ($this->getDataSourceConfigurationValue($confParam)) {
-                $extent = $this->getXmlRecord()->xpath(
-                    'lido/descriptiveMetadata/objectIdentificationWrap/'
-                    . 'objectMeasurementsWrap/objectMeasurementsSet/'
-                    . 'objectMeasurements/extentMeasurements'
-                );
-                if ($extent) {
-                    $results[0] = "$results[0] ($extent[0])";
-                }
-            }
-        }
-        return $results;
+        return $this->fields['measurements'] ?? [];
     }
 
     /**
@@ -1530,20 +1512,110 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
     }
 
     /**
-     * Get subject places
+     * Get all subject headings associated with this record apart from geographic
+     * places.  Each heading is returned as an array of chunks, increasing from least
+     * specific to most specific.
+     *
+     * @param bool $extended Whether to return a keyed array with the following
+     * keys:
+     * - heading: the actual subject heading chunks
+     * - type: heading type
+     * - source: source vocabulary
+     * - id: first authority id (if defined)
+     * - ids: multiple authority ids (if defined)
+     * - authType: authority type (if id is defined)
      *
      * @return array
      */
-    public function getSubjectPlaces()
+    public function getAllSubjectHeadingsWithoutPlaces(bool $extended = false): array
+    {
+        $headings = [];
+        foreach (['topic', 'genre', 'era'] as $field) {
+            if (isset($this->fields[$field])) {
+                $headings = array_merge($headings, (array)$this->fields[$field]);
+            }
+        }
+
+        // The default index schema doesn't currently store subject headings in a
+        // broken-down format, so we'll just send each value as a single chunk.
+        // Other record drivers (i.e. SolrMarc) can offer this data in a more
+        // granular format.
+        $callback = function ($i) use ($extended) {
+            return $extended
+                ? ['heading' => [$i], 'type' => '', 'source' => '']
+                : [$i];
+        };
+        return array_map($callback, array_unique($headings));
+    }
+
+    /**
+     * Get subject places
+     *
+     * @param bool $extended Whether to return a keyed array with the following
+     * keys:
+     * - heading: the actual subject heading chunks
+     * - type: heading type
+     * - detail: addition details
+     * - source: source vocabulary
+     * - id: authority id (if defined)
+     * - ids: multiple authority ids (if defined)
+     * - authType: authority type (if id is defined)
+     *
+     * @return array
+     */
+    public function getSubjectPlaces(bool $extended = false)
     {
         $results = [];
         foreach ($this->getXmlRecord()->xpath(
             'lido/descriptiveMetadata/objectRelationWrap/subjectWrap/'
-            . 'subjectSet/subject/subjectPlace/displayPlace'
-        ) as $node) {
-            $results[] = (string)$node;
+            . 'subjectSet/subject/subjectPlace'
+        ) as $subjectPlace) {
+            if (!($displayPlace = (string)($subjectPlace->displayPlace ?? ''))) {
+                continue;
+            }
+            if ($extended) {
+                $place = [
+                    'heading' => [$displayPlace],
+                ];
+                // Collect all ids but use only the first for type etc:
+                $details = [];
+                foreach ($subjectPlace->place->placeID ?? [] as $placeId) {
+                    $id = (string)$placeId;
+                    $type = (string)($placeId->attributes()->type ?? '');
+                    if ($type) {
+                        $id = "($type)$id";
+                    }
+                    $typeDesc = $this->translate('place_id_type_' . $type, [], '');
+                    if ($typeDesc) {
+                        $details[] = $typeDesc;
+                    }
+                    if (isset($place['type'])) {
+                        $place['ids'][] = $id;
+                        continue;
+                    }
+                    $place['type'] = $type;
+                    $place['id'] = $id;
+                    $place['ids'][] = $id;
+                }
+                if ($details) {
+                    $place['detail'] = implode(', ', $details);
+                }
+                $results[] = $place;
+            } else {
+                $results[] = $displayPlace;
+            }
         }
         return $results;
+    }
+
+    /**
+     * Get extended subject places
+     *
+     * @return array
+     */
+    public function getSubjectPlacesExtended(): array
+    {
+        return $this->getSubjectPlaces(true);
     }
 
     /**
