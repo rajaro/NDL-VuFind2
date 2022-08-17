@@ -75,6 +75,12 @@
       return $(input).closest('form').find('.applied-filter[name=dfApplied]').is(':checked');
     }
 
+    function coverCallback(response) {
+      if (response.data !== undefined) {
+        $('#ac-recordcover')[0].src = response.data.url;
+      }
+    }
+
     function createList(data, input) {
       var shell = $('<div/>');
       var length = data.length;
@@ -122,8 +128,26 @@
           item.attr('data-filters', data[i].filters);
         } else if (type === 'isbn') {
           item.attr('data-title', data[i].match.title);
-          item.append($('<div>ISBN: ' + data[i].match.isbn + '</div>'));    
           item.attr('href', data[i].match.url);
+          item.append($('<br />'));
+          item.append('ISBN: ' + data[i].match.isbn);
+          item.wrapInner($('<span>'));
+          item.prepend('<img id="ac-recordcover" data-recordid="' + data[i].match.recordId + '"');
+          item.wrapInner($('<div class="ac-isbn">'));
+          item.wrapInner($('<a href="' + data[i].match.url + '">'));
+  
+          var url = VuFind.path + '/AJAX/JSON?method=' + 'getRecordCover';
+          var imgdata = {
+            recordId: data[i].match.recordId,
+            size: 'small'
+          };
+          $.ajax({
+            dataType: "json",
+            url: url,
+            method: "GET",
+            data: imgdata,
+            success: coverCallback
+          });
 
         }
 
@@ -165,7 +189,8 @@
     var parseResponse = function parseResponse(data, filters, handlers, phraseSearch) {
       var datums = [];
       if (data.length) {
-        if (data.length > 2) {
+        // ISBN match
+        if (data[2]) {
           datums.push({label: data[2].title, type: 'isbn', css: 'isbn', match: data[2]});
         }
         // Suggestions

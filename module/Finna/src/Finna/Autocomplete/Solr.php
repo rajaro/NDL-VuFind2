@@ -296,7 +296,6 @@ class Solr extends \VuFind\Autocomplete\Solr
         $results = [];
         foreach ($searchResults as $object) {
             $current = $object->getRawData();
-            $this->displayField[] = 'isbn';
             foreach ($this->displayField as $field) {
                 if (isset($current[$field])) {
                     $q = $query;
@@ -309,12 +308,12 @@ class Solr extends \VuFind\Autocomplete\Solr
                         $exact
                     );
                     if ($bestMatch) {
-                        if ($field === 'isbn' && $exact) {
-                            $href = ($this->urlHelper)('record', ['id' => $current['id']]);
+                        if ($field === 'isbn' && $exact && strlen($query) >= 10) {
                             $results['isbnMatch'] = [
                                 'isbn' => $current['isbn'],
                                 'title' => $current['title'],
-                                'url' => $href
+                                'url' => ($this->urlHelper)('record', ['id' => $current['id']]),
+                                'recordId' => $current['id']
                             ];
                         }
                         $results[] = $bestMatch;

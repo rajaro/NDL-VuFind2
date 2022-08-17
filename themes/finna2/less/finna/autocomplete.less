@@ -95,7 +95,7 @@
         }
     }
     & .group {
-        &.facet, .filter, .isbn {
+        &.facet, .filter {
             font-weight: bold;
         }
     }
@@ -106,6 +106,14 @@
                 content: attr(data-title);
                 margin-left: 10px;
             }
+        }
+    }
+    .ac-isbn {
+        display: flex;
+        img {
+            margin-right: 10px;
+            max-height: 80px;
+            max-width: 60px;
         }
     }
 
