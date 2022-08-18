@@ -6,7 +6,7 @@
           <?php if (!empty($field['url'])): ?>
             <a href=<?=$this->escapeHtmlAttr($field['url'])?> target="_blank" aria-label="<?=$this->transEscAttr('external_online_link')?>"><i class="fa fa-external-link"></i> 
           <?php endif;?>
-          <?=$this->escapeHtml($field['text'])?><?=!empty($field['url']) ? '</a>' : '';?>
+          <?=$this->escapeHtml($field['label'])?><?=!empty($field['url']) ? '</a>' : '';?>
         <?php else: ?>
           <?=$this->escapeHtml($field)?>
         <?php endif; ?>

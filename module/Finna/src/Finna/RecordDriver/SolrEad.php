@@ -242,16 +242,6 @@ class SolrEad extends SolrDefault
     }
 
     /**
-     * Get extended notes on finding aids related to the record
-     *
-     * @return array
-     */
-    public function getFindingAidsExtended()
-    {
-        return $this->getFindingAids();
-    }
-
-    /**
      * Get identifier
      *
      * @return array
