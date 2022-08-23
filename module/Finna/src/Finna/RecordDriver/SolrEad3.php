@@ -1698,16 +1698,21 @@ class SolrEad3 extends SolrEad
     public function getFindingAidsExtended()
     {
         $xml = $this->getXmlRecord();
-        $result = [];
+        $result = $localeResult = [];
         foreach ($xml->otherfindaid ?? [] as $aid) {
-            if ($localeResult = $this->getDisplayLabel($aid, 'p')) {
-                $result[] = [
-                    'label' => $localeResult[0],
-                    'url' => (string)($aid->p->ref->attributes()->href ?? '')
+            foreach ($aid->p as $p) {
+                $data = [
+                    'label' => (string)$p,
+                    'url' => (string)($p->ref->attributes()->href ?? '')
                 ];
             }
+            $result[] = $data;
+            $lang = $this->detectNodeLanguage($p);
+            if ($lang['preferred'] ?? false) {
+                $localeResult[] = $data;
+            }
         }
-        return $result;
+        return $localeResult ?: $result;
     }
 
     /**
