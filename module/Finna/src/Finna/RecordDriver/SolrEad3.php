@@ -1705,11 +1705,11 @@ class SolrEad3 extends SolrEad
                     'label' => (string)$p,
                     'url' => (string)($p->ref->attributes()->href ?? '')
                 ];
-            }
-            $result[] = $data;
-            $lang = $this->detectNodeLanguage($p);
-            if ($lang['preferred'] ?? false) {
-                $localeResult[] = $data;
+                $result[] = $data;
+                $lang = $this->detectNodeLanguage($p);
+                if ($lang['preferred'] ?? false) {
+                    $localeResult[] = $data;
+                }
             }
         }
         return $localeResult ?: $result;
