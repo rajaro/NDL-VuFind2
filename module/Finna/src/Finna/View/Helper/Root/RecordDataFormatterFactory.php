@@ -5,7 +5,7 @@
  * PHP version 7
  *
  * Copyright (C) Villanova University 2016.
- * Copyright (C) The National Library of Finland 2017-2020.
+ * Copyright (C) The National Library of Finland 2017-2022.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -26,12 +26,17 @@
  * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @author   Aleksi Peebles <aleksi.peebles@helsinki.fi>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:architecture:record_data_formatter
  * Wiki
  */
 namespace Finna\View\Helper\Root;
 
+use Laminas\ServiceManager\Exception\ServiceNotCreatedException;
+use Laminas\ServiceManager\Exception\ServiceNotFoundException;
+use Psr\Container\ContainerExceptionInterface as ContainerException;
+use Psr\Container\ContainerInterface;
 use VuFind\View\Helper\Root\RecordDataFormatter\SpecBuilder;
 
 /**
@@ -43,26 +48,41 @@ use VuFind\View\Helper\Root\RecordDataFormatter\SpecBuilder;
  * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @author   Aleksi Peebles <aleksi.peebles@helsinki.fi>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:architecture:record_data_formatter
  * Wiki
  */
 class RecordDataFormatterFactory
+    extends \VuFind\View\Helper\Root\RecordDataFormatterFactory
 {
     /**
-     * Create the helper.
+     * Create an object
      *
-     * @return RecordDataFormatter
+     * @param ContainerInterface $container     Service manager
+     * @param string             $requestedName Service being created
+     * @param null|array         $options       Extra options (optional)
+     *
+     * @return object
+     *
+     * @throws ServiceNotFoundException if unable to resolve the service.
+     * @throws ServiceNotCreatedException if an exception is raised when
+     * creating a service.
+     * @throws ContainerException&\Throwable if any other error occurs
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function __invoke()
-    {
-        $helper = new RecordDataFormatter();
-        $helper->setDefaults('core', $this->getDefaultCoreSpecs());
-        $helper->setDefaults('description', $this->getDefaultDescriptionSpecs());
-        $helper->setDefaults('authority', $this->getDefaultAuthoritySpecs());
+    public function __invoke(
+        ContainerInterface $container,
+        $requestedName,
+        array $options = null
+    ) {
+        $helper = parent::__invoke($container, $requestedName, $options);
+
+        $helper->setDefaults('authority', [$this, 'getDefaultAuthoritySpecs']);
         $helper->setDefaults(
             'authorityRecommend',
-            $this->getDefaultAuthorityRecommendSpecs()
+            [$this, 'getDefaultAuthorityRecommendSpecs']
         );
         return $helper;
     }
@@ -78,13 +98,11 @@ class RecordDataFormatterFactory
 
         foreach ($this->getDefaultCoreFields() as $key => $data) {
             if ($data[0] === true) {
-                [$multiLine, $dataMethod, $callback, $options] = $data;
-            } else {
-                [$multiLine, $dataMethod, $template, $options] = $data;
-            }
-            if ($multiLine) {
+                // Multi-line
+                [, $dataMethod, $callback, $options] = $data;
                 $spec->setMultiLine($key, $dataMethod, $callback, $options);
             } else {
+                [, $dataMethod, $template, $options] = $data;
                 $spec->setTemplateLine($key, $dataMethod, $template, $options);
             }
         }
@@ -285,7 +303,7 @@ class RecordDataFormatterFactory
         );
         $setTemplateLine(
             'Archive Origination',
-            'getOrigination',
+            'getOriginationExtended',
             'data-origination.phtml',
             [
                 'context' => ['class' => 'record-origination']
@@ -348,7 +366,7 @@ class RecordDataFormatterFactory
         $setTemplateLine(
             'Language',
             'getLanguages',
-            'data-transEsc.phtml',
+            'data-transEscLangcode.phtml',
             [
                 'context' => ['class' => 'recordLanguage']
             ]
@@ -356,7 +374,7 @@ class RecordDataFormatterFactory
         $setTemplateLine(
             'original_work_language',
             'getOriginalLanguages',
-            'data-transEsc.phtml',
+            'data-transEscLangcode.phtml',
             [
                 'context' => ['class' => 'originalLanguage']
             ]
@@ -409,6 +427,15 @@ class RecordDataFormatterFactory
         );
 
         $setTemplateLine(
+            'Other ID',
+            'getLocalIdentifiers',
+            'data-escapeHtml.phtml',
+            [
+                'context' => ['class' => 'recordIdentifiers']
+            ]
+        );
+
+        $setTemplateLine(
             'Measurements',
             'getMeasurements',
             'data-escapeHtml.phtml',
@@ -432,14 +459,6 @@ class RecordDataFormatterFactory
                 'context' => ['class' => 'recordClassifications']
             ]
         );
-        $setTemplateLine(
-            'Other ID',
-            'getLocalIdentifiers',
-            'data-escapeHtml.phtml',
-            [
-                'context' => ['class' => 'recordIdentifiers']
-            ]
-        );
 
         $getEvents = function ($data, $options) {
             $final = [];
@@ -455,7 +474,9 @@ class RecordDataFormatterFactory
                         'labelFunction'
                             => function ($data, $driver) use ($eventType) {
                                 $mainFormat = $driver->getMainFormat();
-                                return "lido_event_type_{$mainFormat}_$eventType";
+                                return $eventType
+                                    ? "lido_event_type_{$mainFormat}_$eventType"
+                                    : '';
                             },
                     ],
                 ];
@@ -563,10 +584,13 @@ class RecordDataFormatterFactory
         );
         $setTemplateLine(
             'Subject Place',
-            'getSubjectPlaces',
-            'data-escapeHtml.phtml',
+            'getSubjectPlacesExtended',
+            'data-allSubjectHeadingsExtended.phtml',
             [
-                'context' => ['class' => 'recordSubjects']
+                'context' => [
+                    'class' => 'recordSubjects',
+                    'headingType' => 'place',
+                ]
             ]
         );
         $setTemplateLine(
@@ -591,6 +615,14 @@ class RecordDataFormatterFactory
             'data-allSubjectHeadings.phtml',
             [
                 'context' => ['class' => 'recordSubjects']
+            ]
+        );
+        $setTemplateLine(
+            'SubjectsWithoutPlaces',
+            'getAllSubjectHeadingsWithoutPlaces',
+            'data-allSubjectHeadings.phtml',
+            [
+                'context' => ['class' => 'recordSubjects', 'title' => 'Subjects']
             ]
         );
         $setTemplateLine(
@@ -990,6 +1022,14 @@ class RecordDataFormatterFactory
             ]
         );
         $setTemplateLine(
+            'Hardware',
+            'getHardwareRequirements',
+            'data-hardwareRequirements.phtml',
+            [
+                'context' => ['class' => 'record-hardware']
+            ]
+        );
+        $setTemplateLine(
             'System Format',
             'getSystemDetails',
             'data-escapeHtml',
@@ -1314,6 +1354,16 @@ class RecordDataFormatterFactory
             ]
         );
         $setTemplateLine(
+            'Original Version Notes',
+            'getOriginalVersionNotes',
+            'data-originalVersionNotes.phtml',
+            [
+                'context' => [
+                    'class' => 'record-original-version-notes',
+                ],
+            ]
+        );
+        $setTemplateLine(
             'Place of Origin',
             'getAssociatedPlace',
             'data-escapeHtml.phtml',
@@ -1389,7 +1439,7 @@ class RecordDataFormatterFactory
         $setTemplateLine(
             'Uncontrolled Title',
             'getUncontrolledTitle',
-            'data-transEsc.phtml',
+            'data-escapeHtml.phtml',
             [
                 'context' => ['class' => 'record-uncontrolled-title']
             ]

@@ -224,11 +224,15 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
                     ],
                     'avustajat' => [
                         'credited' => 'assistant'
+                    ],
+                    'no_role' => [
+                        'credited' => 'other'
                     ]
                 ]
             ],
             'skipTags' => [
-                'elotekijakokoonpano' => true
+                'elotekijakokoonpano' => true,
+                'muuttekijat' => true
             ]
         ],
         'nonPresenterSecondaryAuthors' => [
@@ -274,6 +278,11 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
                     'default' => [
                         'credited' => 'credited',
                         'uncredited' => 'uncredited'
+                    ]
+                ],
+                'no_type' => [
+                    'no_role' => [
+                        'credited' => 'credited'
                     ]
                 ],
                 'default' => [
@@ -751,6 +760,7 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
                 'idx' => ''
             ];
 
+            $primary = false;
             if (!empty($agent->Activity)) {
                 $activity = $agent->Activity;
                 $relator = (string)$activity;

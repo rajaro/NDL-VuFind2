@@ -1076,7 +1076,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                 }
             }
         } else {
-            $result = $this->parseHoldings($holdings, $id, '', '');
+            $result = $this->parseHoldings($holdings, $id);
         }
 
         if (!empty($result)) {
@@ -1448,19 +1448,18 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
         $serviceSendMethod
             = $this->config['updateMessagingSettings']['method'] ?? 'none';
-        $infoServices = $info->messageServices->messageService ?? [];
 
         switch ($serviceSendMethod) {
         case 'database':
             $userCached['messagingServices']
                 = $this->parseEmailMessagingSettings(
-                    $info->messageServices->messageService ?? []
+                    $info->messageServices->messageService ?? null
                 );
             break;
         case 'driver':
             $userCached['messagingServices']
                 = $this->parseDriverMessagingSettings(
-                    $info->messageServices->messageService ?? [],
+                    $info->messageServices->messageService ?? null,
                     $user
                 );
             break;
@@ -1477,7 +1476,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
     /**
      * Function to create an array for using email to change messaging services
      *
-     * @param object $infoServices to parse
+     * @param ?object $infoServices Services to parse
      *
      * @return array parsed services
      */
@@ -1527,9 +1526,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             $services[$service] = $data;
         }
 
-        if (!empty($infoServices)) {
+        if (null !== $infoServices) {
             foreach ($infoServices as $service) {
-                $methods = [];
                 $serviceType = $service->serviceType;
                 $numOfDays = $service->nofDays->value ?? 'none';
                 $active = $service->isActive === 'yes';
@@ -1581,8 +1579,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
     /**
      * Function to create an array for using driver to change messaging services
      *
-     * @param object $infoServices to parse
-     * @param array  $user         data
+     * @param ?object $infoServices Services to parse
+     * @param array   $user         User data
      *
      * @return array parsed services
      */
@@ -1591,15 +1589,17 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         $services = [];
         $messagingSettings = [];
 
-        foreach ($infoServices as $service => $options) {
-            $current = [
-                'transport_type' =>
-                    (string)$options->sendMethods->sendMethod->value,
-            ];
-            if (isset($options->nofDays)) {
-                $current['nofDays'] = $options->nofDays->value;
+        if (null !== $infoServices) {
+            foreach ($infoServices as $service => $options) {
+                $current = [
+                    'transport_type' =>
+                        (string)$options->sendMethods->sendMethod->value,
+                ];
+                if (isset($options->nofDays)) {
+                    $current['nofDays'] = $options->nofDays->value;
+                }
+                $services[$options->serviceType] = $current;
             }
-            $services[$options->serviceType] = $current;
         }
 
         // We need to find proper options for current service
@@ -3226,47 +3226,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             $b['location'] = $b['journalInfo']['location'];
             return $this->defaultHoldingsSortFunction($a, $b);
         } else {
-            $a = $this->parseJournalIssue($editionA);
-            $b = $this->parseJournalIssue($editionB);
-
-            if (empty($a)) {
-                return 1;
-            }
-            if (empty($b)) {
-                return -1;
-            }
-
-            if ($a === $b) {
-                return 0;
-            }
-
-            $cnt = min(count($a), count($b));
-            $a = array_slice($a, 0, $cnt);
-            $b = array_slice($b, 0, $cnt);
-
-            $f = function ($str) {
-                $parts = explode('-', $str);
-                return reset($parts);
-            };
-
-            $a = array_map($f, $a);
-            $b = array_map($f, $b);
-
-            return $a > $b ? -1 : 1;
+            return strnatcasecmp($editionB, $editionA);
         }
-    }
-
-    /**
-     * Utility function for parsing journal issue.
-     *
-     * @param string $issue Journal issue.
-     *
-     * @return array
-     */
-    protected function parseJournalIssue($issue)
-    {
-        $parts = explode(':', $issue);
-        return array_map('trim', $parts);
     }
 
     /**

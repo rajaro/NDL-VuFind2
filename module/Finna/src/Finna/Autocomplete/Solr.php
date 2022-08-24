@@ -186,6 +186,7 @@ class Solr extends \VuFind\Autocomplete\Solr
         $this->request->set('filter', $this->request->get('hiddenFilters'));
         $params->initSpatialDateRangeFilter($this->request);
         $this->searchObject->getOptions()->disableHighlighting();
+        $allFacets = [];
 
         if (!$this->request->onlySuggestions) {
             $searchTab = $this->request->tab
@@ -365,6 +366,7 @@ class Solr extends \VuFind\Autocomplete\Solr
         $result = [];
         foreach ($this->facetSettings[$field] as $facet) {
             $filtered = [];
+            $pos = 0;
             if (!empty($facet['filter'])) {
                 $filter = $facet['filter'];
                 foreach ($values as $value) {

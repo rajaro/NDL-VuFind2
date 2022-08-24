@@ -787,7 +787,7 @@ class SolrEad3 extends SolrEad
                     continue;
                 }
                 $attr = $set->attributes();
-                $descId = (string)($daoset->descriptivenote->p ?? null);
+                $descId = (string)($set->descriptivenote->p ?? '');
                 $additional = $descId
                     ? $this->getAlternativeItems($descId)
                     : [];
@@ -799,7 +799,7 @@ class SolrEad3 extends SolrEad
                     }
                 }
                 // localtype could be defined for daoset or for dao-element
-                $parentType = (string)($attr->localtype ?? null);
+                $parentType = (string)($attr->localtype ?? '');
                 $parentType = self::IMAGE_MAP[$parentType] ?? self::IMAGE_LARGE;
                 $parentSize = $parentType === self::IMAGE_FULLRES
                         ? self::IMAGE_LARGE : $parentType;
@@ -812,7 +812,7 @@ class SolrEad3 extends SolrEad
                     ) {
                         continue;
                     }
-                    $type = (string)($attr->localtype ?? $parentType ?? 'none');
+                    $type = (string)($attr->localtype ?? $parentType ?: 'none');
                     $role = (string)($attr->linkrole ?? '');
                     $sort = (string)($attr->label ?? '');
 
@@ -1341,8 +1341,14 @@ class SolrEad3 extends SolrEad
             if (!empty($exclude) && in_array($relator, $exclude)) {
                 continue;
             }
-            if (isset($name->part)) {
-                $part = (string)$name->part;
+            $parts = [];
+            foreach ($name->part ?? [] as $place) {
+                if ($p = trim((string)$place)) {
+                    $parts[] = $p;
+                }
+            }
+            if ($parts) {
+                $part = implode(', ', $parts);
                 $data = ['data' => $part, 'detail' => $relator];
                 if ($attr->lang && in_array((string)$attr->lang, $languages)
                     && !in_array($part, $languageResult)

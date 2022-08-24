@@ -3,6 +3,7 @@ $config = [
     'extends' => 'bootstrap3',
     'helpers' => [
         'factories' => [
+            'Finna\View\Helper\Root\AdjustHeadingLevel' => 'Laminas\ServiceManager\Factory\InvokableFactory',
             'Finna\View\Helper\Root\Auth' => 'Finna\View\Helper\Root\AuthFactory',
             'Finna\View\Helper\Root\AuthorizationNotification' => 'Finna\View\Helper\Root\AuthorizationNotificationFactory',
             'Finna\View\Helper\Root\Authority' => 'Finna\View\Helper\Root\AuthorityFactory',
@@ -71,6 +72,7 @@ $config = [
             'VuFind\View\Helper\Root\Linkify' => 'Finna\View\Helper\Root\LinkifyFactory',
         ],
         'aliases' => [
+            'adjustHeadingLevel' => 'Finna\View\Helper\Root\AdjustHeadingLevel',
             'auth' => 'Finna\View\Helper\Root\Auth',
             'authority' => 'Finna\View\Helper\Root\Authority',
             'authorizationNote' => 'Finna\View\Helper\Root\AuthorizationNotification',
@@ -172,12 +174,14 @@ $config = [
         'finna-flex-fallback.css::lt IE 10', // flex polyfill
     ],
     'js' => [
+        'finna-object-editor.js',
         'vendor/event-stub.js:lt IE 9',
         'account_ajax.js',
         'advanced_search.js',
         'cart.js',
         'check_item_statuses.js',
         'check_save_statuses.js',
+        'checkouts.js',
         'collection_record.js',
         'combined-search.js',
         'embedded_record.js',
@@ -193,7 +197,6 @@ $config = [
         'finna-autocomplete.js',
         'finna-authority.js',
         'finna-combined-results.js',
-        'finna-model-viewer.js',
         'finna-video-popup.js',
         'finna-image-paginator.js',
         'finna-menu-movement.js',
@@ -247,7 +250,8 @@ $config = [
         'vendor/leaflet.min.js',
         'vendor/leaflet.draw.min.js',
         'vendor/js.cookie.js',
-        'finna-multiselect.js'
+        'finna-multiselect.js',
+        'finna-model-viewer.js'
     ],
     'less' => [
         'active' => false

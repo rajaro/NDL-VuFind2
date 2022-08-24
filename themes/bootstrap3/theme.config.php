@@ -25,6 +25,8 @@ return [
          *          - 3xx => VuFind scripts (highly VuFind-specific code)
          * - position: 'header' (default) or 'footer'
          * - conditional: e.g. 'lt IE 10'
+         * - disabled: if set to true in a child theme, the matching file will be
+         *   removed if it was included by a parent theme.
          *
          * Entries with neither priority nor load_after will be loaded after all
          * other entries.
@@ -231,14 +233,17 @@ return [
             'search-delete' => 'Alias:ui-delete',
             'search-rss' => 'FontAwesome:rss',
             'search-save' => 'Alias:ui-save',
+            'search-schedule-alert' => 'FontAwesome:exclamation-circle',
             'send-email' => 'FontAwesome:envelope',
             'send-sms' => 'FontAwesome:phone',
             'sign-in' => 'FontAwesome:sign-in',
             'sign-out' => 'FontAwesome:sign-out',
             'spinner' => 'FontAwesome:spinner:icon--spin',
+            'status-available' => 'FontAwesome:check',
             'status-indicator' => 'FontAwesome:circle',
             'status-pending' => 'FontAwesome:clock-o',
             'status-ready' => 'FontAwesome:bell',
+            'status-unavailable' => 'FontAwesome:times',
             'tag-add' => 'Alias:ui-add',
             'tag-remove' => 'Alias:ui-remove',
             'tree-context' => 'FontAwesome:sitemap',
