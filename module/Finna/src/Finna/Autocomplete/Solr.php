@@ -100,6 +100,13 @@ class Solr extends \VuFind\Autocomplete\Solr
     protected $request = null;
 
     /**
+     * Url helper
+     *
+     * @var Url
+     */
+    protected $urlHelper;
+
+    /**
      * Constructor
      *
      * @param PluginManager          $results      Results plugin manager
@@ -109,7 +116,8 @@ class Solr extends \VuFind\Autocomplete\Solr
     public function __construct(
         \VuFind\Search\Results\PluginManager $results,
         $facetConfig,
-        $searchConfig
+        $searchConfig,
+        $urlHelper
     ) {
         $settings = [];
         $facets = isset($searchConfig->Autocomplete_Sections->facets)
@@ -126,6 +134,7 @@ class Solr extends \VuFind\Autocomplete\Solr
                 $this->checkboxFacets[] = $field;
             }
         }
+        $this->urlHelper = $urlHelper;
         $pos = 0;
         foreach ($facets as $data) {
             $data = explode('|', $data);
@@ -203,6 +212,7 @@ class Solr extends \VuFind\Autocomplete\Solr
         $suggestionsLimit = $this->searchConfig->Autocomplete->suggestions ?? 5;
 
         $suggestions = parent::getSuggestions($query);
+
         if (!empty($suggestions)) {
             $suggestions = array_splice($suggestions, 0, $suggestionsLimit);
         }
@@ -260,12 +270,52 @@ class Solr extends \VuFind\Autocomplete\Solr
                 }
             }
             $facets = $facetResults;
+
+            $isbnMatch = [];
+            if (!empty($this->searchConfig->Autocomplete_Sections->isbn)) {
+                $isbnMatch = $this->getIsbnMatch($query);
+            }
         }
 
         ksort($facets);
         $facets = array_values($facets);
 
-        $result = compact('suggestions', 'facets');
+        $result = compact('suggestions', 'facets', 'isbnMatch');
+        return $result;
+    }
+
+    /**
+     * Get an exact ISBN match from search query
+     *
+     * @param $query search query
+     *
+     * @return array
+     */
+    protected function getIsbnMatch($query)
+    {
+        $result = [];
+        if (strlen($query >= 10)) {
+            $searchResults = $this->searchObject->getResults();
+            foreach ($searchResults as $object) {
+                $current = $object->getRawData();
+                if (isset($current['isbn'])) {
+                    $q = str_replace('-', '', $query);
+                    $bestMatch = $this->pickBestMatch(
+                        $current['isbn'],
+                        $q,
+                        true
+                    );
+                    if ($bestMatch) {
+                        $result = [
+                            'isbn' => $current['isbn'],
+                            'title' => $current['title'],
+                            'url' => ($this->urlHelper)('record', ['id' => $current['id']]),
+                            'recordId' => $current['id']
+                        ];
+                    }
+                }
+            }
+        }
         return $result;
     }
 

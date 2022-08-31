@@ -562,6 +562,8 @@ handlers[] = "Title|autocomplete_handler_title"
 handlers[] = "Author|autocomplete_handler_author"
 handlers[] = "Subject|autocomplete_handler_subject"
 
+isbn = 0
+
 ; When snippets are enabled, this section can be used to display captions based on
 ; the Solr fields from which the snippets were obtained.  Keys are the names of Solr
 ; fields and values are strings to display to the user.  Note that all displayed

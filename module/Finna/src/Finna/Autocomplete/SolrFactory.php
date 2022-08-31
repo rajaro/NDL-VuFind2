@@ -73,7 +73,8 @@ class SolrFactory implements \Laminas\ServiceManager\Factory\FactoryInterface
         return new $requestedName(
             $container->get(\VuFind\Search\Results\PluginManager::class),
             $config->get('facets'),
-            $config->get('searches')
+            $config->get('searches'),
+            $container->get('ViewHelperManager')->get('url'),
         );
     }
 }
