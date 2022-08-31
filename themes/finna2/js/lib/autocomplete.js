@@ -64,6 +64,9 @@
       } else if (type === 'handler') {
         var handler = item.data('handler');
         form.find('input[name=type]').val(handler);
+      } else if (type === 'isbn') {
+        window.location.href = item.attr('href');
+        return;
       } else {
         input.val(value);
       }
@@ -77,7 +80,14 @@
 
     function coverCallback(response) {
       if (response.data !== undefined) {
-        $('#ac-recordcover')[0].src = response.data.url;
+        var img = $('#ac-recordcover');
+        img[0].src = response.data.url;
+        img[0].onload = function onImgLoad() {
+          if (this.naturalWidth && this.naturalWidth !== 10 && this.naturalHeight !== 10) { 
+            img.toggleClass('hidden');
+            $('.ac-isbn .iconlabel').toggleClass('hidden');
+          }
+        }
       }
     }
 
@@ -129,12 +139,12 @@
         } else if (type === 'isbn') {
           item.attr('data-title', data[i].match.title);
           item.attr('href', data[i].match.url);
-          item.append($('<br />'));
+          item.append('<br />');
           item.append('ISBN: ' + data[i].match.isbn);
           item.wrapInner($('<span>'));
-          item.prepend('<img id="ac-recordcover" data-recordid="' + data[i].match.recordId + '"');
+          item.prepend('<div class="iconlabel format-1bookbook"</div>');
+          item.prepend('<img id="ac-recordcover" class="hidden" data-recordid="' + data[i].match.recordId + '">');
           item.wrapInner($('<div class="ac-isbn">'));
-          item.wrapInner($('<a href="' + data[i].match.url + '">'));
   
           var url = VuFind.path + '/AJAX/JSON?method=' + 'getRecordCover';
           var imgdata = {
@@ -190,7 +200,7 @@
       var datums = [];
       if (data.length) {
         // ISBN match
-        if (data[2]) {
+        if (data[2].length !== 0) {
           datums.push({label: data[2].title, type: 'isbn', css: 'isbn', match: data[2]});
         }
         // Suggestions

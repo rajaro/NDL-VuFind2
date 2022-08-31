@@ -212,12 +212,8 @@ class Solr extends \VuFind\Autocomplete\Solr
         $suggestionsLimit = $this->searchConfig->Autocomplete->suggestions ?? 5;
 
         $suggestions = parent::getSuggestions($query);
-        $isbnMatch = '';
+
         if (!empty($suggestions)) {
-            if (!empty($suggestions['isbnMatch'])) {
-                $isbnMatch = $suggestions['isbnMatch'];
-                unset($suggestions['isbnMatch']);
-            }
             $suggestions = array_splice($suggestions, 0, $suggestionsLimit);
         }
 
@@ -274,6 +270,11 @@ class Solr extends \VuFind\Autocomplete\Solr
                 }
             }
             $facets = $facetResults;
+
+            $isbnMatch = [];
+            if (!empty($this->searchConfig->Autocomplete_Sections->isbn)) {
+                $isbnMatch = $this->getIsbnMatch($query);
+            }
         }
 
         ksort($facets);
@@ -284,46 +285,38 @@ class Solr extends \VuFind\Autocomplete\Solr
     }
 
     /**
-     * Try to turn an array of record drivers into an array of suggestions.
+     * Get an exact ISBN match from search query
      *
-     * @param array  $searchResults An array of record drivers
-     * @param string $query         User search query
-     * @param bool   $exact         Ignore non-exact matches?
+     * @param $query search query
      *
      * @return array
      */
-    protected function getSuggestionsFromSearch($searchResults, $query, $exact)
+    protected function getIsbnMatch($query)
     {
-        $results = [];
-        foreach ($searchResults as $object) {
-            $current = $object->getRawData();
-            foreach ($this->displayField as $field) {
-                if (isset($current[$field])) {
-                    $q = $query;
-                    if ($field === 'isbn') {
-                        $q = str_replace('-', '', $query);
-                    }
+        $result = [];
+        if (strlen($query >= 10)) {
+            $searchResults = $this->searchObject->getResults();
+            foreach ($searchResults as $object) {
+                $current = $object->getRawData();
+                if (isset($current['isbn'])) {
+                    $q = str_replace('-', '', $query);
                     $bestMatch = $this->pickBestMatch(
-                        $current[$field],
+                        $current['isbn'],
                         $q,
-                        $exact
+                        true
                     );
                     if ($bestMatch) {
-                        if ($field === 'isbn' && $exact && strlen($query) >= 10) {
-                            $results['isbnMatch'] = [
-                                'isbn' => $current['isbn'],
-                                'title' => $current['title'],
-                                'url' => ($this->urlHelper)('record', ['id' => $current['id']]),
-                                'recordId' => $current['id']
-                            ];
-                        }
-                        $results[] = $bestMatch;
-                        break;
+                        $result = [
+                            'isbn' => $current['isbn'],
+                            'title' => $current['title'],
+                            'url' => ($this->urlHelper)('record', ['id' => $current['id']]),
+                            'recordId' => $current['id']
+                        ];
                     }
                 }
             }
         }
-        return $results;
+        return $result;
     }
 
     /**
