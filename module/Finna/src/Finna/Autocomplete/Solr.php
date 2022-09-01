@@ -221,6 +221,7 @@ class Solr extends \VuFind\Autocomplete\Solr
         }
 
         $facets = [];
+        $isbnMatch = [];
         if (!$this->request->onlySuggestions) {
             $getFacetValues = function ($facet) {
                 return [$facet['value'], $facet['count']];
@@ -274,7 +275,6 @@ class Solr extends \VuFind\Autocomplete\Solr
             }
             $facets = $facetResults;
 
-            $isbnMatch = [];
             if (!empty($this->searchConfig->Autocomplete_Sections->isbn)) {
                 $isbnMatch = $this->getIsbnMatch($query);
             }
