@@ -87,7 +87,7 @@
             img.toggleClass('hidden');
             $('.ac-isbn .iconlabel').toggleClass('hidden');
           }
-        }
+        };
       }
     }
 

@@ -27,6 +27,8 @@
  */
 namespace Finna\Autocomplete;
 
+use VuFindCode\ISBN;
+
 /**
  * Solr Autocomplete Module
  *
@@ -296,9 +298,9 @@ class Solr extends \VuFind\Autocomplete\Solr
     protected function getIsbnMatch($query)
     {
         $result = [];
-        $regex = '/[\d]{10}/';
-        $q = str_replace('-', '', $query);
-        if (preg_match($regex, $q, $matches)) {
+        $isbnObj = new ISBN($query);
+        if ($isbnObj->isValid()) {
+            $q = str_replace('-', '', $query);
             $searchResults = $this->searchObject->getResults();
             foreach ($searchResults as $object) {
                 $current = $object->getRawData();
