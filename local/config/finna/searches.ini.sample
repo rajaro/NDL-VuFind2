@@ -538,6 +538,10 @@ Browse_Journal = "Solr:Title:title:title:format:1/Journal/eSerial/"
 ;
 ;   Example:
 ;     handlers[] = "Title|autocomplete_handler_title"
+;
+; 5. ISBN
+;   If the search query matches an ISBN from the search results, the record with the matching ISBN
+;   will be displayed at the top of autocomplete sections (even above search suggestions).
 
 [Autocomplete_Sections]
 ; Suggestions

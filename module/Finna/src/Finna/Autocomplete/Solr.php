@@ -112,6 +112,7 @@ class Solr extends \VuFind\Autocomplete\Solr
      * @param PluginManager          $results      Results plugin manager
      * @param \Laminas\Config\Config $facetConfig  Facet configuration
      * @param \Laminas\Config\Config $searchConfig Search configuration
+     * @param Url                    $urlHelper    Url helper
      */
     public function __construct(
         \VuFind\Search\Results\PluginManager $results,
@@ -285,7 +286,8 @@ class Solr extends \VuFind\Autocomplete\Solr
     }
 
     /**
-     * Get an exact ISBN match from search query
+     * Get a record from the search results if the
+     * query matches record ISBN
      *
      * @param $query search query
      *
@@ -294,12 +296,13 @@ class Solr extends \VuFind\Autocomplete\Solr
     protected function getIsbnMatch($query)
     {
         $result = [];
-        if (strlen($query >= 10)) {
+        $regex = '/[\d]{10}/';
+        $q = str_replace('-', '', $query);
+        if (preg_match($regex, $q, $matches)) {
             $searchResults = $this->searchObject->getResults();
             foreach ($searchResults as $object) {
                 $current = $object->getRawData();
                 if (isset($current['isbn'])) {
-                    $q = str_replace('-', '', $query);
                     $bestMatch = $this->pickBestMatch(
                         $current['isbn'],
                         $q,
@@ -309,7 +312,10 @@ class Solr extends \VuFind\Autocomplete\Solr
                         $result = [
                             'isbn' => $current['isbn'],
                             'title' => $current['title'],
-                            'url' => ($this->urlHelper)('record', ['id' => $current['id']]),
+                            'url' => ($this->urlHelper)(
+                                'record',
+                                ['id' => $current['id']]
+                            ),
                             'recordId' => $current['id']
                         ];
                     }
