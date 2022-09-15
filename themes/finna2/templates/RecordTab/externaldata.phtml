@@ -95,10 +95,6 @@ $collection = $this->driver->tryMethod('isCollection');
   <?php endforeach; ?>
 <?php endif; ?>
 <?php
-  $this->inlineScript(
-      \Laminas\View\Helper\HeadScript::SCRIPT,
-      'finna.record.setupExternalDataTab();',
-      'SET'
-  );
+  $this->inlineScript(\Laminas\View\Helper\HeadScript::SCRIPT, 'finna.record.setupExternalDataTab();', 'SET');
   echo $this->inlineScript();
 ?>
