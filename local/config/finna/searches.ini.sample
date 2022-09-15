@@ -540,8 +540,8 @@ Browse_Journal = "Solr:Title:title:title:format:1/Journal/eSerial/"
 ;     handlers[] = "Title|autocomplete_handler_title"
 ;
 ; 5. ISBN
-;   If the search query matches an ISBN from the search results, the record with the matching ISBN
-;   will be displayed at the top of autocomplete sections (even above search suggestions).
+;   If isbn=true and the search query matches an ISBN from the search results, the record with the matching ISBN
+;   will be displayed at the top of autocomplete sections (above search suggestions).
 
 [Autocomplete_Sections]
 ; Suggestions
@@ -566,7 +566,7 @@ handlers[] = "Title|autocomplete_handler_title"
 handlers[] = "Author|autocomplete_handler_author"
 handlers[] = "Subject|autocomplete_handler_subject"
 
-isbn = 0
+isbn = false
 
 ; When snippets are enabled, this section can be used to display captions based on
 ; the Solr fields from which the snippets were obtained.  Keys are the names of Solr

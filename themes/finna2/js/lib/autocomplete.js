@@ -140,10 +140,13 @@
           item.attr('data-title', data[i].match.title);
           item.attr('href', data[i].match.url);
           item.append('<br />');
-          item.append('ISBN: ' + data[i].match.isbn);
+          item.append(document.createTextNode('ISBN: ' + data[i].match.isbn));
           item.wrapInner($('<span>'));
           item.prepend('<div class="iconlabel format-1bookbook"</div>');
-          item.prepend('<img id="ac-recordcover" class="hidden" data-recordid="' + data[i].match.recordId + '">');
+          item.prepend($('<img />')
+            .attr('id', "ac-recordcover")
+            .attr('data-recordid', data[i].match.recordId)
+            .addClass('hidden'));
           item.wrapInner($('<div class="ac-isbn">'));
   
           var url = VuFind.path + '/AJAX/JSON?method=' + 'getRecordCover';
