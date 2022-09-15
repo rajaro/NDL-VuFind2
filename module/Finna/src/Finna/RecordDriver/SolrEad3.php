@@ -525,7 +525,7 @@ class SolrEad3 extends SolrEad
                 $val = (string)$defitem->item;
                 switch ($type) {
                 case self::ALTFORM_LOCATION:
-                    $result['locationInfo']['location'] = $val;
+                    $result['location'] = $val;
                     if (in_array($val, $onlineTypes)) {
                         $result['online'] = true;
                     } else {
@@ -533,22 +533,22 @@ class SolrEad3 extends SolrEad
                     }
                     break;
                 case self::ALTFORM_LOCATION_TYPE:
-                    $result['locationInfo']['locationType'] = $val;
+                    $result['locationType'] = $val;
                     break;
                 case self::ALTFORM_PHYSICAL_LOCATION:
-                    $result['locationInfo']['physicalLocation'] = $val;
+                    $result['physicalLocation'] = $val;
                     break;
                 case self::ALTFORM_LOCATION_OFFICE:
-                    $result['locationInfo']['locationOffice'] = $val;
+                    $result['locationOffice'] = $val;
                     break;
                 case self::ALTFORM_IMAGE_SIZE:
-                    $result['imageInfo']['imageSize'] = $val;
+                    $result['imageSize'] = $val;
                     break;
                 case self::ALTFORM_IMAGE_AREA:
-                    $result['imageInfo']['imageArea'] = $val;
+                    $result['imageArea'] = $val;
                     break;
                 case self::ALTFORM_MAP_SCALE:
-                    $result['imageInfo']['mapScale'] = $val;
+                    $result['mapScale'] = $val;
                     break;
                 case self::ALTFORM_MICROFILM_SERIES:
                     $result['microfilmSeries'] = $val;
@@ -1748,7 +1748,9 @@ class SolrEad3 extends SolrEad
             foreach ($aid->p as $p) {
                 $data = [
                     'label' => (string)$p,
-                    'url' => (string)($p->ref->attributes()->href ?? '')
+                    'url' => $p->ref
+                        ? (string)($p->ref->attributes()->href ?? '')
+                        : ''
                 ];
                 $result[] = $data;
                 $lang = $this->detectNodeLanguage($p);
@@ -1808,7 +1810,7 @@ class SolrEad3 extends SolrEad
         return array_filter(
             $this->getAlternativeItems(),
             function ($item) {
-                return empty($item['online']) && !empty($item['locationInfo']);
+                return empty($item['online']) && !empty($item['location']);
             }
         );
     }
