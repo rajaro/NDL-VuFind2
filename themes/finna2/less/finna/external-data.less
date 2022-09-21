@@ -5,6 +5,19 @@
         font-size: .80em;
         vertical-align: middle;
     }
+    &.collapsible {
+        .toggle-expand {
+            display: none;
+        }
+        &.collapsed {
+          .toggle-collapse {
+              display: none;
+          }
+          .toggle-expand {
+              display: initial;
+          }
+       }
+    }
 
     thead {
         display: block;

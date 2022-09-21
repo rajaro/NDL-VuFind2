@@ -259,8 +259,8 @@ $config = [
     'favicon' => 'favicon.ico',
     'icons' => [
         'aliases' => [
-            'ok-dot' => 'FontAwesome:ok',
-            'remove-cross' => 'FontAwesome:remove'
+            'service-available' => 'FontAwesome:ok',
+            'service-unavailable' => 'FontAwesome:remove'
         ]
     ]
 ];

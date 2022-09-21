@@ -225,7 +225,6 @@ finna.record = (function finnaRecord() {
 
   function setupExternalDataTab() {
     $('.external-data-heading').on('click', function onClickHeading() {
-      $(this).find('.fa-chevron-down, .fa-chevron-up').toggleClass('hidden');
       $(this).toggleClass('collapsed');
     });
   }
