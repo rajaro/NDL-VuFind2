@@ -225,14 +225,8 @@ finna.record = (function finnaRecord() {
 
   function setupExternalDataTab() {
     $('.external-data-heading').on('click', function onClickHeading() {
+      $(this).find('.fa-chevron-down, .fa-chevron-up').toggleClass('hidden');
       $(this).toggleClass('collapsed');
-      if ($('.tbl-left .fa', this).hasClass('fa-chevron-down')) {
-        $('.tbl-left .fa', this).removeClass('fa-chevron-down');
-        $('.tbl-left .fa', this).addClass('fa-chevron-up');
-      } else {
-        $('.tbl-left .fa', this).removeClass('fa-chevron-up');
-        $('.tbl-left .fa', this).addClass('fa-chevron-down');
-      }
     });
   }
 

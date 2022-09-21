@@ -257,6 +257,12 @@ $config = [
         'active' => false
     ],
     'favicon' => 'favicon.ico',
+    'icons' => [
+        'aliases' => [
+            'ok-dot' => 'FontAwesome:ok',
+            'remove-cross' => 'FontAwesome:remove'
+        ]
+    ]
 ];
 include 'components.config.php';
 return $config;
