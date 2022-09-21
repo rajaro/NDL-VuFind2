@@ -8,7 +8,7 @@ $physicalItems = $items['physicalItems'] ?? null;
 $collection = $this->driver->tryMethod('isCollection');
 ?>
 <?php if (!$digitized && !$collection): ?>
-  <span><?=$this->translate('external_data_not_digitized')?></span>
+  <span><?=$this->transEsc('external_data_not_digitized')?></span>
   <div class="external-data-feedback inline"><a href="<?=$this->escapeHtmlAttr($this->recordLinker()->getActionUrl($this->driver, 'Feedback'))?>" data-lightbox class="btn btn-primary"><?=$this->transEsc('Send feedback on record')?></a></div>
 <?php else: ?>
   <div class="external-data-feedback"><a href="<?=$this->escapeHtmlAttr($this->recordLinker()->getActionUrl($this->driver, 'Feedback'))?>" data-lightbox class="btn btn-primary"><?=$this->transEsc('external_data_contact_provider')?></a></div>
