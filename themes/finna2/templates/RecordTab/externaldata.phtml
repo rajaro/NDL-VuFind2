@@ -77,19 +77,17 @@ $collection = $this->driver->tryMethod('isCollection');
       <?php if (!empty($item['microfilmSeries'])): ?>
         <div role="row" class="tbl-row">
           <div class="tbl-cell tbl-left" role="cell"><?=$this->transEsc('external_data_tab_microfilm_series')?></div>
-          <div class="tbl-cell tbl-right" role="cell"><?=$item['microfilmSeries']?></div>
+          <div class="tbl-cell tbl-right" role="cell"><?=$this->escapeHtml($item['microfilmSeries'])?></div>
         </div>
       <?php endif;?>
-      <?php if (!empty($item['service'])): ?>
-        <div class="tbl-row" role="row">
-          <div role="cell" class="tbl-cell tbl-left"><span><?=$this->transEsc('external_data_tab_physical_service_info')?></span></div>
-          <?php if (!empty($item['service'])): ?>
-            <div role="cell" class="tbl-cell tbl-right"><i class="fa fa-ok"></i> <span><?=$this->transEsc('external_data_tab_physical_service')?></span></div>
-          <?php else: ?>
-            <div role="cell" class="tbl-cell tbl-right"><i class="fa fa-remove"> </i><span><?=$this->transEsc('external_data_tab_no_service')?></span></div>
-          <?php endif; ?>
-        </div>
-      <?php endif; ?>
+      <div class="tbl-row" role="row">
+        <div role="cell" class="tbl-cell tbl-left"><span><?=$this->transEsc('external_data_tab_physical_service_info')?></span></div>
+        <?php if (!empty($item['service'])): ?>
+          <div role="cell" class="tbl-cell tbl-right"><i class="fa fa-ok"></i> <span><?=$this->transEsc('external_data_tab_physical_service')?></span></div>
+        <?php else: ?>
+          <div role="cell" class="tbl-cell tbl-right"><i class="fa fa-remove"></i> <span><?=$this->transEsc('external_data_tab_no_service')?></span></div>
+        <?php endif; ?>
+      </div>
     </div>
   <?php endforeach; ?>
 <?php endif; ?>
