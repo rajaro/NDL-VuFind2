@@ -142,9 +142,9 @@
           item.append('<br />');
           item.append(document.createTextNode('ISBN: ' + data[i].match.isbn));
           item.wrapInner($('<span>'));
-          item.prepend('<div class="iconlabel format-1bookbook"</div>');
+          item.prepend('<div class="iconlabel format-1bookbook"></div>');
           item.prepend($('<img />')
-            .attr('id', "ac-recordcover")
+            .attr('id', 'ac-recordcover')
             .attr('data-recordid', data[i].match.recordId)
             .addClass('hidden'));
           item.wrapInner($('<div class="ac-isbn">'));
