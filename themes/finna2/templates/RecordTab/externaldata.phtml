@@ -33,9 +33,12 @@ $collection = $this->driver->tryMethod('isCollection');
     <?php $collapsed = $i++ > 0 ? 'collapsed' : ''?>
     <?php $format = $item['format'] ?? $item['original'] ?? $item['type']; ?>
 
-    <div class="external-data-heading external-data physical-items <?=$collapsed?>" role="table">
+    <div class="external-data-heading external-data physical-items collapsible <?=$collapsed?>" role="table">
       <div role="row" class="tbl-row external-data-headers">
-        <div role="cell" class="tbl-cell tbl-left"><?=$this->icon('collapse-open', ['class' => $collapsed ? '' : 'hidden'])?> <?= $this->icon('collapse-close', ['class' => $collapsed ? 'hidden' : ''])?> <span role="columnheader"><?=$this->escapeHtml($format)?></span>
+        <div role="cell" class="tbl-cell tbl-left">
+          <?=$this->icon('collapse-open', ['class' => 'toggle-expand'])?>
+          <?=$this->icon('collapse-close', ['class' => 'toggle-collapse'])?>
+          <span role="columnheader"><?=$this->escapeHtml($format)?></span>
           <?php if (!empty($item['imageType'])): ?>
             <div class="format-info"><?=$this->transEsc('external_data_tab_image_type')?>: <?=$this->escapeHtml($item['imageType'])?></div>
           <?php endif;?>
@@ -44,9 +47,9 @@ $collection = $this->driver->tryMethod('isCollection');
           <?php endif;?>
         </div>
         <?php if (!empty($item['service'])): ?>
-          <div role="cell" class="tbl-cell tbl-right"> <?=$this->icon('ok-dot')?> <span><?=$this->transEsc('external_data_tab_physical_service')?></span></div>
+          <div role="cell" class="tbl-cell tbl-right"> <?=$this->icon('service-available')?> <span><?=$this->transEsc('external_data_tab_physical_service')?></span></div>
         <?php else: ?>
-          <div role="cell" class="tbl-cell tbl-right"> <?=$this->icon('remove-cross')?> <span><?=$this->transEsc('external_data_tab_no_service')?></span></div>
+          <div role="cell" class="tbl-cell tbl-right"> <?=$this->icon('service-unavailable')?> <span><?=$this->transEsc('external_data_tab_no_service')?></span></div>
         <?php endif; ?>
       </div>
       <?php if (!empty($item['location'])): ?>
@@ -83,9 +86,9 @@ $collection = $this->driver->tryMethod('isCollection');
       <div class="tbl-row" role="row">
         <div role="cell" class="tbl-cell tbl-left"><span><?=$this->transEsc('external_data_tab_physical_service_info')?></span></div>
         <?php if (!empty($item['service'])): ?>
-          <div role="cell" class="tbl-cell tbl-right"><?=$this->icon('ok-dot')?> <span><?=$this->transEsc('external_data_tab_physical_service')?></span></div>
+          <div role="cell" class="tbl-cell tbl-right"><?=$this->icon('service-available')?> <span><?=$this->transEsc('external_data_tab_physical_service')?></span></div>
         <?php else: ?>
-          <div role="cell" class="tbl-cell tbl-right"><?=$this->icon('remove-cross')?> <span><?=$this->transEsc('external_data_tab_no_service')?></span></div>
+          <div role="cell" class="tbl-cell tbl-right"><?=$this->icon('service-unavailable')?> <span><?=$this->transEsc('external_data_tab_no_service')?></span></div>
         <?php endif; ?>
       </div>
     </div>
