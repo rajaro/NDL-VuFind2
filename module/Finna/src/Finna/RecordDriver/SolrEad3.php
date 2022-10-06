@@ -1601,6 +1601,16 @@ class SolrEad3 extends SolrEad
     }
 
     /**
+     * Get parent series
+     *
+     * @return array
+     */
+    public function getParentSeries(): array
+    {
+        return $this->getHierarchyParents();
+    }
+
+    /**
      * Get the hierarchy_parent_id(s) associated with this item (empty if none).
      *
      * @param string[] $levels Optional list of level types to return
