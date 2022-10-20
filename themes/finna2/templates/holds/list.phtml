@@ -75,12 +75,14 @@
                       </div>
                     <?php endif; ?>
                   </td>
+                  <td class="holds-sort"><?=$this->context($this)->renderInContext("myresearch/controls/sort.phtml", ['sortList' => $this->sortList])?></td>
                 </tr>
               </table>
           <?php else: ?>
             <table class="myresearch-table" role="presentation">
               <tr class="toolbar">
                 <th colspan="4" class="myresearch-notification"><?=$this->transEsc('Cannot update any of the holds')?></th>
+                <td class="holds-sort"><?=$this->context($this)->renderInContext("myresearch/controls/sort.phtml", ['sortList' => $this->sortList])?></td>
               </tr>
             </table>
           <?php endif; ?>
