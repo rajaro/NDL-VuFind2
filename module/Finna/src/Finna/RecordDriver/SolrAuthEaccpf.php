@@ -84,14 +84,24 @@ class SolrAuthEacCpf extends SolrAuthDefault
     public function getAlternativeTitles()
     {
         $titles = [];
-        $path = 'cpfDescription/identity/nameEntryParallel/nameEntry';
+        $path = 'cpfDescription/identity/nameEntryParallel';
         foreach ($this->getXmlRecord()->xpath($path) as $name) {
-            foreach ($name->part ?? [] as $part) {
+            $title = '';
+            foreach ($name->nameEntry->part ?? [] as $part) {
                 $localType = (string)$part->attributes()->localType;
                 if ($localType === 'http://rdaregistry.info/Elements/a/P50103') {
-                    $titles[] = ['data' => (string)$part];
+                    $title = (string)$part;
                 }
             }
+            $fromDate = $this->formatDate(
+                (string)($name->useDates->dateRange->fromDate ?? '')
+            );
+            $toDate = $this->formatDate(
+                (string)($name->useDates->dateRange->toDate ?? '')
+            );
+
+            $dates = $fromDate && $toDate ? "{$fromDate}-{$toDate}" : '';
+            $titles[] = ['data' => $title, 'detail' => $dates];
         }
         return $titles;
     }
@@ -283,7 +293,15 @@ class SolrAuthEacCpf extends SolrAuthDefault
             return $date;
         }
         try {
-            if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $date)) {
+            if (preg_match('/^(unknown|open)/', $date)) {
+                return '';
+            }
+            if (preg_match('/^(\d{4})-([a-z]{2})-([a-z]{2})$/', $date, $matches)) {
+                return $this->dateConverter->convertFromDisplayDate(
+                    'Y',
+                    $this->dateConverter->convertToDisplayDate('Y', $matches[1])
+                );
+            } elseif (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $date)) {
                 return $this->dateConverter->convertToDisplayDate('Y-m-d', $date);
             } elseif (preg_match('/^(\d{4})$/', $date)) {
                 return $this->dateConverter->convertFromDisplayDate(
