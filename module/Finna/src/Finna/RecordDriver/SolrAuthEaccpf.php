@@ -100,7 +100,8 @@ class SolrAuthEacCpf extends SolrAuthDefault
                 (string)($name->useDates->dateRange->toDate ?? '')
             );
 
-            $dates = $fromDate && $toDate ? "{$fromDate}-{$toDate}" : '';
+            $ndash = html_entity_decode('&#x2013;', ENT_NOQUOTES, 'UTF-8');
+            $dates = $fromDate && $toDate ? "$fromDate $ndash $toDate" : '';
             $titles[] = ['data' => $title, 'detail' => $dates];
         }
         return $titles;
