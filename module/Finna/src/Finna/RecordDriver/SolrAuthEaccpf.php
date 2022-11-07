@@ -275,12 +275,12 @@ class SolrAuthEacCpf extends SolrAuthDefault
                     $title = '';
                     foreach ($source->sourceEntry as $entry) {
                         if (in_array($entry->attributes()->lang, $languages)) {
-                            $title = $entry;
+                            $title = (string)$entry;
                         }
                     }
                     $result[] = [
-                        'title' => $title ? $title : $source->sourceEntry,
-                        'url' =>  $source->attributes()->href ?? '',
+                        'title' => $title ? $title : (string)$source->sourceEntry,
+                        'url' =>  (string)$source->attributes()->href ?? '',
                         'subtitle' => ''
                     ];
                 }
