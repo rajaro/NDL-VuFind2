@@ -67,25 +67,25 @@ class HoldsController extends \VuFind\Controller\HoldsController
             } else {
                 $view->recordList = $this->orderAvailability($view->recordList);
             }
+            $sortList = [
+                'available' => [
+                    'desc' =>  'hold_available',
+                    'url' => '?sort=available',
+                    'selected' => $sort === 'available'
+                ],
+                'expire_asc' => [
+                    'desc' =>  'hold_sort_expire_asc',
+                    'url' => '?sort=expire_asc',
+                    'selected' => $sort === 'expire_asc'
+                ],
+                'expire_desc' => [
+                    'desc' =>  'hold_sort_expire_desc',
+                    'url' => '?sort=expire_desc',
+                    'selected' => $sort === 'expire_desc'
+                ]
+            ];
+            $view->sortList = $sortList;
         }
-        $sortList = [
-            'available' => [
-                'desc' =>  'hold_available',
-                'url' => '?sort=available',
-                'selected' => $sort === 'available'
-            ],
-            'expire_asc' => [
-                'desc' =>  'hold_sort_expire_asc',
-                'url' => '?sort=expire_asc',
-                'selected' => $sort === 'expire_asc'
-            ],
-            'expire_desc' => [
-                'desc' =>  'hold_sort_expire_desc',
-                'url' => '?sort=expire_desc',
-                'selected' => $sort === 'expire_desc'
-            ]
-        ];
-        $view->sortList = $sortList;
         $view->blocks = $this->getAccountBlocks($patron);
         return $view;
     }
