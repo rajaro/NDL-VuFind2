@@ -62,7 +62,7 @@ class HoldsController extends \VuFind\Controller\HoldsController
         $view = parent::listAction();
         if (isset($view->recordList)) {
             $sort = $this->params()->fromQuery('sort', 'available');
-            if ($sort !== 'available') {
+            if (in_array($sort, ['expire_asc', 'expire_desc'])) {
                 $view->recordList = $this->sortHolds($view->recordList, $sort);
             } else {
                 $view->recordList = $this->orderAvailability($view->recordList);

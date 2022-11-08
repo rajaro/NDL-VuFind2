@@ -74,8 +74,8 @@
                         </ul>
                       </div>
                     <?php endif; ?>
+                    <div class="holds-sort"><?=$this->context($this)->renderInContext("myresearch/controls/sort.phtml", ['sortList' => $this->sortList])?></div>
                   </td>
-                  <td class="holds-sort"><?=$this->context($this)->renderInContext("myresearch/controls/sort.phtml", ['sortList' => $this->sortList])?></td>
                 </tr>
               </table>
           <?php else: ?>
