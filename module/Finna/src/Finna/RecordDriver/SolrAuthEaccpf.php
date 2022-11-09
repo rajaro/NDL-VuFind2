@@ -280,7 +280,7 @@ class SolrAuthEacCpf extends SolrAuthDefault
                     }
                     $result[] = [
                         'title' => $title ? $title : (string)$source->sourceEntry,
-                        'url' =>  (string)$source->attributes()->href ?? '',
+                        'url' => (string)($source->attributes()->href ?? ''),
                         'subtitle' => ''
                     ];
                 }
