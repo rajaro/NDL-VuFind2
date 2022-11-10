@@ -417,6 +417,9 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                 if (!isset($images['urls']['medium'])) {
                     $images['urls']['medium'] = $images['urls']['small'];
                 }
+                if (!isset($images['urls']['large'])) {
+                    $images['urls']['large'] = $images['urls']['medium'];
+                }
                 $images['downloadable'] = $this->allowRecordImageDownload($images);
             }
             $results[] = compact(
@@ -660,11 +663,19 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
             }
         }
         if (!empty($resourceSet->resourceDescription)) {
-            $result['description']
-                = (string)$this->getLanguageSpecificItem(
+            $description
+                = $this->getLanguageSpecificItem(
                     $resourceSet->resourceDescription,
                     $language
                 );
+            if ($descriptionTrimmed = trim((string)$description)) {
+                $type = trim($description->attributes()->type);
+                if ($type === 'displayLink') {
+                    $result['resourceName'] = $descriptionTrimmed;
+                } else {
+                    $result['resourceDescription'] = $descriptionTrimmed;
+                }
+            }
         }
         if (!empty($resourceSet->resourceDateTaken->displayDate)) {
             $result['dateTaken']
