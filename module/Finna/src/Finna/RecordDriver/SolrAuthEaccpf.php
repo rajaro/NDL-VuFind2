@@ -130,7 +130,7 @@ class SolrAuthEacCpf extends SolrAuthDefault
             }
         }
         if (!empty($dateElement->dateSet)) {
-            $dates[] = $this->parseDates($dateElement->dateSet);
+            $dates = array_merge($dates, $this->parseDates($dateElement->dateSet));
         }
         return $dates;
     }
