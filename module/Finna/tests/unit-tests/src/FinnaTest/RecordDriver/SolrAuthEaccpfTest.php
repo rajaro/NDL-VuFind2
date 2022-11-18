@@ -71,11 +71,11 @@ class SolrAuthEaccpfTest extends \PHPUnit\Framework\TestCase
      *
      * @return SolrAuthEaccpf
      */
-    protected function getDriver($overrides = [], $searchConfig = []): SolrAuthEaccpf
+    protected function getDriver($overrides = [], $searchConfig = []): SolrAuthEacCpf
     {
         $fixture = $this->getFixture('eaccpf/eaccpf_test.xml', 'Finna');
         $dateConverter = new \VuFind\Date\Converter(['displayDateFormat' => 'j.n.Y']);
-        $record = new SolrAuthEaccpf(
+        $record = new SolrAuthEacCpf(
             null,
             null,
             new \Laminas\Config\Config($searchConfig)
