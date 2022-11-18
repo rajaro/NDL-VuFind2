@@ -125,7 +125,11 @@ class SolrAuthEacCpf extends SolrAuthDefault
             }
         }
         foreach ($dateElement->date ?? [] as $dateEl) {
-            if ($d = $this->formatDate((string)$dateEl)) {
+            if (!empty($dateEl->attributes()->standardDate)) {
+                $dates[] = $this->formatDate(
+                    (string)$dateEl->attributes()->standardDate
+                );
+            } elseif ($d = $this->formatDate((string)$dateEl)) {
                 $dates[] = $d;
             }
         }
@@ -325,6 +329,7 @@ class SolrAuthEacCpf extends SolrAuthDefault
             if (preg_match('/^(unknown|open)/', $date)) {
                 return '';
             }
+            // Handle date formats like 1977-uu-uu
             if (preg_match('/^(\d{4})-([a-z]{2})-([a-z]{2})$/', $date, $matches)) {
                 return $this->dateConverter->convertFromDisplayDate(
                     'Y',
