@@ -113,12 +113,14 @@ class SolrAuthEacCpf extends SolrAuthDefault
     {
         $dates = [];
         foreach ($dateElement->dateRange ?? [] as $range) {
-            $fromDate = $this->formatDate(
-                (string)($range->fromDate ?? '')
-            );
-            $toDate = $this->formatDate(
-                (string)($range->toDate ?? '')
-            );
+            $fromDate = $range->fromDate->attributes()->standardDate
+                ?? $range->fromDate
+                ?? '';
+            $fromDate = $this->formatDate((string)($fromDate));
+            $toDate = $range->toDate->attributes()->standardDate
+                ?? $range->toDate
+                ?? '';
+            $toDate = $this->formatDate((string)($toDate ?? ''));
             $ndash = html_entity_decode('&#x2013;', ENT_NOQUOTES, 'UTF-8');
             if ($fromDate && $toDate) {
                 $dates[] = "$fromDate $ndash $toDate";

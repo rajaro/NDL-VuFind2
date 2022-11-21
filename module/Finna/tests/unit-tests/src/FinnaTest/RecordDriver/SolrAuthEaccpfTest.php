@@ -27,7 +27,7 @@
  */
 namespace FinnaTest\RecordDriver;
 
-use Finna\RecordDriver\SolrAuthEaccpf;
+use Finna\RecordDriver\SolrAuthEacCpf;
 
 /**
  * SolrAuthEaccpf Record Driver Test Class
@@ -38,7 +38,7 @@ use Finna\RecordDriver\SolrAuthEaccpf;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:testing:unit_tests Wiki
  */
-class SolrAuthEaccpfTest extends \PHPUnit\Framework\TestCase
+class SolrAuthEacCpfTest extends \PHPUnit\Framework\TestCase
 {
     use \VuFindTest\Feature\FixtureTrait;
 
@@ -49,7 +49,7 @@ class SolrAuthEaccpfTest extends \PHPUnit\Framework\TestCase
         $titles = [
           [
             'data' => 'Tokanimi, Etunimi',
-            'detail' => "1930 {$ndash} 1944"
+            'detail' => "1930 {$ndash} 1944, 1.1.1949 {$ndash} 2.2.1950"
           ],
           [
             'data' => 'Testi, Testaaja',
@@ -69,7 +69,7 @@ class SolrAuthEaccpfTest extends \PHPUnit\Framework\TestCase
      * @param array $overrides    Fixture fields to override.
      * @param array $searchConfig Search configuration.
      *
-     * @return SolrAuthEaccpf
+     * @return SolrAuthEacCpf
      */
     protected function getDriver($overrides = [], $searchConfig = []): SolrAuthEacCpf
     {

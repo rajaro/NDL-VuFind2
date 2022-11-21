@@ -19,6 +19,10 @@
             <fromDate>1930-uu-uu</fromDate>
             <toDate>1944-uu-uu</toDate>
           </dateRange>
+          <dateRange>
+            <fromDate standardDate="1949-01-01">1949 1. Tammikuuta</fromDate>
+            <toDate standardDate="1950-02-02">1950</toDate>
+          </dateRange>
         </useDates>
         <nameEntry lang="fin">
           <part localType="http://rdaregistry.info/Elements/a/P50103">Tokanimi, Etunimi</part>
