@@ -39,7 +39,7 @@ namespace Finna\RecordDriver;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
-class SolrAuthEacCpf extends SolrAuthDefault
+class SolrAuthEaccpf extends SolrAuthDefault
 {
     use Feature\SolrAuthFinnaTrait {
         getOccupations as _getOccupations;

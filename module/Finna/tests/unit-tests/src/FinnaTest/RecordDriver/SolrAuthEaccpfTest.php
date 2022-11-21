@@ -1,6 +1,6 @@
 <?php
 /**
- * SolrAuthEacCpf Test Class
+ * SolrAuthEaccpf Test Class
  *
  * PHP version 7
  *
@@ -27,10 +27,10 @@
  */
 namespace FinnaTest\RecordDriver;
 
-use Finna\RecordDriver\SolrAuthEacCpf;
+use Finna\RecordDriver\SolrAuthEaccpf;
 
 /**
- * SolrAuthEacCpf Record Driver Test Class
+ * SolrAuthEaccpf Record Driver Test Class
  *
  * @category VuFind
  * @package  Tests
@@ -38,7 +38,7 @@ use Finna\RecordDriver\SolrAuthEacCpf;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:testing:unit_tests Wiki
  */
-class SolrAuthEacCpfTest extends \PHPUnit\Framework\TestCase
+class SolrAuthEaccpfTest extends \PHPUnit\Framework\TestCase
 {
     use \VuFindTest\Feature\FixtureTrait;
 
@@ -69,13 +69,13 @@ class SolrAuthEacCpfTest extends \PHPUnit\Framework\TestCase
      * @param array $overrides    Fixture fields to override.
      * @param array $searchConfig Search configuration.
      *
-     * @return SolrAuthEacCpf
+     * @return SolrAuthEaccpf
      */
-    protected function getDriver($overrides = [], $searchConfig = []): SolrAuthEacCpf
+    protected function getDriver($overrides = [], $searchConfig = []): SolrAuthEaccpf
     {
         $fixture = $this->getFixture('eaccpf/eaccpf_test.xml', 'Finna');
         $dateConverter = new \VuFind\Date\Converter(['displayDateFormat' => 'j.n.Y']);
-        $record = new SolrAuthEacCpf(
+        $record = new SolrAuthEaccpf(
             null,
             null,
             new \Laminas\Config\Config($searchConfig)
