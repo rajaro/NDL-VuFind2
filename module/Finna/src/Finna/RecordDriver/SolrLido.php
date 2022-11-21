@@ -154,6 +154,13 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
     protected $displayableModelFormats = ['gltf', 'glb'];
 
     /**
+     * Array of excluded classifications
+     *
+     * @var array
+     */
+    protected $excludedClassifications = ['language'];
+
+    /**
      * Events used for author information.
      *
      * Key is event type, value is priority (lower is more important),
@@ -669,7 +676,7 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                     $language
                 );
             if ($descriptionTrimmed = trim((string)$description)) {
-                $type = trim($description->attributes()->type);
+                $type = trim((string)$description->attributes()->type);
                 if ($type === 'displayLink') {
                     $result['resourceName'] = $descriptionTrimmed;
                 } else {
@@ -1021,6 +1028,10 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
             'lido/descriptiveMetadata/objectClassificationWrap/classificationWrap/'
             . 'classification'
         ) as $node) {
+            $type = trim((string)$node->attributes()->type);
+            if (in_array($type, $this->excludedClassifications)) {
+                continue;
+            }
             if (isset($node->term)) {
                 $term = trim((string)$node->term);
                 if ('' !== $term) {
@@ -1259,38 +1270,34 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
     public function getFormatClassifications()
     {
         $results = [];
-        foreach ($this->getXmlRecord()->xpath(
-            'lido/descriptiveMetadata/objectClassificationWrap'
-        ) as $node) {
-            if (!isset($node->objectWorkTypeWrap->objectWorkType->term)) {
-                continue;
-            }
-            $term = (string)$node->objectWorkTypeWrap->objectWorkType->term;
-            if ($term === 'rakennetun ympäristön kohde') {
-                foreach ($node->classificationWrap->classification ?? []
-                    as $classificationNode
-                ) {
-                    $attributes = $classificationNode->attributes();
-                    $type = $attributes->type ?? '';
-                    if ($type) {
-                        $results[] = (string)$classificationNode->term
-                            . " ($type)";
-                    } else {
-                        $results[] = (string)$classificationNode->term;
-                    }
+        foreach ($this->getXmlRecord()->lido->descriptiveMetadata
+            ->objectClassificationWrap ?? [] as $node
+        ) {
+            $workTypeTerm = trim(
+                (string)($node->objectWorkTypeWrap->objectWorkType->term ?? '')
+            );
+            foreach ($node->classificationWrap->classification ?? []
+                as $classification
+            ) {
+                $type = trim((string)$classification->attributes()->type);
+                if (in_array($type, $this->excludedClassifications)) {
+                    continue;
                 }
-            } elseif ($term === 'arkeologinen kohde') {
-                foreach ($node->classificationWrap->classification ?? []
-                    as $classificationNode
-                ) {
-                    foreach ($classificationNode->term as $term) {
-                        $attributes = $term->attributes();
-                        $label = $attributes->label ?? '';
-                        if ($label) {
-                            $results[] = (string)$term . " ($label)";
-                        } else {
-                            $results[] = (string)$term;
-                        }
+                $getDisplayString = function (string $term, string $extra) {
+                    return $extra ? "$term ($extra)" : $term;
+                };
+                foreach ($classification->term as $term) {
+                    $termString = trim((string)$term);
+                    $termType = trim((string)$term->attributes()->type);
+                    $termLabel = trim((string)$term->attributes()->label);
+
+                    switch ($workTypeTerm) {
+                    case 'rakennetun ympäristön kohde':
+                        $results[] = $getDisplayString($termString, $termType);
+                        break 2;
+                    case 'arkeologinen kohde':
+                        $results[] = $getDisplayString($termString, $termLabel);
+                        break;
                     }
                 }
             }
