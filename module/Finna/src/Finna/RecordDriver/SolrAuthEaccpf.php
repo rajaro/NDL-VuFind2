@@ -120,7 +120,7 @@ class SolrAuthEaccpf extends SolrAuthDefault
             $toDate = $range->toDate->attributes()->standardDate
                 ?? $range->toDate
                 ?? '';
-            $toDate = $this->formatDate((string)($toDate ?? ''));
+            $toDate = $this->formatDate((string)($toDate));
             $ndash = html_entity_decode('&#x2013;', ENT_NOQUOTES, 'UTF-8');
             if ($fromDate && $toDate) {
                 $dates[] = "$fromDate $ndash $toDate";
