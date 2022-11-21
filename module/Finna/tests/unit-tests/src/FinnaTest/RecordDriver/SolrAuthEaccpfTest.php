@@ -1,6 +1,6 @@
 <?php
 /**
- * SolrAuthEaccpf Test Class
+ * SolrAuthEacCpf Test Class
  *
  * PHP version 7
  *
@@ -30,7 +30,7 @@ namespace FinnaTest\RecordDriver;
 use Finna\RecordDriver\SolrAuthEacCpf;
 
 /**
- * SolrAuthEaccpf Record Driver Test Class
+ * SolrAuthEacCpf Record Driver Test Class
  *
  * @category VuFind
  * @package  Tests
