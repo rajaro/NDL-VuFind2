@@ -105,14 +105,22 @@ class HoldsController extends \VuFind\Controller\HoldsController
         $sortFunc = function ($a, $b) use ($field, $order, $date) {
             $aDetail = $a->getExtraDetail('ils_details')[$field] ?? '';
             $bDetail = $b->getExtraDetail('ils_details')[$field] ?? '';
-            $aDate = $aDetail
-                ? $date->convertFromDisplayDate('U', $aDetail)
-                : 0;
-            $bDate = $bDetail
-                ? $date->convertFromDisplayDate('U', $bDetail)
-                : 0;
-            return $order === 'asc' ? $aDate - $bDate : $bDate - $aDate;
+            $aDate = $aDetail ? $date->convertFromDisplayDate('U', $aDetail) : 0;
+            $bDate = $bDetail ? $date->convertFromDisplayDate('U', $bDetail) : 0;
+            if ($aDetail !== $bDetail) {
+                return $order === 'asc' ? $aDate - $bDate : $bDate - $aDate;
+            }
+            $aAvail = $a->getExtraDetail('ils_details')['available'] ?? '';
+            $bAvail = $b->getExtraDetail('ils_details')['available'] ?? '';
+            if ($aAvail !== $bAvail) {
+                return (int)$bAvail - (int)$aAvail;
+            }
+            return strcmp(
+                $a->getExtraDetail('ils_details')['title'] ?? '',
+                $b->getExtraDetail('ils_details')['title'] ?? ''
+            );
         };
+
         usort($recordList, $sortFunc);
         return $recordList;
     }
