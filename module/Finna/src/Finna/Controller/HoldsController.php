@@ -69,7 +69,7 @@ class HoldsController extends \VuFind\Controller\HoldsController
             }
             $sortList = [
                 'available' => [
-                    'desc' =>  'hold_available',
+                    'desc' =>  'hold_sort_available',
                     'url' => '?sort=available',
                     'selected' => $sort === 'available'
                 ],
