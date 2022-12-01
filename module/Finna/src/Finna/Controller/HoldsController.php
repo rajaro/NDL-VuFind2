@@ -102,7 +102,8 @@ class HoldsController extends \VuFind\Controller\HoldsController
     {
         [$field, $order] = explode('_', $sort);
         $date = $this->serviceLocator->get(\VuFind\Date\Converter::class);
-        $sortFunc = function ($a, $b) use ($field, $order, $date) {
+        $sorter = $this->serviceLocator->get(\VuFind\I18n\Sorter::class);
+        $sortFunc = function ($a, $b) use ($field, $order, $date, $sorter) {
             $aDetail = $a->getExtraDetail('ils_details')[$field] ?? '';
             $bDetail = $b->getExtraDetail('ils_details')[$field] ?? '';
             $aDate = $aDetail ? $date->convertFromDisplayDate('U', $aDetail) : 0;
@@ -115,7 +116,7 @@ class HoldsController extends \VuFind\Controller\HoldsController
             if ($aAvail !== $bAvail) {
                 return (int)$bAvail - (int)$aAvail;
             }
-            return strcmp(
+            return $sorter->compare(
                 $a->getExtraDetail('ils_details')['title'] ?? '',
                 $b->getExtraDetail('ils_details')['title'] ?? ''
             );
