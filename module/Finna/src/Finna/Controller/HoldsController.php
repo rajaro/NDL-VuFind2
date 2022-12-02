@@ -62,7 +62,14 @@ class HoldsController extends \VuFind\Controller\HoldsController
         $view = parent::listAction();
         if (isset($view->recordList)) {
             $sort = $this->params()->fromQuery('sort', 'available');
-            if (in_array($sort, ['expire_asc', 'expire_desc'])) {
+            $supported = [
+                'expire_asc',
+                'expire_desc',
+                'create_asc',
+                'create_desc',
+                'title_desc'
+            ];
+            if (in_array($sort, $supported)) {
                 $view->recordList = $this->sortHolds($view->recordList, $sort);
             } else {
                 $view->recordList = $this->orderAvailability($view->recordList);
@@ -82,6 +89,21 @@ class HoldsController extends \VuFind\Controller\HoldsController
                     'desc' =>  'hold_sort_expire_desc',
                     'url' => '?sort=expire_desc',
                     'selected' => $sort === 'expire_desc'
+                ],
+                'create_asc' => [
+                    'desc' =>  'hold_sort_create_asc',
+                    'url' => '?sort=create_asc',
+                    'selected' => $sort === 'create_asc'
+                ],
+                'create_desc' => [
+                    'desc' =>  'hold_sort_create_desc',
+                    'url' => '?sort=create_desc',
+                    'selected' => $sort === 'create_desc'
+                ],
+                'title_desc' => [
+                    'desc' => 'hold_sort_title',
+                    'url' => '?sort=title_desc',
+                    'selected' => $sort === 'title_desc'
                 ]
             ];
             $view->sortList = $sortList;
@@ -106,6 +128,12 @@ class HoldsController extends \VuFind\Controller\HoldsController
         $sortFunc = function ($a, $b) use ($field, $order, $date, $sorter) {
             $aDetail = $a->getExtraDetail('ils_details')[$field] ?? '';
             $bDetail = $b->getExtraDetail('ils_details')[$field] ?? '';
+            if ($field === 'title') {
+                return $sorter->compare(
+                    $aDetail,
+                    $bDetail
+                );
+            }
             $aDate = $aDetail ? $date->convertFromDisplayDate('U', $aDetail) : 0;
             $bDate = $bDetail ? $date->convertFromDisplayDate('U', $bDetail) : 0;
             if ($aDetail !== $bDetail) {
