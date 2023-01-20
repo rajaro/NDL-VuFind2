@@ -34,13 +34,13 @@
           <div class="holds-pre-list"><?=$this->render($template)?></div>
         <?php endif; ?>
         <?php if (!empty($this->recordList)): ?>
+          <div class="holds-sort"><?=$this->context($this)->renderInContext("myresearch/controls/sort.phtml", ['sortList' => $this->sortList])?></div>
           <?php if ($this->cancelForm || $this->updateForm): ?>
             <form name="updateForm" class="inline" method="post" action="<?=$this->escapeHtmlAttr($this->url('holds-list'))?>" id="update_holds" data-clear-account-cache="holds" data-lightbox>
               <input type="hidden" id="submitType" name="cancelSelected" value="1"/>
               <input type="hidden" id="cancelConfirm" name="confirm" value="0"/>
               <table class="myresearch-table" role="presentation">
                 <tr class="toolbar">
-                  <div class="holds-sort"><?=$this->context($this)->renderInContext("myresearch/controls/sort.phtml", ['sortList' => $this->sortList])?></div>
                   <td class="text-left checkbox-col">
                     <div class="checkboxFilter mylist-select-all">
                       <div class="checkbox">
@@ -82,7 +82,6 @@
             <table class="myresearch-table" role="presentation">
               <tr class="toolbar">
                 <th colspan="4" class="myresearch-notification"><?=$this->transEsc('Cannot update any of the holds')?></th>
-                <td class="holds-sort"><?=$this->context($this)->renderInContext("myresearch/controls/sort.phtml", ['sortList' => $this->sortList])?></td>
               </tr>
             </table>
           <?php endif; ?>
