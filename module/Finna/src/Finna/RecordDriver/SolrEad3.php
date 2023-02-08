@@ -1488,7 +1488,6 @@ class SolrEad3 extends SolrEad
         if (in_array($date, ['unknown', 'open'])) {
             return '';
         }
-        $open = false;
         $parts = explode('-', $date);
         $year = 0;
         $month = 0;
