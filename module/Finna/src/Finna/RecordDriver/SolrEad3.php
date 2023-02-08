@@ -1438,14 +1438,14 @@ class SolrEad3 extends SolrEad
                     if (isset($end)
                         && ($parsedEnd = $this->parseDate($end, false)) !== $dates
                     ) {
-                        $ndash 
+                        $ndash
                             = html_entity_decode('&#x2013;', ENT_NOQUOTES, 'UTF-8');
                         $dates .= " {$ndash} {$parsedEnd}";
                     }
                 } else {
                     $dates = '';
                 }
-                
+
                 if ($desc = $normal ?? null) {
                     $desc = $attr->label ?? null;
                 }
@@ -1481,7 +1481,7 @@ class SolrEad3 extends SolrEad
      * @param string $date  date to parse
      * @param bool   $start whether given date is the start date of a year range
      *
-     * @return string 
+     * @return string
      */
     public function parseDate($date, $start = true)
     {
