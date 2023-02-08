@@ -1424,13 +1424,36 @@ class SolrEad3 extends SolrEad
         $result = [];
 
         if (isset($record->did->unitdate)) {
-            foreach ($record->did->unitdate as $date) {
-                $attr = $date->attributes();
-                if ($desc = $attr->normal ?? null) {
+            foreach ($record->did->unitdate as $udate) {
+                $attr = $udate->attributes();
+                $normal = (string)$attr->normal;
+                $dates = '';
+                if ($normal) {
+                    if (strstr($normal, '/')) {
+                        [$start, $end] = explode('/', $normal);
+                    } else {
+                        $start = $normal;
+                    }
+                    $dates = $this->parseDate($start, true);
+                    if (isset($end)
+                        && ($parsedEnd = $this->parseDate($end, false)) !== $dates
+                    ) {
+                        $ndash 
+                            = html_entity_decode('&#x2013;', ENT_NOQUOTES, 'UTF-8');
+                        $dates .= " {$ndash} {$parsedEnd}";
+                    }
+                } else {
+                    $dates = '';
+                }
+                
+                if ($desc = $normal ?? null) {
                     $desc = $attr->label ?? null;
                 }
-                $date = (string)$date;
-                $result[] = ['data' => (string)$date, 'detail' => (string)$desc];
+                $ud = (string)$udate === '-' ? '' : (string)$udate;
+                $result[] = [
+                    'data' => $dates ? $dates : $ud,
+                    'detail' => (string)$desc
+                ];
             }
             if ($result) {
                 return $result;
@@ -1450,6 +1473,42 @@ class SolrEad3 extends SolrEad
         }
 
         return $this->getUnitDate();
+    }
+
+    /**
+     * Parse dates
+     *
+     * @param string $date  date to parse
+     * @param bool   $start whether given date is the start date of a year range
+     *
+     * @return string 
+     */
+    public function parseDate($date, $start = true)
+    {
+        if (in_array($date, ['unknown', 'open'])) {
+            return '';
+        }
+        $open = false;
+        $parts = explode('-', $date);
+        $year = 0;
+        $month = 0;
+        $day = 0;
+        if (isset($parts[2]) && $parts[2] !== 'uu') {
+            $day = $parts[2];
+        }
+        if (isset($parts[1]) && $parts[1] !== 'uu') {
+            $month = $parts[1];
+        }
+        $defaultY = $start ? '0' : '9';
+
+        $year = str_replace('u', $defaultY, $parts[0]);
+        $result = '';
+        if ($day && $month && !strstr($parts[0], 'u')) {
+            $result = "{$day}.{$month}.";
+        }
+
+        $result .= $year;
+        return $result;
     }
 
     /**
