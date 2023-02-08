@@ -1446,7 +1446,7 @@ class SolrEad3 extends SolrEad
                     $dates = '';
                 }
 
-                if ($desc = $normal ?? null) {
+                if ($desc = $attr->normal ?? null) {
                     $desc = $attr->label ?? null;
                 }
                 $ud = (string)$udate === '-' ? '' : (string)$udate;
