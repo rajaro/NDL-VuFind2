@@ -1423,41 +1423,42 @@ class SolrEad3 extends SolrEad
         $record = $this->getXmlRecord();
         $result = [];
 
-        if (isset($record->did->unitdate)) {
-            foreach ($record->did->unitdate as $udate) {
-                $attr = $udate->attributes();
-                $normal = (string)$attr->normal;
-                $dates = '';
-                if ($normal) {
-                    if (strstr($normal, '/')) {
-                        [$start, $end] = explode('/', $normal);
-                    } else {
-                        $start = $normal;
-                    }
-                    $dates = $this->parseDate($start, true);
-                    if (isset($end)
-                        && ($parsedEnd = $this->parseDate($end, false)) !== $dates
-                    ) {
-                        $ndash
-                            = html_entity_decode('&#x2013;', ENT_NOQUOTES, 'UTF-8');
-                        $dates .= " {$ndash} {$parsedEnd}";
-                    }
+        foreach ($record->did->unitdate ?? [] as $udate) {
+            $attr = $udate->attributes();
+            $normal = (string)$attr->normal;
+            $dates = $start = $end = '';
+            $unknown = false;
+            if ($normal) {
+                if (strstr($normal, '/')) {
+                    [$start, $end] = explode('/', $normal);
                 } else {
-                    $dates = '';
+                    $start = $normal;
+                    $unknown = strstr($start, 'u');
                 }
+                $dates = $this->parseDate($start, true);
+                if (isset($end)
+                    && ($parsedEnd = $this->parseDate($end, false)) !== $dates
+                    && $parsedEnd
+                ) {
+                    $ndash
+                        = html_entity_decode('&#x2013;', ENT_NOQUOTES, 'UTF-8');
+                    $dates .= " {$ndash} {$parsedEnd}";
+                } elseif ($dates && $unknown) {
+                    $dates .= $this->translate('year_range_suffix');
+                }
+            }
 
-                if ($desc = $attr->normal ?? null) {
-                    $desc = $attr->label ?? null;
-                }
-                $ud = (string)$udate === '-' ? '' : (string)$udate;
-                $result[] = [
-                    'data' => $dates ? $dates : $ud,
-                    'detail' => (string)$desc
-                ];
+            if ($desc = $attr->normal ?? null) {
+                $desc = $attr->label ?? null;
             }
-            if ($result) {
-                return $result;
-            }
+            $ud = (string)$udate === '-' ? '' : (string)$udate;
+            $result[] = [
+                'data' => $dates ? $dates : $ud,
+                'detail' => (string)$desc
+            ];
+        }
+        if ($result) {
+            return $result;
         }
 
         if (isset($record->did->unitdatestructured->datesingle)) {
