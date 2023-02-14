@@ -1436,7 +1436,7 @@ class SolrEad3 extends SolrEad
                     $unknown = strstr($start, 'u');
                 }
                 $dates = $this->parseDate($start, true);
-                if (isset($end)
+                if ($end
                     && ($parsedEnd = $this->parseDate($end, false)) !== $dates
                     && $parsedEnd
                 ) {
