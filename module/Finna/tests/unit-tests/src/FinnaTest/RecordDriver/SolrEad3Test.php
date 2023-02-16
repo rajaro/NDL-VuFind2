@@ -54,7 +54,7 @@ class SolrEad3Test extends \PHPUnit\Framework\TestCase
         $ndash = html_entity_decode('&#x2013;', ENT_NOQUOTES, 'UTF-8');
         $dates = [
             [
-                'data' => "1600 {$ndash} 1799",
+                'data' => "1600{$ndash}1799",
                 'detail' => 'Ajallinen kattavuus'
             ],
             [
@@ -66,7 +66,7 @@ class SolrEad3Test extends \PHPUnit\Framework\TestCase
                 'detail' => 'Ajallinen kattavuus',
             ],
             [
-                'data' => "01.01.1600 {$ndash} 01.01.1610",
+                'data' => "01.01.1600{$ndash}01.01.1610",
                 'detail' => 'Ajallinen kattavuus',
             ]
         ];
