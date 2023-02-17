@@ -1445,7 +1445,8 @@ class SolrEad3 extends SolrEad
                     $dates .= "{$ndash}{$parsedEnd}";
                 } elseif ($dates && $unknown) {
                     $dates = $this->translate(
-                        'year_decade_or_century', ['%%year%%' => $dates]
+                        'year_decade_or_century',
+                        ['%%year%%' => $dates]
                     );
                 }
             }
