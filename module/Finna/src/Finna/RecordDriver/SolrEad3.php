@@ -1444,7 +1444,9 @@ class SolrEad3 extends SolrEad
                         = html_entity_decode('&#x2013;', ENT_NOQUOTES, 'UTF-8');
                     $dates .= "{$ndash}{$parsedEnd}";
                 } elseif ($dates && $unknown) {
-                    $dates .= $this->translate('year_range_suffix');
+                    $dates = $this->translate(
+                        'year_decade_or_century', ['%%year%%' => $dates]
+                    );
                 }
             }
 

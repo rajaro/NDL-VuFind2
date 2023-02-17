@@ -90,7 +90,9 @@ class SolrEad3Test extends \PHPUnit\Framework\TestCase
             new \Laminas\Config\Config($searchConfig)
         );
         $record->setTranslator(
-            $this->getMockTranslator(['default' => ['year_range_suffix' => '-luku']])
+            $this->getMockTranslator(
+                ['default' => ['year_decade_or_century' => '%%year%%-luku']]
+            )
         );
         $record->setRawData(['fullrecord' => $fixture]);
         return $record;
