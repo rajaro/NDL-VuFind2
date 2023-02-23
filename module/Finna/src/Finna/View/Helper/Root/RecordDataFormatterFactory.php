@@ -1127,7 +1127,7 @@ class RecordDataFormatterFactory
         $setTemplateLine(
             'System Format',
             'getSystemDetails',
-            'data-escapeHtml',
+            'data-systemFormat.phtml',
             [
                 'context' => ['class' => 'extendedSystem']
             ]

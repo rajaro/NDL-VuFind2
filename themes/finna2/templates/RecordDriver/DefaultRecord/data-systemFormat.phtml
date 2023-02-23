@@ -1,0 +1,9 @@
+<?php //Don't add START and END comments ?>
+<?php if (!empty($data)): ?>
+  <div class="truncate-field" data-rows="5">
+    <?php foreach ($data as $field): ?>
+      <?=isset($field['specified']) ? $this->escapeHtml($field['specified']) . ': ' : ''?>
+      <?=$this->escapeHtml($field['details'] ?? '')?><br/>
+    <?php endforeach; ?>
+  </div>
+<?php endif; ?>

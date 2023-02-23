@@ -2346,4 +2346,24 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         }
         return $results;
     }
+
+    /**
+     * Get System details from field 538
+     *
+     * @return array
+     */
+    public function getSystemDetails(): array
+    {
+        $results = [];
+        foreach ($this->getMarcReader()->getFields('538') as $field) {
+            $result = [];
+            if ($subfield = $this->getSubfield($field, '3')) {
+                $result['specified'] = $this->stripTrailingPunctuation($subfield);
+            }
+            $result['details']
+                = $this->stripTrailingPunctuation($this->getSubfield($field, 'a'));
+            $results[] = $result;
+        }
+        return $results;
+    }
 }
