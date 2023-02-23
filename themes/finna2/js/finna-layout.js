@@ -1,4 +1,4 @@
-/*global VuFind, videojs, checkSaveStatuses, finna, initFacetTree, priorityNav */
+/*global VuFind, videojs, checkSaveStatuses, finna, initFacetTree, priorityNav, userIsLoggedIn */
 finna.layout = (function finnaLayout() {
   var currentOpenTooltips = [];
 
@@ -500,12 +500,77 @@ finna.layout = (function finnaLayout() {
     }
   }
 
+  function autoLogin() {
+    if (!userIsLoggedIn) {
+      navigator.credentials
+        .get({password: true})
+        .then((credentials) => {
+          if (credentials) {
+            $.ajax({
+              url: VuFind.path + '/MyResearch/UserLogin',
+              method: "GET",
+            }).done(function onGetLoginDone(response) {
+              var csrf = $(response).find('div input[name=csrf]').attr('value');
+              var method = '';
+              if (credentials.name === '') {
+                method = 'Database';
+              } else {
+                method = 'MultiILS'
+              }
+              var params = {
+                username: credentials.id,
+                password: credentials.password,
+                auth_method: method,
+                processLogin: 'Kirjaudu',
+                csrf: csrf,
+                target: credentials.name
+              }
+              $.ajax({
+                url: VuFind.path + '/MyResearch/Home',
+                data: params,
+                method: "POST"
+              })
+                .done(function onAutoLogin(/*response*/) {
+                  window.location.href = VuFind.path + '/MyResearch/Home';
+                });
+            });
+          }
+        });
+    }
+  }
+
+  function saveCredentials() {
+    var dbUsername = $('input#login_Database_username')[0].value;
+    var dbPassword = $('input#login_Database_password')[0].value;
+    var miUsername = $('input#login_MultiILS_username')[0].value;
+    var miPassword = $('input#login_MultiILS_password')[0].value;
+    var username = '';
+    var password = '';
+    var name = '';
+    if (dbUsername !== '' && dbPassword !== '') {
+      username = dbUsername;
+      password = dbPassword;
+    } else if (miUsername !== '' && miPassword !== '') {
+      username = miUsername;
+      password = miPassword;
+      name = $('#login_MultiILS_target')[0].value;
+    }
+    let cr = new PasswordCredential({
+      id: username,
+      name: name,
+      password: password
+    });
+    navigator.credentials
+      .store(cr)
+  }
+
   function initLightboxLogin() {
     if (!document.addEventListener) {
       return;
     }
     document.addEventListener('VuFind.lightbox.login', function onLightboxLogin(e) {
       if ($('body').hasClass('template-name-home') && !e.detail.formUrl.match(/catalogLogin/) && !e.detail.formUrl.match(/\Save/) && !e.detail.formUrl.match(/%2[fF]Save/)) {
+        saveCredentials();
         window.location.href = VuFind.path + '/MyResearch/Home';
         e.preventDefault();
       }
@@ -829,6 +894,7 @@ finna.layout = (function finnaLayout() {
       initImagePaginators();
       initHelpTabs();
       initPrintTriggers();
+      autoLogin();
     },
     showPostLoginLightbox: showPostLoginLightbox
   };
