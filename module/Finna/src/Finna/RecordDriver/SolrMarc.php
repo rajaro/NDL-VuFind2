@@ -2358,7 +2358,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         foreach ($this->getMarcReader()->getFields('538') as $field) {
             $result = [];
             if ($subfield = $this->getSubfield($field, '3')) {
-                $result['specified'] = $this->stripTrailingPunctuation($subfield);
+                $result['part'] = $this->stripTrailingPunctuation($subfield);
             }
             $result['details']
                 = $this->stripTrailingPunctuation($this->getSubfield($field, 'a'));
