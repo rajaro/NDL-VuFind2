@@ -501,38 +501,40 @@ finna.layout = (function finnaLayout() {
   }
 
   function autoLogin() {
-    if (!userIsLoggedIn) {
+    if (!userIsLoggedIn && !sessionStorage.getItem('disableAutoLogin')) {
       navigator.credentials
         .get({password: true})
         .then((credentials) => {
           if (credentials) {
+            var method = '';
+            if (credentials.name === '') {
+              method = 'Database';
+            } else {
+              method = 'MultiILS'
+            }
+            var params = {
+              username: credentials.id,
+              password: credentials.password,
+              auth_method: method,
+              processLogin: 'Kirjaudu',
+              target: credentials.name
+            }
             $.ajax({
               url: VuFind.path + '/MyResearch/UserLogin',
               method: "GET",
             }).done(function onGetLoginDone(response) {
               var csrf = $(response).find('div input[name=csrf]').attr('value');
-              var method = '';
-              if (credentials.name === '') {
-                method = 'Database';
-              } else {
-                method = 'MultiILS'
-              }
-              var params = {
-                username: credentials.id,
-                password: credentials.password,
-                auth_method: method,
-                processLogin: 'Kirjaudu',
-                csrf: csrf,
-                target: credentials.name
-              }
+              params.csrf = csrf;
               $.ajax({
                 url: VuFind.path + '/MyResearch/Home',
                 data: params,
                 method: "POST"
-              })
-                .done(function onAutoLogin(/*response*/) {
-                  window.location.href = VuFind.path + '/MyResearch/Home';
-                });
+              }).done(function onAutoLogin(r) {
+                if (r) {
+                  sessionStorage.setItem('disableAutoLogin', 1);
+                  location.reload();              
+                }
+              });
             });
           }
         });
@@ -540,28 +542,34 @@ finna.layout = (function finnaLayout() {
   }
 
   function saveCredentials() {
-    var dbUsername = $('input#login_Database_username')[0].value;
-    var dbPassword = $('input#login_Database_password')[0].value;
-    var miUsername = $('input#login_MultiILS_username')[0].value;
-    var miPassword = $('input#login_MultiILS_password')[0].value;
-    var username = '';
-    var password = '';
-    var name = '';
-    if (dbUsername !== '' && dbPassword !== '') {
-      username = dbUsername;
-      password = dbPassword;
-    } else if (miUsername !== '' && miPassword !== '') {
-      username = miUsername;
-      password = miPassword;
-      name = $('#login_MultiILS_target')[0].value;
+    var remember = $('input#login_Database_rememberme')[0].checked;
+    if (remember) {
+      var dbUsername = $('input#login_Database_username')[0].value;
+      var dbPassword = $('input#login_Database_password')[0].value;
+      var miUsername = $('input#login_MultiILS_username')[0].value;
+      var miPassword = $('input#login_MultiILS_password')[0].value;
+      var username = '';
+      var password = '';
+      var name = '';
+      if (dbUsername !== '' && dbPassword !== '') {
+        username = dbUsername;
+        password = dbPassword;
+      } else if (miUsername !== '' && miPassword !== '') {
+        username = miUsername;
+        password = miPassword;
+        name = $('#login_MultiILS_target')[0].value;
+      }
+      if (window.PasswordCredential) {
+        let cr = new PasswordCredential({
+          id: username,
+          name: name,
+          password: password
+        });
+        navigator.credentials
+          .store(cr)
+      }
     }
-    let cr = new PasswordCredential({
-      id: username,
-      name: name,
-      password: password
-    });
-    navigator.credentials
-      .store(cr)
+    sessionStorage.setItem('disableAutoLogin', 1);
   }
 
   function initLightboxLogin() {
