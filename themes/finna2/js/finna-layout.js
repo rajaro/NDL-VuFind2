@@ -501,16 +501,19 @@ finna.layout = (function finnaLayout() {
   }
 
   function autoLogin() {
-    if (!userIsLoggedIn && !sessionStorage.getItem('disableAutoLogin')) {
+    if (!userIsLoggedIn && !sessionStorage.getItem('disableAutoLogin', 1)) {
       navigator.credentials
         .get({password: true})
         .then((credentials) => {
           if (credentials) {
             var method = '';
-            if (credentials.name === '') {
+            if (credentials.name === 'Finna') {
               method = 'Database';
-            } else {
+            } else if (credentials.name !== '') {
               method = 'MultiILS'
+            }
+            if (!method) {
+              return;
             }
             var params = {
               username: credentials.id,
@@ -520,7 +523,7 @@ finna.layout = (function finnaLayout() {
               target: credentials.name
             }
             $.ajax({
-              url: VuFind.path + '/MyResearch/UserLogin',
+              url: VuFind.path + '/MyResearch/UserLogin?layout=lightbox',
               method: "GET",
             }).done(function onGetLoginDone(response) {
               var csrf = $(response).find('div input[name=csrf]').attr('value');
@@ -529,11 +532,8 @@ finna.layout = (function finnaLayout() {
                 url: VuFind.path + '/MyResearch/Home',
                 data: params,
                 method: "POST"
-              }).done(function onAutoLogin(r) {
-                if (r) {
-                  sessionStorage.setItem('disableAutoLogin', 1);
-                  location.reload();              
-                }
+              }).done(function onAutoLogin() {
+                location.reload();              
               });
             });
           }
@@ -542,8 +542,9 @@ finna.layout = (function finnaLayout() {
   }
 
   function saveCredentials() {
-    var remember = $('input#login_Database_rememberme')[0].checked;
-    if (remember) {
+    var dbRemember = $('input#login_Database_rememberme')[0].checked;
+    var miRemember = $('input#login_MultiILS_rememberme')[0].checked;
+    if (dbRemember || miRemember) {
       var dbUsername = $('input#login_Database_username')[0].value;
       var dbPassword = $('input#login_Database_password')[0].value;
       var miUsername = $('input#login_MultiILS_username')[0].value;
@@ -551,10 +552,11 @@ finna.layout = (function finnaLayout() {
       var username = '';
       var password = '';
       var name = '';
-      if (dbUsername !== '' && dbPassword !== '') {
+      if (dbUsername !== '' && dbPassword !== '' && dbRemember) {
         username = dbUsername;
         password = dbPassword;
-      } else if (miUsername !== '' && miPassword !== '') {
+        name = "Finna";
+      } else if (miUsername !== '' && miPassword !== '' && miRemember) {
         username = miUsername;
         password = miPassword;
         name = $('#login_MultiILS_target')[0].value;
@@ -569,7 +571,16 @@ finna.layout = (function finnaLayout() {
           .store(cr)
       }
     }
-    sessionStorage.setItem('disableAutoLogin', 1);
+  }
+
+  function initLogout()
+  {
+    $('.user-logout').on('click', function onLogout(e) {
+      e.preventDefault();
+      navigator.credentials.preventSilentAccess();
+      sessionStorage.setItem('disableAutoLogin', 1);
+      window.location.href = VuFind.path + "/MyResearch/Logout";
+    });
   }
 
   function initLightboxLogin() {
@@ -903,6 +914,7 @@ finna.layout = (function finnaLayout() {
       initHelpTabs();
       initPrintTriggers();
       autoLogin();
+      initLogout();
     },
     showPostLoginLightbox: showPostLoginLightbox
   };

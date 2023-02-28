@@ -185,7 +185,7 @@
                 </li>
               <?php endif; ?>
               <li>
-                <a <?=$this->url('myresearch-logout') === $_SERVER['REQUEST_URI'] ? 'aria-current="page"' : ''?> role="menuitem" href="<?=$this->url('myresearch-logout')?>" title="<?=$this->transEsc("Log Out")?>"><?=$this->transEsc("Log Out")?><i class="pull-right fa fa-sign-out fa-lg" aria-hidden="true"></i></a>
+                <a class="user-logout" <?=$this->url('myresearch-logout') === $_SERVER['REQUEST_URI'] ? 'aria-current="page"' : ''?> role="menuitem" href="<?=$this->url('myresearch-logout')?>" title="<?=$this->transEsc("Log Out")?>"><?=$this->transEsc("Log Out")?><i class="pull-right fa fa-sign-out fa-lg" aria-hidden="true"></i></a>
               </li>
             </ul>
           </li>

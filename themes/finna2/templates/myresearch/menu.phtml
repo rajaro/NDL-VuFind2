@@ -139,7 +139,7 @@
         <?php if (isset($listItem['desktopOnly']) && $listItem['desktopOnly']) { continue; } ?>
         <?php if (!isset($listItem['show']) || $listItem['show'] !== false): ?>
           <li role="menuitem" class="<?=$id?><?= $activeToLower === $id ? ' active' : ''?>">
-            <a href="<?=$this->escapeHtmlAttr($this->url($listItem['url']) . ($listItem['query'] ?? ''))?>" class="list-group-item" <?=$activeToLower === $id ? 'aria-current="page"' : ''?>>
+            <a class="<?=$id === 'logout' ? 'user-logout' : ''?>" href="<?=$this->escapeHtmlAttr($this->url($listItem['url']) . ($listItem['query'] ?? ''))?>" class="list-group-item" <?=$activeToLower === $id ? 'aria-current="page"' : ''?>>
             <?=$this->transEsc($listItem['translation'])?>
               <?php if (!empty($listItem['statusKey'])): ?>
                 <span class="<?=$listItem['statusKey']?>-status status hidden"><i class="fa fa-spin fa-spinner" aria-hidden="true"></i></span>
