@@ -1534,7 +1534,7 @@ class RecordDataFormatterFactory
         $setTemplateLine(
             'Language Notes',
             'getLanguageNotes',
-            'data-transEsc.phtml',
+            'data-languageNotes.phtml',
             [
                 'context' => ['class' => 'record-language-notes']
             ]

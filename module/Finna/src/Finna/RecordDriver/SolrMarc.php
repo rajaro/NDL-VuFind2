@@ -2298,9 +2298,21 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
      */
     public function getLanguageNotes()
     {
-        return $this->stripTrailingPunctuation(
-            $this->getFieldArray('546', ['a', 'b'])
-        );
+        $results = [];
+        foreach ($this->getMarcReader()->getFields('546') as $field) {
+            $result = [];
+            if ($subfield = $this->getSubfield($field, '3')) {
+                $result['part'] = $this->stripTrailingPunctuation($subfield);
+            }
+            if ($a = $this->getSubfield($field, 'a')) {
+                $result['details'][] = $this->stripTrailingPunctuation($a);
+            }
+            if ($b = $this->getSubfield($field, 'b')) {
+                $result['details'][] = $this->stripTrailingPunctuation($b);
+            }
+            $results[] = $result;
+        }
+        return $results;
     }
 
     /**
