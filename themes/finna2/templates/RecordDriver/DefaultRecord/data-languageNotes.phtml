@@ -3,7 +3,7 @@
   <div class="truncate-field" data-rows="5">
     <?php foreach ($data as $field): ?>
       <?=!empty($field['part']) ? $this->escapeHtml($field['part']) . ': ' : ''?>
-      <?php foreach ($field['details'] as $detail): ?>
+      <?php foreach ($field['details'] ?? [] as $detail): ?>
         <?=$this->escapeHtml($detail)?><br/>
       <?php endforeach; ?>
     <?php endforeach; ?>
