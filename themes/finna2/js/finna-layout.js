@@ -503,7 +503,7 @@ finna.layout = (function finnaLayout() {
   function autoLogin() {
     if (!userIsLoggedIn && !sessionStorage.getItem('disableAutoLogin', 1)) {
       navigator.credentials
-        .get({password: true})
+        .get({password: true, mediation: "required"})
         .then((credentials) => {
           if (credentials) {
             var method = '';
