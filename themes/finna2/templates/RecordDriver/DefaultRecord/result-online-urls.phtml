@@ -34,8 +34,10 @@
         ?>
         <?php foreach ($combined as $i => $url): ?>
           <?php
-            if (in_array($url['url'], $renderedURLs)) {
-              continue;
+            foreach ($renderedURLs as $renderedURL) {
+              if ($url['url'] === $renderedURL['url'] && ($url['desc'] ?? '') === $renderedURL['desc']) {
+                continue;
+              }
             }
             if ('popup' === $context && ++$linkCount > $maxLinkCount) {
               break;
@@ -104,7 +106,12 @@
           <?php if (!empty($url['source'])): ?>
             <span class="online-source">(<?=is_array($url['source']) ? $this->transEsc('Multiple Organisations') : $this->transEsc('default::source_' . $url['source'], null, $url['source']) ?>)</span>
           <?php endif; ?>
-          <?php $renderedURLs[] = $url['url']; ?>
+          <?php
+            $renderedURLs[] = [
+              'url' => $url['url'],
+              'desc' => $url['desc'] ?? ''
+            ];
+          ?>
         <?php endforeach; ?>
         <?php if ('popup' === $context && $linkCount > $maxLinkCount): ?>
           <div><?=$this->transEsc('eol_ellipsis')?></div>

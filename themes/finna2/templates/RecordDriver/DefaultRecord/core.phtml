@@ -118,9 +118,14 @@
 
       <?php foreach ($otherUrls ?? [] as $url): ?>
         <?php
-          if (in_array($url['url'], $renderedURLs)) {
-            continue;
+          foreach ($renderedURLs as $renderedURL) {
+            if ($url['url'] === $renderedURL['url'] && ($url['desc'] ?? '') === $renderedURL['desc']) {
+              continue;
+            }
           }
+          // if (in_array($url['url'], $renderedURLs)) {
+          //   continue;
+          // }
           $desc = $url['desc'] ?? $url['url'];
           if ($desc === $url['url']) {
             $desc = $this->truncateUrl($desc);
@@ -139,17 +144,34 @@
           </a>
           <?php if (!empty($url['part'])): ?> <span class="coverage"><?=$this->transEsc('default::link_' . $url['part'], null, $url['part']) ?><?php endif; ?>
         </div>
-        <?php $renderedURLs[] = $url['url']; ?>
+        <?php
+          $renderedURLs[] = [
+            'url' => $url['url'],
+            'desc' => $url['desc'] ?? ''
+          ];
+        ?>
       <?php endforeach; ?>
       <?php foreach ($onlineURLs ?? [] as $url): ?>
-        <?php if (in_array($url['url'], $renderedURLs)) { continue; } ?>
+        <?php
+          foreach ($renderedURLs as $renderedURL) {
+            if ($url['url'] === $renderedURL['url'] && ($url['desc'] ?? '') === $renderedURL['desc']) {
+              continue;
+            }
+          }
+        ?>
+        <?php // if (in_array($url['url'], $renderedURLs)) { continue; } ?>
         <div class="fulltextField"><a class="fulltext" href="<?=$this->escapeHtmlAttr($this->proxyUrl($url['url'])) ?>" target="_blank" aria-label="<?=$this->transEscAttr('external_online_link')?>"><i class="fa fa-external-link"></i> <?=!empty($url['text']) ? $this->transEsc('default::link_' . $url['text'], null, $url['text']) : $this->escapeHtml($this->truncateUrl($url['url'])) ?></a>
           <?php if (!empty($url['part'])): ?> <span class="coverage"><?=$this->transEsc('default::link_' . $url['part'], null, $url['part'])?><?php endif; ?>
           <?php if ($url['source']): ?>
             <span class="online-source">(<?=$this->transEsc('default::source_' . $url['source'], null, $url['source'])?>)</span>
           <?php endif; ?>
         </div>
-        <?php $renderedURLs[] = $url['url']; ?>
+        <?php
+          $renderedURLs[] = [
+            'url' => $url['url'],
+            'desc' => $url['desc'] ?? ''
+          ];
+        ?>
       <?php endforeach; ?>
       <?php if (!empty($mergedData['urls'])): ?>
         <?php
@@ -166,7 +188,12 @@
                 <span class="online-source">(<?=is_array($url['source']) ? $this->transEsc('Multiple Organisations') : $this->transEsc('default::source_' . $url['source'], null, $url['source'])?>)</span>
               <?php endif; ?>
             </div>
-            <?php $renderedURLs[] = $url['url']; ?>
+            <?php
+              $renderedURLs[] = [
+                'url' => $url['url'],
+                'desc' => $url['desc'] ?? ''
+              ];
+            ?>
           <?php endforeach; ?>
         </div>
       <?php endif; ?>
