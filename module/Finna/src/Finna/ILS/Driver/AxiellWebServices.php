@@ -2605,7 +2605,8 @@ implements TranslatorAwareInterface, \Laminas\Log\LoggerAwareInterface,
                 'title' => $title,
                 'cancel_details' => $cancelDetails,
                 'updateDetails' => $updateDetails,
-                '_organization' => $reservation->organisationId ?? ''
+                '_organization' => $reservation->organisationId ?? '',
+                'create' => $this->formatDate($reservation->createDate)
             ];
             $holdsList[] = $hold;
         }
