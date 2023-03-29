@@ -36,7 +36,7 @@
           <?php
             foreach ($renderedURLs as $renderedURL) {
               if ($url['url'] === $renderedURL['url'] && ($url['desc'] ?? $url['text'] ?? '') === $renderedURL['desc']) {
-                continue;
+                continue 2;
               }
             }
             if ('popup' === $context && ++$linkCount > $maxLinkCount) {
