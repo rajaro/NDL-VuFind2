@@ -120,12 +120,10 @@
         <?php
           foreach ($renderedURLs as $renderedURL) {
             if ($url['url'] === $renderedURL['url'] && ($url['desc'] ?? '') === $renderedURL['desc']) {
-              continue;
+              continue 2;
             }
           }
-          // if (in_array($url['url'], $renderedURLs)) {
-          //   continue;
-          // }
+
           $desc = $url['desc'] ?? $url['url'];
           if ($desc === $url['url']) {
             $desc = $this->truncateUrl($desc);
@@ -154,12 +152,11 @@
       <?php foreach ($onlineURLs ?? [] as $url): ?>
         <?php
           foreach ($renderedURLs as $renderedURL) {
-            if ($url['url'] === $renderedURL['url'] && ($url['desc'] ?? '') === $renderedURL['desc']) {
-              continue;
+            if ($url['url'] === $renderedURL['url'] && ($url['text'] ?? '') === $renderedURL['desc']) {
+              continue 2;
             }
           }
         ?>
-        <?php // if (in_array($url['url'], $renderedURLs)) { continue; } ?>
         <div class="fulltextField"><a class="fulltext" href="<?=$this->escapeHtmlAttr($this->proxyUrl($url['url'])) ?>" target="_blank" aria-label="<?=$this->transEscAttr('external_online_link')?>"><i class="fa fa-external-link"></i> <?=!empty($url['text']) ? $this->transEsc('default::link_' . $url['text'], null, $url['text']) : $this->escapeHtml($this->truncateUrl($url['url'])) ?></a>
           <?php if (!empty($url['part'])): ?> <span class="coverage"><?=$this->transEsc('default::link_' . $url['part'], null, $url['part'])?><?php endif; ?>
           <?php if ($url['source']): ?>
@@ -169,14 +166,19 @@
         <?php
           $renderedURLs[] = [
             'url' => $url['url'],
-            'desc' => $url['desc'] ?? ''
+            'desc' => $url['text'] ?? ''
           ];
         ?>
       <?php endforeach; ?>
       <?php if (!empty($mergedData['urls'])): ?>
         <?php
           $filteredMergedURLs = array_filter($mergedData['urls'], function ($url) use ($renderedURLs) {
-            return !in_array($url['url'], $renderedURLs);
+            foreach ($renderedURLs as $renderedURL) {
+              if ($url['url'] === $renderedURL['url'] && ($url['text'] ?? '') === $renderedURL['desc']) {
+                return false;
+              }
+            }
+            return true;
           });
           $count = count($filteredMergedURLs);
         ?>
@@ -191,7 +193,7 @@
             <?php
               $renderedURLs[] = [
                 'url' => $url['url'],
-                'desc' => $url['desc'] ?? ''
+                'desc' => $url['text'] ?? ''
               ];
             ?>
           <?php endforeach; ?>
