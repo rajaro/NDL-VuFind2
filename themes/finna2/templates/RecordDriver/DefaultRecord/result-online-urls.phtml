@@ -35,7 +35,7 @@
         <?php foreach ($combined as $i => $url): ?>
           <?php
             foreach ($renderedURLs as $renderedURL) {
-              if ($url['url'] === $renderedURL['url'] && ($url['desc'] ?? '') === $renderedURL['desc']) {
+              if ($url['url'] === $renderedURL['url'] && ($url['desc'] ?? $url['text'] ?? '') === $renderedURL['desc']) {
                 continue;
               }
             }
@@ -109,7 +109,7 @@
           <?php
             $renderedURLs[] = [
               'url' => $url['url'],
-              'desc' => $url['desc'] ?? ''
+              'desc' => $url['desc'] ?? $url['text'] ?? ''
             ];
           ?>
         <?php endforeach; ?>
