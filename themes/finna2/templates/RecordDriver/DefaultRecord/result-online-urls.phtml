@@ -27,7 +27,7 @@
         'desc' => $url['desc'] ?? $url['text'] ?? ''
       ];
     };
-  
+
     $isRendered = function (array $url) use (&$renderedURLs) {
       foreach ($renderedURLs as $renderedURL) {
         if ($url['url'] === $renderedURL['url'] && ($url['desc'] ?? $url['text'] ?? '') === $renderedURL['desc']) {
