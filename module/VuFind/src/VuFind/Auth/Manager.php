@@ -32,6 +32,7 @@ use Laminas\Session\SessionManager;
 use VuFind\Cookie\CookieManager;
 use VuFind\Db\Row\User as UserRow;
 use VuFind\Db\Table\User as UserTable;
+use VuFind\Db\Table\LoginToken as LoginTokenTable;
 use VuFind\Exception\Auth as AuthException;
 use VuFind\Validator\CsrfInterface;
 
@@ -92,6 +93,11 @@ class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
     protected $userTable;
 
     /**
+     * Gateway to login token table in database
+     */
+    protected $loginTokenTable;
+
+    /**
      * Session manager
      *
      * @var SessionManager
@@ -129,16 +135,18 @@ class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
     /**
      * Constructor
      *
-     * @param Config         $config         VuFind configuration
-     * @param UserTable      $userTable      User table gateway
-     * @param SessionManager $sessionManager Session manager
-     * @param PluginManager  $pm             Authentication plugin manager
-     * @param CookieManager  $cookieManager  Cookie manager
-     * @param CsrfInterface  $csrf           CSRF validator
+     * @param Config          $config          VuFind configuration
+     * @param UserTable       $userTable       User table gateway
+     * @param LoginTokenTable $loginTokenTable Login Token table gateway
+     * @param SessionManager  $sessionManager  Session manager
+     * @param PluginManager   $pm              Authentication plugin manager
+     * @param CookieManager   $cookieManager   Cookie manager
+     * @param CsrfInterface   $csrf            CSRF validator
      */
     public function __construct(
         Config $config,
         UserTable $userTable,
+        LoginTokenTable $loginTokenTable,
         SessionManager $sessionManager,
         PluginManager $pm,
         CookieManager $cookieManager,
@@ -147,6 +155,7 @@ class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
         // Store dependencies:
         $this->config = $config;
         $this->userTable = $userTable;
+        $this->loginTokenTable = $loginTokenTable;
         $this->sessionManager = $sessionManager;
         $this->pluginManager = $pm;
         $this->cookieManager = $cookieManager;
@@ -456,6 +465,10 @@ class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
         unset($this->session->userId);
         unset($this->session->userDetails);
         $this->cookieManager->set('loggedOut', 1);
+        if ($loginToken = $this->cookieManager->get('loginToken')) {
+            $this->cookieManager->clear('loginToken');
+            $this->loginTokenTable->destroy($loginToken);
+        }
 
         // Destroy the session for good measure, if requested.
         if ($destroy) {
@@ -505,6 +518,8 @@ class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
                 $results = $this->userTable->createRow();
                 $results->exchangeArray($this->session->userDetails);
                 $this->currentUser = $results;
+            } elseif ($this->cookieManager->get('loginToken')) {
+                $this->tokenLogin();
             } else {
                 // not logged in
                 $this->currentUser = false;
@@ -700,9 +715,64 @@ class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
         // Update user object
         $this->updateUser($user);
 
+        if ($request->getPost()->get('remember_me')) {
+            $useragent = $request->getHeader('User-Agent')->toString();
+            $loginToken = $this->loginTokenTable->createToken($user->username, null, $useragent);
+            $this->setLoginTokenCookie(
+                $user->username,
+                $loginToken['token'],
+                $loginToken['series']
+            );
+        }
         // Store the user in the session and send it back to the caller:
         $this->updateSession($user);
         return $user;
+    }
+
+    /**
+     * Token login
+     *
+     * @return UserRow Object representing logged-in user.
+     */
+    public function tokenLogin($request = null)
+    {
+        $cookie = $this->cookieManager->get('loginToken');
+        $useragent = $request ? $request->getHeader('User-Agent')->toString() ?? '' : '';
+        $token = $this->loginTokenTable->matchToken($cookie, $useragent);
+        if ($token) {
+            $user = $this->userTable->getByUsername($token['username']);
+            $this->updateUser($user);
+            $this->updateSession($user);
+            $this->setLoginTokenCookie(
+                $user->username,
+                $token['token'],
+                $token['series']
+            );
+            return $user;
+        }
+    }
+
+    /**
+     * Set login token cookie
+     *
+     * @param string $username Username
+     * @param string $token    Token
+     * @param string $series   Series
+     *
+     * @return void
+     */
+    public function setLoginTokenCookie($username, $token, $series)
+    {
+        $this->cookieManager->set(
+            'loginToken',
+            [
+                'username' => $username,
+                'token' => $token,
+                'series' => $series
+            ],
+            time() + 365 * 60 * 60 * 24, // 1 year,
+            true
+        );
     }
 
     /**

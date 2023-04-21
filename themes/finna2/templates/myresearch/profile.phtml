@@ -297,6 +297,25 @@
         <?php endif; ?>
       </div>
     </div>
+    <div class="myresearch-profile-header">
+      <h3><?= $this->transEsc("LOGIN TOKENS") ?></h3>
+    </div>
+    <div class="myresearch-profile-list library-profile">
+      <?php $tokens = $user->getLoginTokens($user->username);
+      foreach ($tokens as $token): ?>
+        <div class="my-profile-row">
+          <div class="my-profile-col">
+            <b><?=$this->transEsc('Device')?>:</b><br> <?=$token->device?>
+          </div>
+          <div class="my-profile-col">
+            <b><?=$this->transEsc('last_login')?>:</b><br> <?=$token->last_login?>
+          </div>
+          <div class="my-profile-col">
+            <a class="btn btn-danger" href="<?php /*=$this->url('myresearch-delete-tokens')*/?>"><?=$this->transEsc('Delete login token')?></a>
+          </div>
+        </div>
+    <?php endforeach; ?>
+    </div>
     <?php if (!is_array($this->profile) && 'ils-none' !== $this->ils()->getOfflineMode() && $this->patronLoginView && !empty($this->patronLoginView->getTemplate())): ?>
       <?=$this->partial($this->patronLoginView);?>
     <?php endif; ?>

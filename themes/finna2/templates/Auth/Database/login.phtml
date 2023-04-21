@@ -4,6 +4,7 @@
   <form method="post" class="form-vertical" action="<?=$this->url('myresearch-home')?>" name="loginForm">
     <div class="login-col">
       <?=$this->auth()->getLoginFields()?>
+      <input type="checkbox" name="remember_me"> Remember me
       <input type="hidden" name="auth_method" value="<?=$this->escapeHtmlAttr($account->getAuthMethod())?>">
       <input type="hidden" name="csrf" value="<?=$this->escapeHtmlAttr($account->getCsrfHash())?>" />
       <div class="form-group">

@@ -812,4 +812,23 @@ class User extends RowGateway implements \VuFind\Db\Table\DbTableAwareInterface,
     {
         return ['loggedin'];
     }
+
+    /**
+     * Get login token data
+     *
+     * @param string $username username
+     *
+     * @return array
+     */
+    public function getLoginTokens($username)
+    {
+        $tokenTable = $this->getDbTable('LoginToken');
+        return $tokenTable->getByUsername($username);
+        $result = [];
+        foreach ($tokens as $token) {
+            // $result['lastLogin'] = $token->last_login;
+            // $result['device'] = $token->device;
+        }
+        return $result;
+    }
 }
