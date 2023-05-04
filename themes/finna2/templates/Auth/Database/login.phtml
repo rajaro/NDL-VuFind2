@@ -8,7 +8,7 @@
         <input type="checkbox" name="remember_me"> <?=$this->transEsc('Remember me')?>
       <?php endif; ?>
       <input type="hidden" name="auth_method" value="<?=$this->escapeHtmlAttr($account->getAuthMethod())?>">
-      <input type="hidden" name="csrf" value="<?=$this->escapeHtmlAttr($account->getCsrfHash())?>" />
+      <input type="hidden" name="csrf" value="<?=$this->escapeHtmlAttr($account->getCsrfHash())?>">
       <div class="form-group">
         <input class="btn btn-primary" type="submit" name="processLogin" value="<?=$this->transEscAttr('Login')?>">
       </div>

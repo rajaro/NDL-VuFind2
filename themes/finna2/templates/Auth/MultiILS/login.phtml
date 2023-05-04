@@ -9,7 +9,7 @@
       <input type="checkbox" name="remember_me"> <?=$this->transEsc('Remember me')?>
     <?php endif; ?>
     <input type="hidden" name="auth_method" value="<?=$this->escapeHtmlAttr($account->getAuthMethod())?>">
-    <input type="hidden" name="csrf" value="<?=$this->escapeHtmlAttr($account->getCsrfHash())?>" />
+    <input type="hidden" name="csrf" value="<?=$this->escapeHtmlAttr($account->getCsrfHash())?>">
     <div class="clearfix"></div>
     <div class="form-group">
         <?php if ($account->supportsCreation()): ?>
@@ -17,7 +17,7 @@
         <?php endif; ?>
         <input class="btn btn-primary" type="submit" name="processLogin" value="<?=$this->transEscAttr('Login')?>">
         <?php if ($account->supportsRecovery()): ?>
-          <br/>
+          <br>
           <a class="btn btn-link" href="<?=$this->url('myresearch-recover') ?>?auth_method=<?=$account->getAuthMethod()?>"><?=$this->transEsc('Forgot Password')?></a>
         <?php endif; ?>
         <p>
@@ -63,9 +63,9 @@
   $recovery = json_encode($recovery);
   $register = json_encode($register);
   $script = <<<EOT
-  finna.layout.initILSPasswordRecoveryLink($recovery, 'login_{$topClass}_');
-  finna.layout.initILSSelfRegistrationLink($register, 'login_{$topClass}_');
-EOT;
+        finna.layout.initILSPasswordRecoveryLink($recovery, 'login_{$topClass}_');
+        finna.layout.initILSSelfRegistrationLink($register, 'login_{$topClass}_');
+      EOT;
 
   // Inline the script for lightbox compatibility
   echo $this->inlineScript(\Laminas\View\Helper\HeadScript::SCRIPT, $script, 'SET');
