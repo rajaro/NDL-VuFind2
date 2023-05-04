@@ -30,6 +30,7 @@ namespace VuFind\Db\Table;
 
 use Laminas\Db\Adapter\Adapter;
 use VuFind\Db\Row\RowGateway;
+use VuFind\Exception\Auth as AuthException;
 
 /**
  * Table Definition for login_token
@@ -65,19 +66,22 @@ class LoginToken extends Gateway
     /**
      * Generate new token
      *
-     * @param string $username Username
+     * @param string $username  Username
+     * @param string $series    Series the token belongs to
+     * @param string $userAgent User agent
      *
      * @return array 
      */
-    public function createToken($username, $series = null, $userAgent = null)
+    public function createToken($username, $series = null, $userAgent = null, $ip = null)
     {
         $token = bin2hex(random_bytes(32));
         $series = $series ?? bin2hex(random_bytes(32));
-        $this->saveToken($username, $token, $series, $userAgent);
+        $row = $this->saveToken($username, $token, $series, $userAgent, $ip);
         $result = [
           'username' => $username,
           'series' => $series,
           'token' => $token,
+          'expires' => $row->expires
         ];
         return $result;
     }
@@ -85,11 +89,14 @@ class LoginToken extends Gateway
     /**
      * Save a token
      *
-     * @param string $username Username
-     * @param string $token    Login token
-     * @param string $series   Series the token belongs to
+     * @param string $username  Username
+     * @param string $token     Login token
+     * @param string $series    Series the token belongs to
+     * @param string $userAgent User agent 
+     *
+     * @return LoginToken
      */
-    public function saveToken($username, $token, $series, $userAgent = null)
+    public function saveToken($username, $token, $series, $userAgent = null, $ip = null)
     {
         $row = $this->createRow();
         $row->token = hash('sha256', $token);
@@ -97,6 +104,8 @@ class LoginToken extends Gateway
         $row->username = $username;
         $row->last_login = date('Y-m-d H:i:s');
         $row->device = $userAgent;
+        $row->ip = $ip;
+        $row->expires = time() + 365 * 60 * 60 * 24;
         $row->save();
         return $row;
     }
@@ -108,27 +117,9 @@ class LoginToken extends Gateway
      * @param array $token array containing username, token and series
      *
      * @return \VuFind\Db\Row\LoginToken
+     * @throws AuthException
      */
     public function matchToken($token, $userAgent = null)
-    {
-        if ($this->destroy($token)) {
-            $newRow = $this->createToken(
-                $token['username'],
-                $token['series'],
-                $userAgent
-            );
-        }
-        return $newRow ?? '';
-    }
-
-    /**
-     * Destroy token
-     *
-     * @param array $token array containing username, token and series
-     *
-     * @return bool
-     */
-    public function destroy($token)
     {
         $row = $this->select(
             [
@@ -137,10 +128,53 @@ class LoginToken extends Gateway
             ]
         )->current();
         if ($row && hash_equals($row['token'], hash('sha256', $token['token']))) {
+            if (time() > $row['expires']) {
+                $row->delete();
+                return [];
+            }
+            // Match is found, delete old token and generate new one
             $this->delete($row);
-            return true;
+            $newToken = $this->createToken(
+                $token['username'],
+                $token['series'],
+                $userAgent
+            );
+            return $newToken;
+        } else if ($row) {
+            // Matching series and username found, but token does not match: 
+            // delete all tokens for the user
+            $this->delete(
+                [
+                    'username' => $token['username'],
+                ]
+            );
+            throw new AuthException("Token does not match");
         }
-        return false;
+        return [];
+    }
+
+    /**
+     * Delete all tokens in a given series
+     *
+     * @param string $series series
+     *
+     * @return void
+     */
+    public function deleteBySeries($series)
+    {
+        $this->delete(['series' => $series]);
+    }
+  
+    /**
+     * Delete all tokens for a user
+     *
+     * @param string $username username
+     *
+     * @return void
+     */
+    public function deleteByUsername($username)
+    {
+        $this->delete(['username' => $username]);
     }
 
     /**

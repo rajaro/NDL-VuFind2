@@ -35,6 +35,8 @@ use VuFind\Db\Table\User as UserTable;
 use VuFind\Db\Table\LoginToken as LoginTokenTable;
 use VuFind\Exception\Auth as AuthException;
 use VuFind\Validator\CsrfInterface;
+use VuFind\Mailer\Mailer;
+use Laminas\View\Renderer\RendererInterface;
 
 /**
  * Wrapper class for handling logged-in user in session.
@@ -46,9 +48,11 @@ use VuFind\Validator\CsrfInterface;
  * @link     https://vufind.org Main Page
  */
 class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
-    \Laminas\Log\LoggerAwareInterface
+    \Laminas\Log\LoggerAwareInterface,
+    \VuFind\I18n\Translator\TranslatorAwareInterface
 {
     use \VuFind\Log\LoggerAwareTrait;
+    use \VuFind\I18n\Translator\TranslatorAwareTrait;
 
     /**
      * Authentication modules
@@ -133,15 +137,31 @@ class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
     protected $csrf;
 
     /**
+     * Mailer
+     *
+     * @var \Mailer
+     */
+    protected $mailer;
+
+    /**
+     * View renderer
+     *
+     * @var RendererInterface
+     */
+    protected $viewRenderer;
+
+    /**
      * Constructor
      *
-     * @param Config          $config          VuFind configuration
-     * @param UserTable       $userTable       User table gateway
-     * @param LoginTokenTable $loginTokenTable Login Token table gateway
-     * @param SessionManager  $sessionManager  Session manager
-     * @param PluginManager   $pm              Authentication plugin manager
-     * @param CookieManager   $cookieManager   Cookie manager
-     * @param CsrfInterface   $csrf            CSRF validator
+     * @param Config            $config          VuFind configuration
+     * @param UserTable         $userTable       User table gateway
+     * @param LoginTokenTable   $loginTokenTable Login Token table gateway
+     * @param SessionManager    $sessionManager  Session manager
+     * @param PluginManager     $pm              Authentication plugin manager
+     * @param CookieManager     $cookieManager   Cookie manager
+     * @param CsrfInterface     $csrf            CSRF validator
+     * @param Mailer            $mailer          Mailer
+     * @param RendererInterface $viewRenderer    View renderer
      */
     public function __construct(
         Config $config,
@@ -150,7 +170,9 @@ class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
         SessionManager $sessionManager,
         PluginManager $pm,
         CookieManager $cookieManager,
-        CsrfInterface $csrf
+        CsrfInterface $csrf,
+        Mailer $mailer,
+        RendererInterface $viewRenderer
     ) {
         // Store dependencies:
         $this->config = $config;
@@ -160,6 +182,8 @@ class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
         $this->pluginManager = $pm;
         $this->cookieManager = $cookieManager;
         $this->csrf = $csrf;
+        $this->mailer = $mailer;
+        $this->viewRenderer = $viewRenderer;
 
         // Set up session:
         $this->session = new \Laminas\Session\Container('Account', $sessionManager);
@@ -271,6 +295,16 @@ class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
     {
         return ($this->config->Catalog->auth_based_library_cards ?? false)
             && $this->getAuth($authMethod)->supportsConnectingLibraryCard();
+    }
+
+    /**
+     * Supported login methods for persistent login
+     *
+     * @return array
+     */
+    public function supportedPersistentLoginMethods()
+    {
+        return explode(',', $this->config->Authentication->persistent_login ?? '');
     }
 
     /**
@@ -467,7 +501,7 @@ class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
         $this->cookieManager->set('loggedOut', 1);
         if ($loginToken = $this->cookieManager->get('loginToken')) {
             $this->cookieManager->clear('loginToken');
-            $this->loginTokenTable->destroy($loginToken);
+            $this->loginTokenTable->deleteBySeries($loginToken['series']);
         }
 
         // Destroy the session for good measure, if requested.
@@ -715,14 +749,16 @@ class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
         // Update user object
         $this->updateUser($user);
 
-        if ($request->getPost()->get('remember_me')) {
+        if ($request->getPost()->get('remember_me')
+            && in_array(
+                $request->getPost()->get('auth_method'),
+                $this->supportedPersistentLoginMethods()
+            )
+        ) {
             $useragent = $request->getHeader('User-Agent')->toString();
-            $loginToken = $this->loginTokenTable->createToken($user->username, null, $useragent);
-            $this->setLoginTokenCookie(
-                $user->username,
-                $loginToken['token'],
-                $loginToken['series']
-            );
+            $ip = $request->getServer()->get('REMOTE_ADDR');
+            $loginToken = $this->loginTokenTable->createToken($user->username, null, $useragent, $ip);
+            $this->setLoginTokenCookie($loginToken);
         }
         // Store the user in the session and send it back to the caller:
         $this->updateSession($user);
@@ -737,40 +773,64 @@ class Manager implements \LmcRbacMvc\Identity\IdentityProviderInterface,
     public function tokenLogin($request = null)
     {
         $cookie = $this->cookieManager->get('loginToken');
-        $useragent = $request ? $request->getHeader('User-Agent')->toString() ?? '' : '';
-        $token = $this->loginTokenTable->matchToken($cookie, $useragent);
-        if ($token) {
-            $user = $this->userTable->getByUsername($token['username']);
-            $this->updateUser($user);
-            $this->updateSession($user);
-            $this->setLoginTokenCookie(
-                $user->username,
-                $token['token'],
-                $token['series']
-            );
-            return $user;
+        $user = null;
+        $useragent = $request ? $request->getHeader('User-Agent')->toString() : '';
+        if ($cookie) {
+            try {
+                if ($token = $this->loginTokenTable->matchToken($cookie, $useragent)) {
+                    $user = $this->userTable->getByUsername($token['username']);
+                    $this->updateUser($user);
+                    $this->updateSession($user);
+                    $this->setLoginTokenCookie($token);
+                }
+            } catch (AuthException $e) {
+                $user = $this->userTable->getByUsername($cookie['username']);
+                $this->sendLoginTokenWarningEmail($user);
+                $this->loginTokenTable->deleteByUsername($cookie['username']);
+                $this->logError((string)$e);
+            }
         }
+        return $user;
+    }
+
+    /**
+     * Send email warning to user
+     *
+     * @param User $user User
+     *
+     * @return void
+     */
+    public function sendLoginTokenWarningEmail($user)
+    {
+        $message = $this->viewRenderer->render(
+            'Email/login-warning-email.phtml', ['username' => $user->username]
+        );
+        $test = $this->mailer->send(
+            $user->email,
+            $this->config->Site->email,
+            $this->translate('login_warning_email_subject'),
+            $message
+        );
+        var_dump($test);
     }
 
     /**
      * Set login token cookie
      *
-     * @param string $username Username
-     * @param string $token    Token
-     * @param string $series   Series
+     * @param array $token token
      *
      * @return void
      */
-    public function setLoginTokenCookie($username, $token, $series)
+    public function setLoginTokenCookie($token)
     {
         $this->cookieManager->set(
             'loginToken',
             [
-                'username' => $username,
-                'token' => $token,
-                'series' => $series
+                'username' => $token['username'],
+                'token' => $token['token'],
+                'series' => $token['series']
             ],
-            time() + 365 * 60 * 60 * 24, // 1 year,
+            $token['expires'],
             true
         );
     }

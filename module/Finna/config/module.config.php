@@ -155,6 +155,16 @@ $config = [
                     ]
                 ],
             ],
+            'myresearch-deletelogintoken' => [
+                'type' => 'Laminas\Router\Http\Literal',
+                'options' => [
+                    'route'    => '/MyResearch/DeleteLoginToken',
+                    'defaults' => [
+                        'controller' => 'MyResearch',
+                        'action'     => 'DeleteLoginToken',
+                    ]
+                ],
+            ],
             'myresearch-unsubscribe' => [
                 'type' => 'Laminas\Router\Http\Literal',
                 'options' => [

@@ -310,6 +310,9 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
                 $message->addReplyTo($replyTo);
             }
             $this->getTransport()->send($message);
+            var_dump($to);
+            var_dump($subject);
+            var_dump($body);
         } catch (\Exception $e) {
             throw new MailException($e->getMessage());
         }

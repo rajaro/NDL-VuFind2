@@ -4,7 +4,9 @@
   <form method="post" class="form-vertical" action="<?=$this->url('myresearch-home')?>" name="loginForm">
     <div class="login-col">
       <?=$this->auth()->getLoginFields()?>
-      <input type="checkbox" name="remember_me"> Remember me
+      <?php if (in_array($account->getAuthMethod(), $account->supportedPersistentLoginMethods())) : ?>
+        <input type="checkbox" name="remember_me"> <?=$this->transEsc('Remember me')?>
+      <?php endif; ?>
       <input type="hidden" name="auth_method" value="<?=$this->escapeHtmlAttr($account->getAuthMethod())?>">
       <input type="hidden" name="csrf" value="<?=$this->escapeHtmlAttr($account->getCsrfHash())?>" />
       <div class="form-group">
