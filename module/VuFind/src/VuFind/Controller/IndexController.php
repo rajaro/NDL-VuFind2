@@ -77,9 +77,6 @@ class IndexController extends \Laminas\Mvc\Controller\AbstractActionController
      */
     public function homeAction()
     {
-        if (!$this->authManager->isLoggedIn() && isset($_COOKIE['loginToken'])) {
-            $this->authManager->tokenLogin();
-        }
         // Load different configurations depending on whether we're logged in or not:
         if ($this->authManager->isLoggedIn()) {
             $controller = $this->config->Site->defaultLoggedInModule ?? 'MyResearch';

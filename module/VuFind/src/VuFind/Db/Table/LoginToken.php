@@ -66,17 +66,18 @@ class LoginToken extends Gateway
     /**
      * Generate new token
      *
-     * @param string $username  Username
-     * @param string $series    Series the token belongs to
-     * @param string $userAgent User agent
+     * @param string $username Username
+     * @param string $series   Series the token belongs to
+     * @param string $browser  User browser
+     * @param string $platform User platform
      *
      * @return array 
      */
-    public function createToken($username, $series = null, $userAgent = null, $ip = null)
+    public function createToken($username, $series = null, $browser = null, $platform = null)
     {
         $token = bin2hex(random_bytes(32));
         $series = $series ?? bin2hex(random_bytes(32));
-        $row = $this->saveToken($username, $token, $series, $userAgent, $ip);
+        $row = $this->saveToken($username, $token, $series, $browser, $platform);
         $result = [
           'username' => $username,
           'series' => $series,
@@ -89,22 +90,23 @@ class LoginToken extends Gateway
     /**
      * Save a token
      *
-     * @param string $username  Username
-     * @param string $token     Login token
-     * @param string $series    Series the token belongs to
-     * @param string $userAgent User agent 
+     * @param string $username Username
+     * @param string $token    Login token
+     * @param string $series   Series the token belongs to
+     * @param string $browser  User browser 
+     * @param string $platform User platform
      *
      * @return LoginToken
      */
-    public function saveToken($username, $token, $series, $userAgent = null, $ip = null)
+    public function saveToken($username, $token, $series, $browser = null, $platform = null)
     {
         $row = $this->createRow();
         $row->token = hash('sha256', $token);
         $row->series = $series;
         $row->username = $username;
         $row->last_login = date('Y-m-d H:i:s');
-        $row->device = $userAgent;
-        $row->ip = $ip;
+        $row->browser = $browser;
+        $row->platform = $platform;
         $row->expires = time() + 365 * 60 * 60 * 24;
         $row->save();
         return $row;
@@ -116,10 +118,10 @@ class LoginToken extends Gateway
      *
      * @param array $token array containing username, token and series
      *
-     * @return \VuFind\Db\Row\LoginToken
+     * @return mixed
      * @throws AuthException
      */
-    public function matchToken($token, $userAgent = null)
+    public function matchToken($token)
     {
         $row = $this->select(
             [
@@ -130,16 +132,9 @@ class LoginToken extends Gateway
         if ($row && hash_equals($row['token'], hash('sha256', $token['token']))) {
             if (time() > $row['expires']) {
                 $row->delete();
-                return [];
+                return false;
             }
-            // Match is found, delete old token and generate new one
-            $this->delete($row);
-            $newToken = $this->createToken(
-                $token['username'],
-                $token['series'],
-                $userAgent
-            );
-            return $newToken;
+            return $row;
         } else if ($row) {
             // Matching series and username found, but token does not match: 
             // delete all tokens for the user
@@ -150,7 +145,7 @@ class LoginToken extends Gateway
             );
             throw new AuthException("Token does not match");
         }
-        return [];
+        return false;
     }
 
     /**
@@ -187,5 +182,18 @@ class LoginToken extends Gateway
     public function getByUsername($username)
     {
         return $this->select(['username' => $username]);
+    }
+
+    /**
+     * Remove expired login tokens
+     *
+     * @return void
+     */
+    public function removeExpired()
+    {
+        $callback = function ($select) {
+            $select->where->lessThanOrEqualTo('expires', time());
+        };
+        $this->delete($callback);
     }
 }

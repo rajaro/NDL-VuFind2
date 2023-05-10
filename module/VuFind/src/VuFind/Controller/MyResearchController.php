@@ -2087,6 +2087,18 @@ class MyResearchController extends AbstractBase
     }
 
     /**
+     * Delete a login token
+     *
+     * @return mixed
+     */
+    public function deleteLoginTokenAction()
+    {
+        $series = $this->params()->fromQuery('series', '');
+        $this->getAuthManager()->deleteToken($series);
+        return $this->redirect()->toRoute('myresearch-profile');
+    }
+
+    /**
      * Helper function for verification hashes
      *
      * @param string $hash User-unique hash string from request

@@ -34,11 +34,9 @@ use Laminas\Session\SessionManager;
 use VuFind\Cookie\CookieManager;
 use VuFind\Db\Row\User as UserRow;
 use VuFind\Db\Table\User as UserTable;
-use VuFind\Db\Table\LoginToken as LoginTokenTable;
+use VuFind\Auth\LoginToken;
 use VuFind\Exception\Auth as AuthException;
 use VuFind\Validator\CsrfInterface;
-use VuFind\Mailer\Mailer;
-use Laminas\View\Renderer\RendererInterface;
 
 /**
  * Wrapper class for handling logged-in user in session.
@@ -51,11 +49,9 @@ use Laminas\View\Renderer\RendererInterface;
  */
 class Manager implements
     \LmcRbacMvc\Identity\IdentityProviderInterface,
-    \Laminas\Log\LoggerAwareInterface,
-    \VuFind\I18n\Translator\TranslatorAwareInterface
+    \Laminas\Log\LoggerAwareInterface
 {
     use \VuFind\Log\LoggerAwareTrait;
-    use \VuFind\I18n\Translator\TranslatorAwareTrait;
 
     /**
      * Authentication modules
@@ -100,9 +96,11 @@ class Manager implements
     protected $userTable;
 
     /**
-     * Gateway to login token table in database
+     * Login token
+     *
+     * @var LoginToken
      */
-    protected $loginTokenTable;
+    protected $loginToken;
 
     /**
      * Session manager
@@ -140,53 +138,33 @@ class Manager implements
     protected $csrf;
 
     /**
-     * Mailer
-     *
-     * @var \Mailer
-     */
-    protected $mailer;
-
-    /**
-     * View renderer
-     *
-     * @var RendererInterface
-     */
-    protected $viewRenderer;
-
-    /**
      * Constructor
      *
-     * @param Config            $config          VuFind configuration
-     * @param UserTable         $userTable       User table gateway
-     * @param LoginTokenTable   $loginTokenTable Login Token table gateway
-     * @param SessionManager    $sessionManager  Session manager
-     * @param PluginManager     $pm              Authentication plugin manager
-     * @param CookieManager     $cookieManager   Cookie manager
-     * @param CsrfInterface     $csrf            CSRF validator
-     * @param Mailer            $mailer          Mailer
-     * @param RendererInterface $viewRenderer    View renderer
+     * @param Config         $config         VuFind configuration
+     * @param UserTable      $userTable      User table gateway
+     * @param LoginToken     $loginToken     Login Token
+     * @param SessionManager $sessionManager Session manager
+     * @param PluginManager  $pm             Authentication plugin manager
+     * @param CookieManager  $cookieManager  Cookie manager
+     * @param CsrfInterface  $csrf           CSRF validator
      */
     public function __construct(
         Config $config,
         UserTable $userTable,
-        LoginTokenTable $loginTokenTable,
+        LoginToken $loginToken,
         SessionManager $sessionManager,
         PluginManager $pm,
         CookieManager $cookieManager,
         CsrfInterface $csrf,
-        Mailer $mailer,
-        RendererInterface $viewRenderer
     ) {
         // Store dependencies:
         $this->config = $config;
         $this->userTable = $userTable;
-        $this->loginTokenTable = $loginTokenTable;
+        $this->loginToken = $loginToken;
         $this->sessionManager = $sessionManager;
         $this->pluginManager = $pm;
         $this->cookieManager = $cookieManager;
         $this->csrf = $csrf;
-        $this->mailer = $mailer;
-        $this->viewRenderer = $viewRenderer;
 
         // Set up session:
         $this->session = new \Laminas\Session\Container('Account', $sessionManager);
@@ -502,10 +480,7 @@ class Manager implements
         unset($this->session->userId);
         unset($this->session->userDetails);
         $this->cookieManager->set('loggedOut', 1);
-        if ($loginToken = $this->cookieManager->get('loginToken')) {
-            $this->cookieManager->clear('loginToken');
-            $this->loginTokenTable->deleteBySeries($loginToken['series']);
-        }
+        $this->loginToken->deleteActiveToken();
 
         // Destroy the session for good measure, if requested.
         if ($destroy) {
@@ -556,7 +531,10 @@ class Manager implements
                 $results->exchangeArray($this->session->userDetails);
                 $this->currentUser = $results;
             } elseif ($this->cookieManager->get('loginToken')) {
-                $this->tokenLogin();
+                if ($user = $this->loginToken->tokenLogin()) {
+                    $this->updateUser($user);
+                    $this->updateSession($user);
+                }
             } else {
                 // not logged in
                 $this->currentUser = false;
@@ -759,10 +737,11 @@ class Manager implements
                 $this->supportedPersistentLoginMethods()
             )
         ) {
-            $useragent = $request->getHeader('User-Agent')->toString();
-            $ip = $request->getServer()->get('REMOTE_ADDR');
-            $loginToken = $this->loginTokenTable->createToken($user->username, null, $useragent, $ip);
-            $this->setLoginTokenCookie($loginToken);
+            try {
+                $this->loginToken->createToken($user);
+            } catch (\Exception $e) {
+                throw new AuthException('authentication_error_technical', 0, $e);
+            }
         }
         // Store the user in the session and send it back to the caller:
         $this->updateSession($user);
@@ -770,73 +749,15 @@ class Manager implements
     }
 
     /**
-     * Token login
+     * Delete a login token
      *
-     * @return UserRow Object representing logged-in user.
-     */
-    public function tokenLogin($request = null)
-    {
-        $cookie = $this->cookieManager->get('loginToken');
-        $user = null;
-        $useragent = $request ? $request->getHeader('User-Agent')->toString() : '';
-        if ($cookie) {
-            try {
-                if ($token = $this->loginTokenTable->matchToken($cookie, $useragent)) {
-                    $user = $this->userTable->getByUsername($token['username']);
-                    $this->updateUser($user);
-                    $this->updateSession($user);
-                    $this->setLoginTokenCookie($token);
-                }
-            } catch (AuthException $e) {
-                $user = $this->userTable->getByUsername($cookie['username']);
-                $this->sendLoginTokenWarningEmail($user);
-                $this->loginTokenTable->deleteByUsername($cookie['username']);
-                $this->logError((string)$e);
-            }
-        }
-        return $user;
-    }
-
-    /**
-     * Send email warning to user
-     *
-     * @param User $user User
+     * @param string $series Series to identify the token
      *
      * @return void
      */
-    public function sendLoginTokenWarningEmail($user)
+    public function deleteToken($series)
     {
-        $message = $this->viewRenderer->render(
-            'Email/login-warning-email.phtml', ['username' => $user->username]
-        );
-        $test = $this->mailer->send(
-            $user->email,
-            $this->config->Site->email,
-            $this->translate('login_warning_email_subject'),
-            $message
-        );
-        var_dump($test);
-    }
-
-    /**
-     * Set login token cookie
-     *
-     * @param array $token token
-     *
-     * @return void
-     */
-    public function setLoginTokenCookie($token)
-    {
-        $this->cookieManager->set(
-            'loginToken',
-            [
-                'username' => $token['username'],
-                'token' => $token['token'],
-                'series' => $token['series']
-            ],
-            $token['expires'],
-            true
-        );
+        $this->loginToken->deleteTokenSeries($series);
     }
 
     /**

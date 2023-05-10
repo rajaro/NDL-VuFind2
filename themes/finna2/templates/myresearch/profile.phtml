@@ -303,20 +303,27 @@
         <h3><?= $this->transEsc("Saved logins") ?></h3>
       </div>
       <div class="myresearch-profile-list library-profile">
-        <?php $tokens = $user->getLoginTokens($user->username);
-        foreach ($tokens as $token): ?>
-          <div class="my-profile-row">
-            <div class="my-profile-col">
-              <b><?=$this->transEsc('User Agent')?>:</b><br> <?=$token->device?>
+        <?php $tokens = $user->getLoginTokens($user->username); ?>
+        <?php if (count($tokens) === 0): ?>
+          <div class="my-profile-col"><?=$this->transEsc('No saved logins')?></div>
+        <?php else: ?>
+          <?php foreach ($tokens as $token): ?>
+            <div class="my-profile-row">
+              <div class="my-profile-col">
+                <b><?=$this->transEsc('Browser')?>:</b><br> <?=$token->browser?>
+              </div>
+              <div class="my-profile-col">
+                <b><?=$this->transEsc('Platform')?>:</b><br> <?=$token->platform?>
+              </div>
+              <div class="my-profile-col">
+                <b><?=$this->transEsc('last_login')?>:</b><br> <?=$this->dateTime()->convertToDisplayDateAndTime('Y-m-d H:i:s', $token->last_login)?>
+              </div>
+              <div class="my-profile-col">
+                <a class="btn btn-danger" href="<?= $this->url('myresearch-deletelogintoken', ['series' => $token->series])?>?series=<?=$token->series?>"><?=$this->transEsc('Delete login token')?></a>
+              </div>
             </div>
-            <div class="my-profile-col">
-              <b><?=$this->transEsc('last_login')?>:</b><br> <?=$token->last_login?>
-            </div>
-            <div class="my-profile-col">
-              <a class="btn btn-danger" href="<?= $this->url('myresearch-deletelogintoken', ['series' => $token->series])?>?series=<?=$token->series?>"><?=$this->transEsc('Delete login token')?></a>
-            </div>
-          </div>
-      <?php endforeach; ?>
+          <?php endforeach; ?>
+        <?php endif; ?>
       </div>
     <?php endif; ?>
     <?php if (!is_array($this->profile) && 'ils-none' !== $this->ils()->getOfflineMode() && $this->patronLoginView && !empty($this->patronLoginView->getTemplate())): ?>
