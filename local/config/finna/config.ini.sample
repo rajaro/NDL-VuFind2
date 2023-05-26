@@ -417,9 +417,6 @@ delete_comments_with_user = false
 ; Default is true.
 delete_ratings_with_user = false
 
-; "Remember me" functionality for listed login methods 
-persistent_login = "Database,MultiILS"
-
 [ChoiceAuth]
 choice_order = Database,Shibboleth,MultiILS
 
