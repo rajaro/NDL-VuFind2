@@ -2093,6 +2093,9 @@ class MyResearchController extends AbstractBase
      */
     public function deleteLoginTokenAction()
     {
+        if (!$this->getAuthManager()->isLoggedIn()) {
+            return $this->forceLogin();
+        }
         $series = $this->params()->fromQuery('series', '');
         $this->getAuthManager()->deleteToken($series);
         return $this->redirect()->toRoute('myresearch-profile');

@@ -531,7 +531,7 @@ class Manager implements
                 $results->exchangeArray($this->session->userDetails);
                 $this->currentUser = $results;
             } elseif ($this->cookieManager->get('loginToken')) {
-                if ($user = $this->loginToken->tokenLogin()) {
+                if ($user = $this->loginToken->tokenLogin($this->sessionManager->getId())) {
                     $this->updateUser($user);
                     $this->updateSession($user);
                 }
@@ -738,7 +738,7 @@ class Manager implements
             )
         ) {
             try {
-                $this->loginToken->createToken($user);
+                $this->loginToken->createToken($user, null, $this->sessionManager->getId());
             } catch (\Exception $e) {
                 throw new AuthException('authentication_error_technical', 0, $e);
             }
@@ -758,6 +758,7 @@ class Manager implements
     public function deleteToken($series)
     {
         $this->loginToken->deleteTokenSeries($series);
+        $this->sessionManager->destroy();
     }
 
     /**

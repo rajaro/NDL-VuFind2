@@ -31,6 +31,8 @@ declare(strict_types=1);
 
 namespace VuFind\Auth;
 
+use VuFind\Exception\LoginToken as LoginTokenException;
+
 /**
  * Class LoginToken
  *
@@ -43,6 +45,13 @@ namespace VuFind\Auth;
 class LoginToken implements \VuFind\I18n\Translator\TranslatorAwareInterface
 {
     use \VuFind\I18n\Translator\TranslatorAwareTrait;
+
+    /**
+     * VuFind configuration
+     *
+     * @var Config
+     */
+    protected $config;
 
     /**
      * User table gateway
@@ -59,6 +68,13 @@ class LoginToken implements \VuFind\I18n\Translator\TranslatorAwareInterface
     protected $loginTokenTable;
 
     /**
+     * Session table gateway
+     *
+     * @var Session
+     */
+    protected $sessionTable;
+
+    /**
      * Cookie Manager
      *
      * @var CookieManager
@@ -66,63 +82,67 @@ class LoginToken implements \VuFind\I18n\Translator\TranslatorAwareInterface
     protected $cookieManager;
 
     /**
-     * View renderer
-     *
-     * @var RendererInterface
-     */
-    protected $viewRenderer;
-
-    /**
      * Mailer
      *
-     * @var \Mailer
+     * @var \VuFind\Mailer\Mailer
      */
     protected $mailer;
 
     /**
      * LoginToken constructor.
      *
-     * @param UserTable         $userTable       User table gateway
-     * @param LoginTokenTable   $loginTokenTable Login Token table gateway
-     * @param CookieManager     $cookieManager   Cookie manager
-     * @param Mailer            $mailer          Mailer
-     * @param RendererInterface $viewRenderer    View renderer
+     * @param Config                $config          Configuration
+     * @param UserTable             $userTable       User table gateway
+     * @param LoginTokenTable       $loginTokenTable Login Token table gateway
+     * @param Session               $sessionTable    Session table gateway
+     * @param CookieManager         $cookieManager   Cookie manager
+     * @param \VuFind\Mailer\Mailer $mailer          Mailer
      */
     public function __construct(
+        $config,
         $userTable,
         $loginTokenTable,
+        $sessionTable,
         $cookieManager,
         $mailer,
-        $viewRenderer,
     ) {
+        $this->config = $config;
         $this->userTable = $userTable;
         $this->loginTokenTable = $loginTokenTable;
+        $this->sessionTable = $sessionTable;
         $this->cookieManager = $cookieManager;
         $this->mailer = $mailer;
-        $this->viewRenderer = $viewRenderer;
     }
 
     /**
-     * Token login
+     * Authenticate user using a login token cookie
+     *
+     * @param string $sessionId Session identifier
      *
      * @return UserRow Object representing logged-in user.
      */
-    public function tokenLogin()
+    public function tokenLogin($sessionId)
     {
-        $cookie = $this->cookieManager->get('loginToken');
+        $cookie = $this->getLoginTokenCookie();
         $user = null;
         if ($cookie) {
             try {
                 if ($token = $this->loginTokenTable->matchToken($cookie)) {
                     $this->loginTokenTable->deleteBySeries($token->series);
-                    $user = $this->userTable->getByUsername($token['username']);
-                    $this->createToken($user, $token->series);
+                    $user = $this->userTable->getByUsername($token->username);
+                    $this->createToken($user, $token->series, $sessionId);
                 }
-            } catch (AuthException $e) {
+            } catch (LoginTokenException $e) {
+                // Delete all login tokens for the user and all sessions
+                // associated with the tokens and send a warning email to user
                 $user = $this->userTable->getByUsername($cookie['username']);
-                $this->sendLoginTokenWarningEmail($user);
+                $userTokens = $this->loginTokenTable->getByUsername($cookie['username']);
+                foreach ($userTokens as $t) {
+                    $this->sessionTable->destroySession($t->latest_session_id);
+                }
                 $this->loginTokenTable->deleteByUsername($cookie['username']);
-                $this->logError((string)$e);
+                $this->sendLoginTokenWarningEmail($user);
+                return null;
             }
         }
         return $user;
@@ -131,22 +151,37 @@ class LoginToken implements \VuFind\I18n\Translator\TranslatorAwareInterface
     /**
      * Create a new login token
      *
-     * @param User   $user   user
-     * @param string $series login token series
+     * @param User   $user      user
+     * @param string $series    login token series
+     * @param string $sessionId Session identifier
      *
      * @return void 
      */
-    public function createToken($user, $series = null)
+    public function createToken($user, $series = null, $sessionId = null)
     {
-        $userInfo = get_browser();
-        $browser = $userInfo->browser ?? '';
-        $platform = $userInfo->platform ?? '';
-        $loginToken = $this->loginTokenTable->createToken($user->username, $series, $browser, $platform);
-        $this->setLoginTokenCookie($loginToken);
+        $token = bin2hex(random_bytes(32));
+        $series = $series ?? bin2hex(random_bytes(32));
+        $browser = '';
+        $platform = '';
+        try {
+            $userInfo = get_browser(null, true) ?? [];
+            $browser = $userInfo['browser'];
+            $platform = $userInfo['platform'];
+        } catch (\Exception $e) {
+            // Problem with browscap.ini, continue without
+            // browser information
+        }
+        $lifetime = $this->config->Authentication->persistent_login_lifetime ?? 10;
+        $expires = time() + $lifetime * 60 * 60 * 24;
+
+        $this->setLoginTokenCookie($user->username, $token, $series, $expires);
+        
+        $this->loginTokenTable->saveToken($user->username, $token, $series, $browser, $platform, $expires, $sessionId);
     }
 
     /**
-     * Delete a login token
+     * Delete a login token by series. Also destroys
+     * sessions associated with the login token
      *
      * @param string $series Series to identify the token
      *
@@ -154,10 +189,12 @@ class LoginToken implements \VuFind\I18n\Translator\TranslatorAwareInterface
      */
     public function deleteTokenSeries($series)
     {
-        $cookie = $this->cookieManager->get('loginToken');
-        if (isset($cookie['series']) && $cookie['series'] === $series) {
+        $cookie = $this->getLoginTokenCookie();
+        if (!empty($cookie) && $cookie['series'] === $series) {
             $this->cookieManager->clear('loginToken');
         }
+        $token = $this->loginTokenTable->getBySeries($series);
+        $this->sessionTable->destroySession($token->latest_session_id);
         $this->loginTokenTable->deleteBySeries($series);
     }
 
@@ -168,8 +205,8 @@ class LoginToken implements \VuFind\I18n\Translator\TranslatorAwareInterface
      */
     public function deleteActiveToken()
     {
-        $cookie = $this->cookieManager->get('loginToken');
-        if (isset($cookie['series'])) {
+        $cookie = $this->getLoginTokenCookie();
+        if (!empty($cookie) && $cookie['series']) {
             $this->loginTokenTable->deleteBySeries($cookie['series']);
         }
         $this->cookieManager->clear('loginToken');
@@ -184,37 +221,52 @@ class LoginToken implements \VuFind\I18n\Translator\TranslatorAwareInterface
      */
     public function sendLoginTokenWarningEmail($user)
     {
-        $message = $this->viewRenderer->render(
-            'Email/login-warning-email.phtml', ['username' => $user->username]
-        );
         $test = $this->mailer->send(
             $user->email,
             $this->config->Site->email,
             $this->translate('login_warning_email_subject'),
-            $message
+            $this->translate('login_warning_email_message')
         );
-        var_dump($test);
     }
 
 
     /**
      * Set login token cookie
      *
-     * @param array $token token
+     * @param string $username Username
+     * @param string $token    Login token
+     * @param string $series   Series the token belongs to
+     * @param string $expires  Token expiration date
      *
      * @return void
      */
-    public function setLoginTokenCookie($token)
+    public function setLoginTokenCookie($username, $token, $series, $expires)
     {
+        $token = implode(';', [$series, $username, $token]);
         $this->cookieManager->set(
             'loginToken',
-            [
-                'username' => $token['username'],
-                'token' => $token['token'],
-                'series' => $token['series']
-            ],
-            $token['expires'],
+            $token,
+            $expires,
             true
         );
+    }
+
+    /**
+     * Get login token cookie in array format
+     *
+     * @return array
+     */
+    public function getLoginTokenCookie()
+    {
+        $result = [];
+        if ($cookie = $this->cookieManager->get('loginToken')) {
+            $parts = explode(';', $cookie);
+            $result = [
+                'series' => $parts[0] ?? '',
+                'username' => $parts[1] ?? '',
+                'token' => $parts[2] ?? ''
+            ];
+        }
+        return $result;
     }
 }

@@ -68,13 +68,16 @@ class LoginTokenFactory implements \Laminas\ServiceManager\Factory\FactoryInterf
             throw new \Exception('Unexpected options sent to factory.');
         }
         return new $requestedName(
+            $config = $container->get(\VuFind\Config\PluginManager::class)
+                ->get('config'),
             $container->get(\VuFind\Db\Table\PluginManager::class)
                 ->get('user'),
             $container->get(\VuFind\Db\Table\PluginManager::class)
                 ->get('logintoken'),
+            $container->get(\VuFind\Db\Table\PluginManager::class)
+                ->get('session'),
             $container->get(\VuFind\Cookie\CookieManager::class),
-            $container->get(\VuFind\Mailer\Mailer::class),
-            $container->get('ViewRenderer')
+            $container->get(\VuFind\Mailer\Mailer::class)
         );
     }
 }

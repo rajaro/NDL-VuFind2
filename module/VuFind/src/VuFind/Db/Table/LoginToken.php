@@ -22,7 +22,6 @@
  * @category VuFind
  * @package  Db_Table
  * @author   Jaro Ravila <jaro.ravila@helsinki.fi>
- * @author   Jaro Ravila <jaro.ravila@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org Main Page
  */
@@ -30,7 +29,7 @@ namespace VuFind\Db\Table;
 
 use Laminas\Db\Adapter\Adapter;
 use VuFind\Db\Row\RowGateway;
-use VuFind\Exception\Auth as AuthException;
+use VuFind\Exception\LoginToken as LoginTokenException;
 
 /**
  * Table Definition for login_token
@@ -62,43 +61,20 @@ class LoginToken extends Gateway
         parent::__construct($adapter, $tm, $cfg, $rowObj, $table);
     }
 
-
-    /**
-     * Generate new token
-     *
-     * @param string $username Username
-     * @param string $series   Series the token belongs to
-     * @param string $browser  User browser
-     * @param string $platform User platform
-     *
-     * @return array 
-     */
-    public function createToken($username, $series = null, $browser = null, $platform = null)
-    {
-        $token = bin2hex(random_bytes(32));
-        $series = $series ?? bin2hex(random_bytes(32));
-        $row = $this->saveToken($username, $token, $series, $browser, $platform);
-        $result = [
-          'username' => $username,
-          'series' => $series,
-          'token' => $token,
-          'expires' => $row->expires
-        ];
-        return $result;
-    }
-
     /**
      * Save a token
      *
-     * @param string $username Username
-     * @param string $token    Login token
-     * @param string $series   Series the token belongs to
-     * @param string $browser  User browser 
-     * @param string $platform User platform
+     * @param string $username  Username
+     * @param string $token     Login token
+     * @param string $series    Series the token belongs to
+     * @param string $browser   User browser 
+     * @param string $platform  User platform
+     * @param int    $expires   Token lifetime in days
+     * @param string $sessionId Session associated with the token
      *
      * @return LoginToken
      */
-    public function saveToken($username, $token, $series, $browser = null, $platform = null)
+    public function saveToken($username, $token, $series, $browser = null, $platform = null, $expires = 0, $sessionId = null)
     {
         $row = $this->createRow();
         $row->token = hash('sha256', $token);
@@ -107,19 +83,19 @@ class LoginToken extends Gateway
         $row->last_login = date('Y-m-d H:i:s');
         $row->browser = $browser;
         $row->platform = $platform;
-        $row->expires = time() + 365 * 60 * 60 * 24;
+        $row->expires = $expires;
+        $row->latest_session_id = $sessionId;
         $row->save();
         return $row;
     }
 
     /**
-     * Check if a login token matches one in database. If match is found, old token
-     * is deleted and a new one created with the same username and series as the old
+     * Check if a login token matches one in database.
      *
      * @param array $token array containing username, token and series
      *
      * @return mixed
-     * @throws AuthException
+     * @throws LoginTokenException
      */
     public function matchToken($token)
     {
@@ -136,14 +112,9 @@ class LoginToken extends Gateway
             }
             return $row;
         } else if ($row) {
-            // Matching series and username found, but token does not match: 
-            // delete all tokens for the user
-            $this->delete(
-                [
-                    'username' => $token['username'],
-                ]
-            );
-            throw new AuthException("Token does not match");
+            // Matching series and username found, but token does not match
+            // throw exception
+            throw new LoginTokenException("Token does not match");
         }
         return false;
     }
@@ -182,6 +153,18 @@ class LoginToken extends Gateway
     public function getByUsername($username)
     {
         return $this->select(['username' => $username]);
+    }
+
+    /**
+     * Get token by series
+     *
+     * @param string $series Series identifier
+     *
+     * @return LoginToken
+     */
+    public function getBySeries($series)
+    {
+        return $this->select(['series' => $series])->current();
     }
 
     /**

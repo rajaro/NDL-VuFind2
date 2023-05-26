@@ -1296,13 +1296,6 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         return $view;
     }
 
-    public function deleteLoginTokenAction()
-    {
-        $series = $this->params()->fromQuery('series', '');
-        $tokenTable = $this->getTable('LoginToken')->deleteBySeries($series);
-        return $this->redirect()->toRoute('myresearch-profile');
-    }
-
     /**
      * Creates a JSON file of logged in user's saved searches and lists and sends
      * the file to the browser.
