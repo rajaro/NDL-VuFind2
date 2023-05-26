@@ -307,18 +307,23 @@
         <?php if (count($tokens) === 0): ?>
           <div class="my-profile-col"><?=$this->transEsc('No saved logins')?></div>
         <?php else: ?>
+          <div class="my-profile-row">
+              <div class="my-profile-token">
+                <b><?=$this->transEsc('Platform')?> / <?=$this->transEsc('Browser')?></b>
+              </div>
+              <div class="my-profile-token">
+                <b><?=$this->transEsc('last_login')?>:</b>
+              </div>
+          </div>
           <?php foreach ($tokens as $token): ?>
             <div class="my-profile-row">
-              <div class="my-profile-col">
-                <b><?=$this->transEsc('Browser')?>:</b><br> <?=$token->browser?>
+              <div class="my-profile-token">
+                <?=$token->platform?> / <?=$token->browser?>
               </div>
-              <div class="my-profile-col">
-                <b><?=$this->transEsc('Platform')?>:</b><br> <?=$token->platform?>
+              <div class="my-profile-token">
+                <?=$this->dateTime()->convertToDisplayDateAndTime('Y-m-d H:i:s', $token->last_login)?>
               </div>
-              <div class="my-profile-col">
-                <b><?=$this->transEsc('last_login')?>:</b><br> <?=$this->dateTime()->convertToDisplayDateAndTime('Y-m-d H:i:s', $token->last_login)?>
-              </div>
-              <div class="my-profile-col">
+              <div class="my-profile-token delete-token">
                 <a class="btn btn-danger" href="<?= $this->url('myresearch-deletelogintoken', ['series' => $token->series])?>?series=<?=$token->series?>"><?=$this->transEsc('Delete login token')?></a>
               </div>
             </div>
