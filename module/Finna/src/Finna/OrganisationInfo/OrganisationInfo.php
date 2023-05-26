@@ -4,7 +4,7 @@
  * Service for querying Kirjastohakemisto database.
  * See: https://api.kirjastot.fi/
  *
- * PHP version 7
+ * PHP version 8
  *
  * Copyright (C) The National Library of Finland 2016-2023.
  *
@@ -567,7 +567,7 @@ class OrganisationInfo implements
                 'usage_info' => $response['usageInfo'],
                 'notification' => $response['notification'],
                 'finna_coverage' => $response['finnaCoverage'],
-                'usage_perc' => $response['finnaCoverage'],
+                'usage_perc' => (int)$response['finnaCoverage'],
             ];
 
             if (isset($response['links'])) {
@@ -903,8 +903,7 @@ class OrganisationInfo implements
                 'status' => $item['liveStatus'],
             ];
             $data['openTimes'] = $this->parseSchedules($schedules);
-
-            $data['openNow'] = $item['liveStatus'] >= 1;
+            $data['openNow'] = $data['openTimes']['openNow'];
 
             $result[] = $data;
         }
@@ -960,7 +959,7 @@ class OrganisationInfo implements
             $phones = [];
             foreach ($response['phoneNumbers'] as $phone) {
                 // Check for email data in phone numbers
-                if (strpos($phone['number'], '@') !== false) {
+                if (str_contains($phone['number'], '@')) {
                     continue;
                 }
                 $name = $phone['name'];
@@ -1282,20 +1281,20 @@ class OrganisationInfo implements
             'friday', 'saturday', 'sunday',
         ];
 
+        $openNow = false;
         $openToday = false;
         $currentWeek = false;
+        $currentDateTime = new \DateTime();
+        $currentDateTimeStr = $this->formatDateTime($currentDateTime, date('H:i'));
         foreach ($data['schedule'] as $day) {
             if (!$periodStart) {
                 $periodStart = $day['date'];
             }
 
-            $now = new \DateTime();
-            $now->setTime(0, 0, 0);
+            $dateTime = new \DateTime($day['date']);
 
-            $date = new \DateTime($day['date']);
-            $date->setTime(0, 0, 0);
-
-            $today = $now == $date;
+            // Compare dates:
+            $today = $currentDateTime->format('Y-m-d') === $dateTime->format('Y-m-d');
 
             $dayTime = strtotime($day['date']);
             if ($dayTime === false) {
@@ -1309,19 +1308,29 @@ class OrganisationInfo implements
             );
 
             $times = [];
-            $now = time();
             $closed = $day['closed'];
 
-            // Staff times
+            // Open times
             foreach ($day['times'] as $time) {
                 $result['opens'] = $this->formatTime($time['from']);
+                $result['opens_datetime'] = $this->formatDateTime($dateTime, $time['from']);
                 $result['closes'] = $this->formatTime($time['to']);
-                $result['selfservice'] = $time['status'] === 2 ? true : false;
+                $result['closes_datetime'] = $this->formatDateTime($dateTime, $time['to']);
+                $result['selfservice'] = $time['status'] === 2;
+                $result['closed'] = 0 === $time['status'];
                 $times[] = $result;
-            }
 
-            if ($today && !empty($times)) {
-                $openToday = $times;
+                if ($today) {
+                    if (!$result['closed']) {
+                        $openToday = true;
+                    }
+                    if (
+                        $result['opens_datetime'] <= $currentDateTimeStr
+                        && $result['closes_datetime'] >= $currentDateTimeStr
+                    ) {
+                        $openNow = true;
+                    }
+                }
             }
 
             $scheduleData = [
@@ -1348,9 +1357,9 @@ class OrganisationInfo implements
             }
         }
 
-        $result = compact('schedules', 'openToday', 'currentWeek');
-        $result['openNow'] = $data['status'];
-        return $result;
+        $schedules = $this->cleanUpTimes($schedules);
+
+        return compact('schedules', 'openToday', 'currentWeek', 'openNow');
     }
 
     /**
@@ -1362,14 +1371,51 @@ class OrganisationInfo implements
      */
     protected function formatTime($time)
     {
-        $parts = explode(':', $time);
-        if (substr($parts[0], 0, 1) == '0') {
-            $parts[0] = substr($parts[0], 1);
-        }
-        if (!isset($parts[1]) || $parts[1] == '00') {
-            return $parts[0];
-        }
         return $this->dateConverter->convertToDisplayTime('H:i', $time);
+    }
+
+    /**
+     * Convert hour+min in schedules to just hour if all times end with '00'
+     *
+     * @param array $schedules Schedules
+     *
+     * @return array
+     */
+    protected function cleanUpTimes(array $schedules): array
+    {
+        // Check for non-zero minutes:
+        foreach ($schedules as $day) {
+            foreach ($day['times'] as $time) {
+                if (!str_ends_with($time['opens'], '00') || !str_ends_with($time['closes'], '00')) {
+                    return $schedules;
+                }
+            }
+        }
+        // Convert to hour only:
+        foreach ($schedules as &$day) {
+            foreach ($day['times'] as &$time) {
+                $time['opens'] = rtrim(rtrim($time['opens'], '0'), ':.');
+                $time['closes'] = rtrim(rtrim($time['closes'], '0'), ':.');
+            }
+        }
+        unset($time);
+
+        return $schedules;
+    }
+
+    /**
+     * Return a date and time string in RFC 3339 format.
+     *
+     * @param \DateTime $date Date
+     * @param string    $time Time as string H:i
+     *
+     * @return string
+     */
+    protected function formatDateTime(\DateTime $date, string $time): string
+    {
+        $timePart = $this->dateConverter->convertToDateTime('H:i', $time);
+        $date->setTime($timePart->format('H'), $timePart->format('i'), 0);
+        return $date->format(\DATE_RFC3339);
     }
 
     /**
@@ -1399,7 +1445,7 @@ class OrganisationInfo implements
             'finna' => [
                 'service_point' => $params['id'],
                 'finna_coverage' => $json['coverage'],
-                'usage_perc' => $json['coverage'],
+                'usage_perc' => (int)$json['coverage'],
                 'usage_info' => $json['usage_rights'][$language],
             ],
         ];
@@ -1444,6 +1490,7 @@ class OrganisationInfo implements
                 $details['openTimes']['openNow'] = true;
             }
         }
+        $details['openTimes']['schedules'] = $this->cleanUpTimes($details['openTimes']['schedules']);
         // Address handling
         if (!empty($details['address'])) {
             $mapUrl = $this->config->General->mapUrl;
@@ -1483,13 +1530,15 @@ class OrganisationInfo implements
                         $key['contact_info']['phone_email_' . $language . ''],
                 ];
         }
-        try {
-            $contactInfoToResult = $this->viewRenderer->partial(
-                "Helpers/organisation-info-museum-page.phtml",
-                ['contactInfo' => $contactInfo]
-            );
-        } catch (\Exception $e) {
-            $this->logError($e->getmessage());
+        if (!empty($contactInfo)) {
+            try {
+                $contactInfoToResult = $this->viewRenderer->partial(
+                    "Helpers/organisation-info-museum-page.phtml",
+                    ['contactInfo' => $contactInfo]
+                );
+            } catch (\Exception $e) {
+                $this->logError($e->getmessage());
+            }
         }
         // All data to view
         $result = [
@@ -1535,24 +1584,37 @@ class OrganisationInfo implements
      */
     protected function getMuseumDaySchedule($day, $json)
     {
-        $today = date('d.m');
+        $today = date('d.n.');
         $currentHour = date('H:i');
-        $return = [];
+        $return = [
+            'times' => [],
+            'closed' => false,
+            'openNow' => false,
+        ];
         $dayShortcode = substr($day, 0, 3);
+        $dayDate = new \DateTime("$day this week");
+        $schedule = $json['opening_time'] ?? [];
         if (
-            empty($json['opening_time']["{$dayShortcode}_start"])
-            && empty($json['opening_time']["{$dayShortcode}_end"])
+            empty($schedule["{$dayShortcode}_start"])
+            || 'NULL' === $schedule["{$dayShortcode}_start"]
+            || empty($schedule["{$dayShortcode}_end"])
+            || 'NULL' === $schedule["{$dayShortcode}_end"]
         ) {
             $return['closed'] = true;
         } else {
-            $return['times'][0]['closes']
-                = $this->formatTime($json['opening_time']["{$dayShortcode}_end"]);
-            $return['times'][0]['opens']
-                = $this->formatTime($json['opening_time']["{$dayShortcode}_start"]);
+            $time = [];
+
+            $time['opens'] = $this->formatTime($schedule["{$dayShortcode}_start"]);
+            $time['opens_datetime']
+                = $this->formatDateTime($dayDate, $schedule["{$dayShortcode}_start"]);
+            $time['closes'] = $this->formatTime($schedule["{$dayShortcode}_end"]);
+            $time['closes_datetime']
+                = $this->formatDateTime($dayDate, $schedule["{$dayShortcode}_end"]);
+            $return['times'][] = $time;
         }
-        $return['day'] = $this->translator->translate('day-name-short-' . $day);
-        $return['date'] = date('d.m', strtotime("{$day} this week"));
-        if ($today == $return['date']) {
+        $return['day'] = $this->translator->translate("day-name-short-$day");
+        $return['date'] = $dayDate->format('d.n.');
+        if ($today === $return['date']) {
             $return['today'] = true;
             if (
                 $currentHour >= $json['opening_time']["{$dayShortcode}_start"]

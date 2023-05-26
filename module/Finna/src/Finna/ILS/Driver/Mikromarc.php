@@ -3,7 +3,7 @@
 /**
  * Mikromarc ILS Driver
  *
- * PHP version 7
+ * PHP version 8
  *
  * Copyright (C) The National Library of Finland 2017-2023.
  *
@@ -467,6 +467,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
                 // Append payment information
                 'payableOnline' => $payable,
                 'fineId' => $fineId,
+                'fine_id' => $fineId,
                 'organization' => $entry['LocalUnitId'] ?? '',
             ];
             $recordId = $entry['MarcRecordId'] ?? null;
@@ -1909,7 +1910,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             // Prepend parent name to department names
             $parentName = $parent['name'];
             $unitName = $unit['name'];
-            if (strpos(trim($unitName), trim($parentName)) === 0) {
+            if (str_starts_with(trim($unitName), trim($parentName))) {
                 continue;
             }
             $unit['name'] = "$parentName - $unitName";
@@ -2339,11 +2340,11 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
     public function checkRequestIsValid($id, $data, $patron)
     {
         if ('title' === $data['level']) {
-            $items = $this->getStatus($id);
-            $summary = array_pop($items);
+            $holding = $this->getHolding($id);
+            $summary = array_pop($holding);
             if (
                 (isset($summary['titleHold']) && $summary['titleHold'] === false)
-                || !$summary['holdable']
+                || (isset($summary['holdable']) && !$summary['holdable'])
             ) {
                 return false;
             }

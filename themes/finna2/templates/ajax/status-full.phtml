@@ -278,7 +278,7 @@ foreach ($this->statusItems as $item):
 
 $addSid = function ($url) {
   if ($this->searchId) {
-    $url .= strpos($url, '?') === false ? '?' : '&';
+    $url .= !str_contains($url, '?') ? '?' : '&';
     $url .= 'sid=' . urlencode($this->searchId);
   }
   return $url;

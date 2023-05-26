@@ -44,7 +44,7 @@
 
         <table class="myresearch-table" role="presentation" aria-label="<?=$this->transEscAttr('Actions');?>">
           <tr class="toolbar">
-            <td colspan="3">
+            <td<?=$purgeSelectedAllowed ? ' colspan="2"' : '' ?>>
               <?php if ($paginator): ?>
                 <div class="pagination-container">
                   <?=$this->paginationControl($paginator, 'Sliding', 'Helpers/pagination-simple.phtml', ['params' => $params])?>
@@ -100,7 +100,9 @@
         </table>
         <table class="myresearch-table" aria-label="<?=$this->transEscAttr('Loan History')?>" tabindex="0">
           <tr class="sr-only myresearch-row" aria-hidden="true">
-            <th id="label-select-column"><?=$this->transEsc('Select');?></th>
+            <?php if ($purgeSelectedAllowed): ?>
+              <th id="label-select-column"><?=$this->transEsc('Select');?></th>
+            <?php endif; ?>
             <th class="hidden-xs"></th>
             <th id="label-title-column"><?=$this->transEsc('Loan Details');?></th>
             <th id="label-status-column"><?=$this->transEsc('Additional data');?></th>
@@ -116,7 +118,7 @@
                     <?php if (isset($ilsDetails['row_id'])): ?>
                       <?php $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $ilsDetails['row_id']); ?>
                       <label>
-                        <input class="checkbox-select-item" type="checkbox" name="purgeSelectedIDs[]" value="<?=$this->escapeHtmlAttr($ilsDetails['row_id'])?>" id="checkbox_<?=$safeId?>" />
+                        <input class="checkbox-select-item" type="checkbox" name="purgeSelectedIDs[]" value="<?=$this->escapeHtmlAttr($ilsDetails['row_id'])?>" id="checkbox_<?=$safeId?>">
                       </label>
                     <?php else: ?>
                       <label> </label>

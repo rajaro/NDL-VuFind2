@@ -3,7 +3,7 @@
 /**
  * III Sierra REST API driver
  *
- * PHP version 7
+ * PHP version 8
  *
  * Copyright (C) The National Library of Finland 2016-2023.
  *
@@ -1011,6 +1011,9 @@ class SierraRest extends \VuFind\ILS\Driver\SierraRest
                     ? preg_replace('/^\|a/', '', $item['callNumber'])
                     : $bibCallNumber;
 
+                $volume = isset($item['varFields']) ? $this->extractVolume($item)
+                    : '';
+
                 $entry = [
                     'id' => $id,
                     'item_id' => $item['id'],
@@ -1020,7 +1023,7 @@ class SierraRest extends \VuFind\ILS\Driver\SierraRest
                     'reserve' => 'N',
                     'callnumber' => $callnumber,
                     'duedate' => $duedate,
-                    'number' => $callnumber,
+                    'number' => $volume,
                     'barcode' => $item['barcode'],
                     'sort' => $sort--,
                     'requests_placed' => $displayItemHoldCount ? ($item['holdCount'] ?? null) : null,
