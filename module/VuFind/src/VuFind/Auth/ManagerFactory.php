@@ -104,7 +104,7 @@ class ManagerFactory implements FactoryInterface
             $sessionManager,
             $pm,
             $cookies,
-            $csrf,
+            $csrf
         );
         $manager->checkForExpiredCredentials();
         return $manager;
