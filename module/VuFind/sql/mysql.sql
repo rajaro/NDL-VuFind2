@@ -418,13 +418,15 @@ CREATE TABLE `access_token` (
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `login_token` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) NOT NULL,
-  `token` varchar(64) NOT NULL,
-  `series` varchar(64) NOT NULL,
+  `user_id` varchar(255) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `series` varchar(255) NOT NULL,
   `last_login` datetime NOT NULL,
-  `browser` varchar(100) NULL,
+  `browser` varchar(255) NULL,
+  `platform` varchar(255) NULL,
   `expires` int NOT NULL,
-  `platform` varchar(100) NULL,
+  `last_session_id` varchar(255) NULL,
   PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

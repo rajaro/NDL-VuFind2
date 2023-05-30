@@ -820,13 +820,13 @@ class User extends RowGateway implements
     /**
      * Get login token data
      *
-     * @param string $username username
+     * @param string $username user identifier
      *
      * @return array
      */
-    public function getLoginTokens($username)
+    public function getLoginTokens($userId)
     {
         $tokenTable = $this->getDbTable('LoginToken');
-        return $tokenTable->getByUsername($username);
+        return $tokenTable->getByUserId($userId);
     }
 }

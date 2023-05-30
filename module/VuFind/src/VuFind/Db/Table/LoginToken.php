@@ -64,7 +64,7 @@ class LoginToken extends Gateway
     /**
      * Save a token
      *
-     * @param string $username  Username
+     * @param string $userId    User identifier
      * @param string $token     Login token
      * @param string $series    Series the token belongs to
      * @param string $browser   User browser 
@@ -74,17 +74,17 @@ class LoginToken extends Gateway
      *
      * @return LoginToken
      */
-    public function saveToken($username, $token, $series, $browser = null, $platform = null, $expires = 0, $sessionId = null)
+    public function saveToken($userId, $token, $series, $browser = null, $platform = null, $expires = 0, $sessionId = null)
     {
         $row = $this->createRow();
         $row->token = hash('sha256', $token);
         $row->series = $series;
-        $row->username = $username;
+        $row->user_id = $userId;
         $row->last_login = date('Y-m-d H:i:s');
         $row->browser = $browser;
         $row->platform = $platform;
         $row->expires = $expires;
-        $row->latest_session_id = $sessionId;
+        $row->last_session_id = $sessionId;
         $row->save();
         return $row;
     }
@@ -92,7 +92,7 @@ class LoginToken extends Gateway
     /**
      * Check if a login token matches one in database.
      *
-     * @param array $token array containing username, token and series
+     * @param array $token array containing user id, token and series
      *
      * @return mixed
      * @throws LoginTokenException
@@ -101,7 +101,7 @@ class LoginToken extends Gateway
     {
         $row = $this->select(
             [
-                'username' => $token['username'],
+                'user_id' => $token['userId'],
                 'series' => $token['series']
             ]
         )->current();
@@ -112,7 +112,7 @@ class LoginToken extends Gateway
             }
             return $row;
         } else if ($row) {
-            // Matching series and username found, but token does not match
+            // Matching series and user id found, but token does not match
             // throw exception
             throw new LoginTokenException("Token does not match");
         }
@@ -134,25 +134,25 @@ class LoginToken extends Gateway
     /**
      * Delete all tokens for a user
      *
-     * @param string $username username
+     * @param string $userId user identifier
      *
      * @return void
      */
-    public function deleteByUsername($username)
+    public function deleteByUserId($userId)
     {
-        $this->delete(['username' => $username]);
+        $this->delete(['user_id' => $userId]);
     }
 
     /**
      * Get tokens for a given user
      *
-     * @param string $username Username
+     * @param string $userId User identifier
      *
      * @return array
      */
-    public function getByUsername($username)
+    public function getByUserId($userId)
     {
-        return $this->select(['username' => $username]);
+        return $this->select(['user_id' => $userId]);
     }
 
     /**
