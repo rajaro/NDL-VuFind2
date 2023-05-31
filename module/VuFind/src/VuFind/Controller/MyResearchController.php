@@ -2097,7 +2097,7 @@ class MyResearchController extends AbstractBase
             return $this->forceLogin();
         }
         $series = $this->params()->fromQuery('series', '');
-        $this->getAuthManager()->deleteToken($series);
+        $this->getAuthManager()->deleteToken($series, $this->getUser()->id);
         return $this->redirect()->toRoute('myresearch-profile');
     }
 

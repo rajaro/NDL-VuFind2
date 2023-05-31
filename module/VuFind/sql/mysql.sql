@@ -418,7 +418,7 @@ CREATE TABLE `access_token` (
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `login_token` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `user_id` varchar(255) NOT NULL,
+  `user_id` int NOT NULL,
   `token` varchar(255) NOT NULL,
   `series` varchar(255) NOT NULL,
   `last_login` datetime NOT NULL,

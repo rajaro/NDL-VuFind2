@@ -738,7 +738,7 @@ class Manager implements
             )
         ) {
             try {
-                $this->loginToken->createToken($user, null, $this->sessionManager->getId());
+                $this->loginToken->createToken($user, '', $this->sessionManager->getId());
             } catch (\Exception $e) {
                 throw new AuthException('authentication_error_technical', 0, $e);
             }
@@ -752,12 +752,13 @@ class Manager implements
      * Delete a login token
      *
      * @param string $series Series to identify the token
+     * @param int    $userId User identifier
      *
      * @return void
      */
-    public function deleteToken($series)
+    public function deleteToken($series, $userId)
     {
-        $this->loginToken->deleteTokenSeries($series);
+        $this->loginToken->deleteTokenSeries($series, $userId);
         $this->sessionManager->destroy();
     }
 

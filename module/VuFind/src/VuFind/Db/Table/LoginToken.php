@@ -74,8 +74,15 @@ class LoginToken extends Gateway
      *
      * @return LoginToken
      */
-    public function saveToken($userId, $token, $series, $browser = null, $platform = null, $expires = 0, $sessionId = null)
-    {
+    public function saveToken(
+        int $userId,
+        string $token,
+        string $series,
+        string $browser = '',
+        string $platform = '',
+        int $expires = 0,
+        string $sessionId = ''
+    ) {
         $row = $this->createRow();
         $row->token = hash('sha256', $token);
         $row->series = $series;
@@ -97,11 +104,11 @@ class LoginToken extends Gateway
      * @return mixed
      * @throws LoginTokenException
      */
-    public function matchToken($token)
+    public function matchToken(array $token)
     {
         $row = $this->select(
             [
-                'user_id' => $token['userId'],
+                'user_id' => $token['user_id'],
                 'series' => $token['series']
             ]
         )->current();
@@ -123,22 +130,23 @@ class LoginToken extends Gateway
      * Delete all tokens in a given series
      *
      * @param string $series series
+     * @param int    $userId User identifier
      *
      * @return void
      */
-    public function deleteBySeries($series)
+    public function deleteBySeries(string $series, int $userId)
     {
-        $this->delete(['series' => $series]);
+        $this->delete(['user_id' => $userId, 'series' => $series]);
     }
   
     /**
      * Delete all tokens for a user
      *
-     * @param string $userId user identifier
+     * @param int $userId user identifier
      *
      * @return void
      */
-    public function deleteByUserId($userId)
+    public function deleteByUserId(int $userId)
     {
         $this->delete(['user_id' => $userId]);
     }
@@ -146,11 +154,11 @@ class LoginToken extends Gateway
     /**
      * Get tokens for a given user
      *
-     * @param string $userId User identifier
+     * @param int $userId User identifier
      *
-     * @return array
+     * @return \VuFind\Db\Row\LoginToken
      */
-    public function getByUserId($userId)
+    public function getByUserId(int $userId)
     {
         return $this->select(['user_id' => $userId]);
     }
@@ -159,12 +167,13 @@ class LoginToken extends Gateway
      * Get token by series
      *
      * @param string $series Series identifier
+     * @param int    $userId User identifier
      *
      * @return LoginToken
      */
-    public function getBySeries($series)
+    public function getBySeries(string $series, int $userId)
     {
-        return $this->select(['series' => $series])->current();
+        return $this->select(['user_id' => $userId, 'series' => $series])->current();
     }
 
     /**
@@ -172,7 +181,7 @@ class LoginToken extends Gateway
      *
      * @return void
      */
-    public function removeExpired()
+    public function deleteExpired()
     {
         $callback = function ($select) {
             $select->where->lessThanOrEqualTo('expires', time());
