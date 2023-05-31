@@ -417,6 +417,7 @@ delete_comments_with_user = false
 ; Default is true.
 delete_ratings_with_user = false
 
+
 [ChoiceAuth]
 choice_order = Database,Shibboleth,MultiILS
 
