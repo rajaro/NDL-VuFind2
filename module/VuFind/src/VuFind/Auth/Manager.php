@@ -574,9 +574,7 @@ class Manager implements
                 $this->currentUser = $results;
             } elseif ($this->cookieManager->get('loginToken')) {
                 if ($user = $this->loginToken->tokenLogin($this->sessionManager->getId())) {
-                    $map = ['database' => 'Database', 'multiils' => 'MultiILS'];
-                    $this->setAuthMethod($map[$user->auth_method]);
-                    var_dump($this->activeAuth);
+                    $this->setAuthMethod($this->getAuthMethodName($user->auth_method));
                     $this->updateUser($user);
                     $this->updateSession($user);
                 }
