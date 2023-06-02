@@ -5,8 +5,8 @@
 <div class="login-col">
   <form method="post" class="form-vertical" action="<?=$this->url('myresearch-home')?>" name="loginForm" id="loginForm">
     <?=$this->auth()->getLoginFields()?>
-    <?php if (in_array($account->getAuthMethod(), $account->supportedPersistentLoginMethods())) : ?>
-      <input type="checkbox" name="remember_me"> <?=$this->transEsc('Remember me')?>
+    <?php if ($account->supportsPersistentLogin()) : ?>
+      <input type="checkbox" name="remember_me"> <?=$this->transEsc('remember_me', ['%%days%%' => $account->getPersistentLoginLifetime()])?>
     <?php endif; ?>
     <input type="hidden" name="auth_method" value="<?=$this->escapeHtmlAttr($account->getAuthMethod())?>">
     <input type="hidden" name="csrf" value="<?=$this->escapeHtmlAttr($account->getCsrfHash())?>">

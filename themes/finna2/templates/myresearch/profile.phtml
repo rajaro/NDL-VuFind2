@@ -8,7 +8,7 @@
     $showHomeLibForm = (isset($this->pickup) && count($this->pickup) > 1);
     $user = $this->auth()->isLoggedIn();
     $cards = $user->getLibraryCards();
-    $manager = $this->auth()->getManager();
+    $account = $this->auth()->getManager();
     $patron = $user ? $this->auth()->getILSPatron() : false;
     $capabilityParams = $patron ? ['patron' => $patron] : [];
     $updateAddress = $this->ils()->checkFunction('updateAddress', $capabilityParams);
@@ -298,7 +298,7 @@
         <?php endif; ?>
       </div>
     </div>
-    <?php if (in_array($manager->getAuthMethod(), $manager->supportedPersistentLoginMethods())): ?>
+    <?php if ($account->supportsPersistentLogin($user)): ?>
       <div class="myresearch-profile-header">
         <h3><?= $this->transEsc("Saved logins") ?></h3>
       </div>
@@ -318,13 +318,17 @@
           <?php foreach ($tokens as $token): ?>
             <div class="my-profile-row">
               <div class="my-profile-token">
-                <?=$token->platform?> / <?=$token->browser?>
+                <?=$this->transEsc($token->platform)?> / <?=$this->transEsc($token->browser)?>
               </div>
               <div class="my-profile-token">
                 <?=$this->dateTime()->convertToDisplayDateAndTime('Y-m-d H:i:s', $token->last_login)?>
               </div>
               <div class="my-profile-token delete-token">
-                <a class="btn btn-danger" href="<?= $this->url('myresearch-deletelogintoken', ['series' => $token->series])?>?series=<?=$token->series?>"><?=$this->transEsc('Delete login token')?></a>
+                <form id="delete-login-token" method="post" action="<?=$this->url('myresearch-deletelogintoken') ?>" name="deleteAccount">
+                  <input type="hidden" name="csrf" value="<?=$this->escapeHtmlAttr($this->auth()->getManager()->getCsrfHash())?>">
+                  <input type="hidden" name="series" value="<?=$this->escapeHtmlAttr($token->series)?>">
+                  <input id="delete-login-token-submit" class="btn btn-danger" type="submit" name="submit" value="<?=$this->transEscAttr('Forget Login'); ?>">
+                </form>
               </div>
             </div>
           <?php endforeach; ?>

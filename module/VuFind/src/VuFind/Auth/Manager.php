@@ -279,13 +279,55 @@ class Manager implements
     }
 
     /**
-     * Supported login methods for persistent login
+     * Is persistent login supported?
      *
-     * @return array
+     * @param User $user optional; check user auth method in database 
+     *
+     * @return bool
      */
-    public function supportedPersistentLoginMethods()
+    public function supportsPersistentLogin($user = null)
     {
-        return explode(',', $this->config->Authentication->persistent_login ?? '');
+        if (!empty($this->config->Authentication->persistent_login)) {
+            if ($user) {
+                $method = $this->getAuthMethodName($user->auth_method);
+            } else if ($this->getAuth() instanceof ChoiceAuth) {
+                $method = $this->getAuth()->getSelectedAuthOption();
+            } else {
+                $method = $this->getAuthMethod();
+            }
+            return in_array(
+                $method,
+                explode(',', $this->config->Authentication->persistent_login)
+            );
+        }
+        return false;
+    }
+
+    /**
+     * Get auth method name with proper uppercase characters
+     *
+     * @param string $method method name
+     *
+     * @return string
+     */
+    public function getAuthMethodName($method)
+    {
+        $map = [
+            'database' => 'Database',
+            'multiils' => 'MultiILS',
+            'ils' => 'ILS'
+        ];
+        return $map[$method] ?? $method;
+    }
+
+    /**
+     * Get persistent login lifetime in days
+     *
+     * @return int
+     */
+    public function getPersistentLoginLifetime()
+    {
+        return $this->config->Authentication->persistent_login_lifetime ?? 0;
     }
 
     /**
@@ -532,6 +574,9 @@ class Manager implements
                 $this->currentUser = $results;
             } elseif ($this->cookieManager->get('loginToken')) {
                 if ($user = $this->loginToken->tokenLogin($this->sessionManager->getId())) {
+                    $map = ['database' => 'Database', 'multiils' => 'MultiILS'];
+                    $this->setAuthMethod($map[$user->auth_method]);
+                    var_dump($this->activeAuth);
                     $this->updateUser($user);
                     $this->updateSession($user);
                 }
@@ -732,10 +777,7 @@ class Manager implements
         $this->updateUser($user);
 
         if ($request->getPost()->get('remember_me')
-            && in_array(
-                $request->getPost()->get('auth_method'),
-                $this->supportedPersistentLoginMethods()
-            )
+            && $this->supportsPersistentLogin()
         ) {
             try {
                 $this->loginToken->createToken($user, '', $this->sessionManager->getId());
@@ -756,10 +798,9 @@ class Manager implements
      *
      * @return void
      */
-    public function deleteToken($series, $userId)
+    public function deleteToken(string $series, int $userId)
     {
         $this->loginToken->deleteTokenSeries($series, $userId);
-        $this->sessionManager->destroy();
     }
 
     /**

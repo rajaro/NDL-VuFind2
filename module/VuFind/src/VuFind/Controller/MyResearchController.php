@@ -2096,7 +2096,13 @@ class MyResearchController extends AbstractBase
         if (!$this->getAuthManager()->isLoggedIn()) {
             return $this->forceLogin();
         }
-        $series = $this->params()->fromQuery('series', '');
+        $csrf = $this->serviceLocator->get(CsrfInterface::class);
+        if (!$csrf->isValid($this->getRequest()->getPost()->get('csrf'))) {
+            throw new \VuFind\Exception\BadRequest(
+                'error_inconsistent_parameters'
+            );
+        }
+        $series = $this->params()->fromPost('series', '');
         $this->getAuthManager()->deleteToken($series, $this->getUser()->id);
         return $this->redirect()->toRoute('myresearch-profile');
     }
