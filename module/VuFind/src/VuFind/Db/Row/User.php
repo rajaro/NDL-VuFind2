@@ -820,7 +820,7 @@ class User extends RowGateway implements
     /**
      * Get login token data
      *
-     * @param string $username user identifier
+     * @param string $userId user identifier
      *
      * @return array
      */
