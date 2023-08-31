@@ -1,6 +1,7 @@
 <!-- START of: finna - search/advanced/solr.phtml -->
 <?php if (!empty($this->facetList) || !empty($this->checkboxFacets)): ?>
 <?php
+  $mapVisible = $this->config()->isGeographicMapVisible();
   if (isset($this->saved) && is_object($this->saved)) {
     $searchFilters = $this->saved->getParams()->getFilterList(true);
     $checkboxFilters = $this->saved->getParams()->getCheckboxFacets();
@@ -50,7 +51,9 @@
     <?php endif; ?>
   </div>
 <?php endif; ?>
-<?=$this->render('search/advanced/map.phtml', ['searchClassId' => $this->searchClassId, 'saved' => $this->saved])?>
+<?php if ($mapVisible): ?>
+  <?=$this->render('search/advanced/map.phtml', ['searchClassId' => $this->searchClassId, 'saved' => $this->saved])?>
+<?php endif; ?>
 <?php if (isset($this->illustratedLimit)): ?>
   <fieldset>
     <legend><?=$this->transEsc("Illustrated")?>:</legend>
