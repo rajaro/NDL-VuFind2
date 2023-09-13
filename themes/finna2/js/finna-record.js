@@ -535,7 +535,7 @@ finna.record = (function finnaRecord() {
     var spinner = container.find('.fa-spinner').removeClass('hide');
     var data = {
       id: container.data('id'),
-      method: 'getSimilarRecords',
+      method: 'getSimilarRecords'
     };
     if ('undefined' !== typeof container.data('source')) {
       data.source = container.data('source');
