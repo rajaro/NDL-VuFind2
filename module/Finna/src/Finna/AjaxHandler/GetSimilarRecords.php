@@ -115,7 +115,7 @@ class GetSimilarRecords extends \VuFind\AjaxHandler\AbstractBase
         }
 
         $driver = $this->recordLoader->load($id);
-        if ($this->config->Record->similar_bottom ?? false) {
+        if (!empty($this->config->Record->similar_bottom)) {
             $this->similar->initCarousel(
                 $this->config->Record->similar_bottom_items ?? 20,
                 $driver
