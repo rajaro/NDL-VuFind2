@@ -527,23 +527,22 @@ finna.record = (function finnaRecord() {
 
   function initSimilarCarousel()
   {
-    var container = $('.similar-bottom');
+    var container = document.querySelector('.similar-bottom');
     if (container.length === 0) {
       return;
     }
 
-    var spinner = container.find('.fa-spinner').removeClass('hide');
+    var spinner = container.querySelector('.fa-spinner');
+    spinner.classList.remove('hide');
     var data = {
-      id: container.data('id'),
+      id: container.getAttribute('data-id'),
       method: 'getSimilarRecords'
     };
-    if ('undefined' !== typeof container.data('source')) {
-      data.source = container.data('source');
-    }
+
     $.getJSON(VuFind.path + '/AJAX/JSON', data)
       .done(function onGetRecordsDone(response) {
         if (response.data.html.length > 0) {
-          container.html(VuFind.updateCspNonce(response.data.html));
+          container.innerHTML = VuFind.updateCspNonce(response.data.html);
           var settings = {
             slidesToShow: {
               desktop: 5,
@@ -552,12 +551,16 @@ finna.record = (function finnaRecord() {
               mobile: 1
             }
           };
-          finna.carouselManager.createCarousel('.splide', settings);
+          finna.carouselManager.createCarousel(container.querySelector('.splide'), settings);
         }
-        spinner.addClass('hidden');
+        spinner.classList.add('hidden');
+        VuFind.observerManager.observe(
+          'LazyImages',
+          container.querySelectorAll('img[data-src]')
+        );
       })
       .fail(function onGetRecordsFail() {
-        spinner.addClass('hidden');
+        spinner.classList.add('hidden');
         container.text(VuFind.translate('error_occurred'));
       });
   }

@@ -7,7 +7,7 @@
 <div class="similar-carousel-item">
   <div class="similar-carousel-image <?= $noImage ? 'no-image' : ''?>">
     <?php if (!$noImage): ?>
-      <img src="<?= $images[0]['urls']['medium'] ?? $this->url('cover-unavailable') ?>" />
+      <img data-src="<?= $images[0]['urls']['medium'] ?? $this->url('cover-unavailable') ?>" />
     <?php else: ?>
     <div class="iconlabel format-<?=$this->record($driver)->getFormatClass(end($formats))?>"></div>
     <?php endif; ?>
