@@ -18,7 +18,7 @@
             <?php foreach ($similarRecords as $item): ?>
               <li class="splide__slide similar-item-holder">
                   <a href="<?=$this->escapeHtmlAttr($this->recordLinker()->getUrl($item))?>">
-                    <?=$this->partial("Related/similar-carousel-item.phtml", compact('item'))?>
+                    <?=$this->partial('Related/similar-carousel-item.phtml', compact('item'))?>
                   </a>
               </li>
             <?php endforeach; ?>
