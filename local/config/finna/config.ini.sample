@@ -1291,6 +1291,13 @@ hide_holdings[] = "World Wide Web"
 ;    WorkExpressions - Other expressions or versions of the record
 related[] = "SimilarDeferred"
 
+; Whether to display similar records at the bottom of the record view instead
+; of sidebar. Records will be displayed as a carousel
+;similar_bottom = true
+; How many items will be shown in the similar items carousel. Requires similar_bottom
+; to be true
+;similar_bottom_items = 20
+
 ; Presenter roles that are displayed separately from other authors
 presenter_roles[] = "esitt"
 presenter_roles[] = "joht"
