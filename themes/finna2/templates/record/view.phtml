@@ -125,9 +125,11 @@
           <?=$this->render('record/record-organisation-menu.phtml') ?>
       </div>
     <?php endif; ?>
-    <?php foreach ($this->related()->getList($this->driver) as $current): ?>
-        <?=$this->related()->render($current)?>
-    <?php endforeach; ?>
+    <?php if (!$this->config()->similarRecordsCarouselEnabled()): ?>
+      <?php foreach ($this->related()->getList($this->driver) as $current): ?>
+          <?=$this->related()->render($current)?>
+      <?php endforeach; ?>
+    <?php endif; ?>
     <?php if ($template = $this->content()->findTemplateForLng('content/Additions/record-post-recommendations')): ?>
       <div>
           <?=$this->render($template)?>
@@ -238,6 +240,11 @@
     <?php // This sidebar is used for smaller screens and always in large image layout ?>
     <div class="sidebar left large-image-sidebar<?=$largeImageLayout ? '' : ' visible-xs visible-sm'?>">
       <?=$sidebar ?>
+    </div>
+  <?php endif; ?>
+  <?php if ($this->config()->similarRecordsCarouselEnabled()): ?>
+    <div class="similar-bottom container" data-id=<?=$this->driver->getUniqueID()?>>
+      <i class="fa fa-spinner fa-spin"></i>
     </div>
   <?php endif; ?>
 

@@ -990,12 +990,14 @@ $config = [
                 'factories' => [
                     'Finna\Related\RecordDriverRelated' => 'Finna\Related\RecordDriverRelatedFactory',
                     'Finna\Related\Nothing' => 'Laminas\ServiceManager\Factory\InvokableFactory',
+                    'Finna\Related\Similar' => 'VuFind\Related\SimilarFactory',
                     'Finna\Related\SimilarDeferred' => 'Laminas\ServiceManager\Factory\InvokableFactory',
                     'Finna\Related\WorkExpressions' => 'Finna\Related\WorkExpressionsFactory',
                 ],
                 'aliases' =>  [
                     'nothing' => 'Finna\Related\Nothing',
                     'recorddriverrelated' => 'Finna\Related\RecordDriverRelated',
+                    'similar' => 'Finna\Related\Similar',
                     'similardeferred' => 'Finna\Related\SimilarDeferred',
                     'workexpressions' => 'Finna\Related\WorkExpressions',
                 ],
