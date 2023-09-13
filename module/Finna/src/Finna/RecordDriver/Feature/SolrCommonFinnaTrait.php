@@ -34,6 +34,8 @@ namespace Finna\RecordDriver\Feature;
 
 use VuFind\I18n\Locale\LocaleSettings;
 
+use function is_array;
+
 /**
  * Additional functionality for Finna Solr and Finna SolrAuth records.
  *
@@ -220,7 +222,7 @@ trait SolrCommonFinnaTrait
                 }
                 $params['id'] = $this->getUniqueId();
                 $params['pdf'] = !empty($images[$index]['pdf'][$size])
-                    || true === $images[$index]['pdf'] ?? false;
+                    || true === ($images[$index]['pdf'] ?? false);
                 return $params;
             }
         }

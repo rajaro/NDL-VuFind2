@@ -32,6 +32,10 @@
 
 namespace Finna\RecordDriver;
 
+use function array_slice;
+use function count;
+use function in_array;
+
 /**
  * Model for Qualified Dublin Core records in Solr.
  *
@@ -84,6 +88,13 @@ class SolrQdc extends \VuFind\RecordDriver\SolrDefault implements \Laminas\Log\L
         'ispartofseries' => 'name',
         'numberinseries' => 'partNumber',
     ];
+
+    /**
+     * Default value for no_locale definition used for no language
+     *
+     * @var string
+     */
+    protected const NO_LOCALE = 'no_locale';
 
     /**
      * Constructor
@@ -339,12 +350,18 @@ class SolrQdc extends \VuFind\RecordDriver\SolrDefault implements \Laminas\Log\L
             'link' => '',
             'description' => [],
         ];
+        $firstElementPriority = null;
         $cache = [];
         // Get all the copyrights and save them in an array identified by language.
         foreach ($xml->rights as $right) {
             $strRight = trim((string)$right);
             $type = trim((string)$right->attributes()->type);
-            $rightLanguage = trim((string)$right->attributes()->lang) ?: 'no_locale';
+            $rightLanguage = trim((string)$right->attributes()->lang) ?: self::NO_LOCALE;
+            // If no type and language is set and it is the first rights element,
+            // then we can assume it is the main copyright to display
+            if (null === $firstElementPriority) {
+                $firstElementPriority = !$type && self::NO_LOCALE === $rightLanguage;
+            }
             $cache[$rightLanguage][] = [
                 'txt' => $strRight,
                 'type' => $type,
@@ -355,11 +372,15 @@ class SolrQdc extends \VuFind\RecordDriver\SolrDefault implements \Laminas\Log\L
         }
         // Check that there is proper values to use for displaying the rights.
         $localizedRights = [];
-        foreach ($this->getPrioritizedLanguages([$language], 'no_locale') as $lang) {
-            if (!empty($cache[$lang])) {
-                $localizedRights = $cache[$lang];
-                break;
+        foreach ($this->getPrioritizedLanguages([$language], self::NO_LOCALE) as $lang) {
+            if (empty($cache[$lang])) {
+                continue;
             }
+            // Check if there is an rights element with priority.
+            $localizedRights = (self::NO_LOCALE !== $lang && $firstElementPriority)
+                ? array_merge($cache[self::NO_LOCALE], $cache[$lang])
+                : $cache[$lang];
+            break;
         }
         if (empty($localizedRights)) {
             return $result;
@@ -379,7 +400,6 @@ class SolrQdc extends \VuFind\RecordDriver\SolrDefault implements \Laminas\Log\L
                 $result['description'][] = $right['txt'];
             }
         }
-
         return $result;
     }
 
