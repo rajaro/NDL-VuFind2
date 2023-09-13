@@ -5,15 +5,15 @@
   $noImage = empty($images[0]['urls']['medium']);
 ?>
 <div class="similar-carousel-item">
-<div class="similar-carousel-image <?= $noImage ? 'no-image' : ''?>">
-  <?php if (!$noImage): ?>
-    <img src="<?= $images[0]['urls']['medium'] ?? $this->url('cover-unavailable') ?>" />
-  <?php else: ?>
-  <div class="iconlabel format-<?=$this->record($driver)->getFormatClass(end($formats))?>"></div>
-  <?php endif; ?>
-</div>
-<div class="similar-carousel-text">
-  <b><?=$this->truncate($this->escapeHtml($this->item->getTitle()), 70)?></b>
+  <div class="similar-carousel-image <?= $noImage ? 'no-image' : ''?>">
+    <?php if (!$noImage): ?>
+      <img src="<?= $images[0]['urls']['medium'] ?? $this->url('cover-unavailable') ?>" />
+    <?php else: ?>
+    <div class="iconlabel format-<?=$this->record($driver)->getFormatClass(end($formats))?>"></div>
+    <?php endif; ?>
+  </div>
+  <div class="similar-carousel-text">
+    <b><?=$this->truncate($this->escapeHtml($this->item->getTitle()), 70)?></b>
     <?php $authors = $item->getPrimaryAuthors();
       if (!empty($authors)): ?>
         <br><?=$this->escapeHtml($authors[0]);?><?php if (count($authors) > 1): ?> <?=$this->transEsc('more_authors_abbrev')?><?php endif; ?>
@@ -21,4 +21,5 @@
     <div>
       <span class="similar-carousel-format"><?=$this->transEsc(end($formats))?></span>
     </div>
+  </div>
 </div>
