@@ -550,7 +550,7 @@ finna.record = (function finnaRecord() {
               'desktop-small': 3,
               tablet: 2,
               mobile: 1
-            },
+            }
           };
           finna.carouselManager.createCarousel('.splide', settings);
         }
