@@ -13,10 +13,10 @@
     <?php endif; ?>
   </div>
   <div class="similar-carousel-text">
-    <b><?=$this->truncate($this->escapeHtml($this->item->getTitle()), 70)?></b>
+    <b><span><?=$this->truncate($this->escapeHtml($this->item->getTitle()), 22)?></b></span>
     <?php $authors = $item->getPrimaryAuthors();
       if (!empty($authors)): ?>
-        <br><?=$this->escapeHtml($authors[0]);?><?php if (count($authors) > 1): ?> <?=$this->transEsc('more_authors_abbrev')?><?php endif; ?>
+        <span><br><?=$this->truncate($this->escapeHtml($authors[0]), 23)?><?php if (count($authors) > 1): ?> <?=$this->transEsc('more_authors_abbrev')?><?php endif; ?></span>
       <?php endif; ?>
     <div>
       <span class="similar-carousel-format"><?=$this->transEsc(end($formats))?></span>

@@ -243,8 +243,8 @@
     </div>
   <?php endif; ?>
   <?php if ($this->config()->similarRecordsCarouselEnabled()): ?>
-    <div class="similar-bottom container" data-id=<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>>
-      <?=$this->icon('spinner')?>
+    <div class="similar-bottom container">
+      <?=$this->render('RecordTab/similaritemscarousel.phtml', ['similar' => $this->related()->getList($this->driver)[0], 'driver' => $this->driver])?>
     </div>
   <?php endif; ?>
 

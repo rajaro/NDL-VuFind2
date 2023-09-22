@@ -50,13 +50,13 @@ class Similar extends \VuFind\Related\Similar
      *
      * @return void
      */
-    public function initCarousel($amount, $driver)
+    public function getResultsForCarousel($amount, $driver)
     {
         $command = new SimilarCommand(
             $driver->getSourceIdentifier(),
             $driver->getUniqueId(),
             new \VuFindSearch\ParamBag(['rows' => $amount])
         );
-        $this->results = $this->searchService->invoke($command)->getResult();
+        return $this->searchService->invoke($command)->getResult();
     }
 }

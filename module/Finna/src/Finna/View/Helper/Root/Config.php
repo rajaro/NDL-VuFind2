@@ -93,4 +93,15 @@ class Config extends \VuFind\View\Helper\Root\Config
     {
         return !empty($this->get('config')->Record->similar_bottom);
     }
+
+    /**
+     * The amount of records to display in similar records
+     * carousel
+     *
+     * @return boolean
+     */
+    public function similarRecordsCarouselItems()
+    {
+        return $this->get('config')->Record->similar_bottom_items ?? 15;
+    }
 }

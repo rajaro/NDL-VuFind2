@@ -1,8 +1,8 @@
 <!-- START of: finna - Related/Similar-carousel.phtml -->
-<?php $similarRecords = $this->related->getResults(); ?>
-<?php if (!empty($similarRecords)): ?>
+<?php $records = $this->similar ? $this->similar->getResultsForCarousel($this->config()->similarRecordsCarouselItems(), $this->driver) : $this->tab->getResults(); ?>
+<?php if (!empty($records)): ?>
   <div class="similar-carousel">
-    <finna-feed class="splide">
+    <finna-feed class="splide similar-items-carousel">
       <h2 class="similar-carousel-header"><?=$this->transEsc('Similar Items')?></h2>
       <div class="similar-carousel-container">
         <div class="splide__arrows splide__arrows--ltr">
@@ -15,7 +15,7 @@
         </div>
         <div class="splide__track carousel">
           <ul class="splide__list carousel-feed">
-            <?php foreach ($similarRecords as $item): ?>
+            <?php foreach ($records as $item): ?>
               <li class="splide__slide similar-item-holder">
                   <a href="<?=$this->escapeHtmlAttr($this->recordLinker()->getUrl($item))?>">
                     <?=$this->partial('Related/similar-carousel-item.phtml', compact('item'))?>
@@ -35,4 +35,10 @@
 <?php else: ?>
   <p><?=$this->transEsc('Cannot find similar records')?></p>
 <?php endif; ?>
+<?php
+$script = <<<JS
+    finna.record.initSimilarCarousel();
+    JS;
+?>
+<?=$this->inlineScript(\Laminas\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
 <!-- END of: finna - Related/Similar-carousel.phtml -->

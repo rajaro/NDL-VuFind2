@@ -115,23 +115,12 @@ class GetSimilarRecords extends \VuFind\AjaxHandler\AbstractBase
         }
 
         $driver = $this->recordLoader->load($id);
-        if (!empty($this->config->Record->similar_bottom)) {
-            $this->similar->initCarousel(
-                $this->config->Record->similar_bottom_items ?? 15,
-                $driver
-            );
-            $html = $this->renderer->partial(
-                'Related/Similar-carousel.phtml',
-                ['related' => $this->similar]
-            );
-        } else {
-            $this->similar->init('', $driver);
+        $this->similar->init('', $driver);
 
-            $html = $this->renderer->partial(
-                'Related/Similar.phtml',
-                ['related' => $this->similar]
-            );
-        }
+        $html = $this->renderer->partial(
+            'Related/Similar.phtml',
+            ['related' => $this->similar]
+        );
         return $this->formatResponse(compact('html'));
     }
 }

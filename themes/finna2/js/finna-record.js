@@ -527,42 +527,26 @@ finna.record = (function finnaRecord() {
 
   function initSimilarCarousel()
   {
-    var container = document.querySelector('.similar-bottom');
-    if (container.length === 0) {
+    var container = document.querySelector('.similar-carousel');
+    if (container.length === 0 ) {
       return;
     }
-
-    var spinner = container.querySelector('.fa-spinner');
-    spinner.classList.remove('hide');
-    var data = {
-      id: container.getAttribute('data-id'),
-      method: 'getSimilarRecords'
+    var settings = {
+      height: 300,
+      width: 200,
     };
-
-    $.getJSON(VuFind.path + '/AJAX/JSON', data)
-      .done(function onGetRecordsDone(response) {
-        if (response.data.html.length > 0) {
-          container.innerHTML = VuFind.updateCspNonce(response.data.html);
-          var settings = {
-            slidesToShow: {
-              desktop: 5,
-              'desktop-small': 3,
-              tablet: 2,
-              mobile: 1
-            }
-          };
-          finna.carouselManager.createCarousel(container.querySelector('.splide'), settings);
-        }
-        spinner.classList.add('hidden');
-        VuFind.observerManager.observe(
-          'LazyImages',
-          container.querySelectorAll('img[data-src]')
-        );
-      })
-      .fail(function onGetRecordsFail() {
-        spinner.classList.add('hidden');
-        container.text(VuFind.translate('error_occurred'));
-      });
+    finna.carouselManager.createCarousel(container.querySelector('.splide'), settings);
+    VuFind.observerManager.createIntersectionObserver(
+      'LazyImages',
+      (element) => {
+        element.src = element.dataset.src;
+        delete element.dataset.src;
+      }
+    );
+    VuFind.observerManager.observe(
+      'LazyImages',
+      container.querySelectorAll('img[data-src]')
+    );
   }
 
   function init() {
@@ -587,7 +571,8 @@ finna.record = (function finnaRecord() {
     setupLocationsEad3Tab: setupLocationsEad3Tab,
     setupExternalDataTab: setupExternalDataTab,
     initRecordVersions: initRecordVersions,
-    handleRedirect: handleRedirect
+    handleRedirect: handleRedirect,
+    initSimilarCarousel: initSimilarCarousel
   };
 
   return my;

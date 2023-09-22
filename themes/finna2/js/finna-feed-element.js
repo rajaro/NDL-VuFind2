@@ -344,7 +344,9 @@ class FinnaFeedElement extends HTMLElement {
    * When the element is removed from the dom
    */
   disconnectedCallback() {
-    this.innerHTML = '';
+    if (!this.classList.contains('similar-items-carousel')) {
+      this.innerHTML = '';
+    }
   }
 
   /**
