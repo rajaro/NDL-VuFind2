@@ -73,8 +73,7 @@ class GetSimilarRecordsFactory implements \Laminas\ServiceManager\Factory\Factor
             $container->get(\VuFind\Session\Settings::class),
             $container->get(\VuFind\Record\Loader::class),
             $container->get(\VuFind\Related\PluginManager::class)->get('Similar'),
-            $container->get('ViewRenderer'),
-            $container->get(\VuFind\Config\PluginManager::class)->get('config'),
+            $container->get('ViewRenderer')
         );
         return $result;
     }

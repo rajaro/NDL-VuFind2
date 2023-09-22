@@ -68,20 +68,12 @@ class GetSimilarRecords extends \VuFind\AjaxHandler\AbstractBase
     protected $renderer;
 
     /**
-     * Configuragtion
-     *
-     * @var Config
-     */
-    protected $config;
-
-    /**
      * Constructor
      *
      * @param SessionSettings   $ss       Session settings
      * @param Loader            $loader   Record loader
      * @param Similar           $similar  Similar record handler
      * @param RendererInterface $renderer View renderer
-     * @param Config            $config   Configuration
      */
     public function __construct(
         SessionSettings $ss,
@@ -94,7 +86,6 @@ class GetSimilarRecords extends \VuFind\AjaxHandler\AbstractBase
         $this->similar = $similar;
         $this->recordLoader = $loader;
         $this->renderer = $renderer;
-        $this->config =  $config;
     }
 
     /**
@@ -115,12 +106,14 @@ class GetSimilarRecords extends \VuFind\AjaxHandler\AbstractBase
         }
 
         $driver = $this->recordLoader->load($id);
+
         $this->similar->init('', $driver);
 
         $html = $this->renderer->partial(
             'Related/Similar.phtml',
             ['related' => $this->similar]
         );
+
         return $this->formatResponse(compact('html'));
     }
 }
