@@ -1292,7 +1292,8 @@ hide_holdings[] = "World Wide Web"
 related[] = "SimilarDeferred"
 
 ; Whether to display similar records at the bottom of the record view instead
-; of sidebar. Records will be displayed as a carousel
+; of sidebar. Records will be displayed as a carousel. Requires SimilarItemsCarousel
+; record tab to be set in RecordTabs.ini
 ;similar_bottom = true
 ; How many items will be shown in the similar items carousel. Requires similar_bottom
 ; to be true

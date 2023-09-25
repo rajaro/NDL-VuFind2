@@ -79,7 +79,7 @@ class GetSimilarRecords extends \VuFind\AjaxHandler\AbstractBase
         SessionSettings $ss,
         Loader $loader,
         Similar $similar,
-        RendererInterface $renderer,
+        RendererInterface $renderer
     ) {
         $this->sessionSettings = $ss;
         $this->similar = $similar;
