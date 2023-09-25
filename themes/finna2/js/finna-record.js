@@ -534,6 +534,7 @@ finna.record = (function finnaRecord() {
     var settings = {
       height: 300,
       width: 200,
+      omitEnd: true
     };
     finna.carouselManager.createCarousel(container.querySelector('.splide'), settings);
     VuFind.observerManager.observe(

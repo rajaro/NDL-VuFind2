@@ -25,6 +25,7 @@ finna.carouselManager = (() => {
     },
     height: (value) => { return {height: parseInt(value)}; },
     width: (value) => { return {fixedWidth: parseInt(value)}; },
+    omitEnd: 'omitEnd',
     slidesToShow: (itemsPerPage) => {
       const breakpoints = {};
       let perPage = 0;
