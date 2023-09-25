@@ -1,5 +1,5 @@
 <!-- START of: finna - Related/Similar-carousel.phtml -->
-<?php $records = $this->similar ? $this->similar->getResultsForCarousel($this->config()->similarRecordsCarouselItems(), $this->driver) : $this->tab->getResults(); ?>
+<?php $records = $this->tab->getResults($this->config()->similarRecordsCarouselItems()); ?>
 <?php if (!empty($records)): ?>
   <div class="similar-carousel">
     <finna-feed class="splide similar-items-carousel">

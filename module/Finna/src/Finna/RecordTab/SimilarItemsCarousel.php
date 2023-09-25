@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Related Records: Solr-based similarity
+ * Similar items carousel tab.
  *
  * PHP version 8
  *
- * Copyright (C) The National Library of Finland 2023.
+ * Copyright (C) The National Library of Finland, 2023
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -21,41 +21,43 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Related_Records
+ * @package  RecordTabs
  * @author   Jaro Ravila <jaro.ravila@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org/wiki/development:plugins:related_records_modules Wiki
+ * @link     https://vufind.org/wiki/development:plugins:record_tabs Wiki
  */
 
-namespace Finna\Related;
+namespace Finna\RecordTab;
 
 use VuFindSearch\Command\SimilarCommand;
 
 /**
- * Related Records: Solr-based similarity
+ * Similar items carousel tab.
  *
  * @category VuFind
- * @package  Related_Records
+ * @package  RecordTabs
  * @author   Jaro Ravila <jaro.ravila@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org/wiki/development:plugins:related_records_modules Wiki
+ * @link     https://vufind.org/wiki/development:plugins:record_tabs Wiki
  */
-class Similar extends \VuFind\Related\Similar
+class SimilarItemsCarousel extends \VuFind\RecordTab\SimilarItemsCarousel
 {
     /**
-     * Return similar records for similar carousel
+     * Get an array of Record Driver objects representing items similar to the one
+     * passed to the constructor.
      *
-     * @param int                               $amount Amount of similar records
-     * @param \VuFind\RecordDriver\AbstractBase $driver Record driver object
+     * @param int $amount Amount of similar records
      *
-     * @return void
+     * @return RecordCollectionInterface
      */
-    public function getResultsForCarousel($amount, $driver)
+    public function getResults(int $amount = 15)
     {
+        $record = $this->getRecordDriver();
+        $params = new \VuFindSearch\ParamBag(['rows' => $amount]);
         $command = new SimilarCommand(
-            $driver->getSourceIdentifier(),
-            $driver->getUniqueId(),
-            new \VuFindSearch\ParamBag(['rows' => $amount])
+            $record->getSourceIdentifier(),
+            $record->getUniqueId(),
+            $params
         );
         return $this->searchService->invoke($command)->getResult();
     }

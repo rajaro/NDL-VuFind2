@@ -967,6 +967,7 @@ $config = [
                     'Finna\RecordTab\HierarchyTree' => 'VuFind\RecordTab\HierarchyTreeFactory',
                     'Finna\RecordTab\Map' => 'Finna\RecordTab\Factory::getMap',
                     'Finna\RecordTab\R2CollectionList' => 'VuFind\RecordTab\CollectionListFactory',
+                    'Finna\RecordTab\SimilarItemsCarousel' => 'VuFind\RecordTab\SimilarItemsCarouselFactory',
                     'Finna\RecordTab\UserComments' => 'Finna\RecordTab\Factory::getUserComments',
                 ],
                 'invokables' => [
@@ -983,6 +984,7 @@ $config = [
                     'VuFind\RecordTab\CollectionHierarchyTree' => 'Finna\RecordTab\CollectionHierarchyTree',
                     'VuFind\RecordTab\HierarchyTree' => 'Finna\RecordTab\HierarchyTree',
                     'VuFind\RecordTab\Map' => 'Finna\RecordTab\Map',
+                    'VuFind\RecordTab\SimilarItemsCarousel' => 'Finna\RecordTab\SimilarItemsCarousel',
                     'VuFind\RecordTab\UserComments' => 'Finna\RecordTab\UserComments',
                 ],
             ],
@@ -990,14 +992,12 @@ $config = [
                 'factories' => [
                     'Finna\Related\RecordDriverRelated' => 'Finna\Related\RecordDriverRelatedFactory',
                     'Finna\Related\Nothing' => 'Laminas\ServiceManager\Factory\InvokableFactory',
-                    'Finna\Related\Similar' => 'VuFind\Related\SimilarFactory',
                     'Finna\Related\SimilarDeferred' => 'Laminas\ServiceManager\Factory\InvokableFactory',
                     'Finna\Related\WorkExpressions' => 'Finna\Related\WorkExpressionsFactory',
                 ],
                 'aliases' =>  [
                     'nothing' => 'Finna\Related\Nothing',
                     'recorddriverrelated' => 'Finna\Related\RecordDriverRelated',
-                    'similar' => 'Finna\Related\Similar',
                     'similardeferred' => 'Finna\Related\SimilarDeferred',
                     'workexpressions' => 'Finna\Related\WorkExpressions',
                 ],

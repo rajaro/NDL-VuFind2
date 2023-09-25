@@ -155,6 +155,7 @@
         <?php endif; ?>
         <ul class="recordTabs nav nav-tabs visible-md visible-lg" role="tablist">
           <?php foreach ($this->tabs as $tab => $obj): ?>
+            <?php if ($this->config()->similarRecordsCarouselEnabled() && $tab === 'Similar') { continue; } ?>
             <?php // add current tab to breadcrumbs if applicable:
               $desc = $obj->getDescription();
               $tabName = preg_replace("/\W/", '-', strtolower($tab));
@@ -192,6 +193,7 @@
 
     <div class="record-accordions">
       <?php foreach ($this->tabs as $accordion => $obj): ?>
+        <?php if ($this->config()->similarRecordsCarouselEnabled() && $tab === 'Similar') { continue; } ?>
         <?php
           $desc = $obj->getDescription();
           $accordion_classes = [
@@ -242,9 +244,9 @@
       <?=$sidebar ?>
     </div>
   <?php endif; ?>
-  <?php if ($this->config()->similarRecordsCarouselEnabled()): ?>
+  <?php if ($this->config()->similarRecordsCarouselEnabled() && !empty($this->tabs['Similar'])): ?>
     <div class="similar-bottom container">
-      <?=$this->render('RecordTab/similaritemscarousel.phtml', ['similar' => $this->related()->getList($this->driver)[0], 'driver' => $this->driver])?>
+      <?=$this->record($this->driver)->getTab($this->tabs['Similar'])?>
     </div>
   <?php endif; ?>
 
