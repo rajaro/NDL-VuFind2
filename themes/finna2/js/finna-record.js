@@ -536,13 +536,6 @@ finna.record = (function finnaRecord() {
       width: 200,
     };
     finna.carouselManager.createCarousel(container.querySelector('.splide'), settings);
-    VuFind.observerManager.createIntersectionObserver(
-      'LazyImages',
-      (element) => {
-        element.src = element.dataset.src;
-        delete element.dataset.src;
-      }
-    );
     VuFind.observerManager.observe(
       'LazyImages',
       container.querySelectorAll('img[data-src]')
