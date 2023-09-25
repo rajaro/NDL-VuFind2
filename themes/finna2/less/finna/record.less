@@ -1190,17 +1190,19 @@ finna-model-viewer .object-editor {
   position: relative;
 }
 .similar-carousel-item {
-  border-radius: 10px;
-  box-shadow: 0px 4px 4px @gray-lighter;
+  border: @similar-carousel-border;
+  border-radius: @similar-carousel-border-radius;
+  box-shadow: @similar-carousel-border-shadow;
   height: 97%;
   .similar-carousel-format {
-    background: #f2f2f2;
+    background: @similar-carousel-format-background;
     padding: 5px 11px 5px 11px;
     border-radius: 8px;
     margin-top: 5px;
   }
   .similar-carousel-text {
-    color: black;
+    color: @similar-carousel-text-color;
+    background-color: @similar-carousel-text-background;
     margin: 10px;
     white-space: nowrap;
     div {
@@ -1213,10 +1215,10 @@ finna-model-viewer .object-editor {
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: @similar-carousel-border-radius;
   border-bottom-right-radius: 0px;
   border-bottom-left-radius: 0px;
-  background-color: #f2f2f2;
+  background-color: @similar-carousel-no-image-background;
   height: 70%;
   img {
     max-width: none;
@@ -1233,7 +1235,7 @@ finna-model-viewer .object-editor {
     &:before {
         position: relative;
         font-size: 45px;
-        color: @gray-light;
+        color: @similar-carousel-no-image-color;
     }
   }
 }

@@ -37,10 +37,10 @@
 <?php endif; ?>
 <?php
 $script = <<<JS
-  $(document).ready(function() {
-    finna.record.initSimilarCarousel();
-  });
-  JS;
+    $(document).ready(function() {
+      finna.record.initSimilarCarousel();
+    });
+    JS;
 ?>
 <?=$this->inlineScript(\Laminas\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
 <!-- END of: finna - Related/Similar-carousel.phtml -->
