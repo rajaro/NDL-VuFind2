@@ -16,7 +16,7 @@
     <span class="similar-carousel-item-title" title="<?=$this->escapeHtmlAttr($this->item->getTitle())?>"><?=$this->truncate($this->escapeHtml($this->item->getTitle()), 22)?></span>
     <?php $authors = $item->getPrimaryAuthors();
       if (!empty($authors)): ?>
-        <span class="similar-carousel-item-author" title="<?=$this->escapeHtmlAttr($authors[0])?>"><?=$this->truncate($this->escapeHtml($authors[0]), 23)?><?php if (count($authors) > 1): ?> <?=$this->transEsc('more_authors_abbrev')?><?php endif; ?></span>
+        <span class="similar-carousel-item-author" title="<?=$this->escapeHtmlAttr($authors[0])?>"><?=$this->truncate($this->escapeHtml($authors[0]), 22)?></span>
       <?php endif; ?>
     <div>
       <span class="similar-carousel-format"><?=$this->transEsc(end($formats))?></span>
