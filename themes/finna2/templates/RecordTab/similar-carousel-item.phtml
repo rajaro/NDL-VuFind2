@@ -5,9 +5,9 @@
   $noImage = empty($images[0]['urls']['medium']);
 ?>
 <div class="similar-carousel-item">
-  <div class="similar-carousel-image <?= $noImage ? 'no-image' : ''?>">
+  <div class="similar-carousel-image <?= $noImage ? 'no-image' : ''?>" aria-hidden="true">
     <?php if (!$noImage): ?>
-      <img data-src="<?= $images[0]['urls']['medium'] ?? $this->url('cover-unavailable') ?>" />
+      <img data-src="<?=$images[0]['urls']['medium']?>" />
     <?php else: ?>
     <div class="iconlabel format-<?=$this->record($driver)->getFormatClass(end($formats))?>"></div>
     <?php endif; ?>
