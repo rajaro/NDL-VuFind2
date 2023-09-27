@@ -3,6 +3,7 @@
   $driver = $this->record($this->item)->getDriver();
   $formats = $driver->tryMethod('getFormats');
   $noImage = empty($images[0]['urls']['medium']);
+  $truncateLength = 22;
 ?>
 <div class="similar-carousel-item">
   <div class="similar-carousel-image <?= $noImage ? 'no-image' : ''?>">
@@ -13,10 +14,10 @@
     <?php endif; ?>
   </div>
   <div class="similar-carousel-text">
-    <span class="similar-carousel-item-title" title="<?=$this->escapeHtmlAttr($this->item->getTitle())?>"><?=$this->truncate($this->escapeHtml($this->item->getTitle()), 22)?></span>
+    <span class="similar-carousel-item-title" <?=strlen($this->item->getTitle()) > $truncateLength ? 'title="' . $this->item->getTitle() . '"' : ''?>><?=$this->truncate($this->escapeHtml($this->item->getTitle()), $truncateLength)?></span>
     <?php $authors = $item->getPrimaryAuthors();
       if (!empty($authors)): ?>
-        <span class="similar-carousel-item-author" title="<?=$this->escapeHtmlAttr($authors[0])?>"><?=$this->truncate($this->escapeHtml($authors[0]), 22)?></span>
+        <span class="similar-carousel-item-author" <?=strlen($authors[0]) > $truncateLength ? 'title="' . $authors[0] . '"' : ''?>><?=$this->truncate($this->escapeHtml($authors[0]), $truncateLength)?></span>
       <?php endif; ?>
     <div>
       <span class="similar-carousel-format"><?=$this->transEsc(end($formats))?></span>
