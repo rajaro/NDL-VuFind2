@@ -153,8 +153,7 @@
         <?php endif; ?>
         <ul class="recordTabs nav nav-tabs visible-md visible-lg" role="tablist">
           <?php foreach ($this->tabs as $tab => $obj): ?>
-            <?php
-              // add current tab to breadcrumbs if applicable:
+            <?php // add current tab to breadcrumbs if applicable:
               $desc = $obj->getDescription();
               $tabName = preg_replace("/\W/", '-', strtolower($tab));
               $tabClasses = [ 'record-tab', $tabName ];
