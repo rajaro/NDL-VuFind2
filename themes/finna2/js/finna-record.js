@@ -527,8 +527,8 @@ finna.record = (function finnaRecord() {
 
   function initSimilarCarousel()
   {
-    var container = document.querySelector('.similar-carousel');
-    if (container.length === 0 ) {
+    var container = document.querySelector('.similar-carousel .splide');
+    if (container === null) {
       return;
     }
     var settings = {
@@ -538,7 +538,7 @@ finna.record = (function finnaRecord() {
       pagination: false,
       gap: '2px'
     };
-    finna.carouselManager.createCarousel(container.querySelector('.splide'), settings);
+    finna.carouselManager.createCarousel(container, settings);
     VuFind.observerManager.observe(
       'LazyImages',
       container.querySelectorAll('img[data-src]')

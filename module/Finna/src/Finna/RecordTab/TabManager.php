@@ -99,4 +99,18 @@ class TabManager extends \VuFind\RecordTab\TabManager
         }
         return $result;
     }
+
+    /**
+     * Get Similar Items Carousel tab
+     *
+     * @param AbstractRecordDriver $driver Record driver
+     *
+     * @return SimilarItemsCarousel
+     */
+    public function getSimilarItemsCarouselTab(AbstractRecordDriver $driver)
+    {
+        $tab = $this->pluginManager->get('SimilarItemsCarousel');
+        $tab->setRecordDriver($driver);
+        return $tab;
+    }
 }

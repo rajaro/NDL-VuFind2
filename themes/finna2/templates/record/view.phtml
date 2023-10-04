@@ -125,11 +125,9 @@
           <?=$this->render('record/record-organisation-menu.phtml') ?>
       </div>
     <?php endif; ?>
-    <?php if (!$this->config()->similarRecordsCarouselEnabled()): ?>
-      <?php foreach ($this->related()->getList($this->driver) as $current): ?>
-          <?=$this->related()->render($current)?>
-      <?php endforeach; ?>
-    <?php endif; ?>
+    <?php foreach ($this->related()->getList($this->driver) as $current): ?>
+        <?=$this->related()->render($current)?>
+    <?php endforeach; ?>
     <?php if ($template = $this->content()->findTemplateForLng('content/Additions/record-post-recommendations')): ?>
       <div>
           <?=$this->render($template)?>
@@ -156,9 +154,6 @@
         <ul class="recordTabs nav nav-tabs visible-md visible-lg" role="tablist">
           <?php foreach ($this->tabs as $tab => $obj): ?>
             <?php
-              if ($this->config()->similarRecordsCarouselEnabled() && $tab === 'Similar') {
-                continue;
-              }
               // add current tab to breadcrumbs if applicable:
               $desc = $obj->getDescription();
               $tabName = preg_replace("/\W/", '-', strtolower($tab));
@@ -197,9 +192,6 @@
     <div class="record-accordions">
       <?php foreach ($this->tabs as $accordion => $obj): ?>
         <?php
-          if ($this->config()->similarRecordsCarouselEnabled() && $tab === 'Similar') {
-            continue;
-          }
           $desc = $obj->getDescription();
           $accordion_classes = [
             'accordion',
@@ -249,9 +241,9 @@
       <?=$sidebar ?>
     </div>
   <?php endif; ?>
-  <?php if ($this->config()->similarRecordsCarouselEnabled() && !empty($this->tabs['Similar'])): ?>
+  <?php if ($this->config()->similarRecordsCarouselEnabled()): ?>
     <div class="similar-bottom container">
-      <?=$this->record($this->driver)->getTab($this->tabs['Similar'])?>
+      <?=$this->render('RecordTab/similaritemscarousel.phtml', ['tab' => $this->record($this->driver)->getSimilarItemsCarousel()])?>
     </div>
   <?php endif; ?>
 

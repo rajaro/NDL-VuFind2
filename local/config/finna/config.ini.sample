@@ -1291,9 +1291,8 @@ hide_holdings[] = "World Wide Web"
 ;    WorkExpressions - Other expressions or versions of the record
 related[] = "SimilarDeferred"
 
-; Whether to display similar records at the bottom of the record view instead
-; of sidebar. Records will be displayed as a carousel. Requires SimilarItemsCarousel
-; record tab to be set in RecordTabs.ini
+; Whether to display similar records at the bottom of the record view.
+; Records will be displayed as a carousel.
 ;similar_bottom = true
 ; How many items will be shown in the similar items carousel. Requires similar_bottom
 ; to be true

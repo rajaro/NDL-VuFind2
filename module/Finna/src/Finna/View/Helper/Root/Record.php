@@ -1359,6 +1359,16 @@ class Record extends \VuFind\View\Helper\Root\Record
     }
 
     /**
+     * Get Similar Items Carousel tab
+     *
+     * @return SimilarItemsCarousel
+     */
+    public function getSimilarItemsCarousel()
+    {
+        return $this->tabManager->getSimilarItemsCarouselTab($this->driver);
+    }
+
+    /**
      * Get container js classes if the driver supports ajax status and/or has
      * preferred source.
      *
