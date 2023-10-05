@@ -634,6 +634,10 @@ finna-feed {
                     &.is-active {
                         background-color: @brand-primary;
                     }
+                    &:focus {
+                        outline: 2px solid @action-link-color;
+                        outline-offset: 3px;
+                    }
                 }
                 @media (min-width: @screen-md) {
                     padding: 8px;
