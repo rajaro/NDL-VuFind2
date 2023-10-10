@@ -16,7 +16,7 @@
     <?php endif; ?>
   </div>
 <?php endif; ?>
-<div class="carousel-text" aria-hidden="true">
+<div class="carousel-text" aria-hidden="true" tabindex="-1">
   <?php if (isset($item['title'])): ?>
     <div class="carousel-hover-title">
       <p><?=$this->escapeHtml($this->truncate($item['title'], 70))?></p>
