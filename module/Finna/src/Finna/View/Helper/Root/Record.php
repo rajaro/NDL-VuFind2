@@ -1361,9 +1361,9 @@ class Record extends \VuFind\View\Helper\Root\Record
     /**
      * Get Similar Items Carousel tab
      *
-     * @return SimilarItemsCarousel
+     * @return \VuFind\RecordTab\SimilarItemsCarousel
      */
-    public function getSimilarItemsCarousel()
+    public function getSimilarItemsCarousel(): \VuFind\RecordTab\SimilarItemsCarousel
     {
         return $this->tabManager->getSimilarItemsCarouselTab($this->driver);
     }
