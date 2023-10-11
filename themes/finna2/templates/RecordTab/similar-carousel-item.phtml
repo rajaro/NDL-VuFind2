@@ -10,7 +10,7 @@
     <?php if (!$noImage): ?>
       <img data-src="<?=$images[0]['urls']['medium']?>" alt="">
     <?php else: ?>
-    <div class="iconlabel format-<?=$this->record($driver)->getFormatClass(end($formats))?>"></div>
+      <div class="iconlabel format-<?=$this->record($driver)->getFormatClass(end($formats))?>"></div>
     <?php endif; ?>
   </div>
   <div class="similar-carousel-text">

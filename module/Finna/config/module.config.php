@@ -967,7 +967,6 @@ $config = [
                     'Finna\RecordTab\HierarchyTree' => 'VuFind\RecordTab\HierarchyTreeFactory',
                     'Finna\RecordTab\Map' => 'Finna\RecordTab\Factory::getMap',
                     'Finna\RecordTab\R2CollectionList' => 'VuFind\RecordTab\CollectionListFactory',
-                    'Finna\RecordTab\SimilarItemsCarousel' => 'VuFind\RecordTab\SimilarItemsCarouselFactory',
                     'Finna\RecordTab\UserComments' => 'Finna\RecordTab\Factory::getUserComments',
                 ],
                 'invokables' => [
@@ -984,7 +983,6 @@ $config = [
                     'VuFind\RecordTab\CollectionHierarchyTree' => 'Finna\RecordTab\CollectionHierarchyTree',
                     'VuFind\RecordTab\HierarchyTree' => 'Finna\RecordTab\HierarchyTree',
                     'VuFind\RecordTab\Map' => 'Finna\RecordTab\Map',
-                    'VuFind\RecordTab\SimilarItemsCarousel' => 'Finna\RecordTab\SimilarItemsCarousel',
                     'VuFind\RecordTab\UserComments' => 'Finna\RecordTab\UserComments',
                 ],
             ],
