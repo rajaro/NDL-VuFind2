@@ -91,6 +91,6 @@ class Config extends \VuFind\View\Helper\Root\Config
      */
     public function similarRecordsCarouselEnabled(): bool
     {
-        return !empty($this->get('config')->Record->similar_carousel);
+        return $this->get('config')->Record->similar_carousel_display ?? '';
     }
 }

@@ -1293,7 +1293,7 @@ related[] = "SimilarDeferred"
 
 ; Whether to display similar records at the bottom of the record view.
 ; Records will be displayed as a carousel.
-;similar_carousel_bottom = true
+;similar_carousel_display = "after_tabs"
 ; How many items will be shown in the similar items carousel. Default is 40.
 ;similar_carousel_items = 15
 

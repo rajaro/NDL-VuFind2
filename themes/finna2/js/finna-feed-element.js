@@ -352,15 +352,6 @@ class FinnaFeedElement extends HTMLElement {
   }
 
   /**
-   * When the element is removed from the dom
-   */
-  disconnectedCallback() {
-    if (!this.classList.contains('similar-items-carousel')) {
-      this.innerHTML = '';
-    }
-  }
-
-  /**
    * Observed attribute value changed
    *
    * @param {string} name     Name of the attribute

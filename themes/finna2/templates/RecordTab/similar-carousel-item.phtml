@@ -20,7 +20,7 @@
         <span class="similar-carousel-item-author" <?=strlen($authors[0]) > $truncateLength ? 'title="' . $authors[0] . '"' : ''?>><?=$this->truncate($this->escapeHtml($authors[0]), $truncateLength)?></span>
       <?php endif; ?>
     <div>
-      <span class="similar-carousel-format"><?=$this->transEsc(end($formats))?></span>
+      <span class="similar-carousel-format"><?=$this->record($driver)->getFormatList()?></span>
     </div>
   </div>
 </div>
