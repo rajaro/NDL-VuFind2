@@ -87,9 +87,9 @@ class Config extends \VuFind\View\Helper\Root\Config
      * Display similar records at the bottom of record view
      * as a carousel
      *
-     * @return bool
+     * @return string
      */
-    public function similarRecordsCarouselEnabled(): bool
+    public function getSimilarRecordsCarouselLocation(): string
     {
         return $this->get('config')->Record->similar_carousel_display ?? '';
     }

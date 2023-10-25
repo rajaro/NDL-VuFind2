@@ -7,17 +7,17 @@
 ?>
 <div class="similar-carousel-item">
   <div class="similar-carousel-image <?= $noImage ? 'no-image' : ''?>">
-    <?php if (!$noImage): ?>
-      <img data-src="<?=$images[0]['urls']['medium']?>" alt="">
-    <?php else: ?>
+    <?php if ($noImage): ?>
       <div class="iconlabel format-<?=$this->record($driver)->getFormatClass(end($formats))?>"></div>
+    <?php else: ?>
+      <img data-src="<?=$images[0]['urls']['medium']?>" alt="">
     <?php endif; ?>
   </div>
   <div class="similar-carousel-text">
-    <span class="similar-carousel-item-title" <?=strlen($this->item->getTitle()) > $truncateLength ? 'title="' . $this->item->getTitle() . '"' : ''?>><?=$this->truncate($this->escapeHtml($this->item->getTitle()), $truncateLength)?></span>
+    <span class="similar-carousel-item-title" <?=mb_strlen($this->item->getTitle(), 'UTF-8') > $truncateLength ? 'title="' . $this->escapeHtmlAttr($this->item->getTitle()) . '"' : ''?>><?=$this->escapeHtml($this->truncate($this->item->getTitle(), $truncateLength))?></span>
     <?php $authors = $item->getPrimaryAuthors();
       if (!empty($authors)): ?>
-        <span class="similar-carousel-item-author" <?=strlen($authors[0]) > $truncateLength ? 'title="' . $authors[0] . '"' : ''?>><?=$this->truncate($this->escapeHtml($authors[0]), $truncateLength)?></span>
+        <span class="similar-carousel-item-author" <?=mb_strlen($authors[0], 'UTF-8') > $truncateLength ? 'title="' . $this->escapeHtmlAttr($authors[0]) . '"' : ''?>><?=$this->escapeHtml($this->truncate($authors[0], $truncateLength))?></span>
       <?php endif; ?>
     <div>
       <span class="similar-carousel-format"><?=$this->record($driver)->getFormatList()?></span>
