@@ -373,6 +373,8 @@ $config = [
             'Finna\OnlinePayment\Receipt' => 'Finna\OnlinePayment\ReceiptFactory',
             'Finna\OnlinePayment\Session' => 'Finna\OnlinePayment\OnlinePaymentSessionFactory',
             'Finna\OrganisationInfo\OrganisationInfo' => 'Finna\OrganisationInfo\OrganisationInfoFactory',
+            'Finna\OrganisationInfo\Provider\Kirkanta' => 'Finna\OrganisationInfo\Provider\AbstractProviderFactory',
+            'Finna\OrganisationInfo\Provider\MuseotFi' => 'Finna\OrganisationInfo\Provider\AbstractProviderFactory',
             'Finna\Record\Loader' => 'Finna\Record\LoaderFactory',
             'Finna\RecordDriver\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'Finna\RecordTab\TabManager' => 'VuFind\RecordTab\TabManagerFactory',
@@ -391,6 +393,7 @@ $config = [
             'Finna\Video\Handler\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'Finna\Video\Video' => 'Finna\Video\VideoFactory',
             'Finna\View\Resolver\AggregateResolver' => 'Finna\View\Resolver\AggregateResolverFactory',
+            'NatLibFi\FinnaCodeSets\FinnaCodeSets' => 'Finna\RecordDriver\CodeSetsFactory',
 
             // Factory overrides for non-Finna classes:
             'VuFind\Config\PathResolver' => 'Finna\Config\PathResolverFactory',
@@ -898,6 +901,8 @@ $config = [
             ],
             'recorddriver' => [
                 'factories' => [
+                    'Finna\RecordDriver\AipaLrmi' =>
+                        'Finna\RecordDriver\AipaLrmiFactory',
                     'Finna\RecordDriver\CuratedRecord' =>
                         'VuFind\RecordDriver\AbstractBaseFactory',
                     'Finna\RecordDriver\EDS' =>
@@ -908,6 +913,8 @@ $config = [
                         'VuFind\RecordDriver\NameBasedConfigFactory',
                     'Finna\RecordDriver\SolrDefault' =>
                         'Finna\RecordDriver\SolrDefaultFactory',
+                    'Finna\RecordDriver\SolrAipa' =>
+                        'Finna\RecordDriver\SolrAipaFactory',
                     'Finna\RecordDriver\SolrAuthEaccpf' =>
                         'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrAuthForward' =>
@@ -935,7 +942,9 @@ $config = [
                     'r2ead3' => 'Finna\RecordDriver\R2Ead3',
                     'r2ead3missing' => 'Finna\RecordDriver\R2Ead3Missing',
 
+                    'AipaLrmi' => 'Finna\RecordDriver\AipaLrmi',
                     'CuratedRecord' => 'Finna\RecordDriver\CuratedRecord',
+                    'SolrAipa' => 'Finna\RecordDriver\SolrAipa',
                     'SolrAuthEaccpf' => 'Finna\RecordDriver\SolrAuthEaccpf',
                     'SolrAuthForwardAuthority' => 'Finna\RecordDriver\SolrAuthForward',
                     'SolrAuthMarcAuthority' => 'Finna\RecordDriver\SolrAuthMarc',
