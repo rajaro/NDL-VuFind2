@@ -16,8 +16,8 @@
     <span class="similar-carousel-item-title" data-toggle="tooltip-hover" data-original-title=<?=$this->escapeHtmlAttr($this->item->getTitle())?>><?=$this->escapeHtml($this->item->getTitle())?></span>
     <?php $authors = $item->getPrimaryAuthors();
     if (!empty($authors)): ?>
-        <span class="similar-carousel-item-author" data-toggle="tooltip-hover" data-original-title=<?=$this->escapeHtmlAttr($authors[0])?>><?=$this->escapeHtml($authors[0])?></span>
-      <?php endif; ?>
+      <span class="similar-carousel-item-author" data-toggle="tooltip-hover" data-original-title=<?=$this->escapeHtmlAttr($authors[0])?>><?=$this->escapeHtml($authors[0])?></span>
+    <?php endif; ?>
     <div>
       <span class="similar-carousel-format"><?=$this->record($driver)->getFormatList()?></span>
     </div>
