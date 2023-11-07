@@ -580,7 +580,7 @@ finna.record = (function finnaRecord() {
           el.nextElementSibling.classList.remove('hidden');
           el.classList.add('hidden');
         }
-      }
+      };
     });
   }
 
