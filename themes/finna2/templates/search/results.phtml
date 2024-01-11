@@ -302,7 +302,7 @@ if (trim($pagination)): ?>
 
       <?php if (is_numeric($this->results->getSearchId()) && (is_object($account) && $account->loginEnabled())): ?>
         <?php if ($this->results->isSavedSearch()): ?>
-          <a href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>"><?=$this->icon('search-remove') ?> <?=$this->transEsc('save_search_remove')?></a>
+          <a href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>"><?=$this->icon('search-delete') ?> <?=$this->transEsc('save_search_remove')?></a>
         <?php else: ?>
           <a href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>"><?=$this->icon('search-save') ?> <?=$this->transEsc('save_search')?></a>
         <?php endif; ?>

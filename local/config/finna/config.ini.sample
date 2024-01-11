@@ -1922,3 +1922,14 @@ show_in_holdings = false    ; include in holdings tab of record view
 ; See https://educloud-alliance-technical-documentation.readthedocs.io/en/latest/bazaar/interface_lms.html
 ; for more information.
 ;client[client_id] = secret
+
+[SearchHistoryLabels]
+Blender = tabs_blended
+Combined = tabs_combined
+EDS = tabs_eds
+L1 = tabs_l1
+Primo = tabs_pci
+Search2 = tabs_local
+Solr = tabs_local
+SolrAuthority = tabs_authority
+Summon = tabs_summon

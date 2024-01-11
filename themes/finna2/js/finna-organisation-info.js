@@ -204,6 +204,20 @@ finna.organisationInfo = (function finnaOrganisationInfo() {
         }
       });
     });
+
+    $('.js-location-search-service-type').select2({
+      width: '100%'
+    });
+    // Trigger DOM event for the jQuery change event:
+    $('.js-location-search-service-type').on(
+      'change',
+      function triggerChange(ev) {
+        // Trigger only if this is the original event to avoid endless loop:
+        if (typeof ev.originalEvent === 'undefined') {
+          this.dispatchEvent(new Event('change'));
+        }
+      }
+    );
   }
 
   /**
@@ -379,9 +393,9 @@ finna.organisationInfo = (function finnaOrganisationInfo() {
           console.error('Current date not found');
           return;
         }
-        let date = new Date(isoDate);
+        let date = new Date(isoDate + 'T00:00:00Z');
         let delta = parseInt(btn.dataset.dir) < 0 ? -7 : 7;
-        date.setDate(date.getDate() + delta);
+        date.setUTCDate(date.getUTCDate() + delta);
         let newIsoDate = date.toISOString().substring(0, 10);
         indicatorEl.classList.remove('hidden');
         fetch(VuFind.path + '/AJAX/JSON?' + new URLSearchParams({

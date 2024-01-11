@@ -480,3 +480,37 @@ h2 {
     }
   }
 }
+
+.search-history-table {
+  &:extend(.table all);
+  &:extend(.table-striped all);
+  &:extend(.table-responsive all);
+}
+table.search-history-table {
+  table-layout: auto;
+
+  tr.oddrow {
+    background-color: transparent;
+  }
+  thead tr, tr.evenrow {
+    background-color: @table-bg-accent;
+  }
+
+  .history_results {
+    white-space: nowrap;
+  }
+
+  @media screen and (min-width: 768px) {
+    border: 1px solid @gray-lighter;
+    tbody > tr > td { vertical-align: middle; }
+    .history_time {
+      width: 20%;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    tbody > tr {
+      border: 1px solid @gray-lighter;
+    }
+  }
+}

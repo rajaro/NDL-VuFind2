@@ -258,6 +258,18 @@ class SolrEad3Test extends \PHPUnit\Framework\TestCase
                     'ead3_test2.xml' => [],
                 ],
             ],
+            [
+                'getSubjectActors',
+                [
+                    'ead3_test.xml' => [
+                        'Anssi Aihe',
+                        'Aino Aihe',
+                    ],
+                    'ead3_test2.xml' => [
+                        'Aino Aihe',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -280,6 +292,142 @@ class SolrEad3Test extends \PHPUnit\Framework\TestCase
             $this->assertEquals(
                 $result,
                 $driver->$function()
+            );
+        }
+    }
+
+    /**
+     * Function to get expected subject headings data
+     *
+     * @return array
+     */
+    public function getAllSubjectHeadingsExtendedData(): array
+    {
+        return [
+            [
+                'fi',
+                [
+                    'ead3_test.xml' => [
+                        [
+                            'id' => 'EAC_102486375',
+                            'source' => '',
+                            'detail' => 'aihe',
+                            'heading' => ['Manner, Eeva-Liisa'],
+                            'type' => 'topic',
+                            'authType' => 'Unknown Name',
+                        ],
+                        [
+                            'id' => 'http://www.yso.fi/onto/yso/p900',
+                            'source' => 'YSO',
+                            'detail' => 'aihe',
+                            'heading' => ['fysiikka'],
+                            'type' => 'topic',
+                            'authType' => null,
+
+                        ],
+                        [
+                            'source' => '',
+                            'detail' => '',
+                            'type' => 'topic',
+                            'heading' => ['Elintarviketeollisuus, Myllytuotteiden valmistus'],
+                        ],
+                    ],
+                    'ead3_test2.xml' => [
+                        [
+                            'id' => 'http://www.yso.fi/onto/koko/p9492',
+                            'source' => 'KOKO',
+                            'detail' => 'asiasana',
+                            'heading' => ['kirjoituskilpailut'],
+                            'type' => 'topic',
+                            'authType' => null,
+                        ],
+                    ],
+                ],
+                'sv',
+                [
+                    'ead3_test.xml' => [
+                        [
+                            'id' => 'EAC_102486375',
+                            'source' => '',
+                            'detail' => 'aihe',
+                            'heading' => ['Manner, Eeva-Liisa'],
+                            'type' => 'topic',
+                            'authType' => 'Unknown Name',
+                        ],
+                        [
+                            'id' => 'http://www.yso.fi/onto/yso/p900',
+                            'source' => 'YSO',
+                            'detail' => 'aihe',
+                            'heading' => ['fysiikka'],
+                            'type' => 'topic',
+                            'authType' => null,
+
+                        ],
+                        [
+                            'source' => '',
+                            'detail' => '',
+                            'type' => 'topic',
+                            'heading' => ['Elintarviketeollisuus, Myllytuotteiden valmistus'],
+                        ],
+                    ],
+                    'ead3_test2.xml' => [
+                        [
+                            'id' => 'http://www.yso.fi/onto/koko/p9492',
+                            'source' => 'KOKO',
+                            'detail' => 'asiasana',
+                            'heading' => ['skrivartävlingar'],
+                            'type' => 'topic',
+                            'authType' => null,
+                        ],
+                    ],
+                ],
+                'en',
+                [
+                    'ead3_test.xml' => [
+                        [
+                            'id' => 'http://www.yso.fi/onto/koko/p9492',
+                            'source' => 'KOKO',
+                            'detail' => 'asiasana',
+                            'heading' => ['writing contests'],
+                            'type' => 'topic',
+                            'authType' => null,
+                        ],
+                    ],
+                    'ead3_test2.xml' => [
+                        [
+                            'id' => 'http://www.yso.fi/onto/koko/p9492',
+                            'source' => 'KOKO',
+                            'detail' => 'asiasana',
+                            'heading' => ['writing contests'],
+                            'type' => 'topic',
+                            'authType' => null,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Test getAllSubjectHeadingsExtended
+     *
+     * @param string $language Language
+     * @param array  $expected Result to be expected
+     *
+     * @dataProvider getAllSubjectHeadingsExtendedData
+     *
+     * @return void
+     */
+    public function testAllSubjectHeadingsExtended(
+        string $language,
+        array $expected
+    ): void {
+        foreach ($expected as $file => $result) {
+            $driver = $this->getDriver($file);
+            $driver->setPreferredLanguage($language);
+            $this->assertEquals(
+                $result,
+                $driver->getAllSubjectHeadingsExtended()
             );
         }
     }

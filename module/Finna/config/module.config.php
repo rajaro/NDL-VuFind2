@@ -473,8 +473,6 @@ $config = [
                         'Finna\AjaxHandler\GetModelFactory',
                     'Finna\AjaxHandler\GetEncapsulatedRecords' =>
                         'Finna\AjaxHandler\GetEncapsulatedRecordsFactory',
-                    'Finna\AjaxHandler\GetFacetData' =>
-                        'Finna\AjaxHandler\GetFacetDataFactory',
                     'Finna\AjaxHandler\GetFeed' =>
                         'Finna\AjaxHandler\GetFeedFactory',
                     'Finna\AjaxHandler\GetFieldInfo' =>
@@ -559,7 +557,6 @@ $config = [
                     // Overrides:
                     'VuFind\AjaxHandler\CommentRecord' => 'Finna\AjaxHandler\CommentRecord',
                     'VuFind\AjaxHandler\GetACSuggestions' => 'Finna\AjaxHandler\GetACSuggestions',
-                    'VuFind\AjaxHandler\GetFacetData' => 'Finna\AjaxHandler\GetFacetData',
                     'VuFind\AjaxHandler\GetItemStatuses' => 'Finna\AjaxHandler\GetItemStatuses',
                     'VuFind\AjaxHandler\GetRequestGroupPickupLocations' => 'Finna\AjaxHandler\GetRequestGroupPickupLocations',
                     'VuFind\AjaxHandler\GetSideFacets' => 'Finna\AjaxHandler\GetSideFacets',
@@ -642,7 +639,7 @@ $config = [
             'db_table' => [
                 'factories' => [
                     'Finna\Db\Table\Comments' => 'VuFind\Db\Table\GatewayFactory',
-                    'Finna\Db\Table\CommentsInappropriate' => 'VuFind\Db\Table\GatewayFactory',
+                    'Finna\Db\Table\CommentsInappropriate' => 'Finna\Db\Table\CommentsInappropriateFactory',
                     'Finna\Db\Table\CommentsRecord' => 'VuFind\Db\Table\GatewayFactory',
                     'Finna\Db\Table\DueDateReminder' => 'VuFind\Db\Table\GatewayFactory',
                     'Finna\Db\Table\Fee' => 'VuFind\Db\Table\GatewayFactory',

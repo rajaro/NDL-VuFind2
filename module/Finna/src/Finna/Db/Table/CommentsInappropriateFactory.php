@@ -1,12 +1,11 @@
 <?php
 
 /**
- * Factory for GetFacetData AJAX handler.
+ * CommentsInappropriate table gateway factory.
  *
  * PHP version 8
  *
- * Copyright (C) Villanova University 2018.
- * Copyright (C) The National Library of Finland 2018.
+ * Copyright (C) The National Library of Finland 2023.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,14 +21,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  AJAX
- * @author   Demian Katz <demian.katz@villanova.edu>
+ * @package  Db_Table
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
 
-namespace Finna\AjaxHandler;
+namespace Finna\Db\Table;
 
 use Laminas\ServiceManager\Exception\ServiceNotCreatedException;
 use Laminas\ServiceManager\Exception\ServiceNotFoundException;
@@ -37,16 +35,15 @@ use Psr\Container\ContainerExceptionInterface as ContainerException;
 use Psr\Container\ContainerInterface;
 
 /**
- * Factory for GetFacetData AJAX handler.
+ * CommentsInappropriate table gateway factory.
  *
  * @category VuFind
- * @package  AJAX
- * @author   Demian Katz <demian.katz@villanova.edu>
+ * @package  Db_Table
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class GetFacetDataFactory implements \Laminas\ServiceManager\Factory\FactoryInterface
+class CommentsInappropriateFactory extends \VuFind\Db\Table\GatewayFactory
 {
     /**
      * Create an object
@@ -60,23 +57,14 @@ class GetFacetDataFactory implements \Laminas\ServiceManager\Factory\FactoryInte
      * @throws ServiceNotFoundException if unable to resolve the service.
      * @throws ServiceNotCreatedException if an exception is raised when
      * creating a service.
-     * @throws ContainerException if any other error occurs
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @throws ContainerException&\Throwable if any other error occurs
      */
     public function __invoke(
         ContainerInterface $container,
         $requestedName,
         array $options = null
     ) {
-        if (!empty($options)) {
-            throw new \Exception('Unexpected options passed to factory.');
-        }
-        return new $requestedName(
-            $container->get(\VuFind\Session\Settings::class),
-            $container->get(\VuFind\Search\Solr\HierarchicalFacetHelper::class),
-            $container->get(\VuFind\Search\Results\PluginManager::class),
-            $container->get(\VuFind\Config\PluginManager::class)->get('browse')
-        );
+        $sessionManager = $container->get(\Laminas\Session\SessionManager::class);
+        return parent::__invoke($container, $requestedName, ['finna_comments_inappropriate', $sessionManager]);
     }
 }
