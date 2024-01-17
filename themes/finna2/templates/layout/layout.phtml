@@ -293,9 +293,7 @@
         <?=$this->layout()->poweredBy ?>
       </div>
     </footer>
-    <?=$this->googleanalytics()?>
-    <?=$this->piwik()?>
-    <?=$this->matomo()?>
+    <?=$this->render('Helpers/analytics.phtml')?>
     <?php if ($template = $this->content()->findTemplateForLng('content/Additions/general-post-body')): ?>
       <div class="container-fluid general-post-body">
         <div class="container">

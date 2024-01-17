@@ -85,23 +85,13 @@
       );
   }
 
-  // Set up Finna Main Tabs:
-  //$this->layout()->finnaMainTabs = '...';
-
-  // Enable cart if appropriate:
   $options = $this->params->getOptions();
-  $this->showBulkOptions = $options->supportsCart() && $this->showBulkOptions;
-  // Checkboxes if appropriate:
-  $this->showCartControls = $options->supportsCart() && $this->cart()->isActive()
-    && ($this->showBulkOptions || !$this->cart()->isActiveInSearch());
-  // Enable bulk options if appropriate:
-  $this->showCheckboxes = $this->showCartControls || $this->showBulkOptions;
-
   $this->render(
       'search/results-scripts.phtml',
       [
           'displayVersions' => !empty($options->getVersionsAction()),
           'listViewOption' => $options->getListViewOption(),
+          'jsResults' => $options->loadResultsWithJsEnabled(),
       ]
   );
 

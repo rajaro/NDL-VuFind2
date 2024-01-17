@@ -88,7 +88,7 @@ class SolrEad3Test extends \PHPUnit\Framework\TestCase
      *
      * @return array
      */
-    public function getOtherRelatedMaterialData(): array
+    public static function getOtherRelatedMaterialData(): array
     {
         return [
             [
@@ -152,7 +152,7 @@ class SolrEad3Test extends \PHPUnit\Framework\TestCase
      *
      * @return array
      */
-    public function getAuthorData(): array
+    public static function getAuthorData(): array
     {
         return [
             [
@@ -301,7 +301,7 @@ class SolrEad3Test extends \PHPUnit\Framework\TestCase
      *
      * @return array
      */
-    public function getAllSubjectHeadingsExtendedData(): array
+    public static function getAllSubjectHeadingsExtendedData(): array
     {
         return [
             [
@@ -437,7 +437,7 @@ class SolrEad3Test extends \PHPUnit\Framework\TestCase
      *
      * @return array
      */
-    public function getPhysicalDescriptionsData(): array
+    public static function getPhysicalDescriptionsData(): array
     {
         return [
             [
