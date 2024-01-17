@@ -99,6 +99,13 @@ class Manager implements
     protected $userTable;
 
     /**
+     * Login token
+     *
+     * @var LoginToken
+     */
+    protected $loginToken;
+
+    /**
      * Session manager
      *
      * @var SessionManager
@@ -138,6 +145,7 @@ class Manager implements
      *
      * @param Config         $config         VuFind configuration
      * @param UserTable      $userTable      User table gateway
+     * @param LoginToken     $loginToken     Login Token
      * @param SessionManager $sessionManager Session manager
      * @param PluginManager  $pm             Authentication plugin manager
      * @param CookieManager  $cookieManager  Cookie manager
@@ -146,6 +154,7 @@ class Manager implements
     public function __construct(
         Config $config,
         UserTable $userTable,
+        LoginToken $loginToken,
         SessionManager $sessionManager,
         PluginManager $pm,
         CookieManager $cookieManager,
@@ -154,6 +163,7 @@ class Manager implements
         // Store dependencies:
         $this->config = $config;
         $this->userTable = $userTable;
+        $this->loginToken = $loginToken;
         $this->sessionManager = $sessionManager;
         $this->pluginManager = $pm;
         $this->cookieManager = $cookieManager;
@@ -194,8 +204,9 @@ class Manager implements
      */
     protected function makeAuth($method)
     {
+        $legalAuthList = array_map('strtolower', $this->legalAuthOptions);
         // If an illegal option was passed in, don't allow the object to load:
-        if (!in_array($method, $this->legalAuthOptions)) {
+        if (!in_array(strtolower($method), $legalAuthList)) {
             throw new \Exception("Illegal authentication method: $method");
         }
         $auth = $this->pluginManager->get($method);
@@ -269,6 +280,37 @@ class Manager implements
     {
         return ($this->config->Catalog->auth_based_library_cards ?? false)
             && $this->getAuth($authMethod)->supportsConnectingLibraryCard();
+    }
+
+    /**
+     * Is persistent login supported?
+     *
+     * @param User $user optional; check user auth method in database
+     *
+     * @return bool
+     */
+    public function supportsPersistentLogin($user = null)
+    {
+        if (!empty($this->config->Authentication->persistent_login)) {
+            $method = $this->getAuth() instanceof ChoiceAuth
+                ? $this->getAuth()->getSelectedAuthOption() : $this->getAuthMethod();
+
+            return in_array(
+                strtolower($method),
+                explode(',', strtolower($this->config->Authentication->persistent_login))
+            );
+        }
+        return false;
+    }
+
+    /**
+     * Get persistent login lifetime in days
+     *
+     * @return int
+     */
+    public function getPersistentLoginLifetime()
+    {
+        return $this->config->Authentication->persistent_login_lifetime ?? 14;
     }
 
     /**
@@ -463,6 +505,7 @@ class Manager implements
         unset($this->session->userId);
         unset($this->session->userDetails);
         $this->cookieManager->set('loggedOut', 1);
+        $this->loginToken->deleteActiveToken();
 
         // Destroy the session for good measure, if requested.
         if ($destroy) {
@@ -512,6 +555,14 @@ class Manager implements
                 $results = $this->userTable->createRow();
                 $results->exchangeArray($this->session->userDetails);
                 $this->currentUser = $results;
+            } elseif ($this->cookieManager->get('loginToken')) {
+                if ($user = $this->loginToken->tokenLogin($this->sessionManager->getId())) {
+                    if ($this->getAuth() instanceof ChoiceAuth) {
+                        $this->getAuth()->setStrategy($user->auth_method);
+                    }
+                    $this->updateUser($user);
+                    $this->updateSession($user);
+                }
             } else {
                 // not logged in
                 $this->currentUser = false;
@@ -708,9 +759,42 @@ class Manager implements
         // Update user object
         $this->updateUser($user);
 
+        if ($request->getPost()->get('remember_me') && $this->supportsPersistentLogin()) {
+            try {
+                $this->loginToken->createToken($user, '', $this->sessionManager->getId());
+            } catch (\Exception $e) {
+                $this->logError((string)$e);
+                throw new AuthException('authentication_error_technical', 0, $e);
+            }
+        }
         // Store the user in the session and send it back to the caller:
         $this->updateSession($user);
         return $user;
+    }
+
+    /**
+     * Delete a login token
+     *
+     * @param string $series Series to identify the token
+     * @param int    $userId User identifier
+     *
+     * @return void
+     */
+    public function deleteToken(string $series, int $userId)
+    {
+        $this->loginToken->deleteTokenSeries($series, $userId);
+    }
+
+    /**
+     * Delete all login tokens for a user
+     *
+     * @param int $userId User identifier
+     *
+     * @return void
+     */
+    public function deleteUserLoginTokens(int $userId)
+    {
+        $this->loginToken->deleteUserLoginTokens($userId);
     }
 
     /**
