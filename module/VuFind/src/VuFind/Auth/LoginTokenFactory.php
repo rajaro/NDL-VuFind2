@@ -67,6 +67,11 @@ class LoginTokenFactory implements \Laminas\ServiceManager\Factory\FactoryInterf
         if (!empty($options)) {
             throw new \Exception('Unexpected options sent to factory.');
         }
+        // We need to initialize the theme so that the view renderer works:
+        $configManager = $container->get(\VuFind\Config\PluginManager::class);
+        $mainConfig = $configManager->get('config');
+        $theme = new \VuFindTheme\Initializer($mainConfig->Site, $container);
+        $theme->init();
         return new $requestedName(
             $config = $container->get(\VuFind\Config\PluginManager::class)
                 ->get('config'),
