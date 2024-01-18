@@ -130,7 +130,7 @@
               </div>
               <?php if ($rights = $this->driver->getAccessRestrictionsType($this->layout()->userLang)): ?>
                 <div class="material-rights">
-                  <span class="rights-header"><?=$this->transEsc('Usage Rights')?>:</span>
+                  <span class="rights-header"><?=$this->transEsc('usage_rights_ext')?>:</span>
                   <?= $this->partial('Helpers/copyright-field-value.phtml', ['data' => $rights]) ?>
                 </div>
               <?php endif; ?>
