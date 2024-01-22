@@ -9,7 +9,7 @@
       <div class="form-group">
         <input class="btn btn-primary" type="submit" name="processLogin" value="<?=$this->transEscAttr('Login')?>">
       </div>
-      <?php if ($account->supportsPersistentLogin()) : ?>
+      <?php if ($account->supportsPersistentLogin()): ?>
         <div>
           <label>
             <input type="checkbox" name="remember_me"> <?=$this->transEsc('remember_me', ['%%days%%' => $account->getPersistentLoginLifetime()])?>
