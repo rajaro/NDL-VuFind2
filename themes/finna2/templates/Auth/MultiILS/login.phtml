@@ -14,7 +14,7 @@
         <?php endif; ?>
         <input class="btn btn-primary" type="submit" name="processLogin" value="<?=$this->transEscAttr('Login')?>">
         <?php if ($account->supportsPersistentLogin()): ?>
-          <div>
+          <div class="remember-me-ils">
             <label>
               <input type="checkbox" name="remember_me"> <?=$this->transEsc('remember_me', ['%%days%%' => $account->getPersistentLoginLifetime()])?>
             </label>
