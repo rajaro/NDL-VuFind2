@@ -304,7 +304,7 @@
       <div class="myresearch-profile-header">
         <h3><?=$this->transEsc('Saved logins')?></h3>
       </div>
-      <div class="myresearch-profile-list library-profile">
+      <div class="myresearch-profile-list library-profile login-tokens-section">
         <?php $tokens = $user->getLoginTokens($user->id); ?>
         <?php if (count($tokens) === 0): ?>
           <div class="my-profile-col"><?=$this->transEsc('No saved logins')?></div>
