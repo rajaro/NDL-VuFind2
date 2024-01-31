@@ -1366,6 +1366,115 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
     }
 
     /**
+     * Download historic loan in CSV format
+     *
+     * @return mixed
+     */
+    public function downloadHistoryCsvAction()
+    {
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+        $catalog = $this->getILS();
+
+        // Check function config
+        $functionConfig = $catalog->checkFunction(
+            'getMyTransactionHistory',
+            $patron
+        );
+        if (false === $functionConfig) {
+            $this->flashMessenger()->addErrorMessage('ils_action_unavailable');
+            return $this->createViewModel();
+        }
+
+        $recordLoader = $this->serviceLocator->get(\VuFind\Record\Loader::class);
+        $page = 1;
+        $history = [];
+        do {
+            // Try to use large page size, but take ILS limits into account
+            $pageOptions = $this->getPaginationHelper()
+                ->getOptions($page, null, 10, $functionConfig);
+            $result = $catalog
+                ->getMyTransactionHistory($patron, $pageOptions['ilsParams']);
+
+            if (isset($result['success']) && !$result['success']) {
+                $this->flashMessenger()->addErrorMessage($result['status']);
+                return $this->createViewModel();
+            }
+
+            $ids = [];
+            foreach ($result['transactions'] as $current) {
+                $id = $current['id'] ?? '';
+                $source = $current['source'] ?? DEFAULT_SEARCH_BACKEND;
+                $ids[] = compact('id', 'source');
+            }
+            $records = $recordLoader->loadBatch($ids, true);
+            foreach ($result['transactions'] as $i => $current) {
+                // loadBatch ensures correct indexing
+                $driver = $records[$i];
+
+                $loan = [];
+                $loan[] = $current['title'] ?? '';
+                $loan[] = $this->translate($driver->getFormats()[0] ?? '');
+                $loan[] = $driver->getPrimaryAuthors()[0] ?? '';
+                $loan[] = $driver->getPublicationDates()[0] ?? '';
+
+                $loan[] = empty($current['borrowingLocation'])
+                    ? '-'
+                    : $this->translateWithPrefix('location_', $current['borrowingLocation']);
+
+                $loan[] = $current['checkoutDate'] ?? '';
+                $loan[] = $current['returnDate'] ?? '';
+                $loan[] = $current['dueDate'] ?? '';
+
+                $history[] = $loan;
+            }
+            $pageEnd = $pageOptions['ilsPaging']
+                ? ceil($result['count'] / $pageOptions['limit'])
+                : 1;
+            $page++;
+            $pageEnd = 1;
+        } while ($page <= $pageEnd);
+        $response = $this->getResponse();
+        $response->getHeaders()
+            ->addHeaderLine('Content-Type', 'text/csv')
+            ->addHeaderLine(
+                'Content-Disposition',
+                'attachment; filename="finna-loan-history.csv'
+            );
+
+        $outputPath = tempnam(sys_get_temp_dir(), 'csv');
+        if (! $handle = fopen($outputPath, 'w')) {
+            $this->flashMessenger->addErrorMessage('An error has occurred');
+            return $this->createViewModel();
+        }
+        // UTF-8 BOM
+        fputs($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+        $header = [
+            $this->translate('Title'),
+            $this->translate('Format'),
+            $this->translate('Author'), 
+            $this->translate('Publication Date'),
+            $this->translate('Borrowing Location'),
+            $this->translate('Checkout Date'),
+            $this->translate('Return Date'),
+            $this->translate('Due Date')
+        ];
+        fputcsv($handle, $header);
+        foreach ($history as $t) {
+            fputcsv($handle, $t);
+        }
+        fclose($handle);
+
+        $csvData = file_get_contents($outputPath);
+        $response->setContent($csvData);
+
+        unlink($outputPath);
+
+        return $response;
+    }
+
+    /**
      * Add account blocks to the flash messenger as errors.
      *
      * @param \VuFind\ILS\Connection $catalog Catalog connection
