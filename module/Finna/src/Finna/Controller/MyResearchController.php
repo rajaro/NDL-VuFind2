@@ -1445,7 +1445,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
 
         $outputPath = tempnam('/tmp', 'csv');
         if (! $handle = fopen($outputPath, 'w')) {
-            $this->flashMessenger->addErrorMessage('An error has occurred');
+            $this->flashMessenger()->addErrorMessage('An error has occurred');
             return $this->createViewModel();
         }
         // UTF-8 BOM
