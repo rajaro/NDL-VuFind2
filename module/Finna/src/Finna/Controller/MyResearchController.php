@@ -1366,7 +1366,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
     }
 
     /**
-     * Download historic loan in CSV format
+     * Download historic loans in CSV format
      *
      * @return mixed
      */
@@ -1393,7 +1393,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         do {
             // Try to use large page size, but take ILS limits into account
             $pageOptions = $this->getPaginationHelper()
-                ->getOptions($page, null, 10, $functionConfig);
+                ->getOptions($page, null, 1000, $functionConfig);
             $result = $catalog
                 ->getMyTransactionHistory($patron, $pageOptions['ilsParams']);
 
@@ -1410,19 +1410,19 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             }
             $records = $recordLoader->loadBatch($ids, true);
             foreach ($result['transactions'] as $i => $current) {
-                // loadBatch ensures correct indexing
                 $driver = $records[$i];
+                $format = $driver->getFormats();
+                $format = end($format);
+                $author = $driver->tryMethod('getNonPresenterAuthors');
 
                 $loan = [];
-                $loan[] = $current['title'] ?? '';
-                $loan[] = $this->translate($driver->getFormats()[0] ?? '');
-                $loan[] = $driver->getPrimaryAuthors()[0] ?? '';
-                $loan[] = $driver->getPublicationDates()[0] ?? '';
-
+                $loan[] = $current['title'] ? '"' . $current['title'] . '"' : '';
+                $loan[] = $this->translate($format);
+                $loan[] = $author[0]['name'] ?? '';
+                $loan[] = $current['publication_year'] ?? '';
                 $loan[] = empty($current['borrowingLocation'])
-                    ? '-'
+                    ? ''
                     : $this->translateWithPrefix('location_', $current['borrowingLocation']);
-
                 $loan[] = $current['checkoutDate'] ?? '';
                 $loan[] = $current['returnDate'] ?? '';
                 $loan[] = $current['dueDate'] ?? '';
@@ -1433,7 +1433,6 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 ? ceil($result['count'] / $pageOptions['limit'])
                 : 1;
             $page++;
-            $pageEnd = 1;
         } while ($page <= $pageEnd);
         $response = $this->getResponse();
         $response->getHeaders()
@@ -1454,7 +1453,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             $this->translate('Title'),
             $this->translate('Format'),
             $this->translate('Author'), 
-            $this->translate('Publication Date'),
+            $this->translate('Publication Year'),
             $this->translate('Borrowing Location'),
             $this->translate('Checkout Date'),
             $this->translate('Return Date'),
