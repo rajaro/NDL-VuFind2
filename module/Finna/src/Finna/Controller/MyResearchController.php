@@ -1448,7 +1448,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             return $this->createViewModel();
         }
         // UTF-8 BOM
-        fputs($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+        fputs($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
         $header = [
             $this->translate('Title'),
             $this->translate('Format'),
