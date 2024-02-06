@@ -1442,7 +1442,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 'attachment; filename="finna-loan-history.csv'
             );
 
-        $outputPath = tempnam(sys_get_temp_dir(), 'csv');
+        $outputPath = tempnam('/tmp', 'csv');
         if (! $handle = fopen($outputPath, 'w')) {
             $this->flashMessenger->addErrorMessage('An error has occurred');
             return $this->createViewModel();
@@ -1452,7 +1452,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         $header = [
             $this->translate('Title'),
             $this->translate('Format'),
-            $this->translate('Author'), 
+            $this->translate('Author'),
             $this->translate('Publication Year'),
             $this->translate('Borrowing Location'),
             $this->translate('Checkout Date'),
@@ -1460,8 +1460,8 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             $this->translate('Due Date')
         ];
         fputcsv($handle, $header);
-        foreach ($history as $t) {
-            fputcsv($handle, $t);
+        foreach ($history as $h) {
+            fputcsv($handle, $h);
         }
         fclose($handle);
 
