@@ -39,6 +39,7 @@ use VuFind\Exception\ILS as ILSException;
 use VuFind\Exception\ListPermission as ListPermissionException;
 
 use function array_key_exists;
+use function chr;
 use function count;
 use function in_array;
 use function is_array;
@@ -1448,7 +1449,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             return $this->createViewModel();
         }
         // UTF-8 BOM
-        fputs($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+        fwrite($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
         $header = [
             $this->translate('Title'),
             $this->translate('Format'),
@@ -1457,7 +1458,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             $this->translate('Borrowing Location'),
             $this->translate('Checkout Date'),
             $this->translate('Return Date'),
-            $this->translate('Due Date')
+            $this->translate('Due Date'),
         ];
         fputcsv($handle, $header);
         foreach ($history as $h) {
