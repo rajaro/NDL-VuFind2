@@ -203,6 +203,7 @@ class LinkedEvents implements
                 $map = ['en-gb' => 'en'];
                 $this->language
                     = $map[$paramArray['language']] ?? $paramArray['language'];
+                $paramArray['language'] = $this->language;
             }
 
             $url = $this->apiUrl . 'event/';
