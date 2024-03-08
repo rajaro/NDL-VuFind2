@@ -227,6 +227,16 @@ $config = [
                     ],
                 ],
             ],
+            'serviceworker-offlinepage' => [
+                'type' => 'Laminas\Router\Http\Literal',
+                'options' => [
+                    'route'    => '/ServiceWorker/GetOfflinePage',
+                    'defaults' => [
+                        'controller' => 'ServiceWorker',
+                        'action'     => 'GetOfflinePage',
+                    ],
+                ],
+            ],
         ],
     ],
     'route_manager' => [
@@ -262,7 +272,7 @@ $config = [
             'Finna\Controller\LocationServiceController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\MetaLibController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\MetalibRecordController' => 'VuFind\Controller\AbstractBaseFactory',
-            'Finna\Controller\MyResearchController' => 'VuFind\Controller\MyResearchControllerFactory',
+            'Finna\Controller\MyResearchController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\OrganisationInfoController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\PCIController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\PrimoController' => 'VuFind\Controller\AbstractBaseFactory',
@@ -274,6 +284,7 @@ $config = [
             'Finna\Controller\RecordController' => 'Finna\Controller\AbstractBaseWithConfigFactory',
             'Finna\Controller\RobotsController' => 'VuFind\Controller\AbstractBaseWithConfigFactory',
             'Finna\Controller\SearchController' => 'VuFind\Controller\AbstractBaseFactory',
+            'Finna\Controller\ServiceWorkerController' => 'VuFind\Controller\AbstractBaseWithConfigFactory',
             'Finna\Controller\ShibbolethLogoutNotificationController' => 'Finna\Controller\ShibbolethLogoutNotificationControllerFactory',
         ],
         'aliases' => [
@@ -312,6 +323,7 @@ $config = [
             'r2feedback' => 'Finna\Controller\R2FeedbackController',
             'R2Feedback' => 'Finna\Controller\R2FeedbackController',
             'Robots' => 'Finna\Controller\RobotsController',
+            'ServiceWorker' => 'Finna\Controller\ServiceWorkerController',
 
             // Overrides:
             'VuFind\Controller\AuthorityController' => 'Finna\Controller\AuthorityController',
@@ -499,7 +511,6 @@ $config = [
                         'Finna\AjaxHandler\GetRecordInfoByAuthorityFactory',
                     'Finna\AjaxHandler\GetRequestGroupPickupLocations' =>
                         'VuFind\AjaxHandler\AbstractIlsAndUserActionFactory',
-                    'Finna\AjaxHandler\GetSearchResults' => 'VuFind\AjaxHandler\GetSearchResultsFactory',
                     'Finna\AjaxHandler\GetSearchTabsRecommendations' =>
                         'Finna\AjaxHandler\GetSearchTabsRecommendationsFactory',
                     'Finna\AjaxHandler\GetSideFacets' =>
@@ -560,7 +571,6 @@ $config = [
                     'VuFind\AjaxHandler\GetACSuggestions' => 'Finna\AjaxHandler\GetACSuggestions',
                     'VuFind\AjaxHandler\GetItemStatuses' => 'Finna\AjaxHandler\GetItemStatuses',
                     'VuFind\AjaxHandler\GetRequestGroupPickupLocations' => 'Finna\AjaxHandler\GetRequestGroupPickupLocations',
-                    'VuFind\AjaxHandler\GetSearchResults' => 'Finna\AjaxHandler\GetSearchResults',
                     'VuFind\AjaxHandler\GetSideFacets' => 'Finna\AjaxHandler\GetSideFacets',
                     'VuFind\AjaxHandler\SystemStatus' => 'Finna\AjaxHandler\SystemStatus',
                 ],
@@ -783,7 +793,7 @@ $config = [
             'search_options' => [
                 'factories' => [
                     'Finna\Search\Blender\Options' => 'VuFind\Search\Options\OptionsFactory',
-                    'Finna\Search\Combined\Options' => 'VuFind\Search\Combined\OptionsFactory',
+                    'Finna\Search\Combined\Options' => 'VuFind\Search\Options\OptionsFactory',
                     'Finna\Search\EDS\Options' => 'VuFind\Search\EDS\OptionsFactory',
                     'Finna\Search\R2\Options' => 'VuFind\Search\Options\OptionsFactory',
                     'Finna\Search\Primo\Options' => 'VuFind\Search\Options\OptionsFactory',
@@ -1105,7 +1115,7 @@ $staticRoutes = [
     'PCI/Home', 'PCI/Search', 'PCI/Record',
     'R2/Advanced', 'R2/FacetList', 'R2/Home', 'R2/Results',
     'Search/StreetSearch',
-    'Barcode/Show', 'Search/MapFacet',
+    'Barcode/Show', 'Search/MapFacet', 'ServiceWorker/Get',
     'L1/Advanced', 'L1/FacetList', 'L1/Home', 'L1/Results',
     'Record/DownloadModel',
     'Record/DownloadFile',

@@ -148,6 +148,13 @@ indexBasedNewItems = true
 ; Default scale is "0,900,1800,1910"
 ;advSearchYearScale = "1600,1800,2000,2010"
 
+; Service Worker version. If changes are made to service worker, serviceWorkerVersion should also be updated.
+; If the value is 0, an empty service worker will be installed that will immediately replace any existing
+; service worker.
+serviceWorkerVersion = 1
+; Image to display on the offline page. The image must be in images folder
+offlinePageImage = "finna-logo.png"
+
 ; This section allows you to configure the mechanism used for storing user
 ; sessions.  Available types: File, Memcache, Database.
 ; Some of the settings below only apply to specific session handlers;
@@ -417,21 +424,6 @@ delete_comments_with_user = false
 ; Default is true.
 delete_ratings_with_user = false
 
-; "Remember me" functionality for listed login methods. If the user chooses to save the login,
-; a login token cookie and a database entry will be created. Users' browser information will be 
-; stored and browser detection is handled by get_browser(), so make sure to have a recent
-; browscap.ini file configured in PHP. The implementation is based on Improved Persistent
-; Login Cookie Best Practice, see https://gist.github.com/oleg-andreyev/9dcef18ca3687e12a071648c1abff782
-;persistent_login = "database,multiils"
-
-; Persistent login token lifetime in days
-;persistent_login_lifetime = 60
-
-; Subject for the email sent after a suspicious login has been detected.
-; Default email subject will be the translation for
-; "login_warning_email_subject" and any custom value used here
-; will also be run through the translator.
-;login_warning_email_subject = ""
 
 [ChoiceAuth]
 choice_order = Database,Shibboleth,MultiILS
@@ -1174,7 +1166,6 @@ fi          = "Finnish"
 sv          = "Swedish"
 ;pl          = "Polish"
 ;da          = "Danish"
-se          = "Northern Sámi"
 
 ; This section controls the behavior of the Browse module.  The result_limit
 ; setting controls the maximum number of results that may display in any given
