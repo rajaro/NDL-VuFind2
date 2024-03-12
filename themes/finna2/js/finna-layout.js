@@ -768,6 +768,23 @@ finna.layout = (function finnaLayout() {
     });
   }
 
+  function registerServiceWorker() {
+    return new Promise((resolve, reject) => {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register(VuFind.path + '/ServiceWorker/Get', {
+          scope: "/"
+        })
+        .then(registration => {
+          resolve(registration);
+        })
+        .catch(error => {
+          console.error(`Registration failed with ${error}`);
+          reject(error);
+        });
+      }
+    });
+  }
+
   var my = {
     getOrganisationPageLink: getOrganisationPageLink,
     isTouchDevice: isTouchDevice,
@@ -816,6 +833,7 @@ finna.layout = (function finnaLayout() {
       initHelpTabs();
       initPrintTriggers();
       initSelectAllButtonListeners();
+      registerServiceWorker();
     },
     showPostLoginLightbox: showPostLoginLightbox
   };
