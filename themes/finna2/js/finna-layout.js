@@ -769,15 +769,15 @@ finna.layout = (function finnaLayout() {
   }
 
   function registerServiceWorker() {
-    return new Promise((resolve, reject) => {
+    return new Promise(function getServiceWorker(resolve, reject) {
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register(VuFind.path + '/ServiceWorker/Get', {
           scope: "/"
         })
-          .then(registration => {
+          .then(function registerWorker(registration) {
             resolve(registration);
           })
-          .catch(error => {
+          .catch(function registerError(error) {
             reject(error);
           });
       }

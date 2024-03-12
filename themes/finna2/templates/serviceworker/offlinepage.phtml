@@ -13,8 +13,8 @@
   </head>
   <body>
     <div style="background: white; margin: 30px; display: flex; flex-direction: column; margin-top: 200px">
-      <?php if ($this->image): ?><img style="align-self: center" class="offline-finna-logo" src="<?=$this->imageSrc()->getSourceAddress($this->image)?>"><?php endif; ?>
-      <div style="display: flex; flex-flow: column;" class="offline-text">
+      <?php if ($this->image): ?><img style="align-self: center" src="<?=$this->imageSrc()->getSourceAddress($this->image)?>"><?php endif; ?>
+      <div style="display: flex; flex-flow: column;">
         <h1 style="display: flex; justify-content: center"><?=$this->transEsc('offline_page_title')?></h1>
         <p style="display: flex; justify-content: center">
           <span><?=$this->transEsc('offline_page_retry_in')?> <span id="offline-counter"></span> <?=$this->transEsc('offline_page_seconds')?></span>

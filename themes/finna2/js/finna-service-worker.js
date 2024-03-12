@@ -17,9 +17,9 @@ self.addEventListener('install', function installSw(event) {
 
 self.addEventListener('activate', function activateEvent(event) {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
+    caches.keys().then(function clearOldCaches(cacheNames) {
       return Promise.all(
-        cacheNames.map(cache => {
+        cacheNames.map(function clearCache(cache) {
           if (cache !== cacheName) {
             return caches.delete(cache);
           }
