@@ -1,0 +1,45 @@
+<?php
+  // Standalone page
+  $this->layout()->setTemplate('layout/lightbox');
+  $this->headTitle($this->translate('offline_page_title'));
+?>
+<?=$this->doctype('HTML5')?>
+<html lang="<?=$this->layout()->userLang?>">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <?php // Turn off automatic telephone number detection on iOS ?>
+    <meta name="format-detection" content="telephone=no">
+    <?=$this->headTitle()?>
+  </head>
+  <body>
+    <div style="background: white; margin: 30px; display: flex; flex-direction: column; margin-top: 200px">
+      <?php if ($this->image): ?><img style="align-self: center" class="offline-finna-logo" src="<?=$this->imageSrc()->getSourceAddress($this->image)?>"><?php endif; ?>
+      <div style="display: flex; flex-flow: column;" class="offline-text">
+        <h1 style="display: flex; justify-content: center"><?=$this->transEsc('offline_page_title')?></h1>
+        <p style="display: flex; justify-content: center">
+          <span><?=$this->transEsc('offline_page_retry_in')?> <span id="offline-counter"></span> <?=$this->transEsc('offline_page_seconds')?></span>
+        </p>
+        <a style="display: flex; justify-content: center; align-self:center; background-color: #007c90; padding: 10px; border-radius: 4px; color: #fff" href="<?=$_SERVER["REQUEST_URI"]?>"><?=$this->transEsc('offline_page_button_text')?></a>
+      </div>
+    </div>
+    <?php
+      $script = <<<JS
+          function startCounter() {
+            let counter = 6;
+            function updateCounter() {
+              if (counter === 0) {
+              //  location.reload();
+              } else {
+                counter--;
+                document.getElementById('offline-counter').textContent = counter;
+                setTimeout(updateCounter, 1000);
+              }
+            }
+            updateCounter();
+          }
+          startCounter();
+      JS;
+      echo $this->inlineScript(\Laminas\View\Helper\HeadScript::SCRIPT, $script, 'SET');
+    ?>
+  </body>
+</html>

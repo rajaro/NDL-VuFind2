@@ -148,6 +148,13 @@ indexBasedNewItems = true
 ; Default scale is "0,900,1800,1910"
 ;advSearchYearScale = "1600,1800,2000,2010"
 
+; Service Worker version. If changes are made to service worker, serviceWorkerVersion should also be updated.
+; If the value is 0, an empty service worker will be installed that will immediately replace any existing
+; service worker.
+serviceWorkerVersion = 1
+; Image to display on the offline page. The image must be in images folder
+offlinePageImage = "finna-logo.png"
+
 ; This section allows you to configure the mechanism used for storing user
 ; sessions.  Available types: File, Memcache, Database.
 ; Some of the settings below only apply to specific session handlers;

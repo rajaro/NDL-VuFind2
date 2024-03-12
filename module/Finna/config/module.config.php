@@ -227,6 +227,16 @@ $config = [
                     ],
                 ],
             ],
+            'serviceworker-offlinepage' => [
+                'type' => 'Laminas\Router\Http\Literal',
+                'options' => [
+                    'route'    => '/ServiceWorker/GetOfflinePage',
+                    'defaults' => [
+                        'controller' => 'ServiceWorker',
+                        'action'     => 'GetOfflinePage',
+                    ],
+                ],
+            ],
         ],
     ],
     'route_manager' => [
@@ -274,6 +284,7 @@ $config = [
             'Finna\Controller\RecordController' => 'Finna\Controller\AbstractBaseWithConfigFactory',
             'Finna\Controller\RobotsController' => 'VuFind\Controller\AbstractBaseWithConfigFactory',
             'Finna\Controller\SearchController' => 'VuFind\Controller\AbstractBaseFactory',
+            'Finna\Controller\ServiceWorkerController' => 'VuFind\Controller\AbstractBaseWithConfigFactory',
             'Finna\Controller\ShibbolethLogoutNotificationController' => 'Finna\Controller\ShibbolethLogoutNotificationControllerFactory',
         ],
         'aliases' => [
@@ -312,6 +323,7 @@ $config = [
             'r2feedback' => 'Finna\Controller\R2FeedbackController',
             'R2Feedback' => 'Finna\Controller\R2FeedbackController',
             'Robots' => 'Finna\Controller\RobotsController',
+            'ServiceWorker' => 'Finna\Controller\ServiceWorkerController',
 
             // Overrides:
             'VuFind\Controller\AuthorityController' => 'Finna\Controller\AuthorityController',
@@ -1108,7 +1120,7 @@ $staticRoutes = [
     'Barcode/Show', 'Search/MapFacet',
     'L1/Advanced', 'L1/FacetList', 'L1/Home', 'L1/Results',
     'Record/DownloadModel',
-    'Record/DownloadFile',
+    'Record/DownloadFile', 'ServiceWorker/Get',
     'Bazaar/Home', 'Bazaar/Cancel',
 ];
 
