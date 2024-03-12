@@ -1117,10 +1117,11 @@ $staticRoutes = [
     'PCI/Home', 'PCI/Search', 'PCI/Record',
     'R2/Advanced', 'R2/FacetList', 'R2/Home', 'R2/Results',
     'Search/StreetSearch',
+    'ServiceWorker/Get',
     'Barcode/Show', 'Search/MapFacet',
     'L1/Advanced', 'L1/FacetList', 'L1/Home', 'L1/Results',
     'Record/DownloadModel',
-    'Record/DownloadFile', 'ServiceWorker/Get',
+    'Record/DownloadFile',
     'Bazaar/Home', 'Bazaar/Cancel',
 ];
 
