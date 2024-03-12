@@ -774,13 +774,12 @@ finna.layout = (function finnaLayout() {
         navigator.serviceWorker.register(VuFind.path + '/ServiceWorker/Get', {
           scope: "/"
         })
-        .then(registration => {
-          resolve(registration);
-        })
-        .catch(error => {
-          console.error(`Registration failed with ${error}`);
-          reject(error);
-        });
+          .then(registration => {
+            resolve(registration);
+          })
+          .catch(error => {
+            reject(error);
+          });
       }
     });
   }

@@ -88,9 +88,21 @@ class ServiceWorkerController extends \VuFind\Controller\AbstractBase
             $scriptHelper = $this->serviceLocator->get('ViewRenderer')->plugin('scriptSrc');
             $imageHelper = $this->serviceLocator->get('ViewRenderer')->plugin('imageSrc');
             $serviceWorker = file_get_contents($scriptHelper('finna-service-worker.js'));
-            $serviceWorker = str_replace('%%fallback_url%%', $this->getServerUrl('serviceworker-offlinepage'), $serviceWorker);
-            $serviceWorker = str_replace('%%offline_image_url%%', $imageHelper->getSourceAddress($this->offlineImage), $serviceWorker);
-            $serviceWorker = str_replace('%%service_worker_version%%', (string)$workerVersion, $serviceWorker);
+            $serviceWorker = str_replace(
+                '%%fallback_url%%',
+                $this->getServerUrl('serviceworker-offlinepage'),
+                $serviceWorker
+            );
+            $serviceWorker = str_replace(
+                '%%offline_image_url%%',
+                $imageHelper->getSourceAddress($this->offlineImage),
+                $serviceWorker
+            );
+            $serviceWorker = str_replace(
+                '%%service_worker_version%%',
+                (string)$workerVersion,
+                $serviceWorker
+            );
         } else {
             $serviceWorker = <<<JS
                 self.addEventListener('install', () => {

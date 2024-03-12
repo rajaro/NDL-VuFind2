@@ -33,20 +33,20 @@ self.addEventListener("fetch", (event) => {
   if (event.request.mode === 'navigate' || event.request.destination === 'image') {
     event.respondWith(
       fetch(event.request)
-      .then(function responseFromNetwork(response) {
-        return response;
-      })
-      .catch(function onError() {
-        if (event.request.mode === "navigate") {
-          return caches.match(fallbackUrl).then(function responseFromCache(cachedResponse) {
-            return cachedResponse;
-          });
-        } else if (event.request.destination === 'image') {
-          return caches.match(event.request).then(function imageFromCache(cachedImage) {
-            return cachedImage;
-          });
-        }
-      })
+        .then(function responseFromNetwork(response) {
+          return response;
+        })
+        .catch(function onError() {
+          if (event.request.mode === "navigate") {
+            return caches.match(fallbackUrl).then(function responseFromCache(cachedResponse) {
+              return cachedResponse;
+            });
+          } else if (event.request.destination === 'image') {
+            return caches.match(event.request).then(function imageFromCache(cachedImage) {
+              return cachedImage;
+            });
+          }
+        })
     );
   }
 });
