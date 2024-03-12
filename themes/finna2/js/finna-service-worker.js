@@ -10,7 +10,7 @@ self.addEventListener('install', function installSw(event) {
           fallbackUrl,
           offlineImageUrl
         ]
-      )
+      );
     })
   );
 });
