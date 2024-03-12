@@ -2,8 +2,8 @@ const cacheName = "finna-sw-v%%service_worker_version%%";
 const fallbackUrl = '%%fallback_url%%';
 const offlineImageUrl = '%%offline_image_url%%';
 
-self.addEventListener('install', function installSw(e) {
-  e.waitUntil(
+self.addEventListener('install', function installSw(event) {
+  event.waitUntil(
     caches.open(cacheName).then(function onCacheOpen(cache) {
       cache.addAll(
         [
@@ -15,7 +15,7 @@ self.addEventListener('install', function installSw(e) {
   );
 });
 
-self.addEventListener('activate', event => {
+self.addEventListener('activate', function activateEvent(event) {
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -29,7 +29,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-self.addEventListener("fetch", (event) => {
+self.addEventListener("fetch", function fetchEvent(event) {
   if (event.request.mode === 'navigate' || event.request.destination === 'image') {
     event.respondWith(
       fetch(event.request)
