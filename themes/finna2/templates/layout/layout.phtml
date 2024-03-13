@@ -82,7 +82,7 @@
 
       // Set global variables for Javascript code:
       $this->headScript()->prependScript(
-          'var userIsLoggedIn = ' . ($this->auth()->isLoggedIn() ? 'true' : 'false') . ';'
+          'var userIsLoggedIn = ' . ($this->auth()->getUserObject() ? 'true' : 'false') . ';'
       );
 
       if (!isset($this->renderingError)) {
@@ -135,7 +135,7 @@
         $translations = $this->render('js-translations.phtml');
       }
       $dsb = DEFAULT_SEARCH_BACKEND;
-      $cspNonce = $this->cspNonce();
+      $cspNonce = $this->csp()->getNonce();
       $searchId = json_encode($this->layout()->searchId);
       $appendScripts[] = <<<JS
           VuFind.path = '{$root}';
@@ -312,7 +312,7 @@
     <?php
       // Show post-login followup in lightbox
       $url = $this->followup()->retrieveAndClear('postLoginLightbox', null);
-      if ($url && $this->layout()->getTemplate() !== 'layout/lightbox') {
+      if ($url && !$this->inLightbox) {
         $script = <<<EOT
             $(document).ready(function handlePostLoginLightbox() {
               finna.layout.showPostLoginLightbox('{$url}');

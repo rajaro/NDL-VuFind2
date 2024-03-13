@@ -50,10 +50,12 @@ use function strlen;
  */
 class LinkedEvents implements
     \VuFindHttp\HttpServiceAwareInterface,
-    \Laminas\Log\LoggerAwareInterface
+    \Laminas\Log\LoggerAwareInterface,
+    \VuFind\I18n\Translator\TranslatorAwareInterface
 {
     use \VuFindHttp\HttpServiceAwareTrait;
     use \VuFind\Log\LoggerAwareTrait;
+    use \VuFind\I18n\Translator\TranslatorAwareTrait;
 
     /**
      * Api url
@@ -74,7 +76,7 @@ class LinkedEvents implements
      *
      * @var string
      */
-    protected $language;
+    protected $language = null;
 
     /**
      * Date converter
@@ -145,8 +147,10 @@ class LinkedEvents implements
         Config $mainConfig
     ) {
         $this->apiUrl = $config->LinkedEvents->api_url ?? '';
+        if (!str_ends_with($this->apiUrl, '/')) {
+            $this->apiUrl .= '/';
+        }
         $this->publisherId = $config->LinkedEvents->publisher_id ?? '';
-        $this->language = $config->General->language ?? '';
         // Exclude super events from results by default
         $this->includeSuperEvents
             = $config->LinkedEvents->include_super_events ?? false;
@@ -196,12 +200,7 @@ class LinkedEvents implements
                     $paramArray['end']
                 );
             }
-            if (isset($paramArray['language'])) {
-                $map = ['en-gb' => 'en'];
-                $this->language
-                    = $map[$paramArray['language']] ?? $paramArray['language'];
-            }
-
+            $paramArray['language'] = $this->getLanguage();
             $url = $this->apiUrl . 'event/';
             if (!empty($paramArray['id'])) {
                 $url .= $paramArray['id'] . '/?include=location,audience,keywords,' .
@@ -219,9 +218,8 @@ class LinkedEvents implements
         }
 
         // Check for cached version
-        $cacheDir
-            = $this->cacheManager->getCache('feed')->getOptions()->getCacheDir();
-        $localFile = "$cacheDir/" . md5(var_export($params, true)) . '.json';
+        $cacheDir = $this->cacheManager->getCache('feed')->getOptions()->getCacheDir();
+        $localFile = "$cacheDir/" . md5($url . '||' . var_export($params, true)) . '.json';
         $maxAge = isset($this->mainConfig->Content->feedcachetime)
             && '' !== $this->mainConfig->Content->feedcachetime
             ? $this->mainConfig->Content->feedcachetime : 10;
@@ -384,8 +382,8 @@ class LinkedEvents implements
             return $keywords;
         }
         if (is_array($data)) {
-            $data = !empty($data[$this->language])
-                ? $data[$this->language]
+            $data = !empty($data[$this->getLanguage()])
+                ? $data[$this->getLanguage()]
                 : ($data['fi'] ?? '');
         }
         return $data;
@@ -448,5 +446,20 @@ class LinkedEvents implements
                 'query' => $params,
             ]
         );
+    }
+
+    /**
+     * Get language
+     *
+     * @return string
+     */
+    public function getLanguage(): string
+    {
+        if (null === $this->language) {
+            $lang = $this->getTranslatorLocale();
+            $map = ['en-gb' => 'en'];
+            $this->language = $map[$lang] ?? $lang;
+        }
+        return $this->language;
     }
 }

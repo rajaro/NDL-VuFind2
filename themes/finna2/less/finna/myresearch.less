@@ -72,6 +72,10 @@
   @media (min-width: @screen-sm) {
     margin-bottom: 0.5em;
   }
+  svg {
+    background-color: white;
+    padding: .1em;
+  }
 }
 
 .loan-history-purge-all {
@@ -135,12 +139,6 @@
       align-items: baseline;
       justify-content: space-between;
     }
-  }
-  #update_selected, #purgeSelected {
-    border-radius: 4px 0 0 4px;
-  }
-  #cancel_selected, #copy_to_favourites {
-    border-radius: 0 4px 4px 0;
   }
   .sort-button ul.dropdown-menu li a {
     font-size: 1em;
@@ -285,7 +283,9 @@
 }
 // Custom styles for user account functions
 .template-dir-myresearch, .template-dir-holds, .template-dir-checkouts.template-name-history, .template-dir-search.template-name-history, .template-dir-librarycards {
-  padding-bottom: 30px;
+  &.main {
+    padding-bottom: 30px;
+  }
   h1 {
     font-weight: 500;
   }
@@ -1027,4 +1027,19 @@
 
 .message-body {
   margin: 5px;
+}
+
+.delete-all-tokens {
+  margin: 10px;
+}
+
+.login-tokens-section.library-profile {
+  padding: 10px;
+}
+
+.login-tokens-table {
+  margin-bottom: 0px;
+  tbody > tr > td {
+    vertical-align: middle;
+  }
 }

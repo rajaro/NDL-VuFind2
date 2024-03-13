@@ -195,21 +195,6 @@ finna.layout = (function finnaLayout() {
     });
   }
 
-  function initCheckboxClicks() {
-    $('.template-name-mylist input.checkbox-select-item').on('click', function onClickCheckbox() {
-      var actions = $('.mylist-functions button, .mylist-functions select');
-      var aria = $('.mylist-functions .sr-only');
-      var noneChecked = $('.template-name-mylist input.checkbox-select-item:checked').length === 0;
-      if (noneChecked) {
-        actions.attr('disabled', true);
-        aria.removeAttr('aria-hidden');
-      } else {
-        actions.removeAttr('disabled');
-        aria.attr('aria-hidden', 'true');
-      }
-    });
-  }
-
   function initScrollLinks() {
     $('.library-link').on('click', function onClickLibraryLink() {
       $('html, body').animate({
@@ -596,21 +581,6 @@ finna.layout = (function finnaLayout() {
     });
   }
 
-  function initKeyboardNavigation() {
-    $(window).on("keyup", function onKeyUp(e) {
-      var $target = $(e.target);
-      // jsTree link target navigation
-      if ((e.which === 13 || e.which === 32)
-          && $target.hasClass('jstree-anchor') && $target.find('.main').length > 0
-      ) {
-        $target.find('.main').trigger("click");
-        e.preventDefault();
-        return false;
-      }
-      return true;
-    });
-  }
-
   function initPriorityNav() {
     priorityNav.init({
       mainNavWrapper: ".nav-wrapper",
@@ -764,6 +734,11 @@ finna.layout = (function finnaLayout() {
     );
   }
 
+  /**
+   * Set select checkboxes in correct myresearch pages.
+   *
+   * @param {HTMLInputElement} element Checkbox element for which the change event occurs
+   */
   function toggleButtonsForSelected(element) {
     if (element.closest('form').id === 'renewals') {
       var checkedRenewals = document.querySelector('form[name="renewals"] .checkbox input[type=checkbox]:checked');
@@ -774,12 +749,8 @@ finna.layout = (function finnaLayout() {
     } else if (element.closest('form').id === 'purge_history') {
       var checkedHistory = document.querySelector('form[name="purge_history"] .result .checkbox input[type=checkbox]:checked');
       var purgeSelected = document.getElementById('purgeSelected');
-      var copyToFavourites = document.getElementById('copy_to_favourites');
       if (purgeSelected) {
         purgeSelected.toggleAttribute('disabled', checkedHistory === null);
-      }
-      if (copyToFavourites) {
-        copyToFavourites.classList.toggle('disabled', checkedHistory === null);
       }
     }
   }
@@ -823,7 +794,6 @@ finna.layout = (function finnaLayout() {
       initMobileNarrowSearch();
       setStickyMyaccountHeader();
       initMobileCartIndicator();
-      initCheckboxClicks();
       initToolTips();
       initModalToolTips();
       initScrollLinks();
@@ -838,7 +808,6 @@ finna.layout = (function finnaLayout() {
       initOrganisationInfoWidgets();
       initOrganisationPageLinks();
       initAudioButtons();
-      initKeyboardNavigation();
       initPriorityNav();
       initFiltersToggle();
       initCookieConsent();

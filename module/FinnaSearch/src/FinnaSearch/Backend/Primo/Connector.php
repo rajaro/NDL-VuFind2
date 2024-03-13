@@ -199,8 +199,7 @@ class Connector extends \VuFindSearch\Backend\Primo\Connector
 
             // Set any resource url
             // Get the URL, which has a separate namespace
-            $sear = $doc->children($namespaces['sear']);
-            foreach ((array)$sear->LINKS as $type => $urls) {
+            foreach ((array)($prefix->PrimoNMBib->record->links ?? []) as $type => $urls) {
                 foreach ((array)$urls as $urlField) {
                     $parts = explode('$$', (string)$urlField);
                     $url = '';
@@ -331,7 +330,7 @@ class Connector extends \VuFindSearch\Backend\Primo\Connector
                     continue;
                 }
                 [$key, $val] = explode('=', $param, 2);
-                $val = trim($val);
+                $val = trim(urldecode($val));
                 if (
                     $val == ''
                     || isset($blacklist[$key]) && $blacklist[$key] == $val

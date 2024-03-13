@@ -5,7 +5,7 @@
  *
  * PHP version 8
  *
- * Copyright (C) The National Library of Finland 2016-2023.
+ * Copyright (C) The National Library of Finland 2016-2024.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -614,6 +614,7 @@ class SierraRest extends \VuFind\ILS\Driver\SierraRest
         $result = $this->makeRequest(
             [$this->apiBase, 'patrons', $patron['id'], 'fines'],
             [
+                'limit' => 10000,
                 'fields' => 'item,assessedDate,description,chargeType,itemCharge'
                     . ',processingFee,billingFee,paidAmount,location,invoiceNumber',
             ],
@@ -664,10 +665,10 @@ class SierraRest extends \VuFind\ILS\Driver\SierraRest
             }
 
             $fines[] = [
-                'amount' => $amount * 100,
+                'amount' => (int)round($amount * 100),
                 'fine' => $this->fineTypeMappings[$type] ?? $type,
                 'description' => $entry['description'] ?? '',
-                'balance' => $balance * 100,
+                'balance' => (int)round($balance * 100),
                 'createdate' => $this->dateConverter->convertToDisplayDate(
                     'Y-m-d',
                     $entry['assessedDate']
@@ -779,7 +780,7 @@ class SierraRest extends \VuFind\ILS\Driver\SierraRest
                 in_array($fine['fine_id'], $fineIds)
                 && $fine['payableOnline'] && $fine['balance'] > 0
             ) {
-                $pay = min($fine['balance'], $amountRemaining);
+                $pay = (int)round(min($fine['balance'], $amountRemaining));
                 $payments[] = [
                     'amount' => $pay,
                     'paymentType' => 1,
@@ -1082,7 +1083,7 @@ class SierraRest extends \VuFind\ILS\Driver\SierraRest
         $holdingsData = [];
         if ($checkHoldings && $this->apiVersion >= 5.1) {
             $holdingsResult = $this->makeRequest(
-                ['v5', 'holdings'],
+                [$this->apiBase, 'holdings'],
                 [
                     'bibIds' => $this->extractBibId($id),
                     'deleted' => 'false',
@@ -1255,12 +1256,13 @@ class SierraRest extends \VuFind\ILS\Driver\SierraRest
             // we need to add a few dummy-fields that VuFind expects to be
             // defined for all elements.
             $summary = [
+                'id' => $id,
                 'available' => $itemsAvailable,
                 'total' => $itemsTotal,
                 'ordered' => $itemsOrdered,
                 'locations' => count(array_unique(array_column($statuses, 'location'))),
                 'availability' => null,
-                'callnumber' => null,
+                'callnumber' => '',
                 'location' => '__HOLDINGSSUMMARYLOCATION__',
             ];
             if ($this->config['Holdings']['display_total_hold_count'] ?? true) {
@@ -1484,9 +1486,11 @@ class SierraRest extends \VuFind\ILS\Driver\SierraRest
                     $response->getStatusCode()
                 );
             }
-            $data = json_decode($response->getBody(), true);
-            $indexVar = $data['data'][0]['index_var'] ?? null;
-            $indexDayId = $data['data'][0]['index_day_id'] ?? null;
+            $result = json_decode($response->getBody(), true);
+            $data = $result['data'] ?? [];
+            $lastItem = array_pop($data);
+            $indexVar = $lastItem['index_var'] ?? null;
+            $indexDayId = $lastItem['index_day_id'] ?? null;
             if (null === $indexVar || null === $indexDayId) {
                 throw new \Exception(
                     "index_var or index_day_id not found in BMA response for $url: "

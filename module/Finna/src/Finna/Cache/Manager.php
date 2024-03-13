@@ -5,7 +5,7 @@
  *
  * PHP version 8
  *
- * Copyright (C) The National Library of Finland 2015-2023.
+ * Copyright (C) The National Library of Finland 2015-2024.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -24,6 +24,7 @@
  * @package  Cache
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @author   Aleksi Peebles <aleksi.peebles@helsinki.fi>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org Main Page
  */
@@ -40,11 +41,48 @@ use Laminas\Config\Config;
  * @package  Cache
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @author   Aleksi Peebles <aleksi.peebles@helsinki.fi>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org Main Page
  */
 class Manager extends \VuFind\Cache\Manager
 {
+    /**
+     * Cache configuration.
+     *
+     * Following settings are supported:
+     *
+     *   cliOverride   Set to false to not allow cache directory override in CLI mode (optional, enabled by default)
+     *   directory     Cache directory (required)
+     *   options       Array of cache options (optional, e.g. disabled, ttl)
+     *
+     * @var array
+     */
+    protected $finnaCacheSpecs = [
+        'codesets' => [
+            'directory' => 'codesets',
+            'options' => [
+                // Code sets cache should live for as long as possible.
+                // Refreshing of the cache is based on a separate setting to safeguard
+                // against API unavailability or errors.
+                'ttl' => 0,
+            ],
+            'persistent' => true,
+        ],
+        'description' => [
+            'directory' => 'descriptions',
+        ],
+        'feed' => [
+            'directory' => 'feeds',
+        ],
+        'organisation-info' => [
+            'directory' => 'organisation-infos',
+        ],
+        'stylesheet' => [
+            'directory' => 'stylesheets',
+        ],
+    ];
+
     /**
      * Constructor
      *
@@ -57,16 +95,22 @@ class Manager extends \VuFind\Cache\Manager
         Config $searchConfig,
         StorageAdapterFactory $factory
     ) {
+        $this->cacheSpecs = array_merge($this->cacheSpecs, $this->finnaCacheSpecs);
         parent::__construct($config, $searchConfig, $factory);
+    }
 
-        $cacheBase = $this->getCacheDir();
-        $ids = ['feed', 'description', 'organisation-info', 'stylesheet'];
-        foreach ($ids as $cache) {
-            $this->createFileCache($cache, $cacheBase . $cache . 's');
-        }
-        // Code sets cache should live for as long as possible.
-        // Refreshing of the cache is based on a separate setting to safeguard
-        // against API unavailability or errors.
-        $this->createFileCache('codesets', $cacheBase . 'codesets', ['ttl' => 0]);
+    /**
+     * Create a downloader-specific file cache.
+     *
+     * @param string $downloaderName Name of the downloader.
+     * @param array  $opts           Cache options.
+     *
+     * @return string
+     */
+    public function addDownloaderCache($downloaderName, $opts = [])
+    {
+        $cacheName = 'downloader-' . $downloaderName;
+        $this->createNoCache($cacheName);
+        return $cacheName;
     }
 }
