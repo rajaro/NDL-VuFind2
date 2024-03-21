@@ -1382,7 +1382,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
 
             if (isset($result['success']) && !$result['success']) {
                 $this->flashMessenger()->addErrorMessage($result['status']);
-                return $this->createViewModel();
+                return $this->redirect()->toRoute('checkouts-history');
             }
 
             $ids = [];
@@ -1451,7 +1451,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             unlink($outputPath);
         } catch (\Exception $e) {
             $this->flashMessenger()->addErrorMessage('An error has occurred');
-            return $this->createViewModel();
+            return $this->redirect()->toRoute('checkouts-history');
         }
 
         return $response;
