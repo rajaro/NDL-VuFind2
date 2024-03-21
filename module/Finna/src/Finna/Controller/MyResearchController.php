@@ -1425,33 +1425,34 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 'attachment; filename="finna-loan-history.csv'
             );
 
-        $outputPath = tempnam('/tmp', 'csv');
-        if (! $handle = fopen($outputPath, 'w')) {
+        try {
+            $outputPath = tempnam('/tmp', 'csv');
+            $handle = fopen($outputPath, 'w');
+            // UTF-8 BOM
+            fwrite($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            $header = [
+                $this->translate('Title'),
+                $this->translate('Format'),
+                $this->translate('Author'),
+                $this->translate('Publication Year'),
+                $this->translate('Borrowing Location'),
+                $this->translate('Checkout Date'),
+                $this->translate('Return Date'),
+                $this->translate('Due Date'),
+            ];
+            fputcsv($handle, $header);
+            foreach ($history as $h) {
+                fputcsv($handle, $h);
+            }
+            fclose($handle);
+            $csvData = file_get_contents($outputPath);
+            $response->setContent($csvData);
+
+            unlink($outputPath);
+        } catch (\Exception $e) {
             $this->flashMessenger()->addErrorMessage('An error has occurred');
             return $this->createViewModel();
         }
-        // UTF-8 BOM
-        fwrite($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
-        $header = [
-            $this->translate('Title'),
-            $this->translate('Format'),
-            $this->translate('Author'),
-            $this->translate('Publication Year'),
-            $this->translate('Borrowing Location'),
-            $this->translate('Checkout Date'),
-            $this->translate('Return Date'),
-            $this->translate('Due Date'),
-        ];
-        fputcsv($handle, $header);
-        foreach ($history as $h) {
-            fputcsv($handle, $h);
-        }
-        fclose($handle);
-
-        $csvData = file_get_contents($outputPath);
-        $response->setContent($csvData);
-
-        unlink($outputPath);
 
         return $response;
     }
