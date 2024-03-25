@@ -39,7 +39,6 @@ use VuFind\Exception\ILS as ILSException;
 use VuFind\Exception\ListPermission as ListPermissionException;
 
 use function array_key_exists;
-use function chr;
 use function count;
 use function in_array;
 use function is_array;
@@ -1349,11 +1348,11 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
     }
 
     /**
-     * Download historic loans in CSV format
+     * Download historic loans
      *
      * @return mixed
      */
-    public function downloadHistoryCsvAction()
+    public function downloadLoanHistoryAction()
     {
         if (!is_array($patron = $this->catalogLogin())) {
             return $patron;
@@ -1367,69 +1366,15 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         );
         if (false === $functionConfig) {
             $this->flashMessenger()->addErrorMessage('ils_action_unavailable');
-            return $this->createViewModel();
+            return $this->redirect()->toRoute('checkouts-history');
         }
 
         $recordLoader = $this->serviceLocator->get(\VuFind\Record\Loader::class);
         $page = 1;
-        $history = [];
-        do {
-            // Try to use large page size, but take ILS limits into account
-            $pageOptions = $this->getPaginationHelper()
-                ->getOptions($page, null, 1000, $functionConfig);
-            $result = $catalog
-                ->getMyTransactionHistory($patron, $pageOptions['ilsParams']);
-
-            if (isset($result['success']) && !$result['success']) {
-                $this->flashMessenger()->addErrorMessage($result['status']);
-                return $this->redirect()->toRoute('checkouts-history');
-            }
-
-            $ids = [];
-            foreach ($result['transactions'] as $current) {
-                $id = $current['id'] ?? '';
-                $source = $current['source'] ?? DEFAULT_SEARCH_BACKEND;
-                $ids[] = compact('id', 'source');
-            }
-            $records = $recordLoader->loadBatch($ids, true);
-            foreach ($result['transactions'] as $i => $current) {
-                $driver = $records[$i];
-                $format = $driver->getFormats();
-                $format = end($format);
-                $author = $driver->tryMethod('getNonPresenterAuthors');
-
-                $loan = [];
-                $loan[] = $current['title'] ? '"' . $current['title'] . '"' : '';
-                $loan[] = $this->translate($format);
-                $loan[] = $author[0]['name'] ?? '';
-                $loan[] = $current['publication_year'] ?? '';
-                $loan[] = empty($current['borrowingLocation'])
-                    ? ''
-                    : $this->translateWithPrefix('location_', $current['borrowingLocation']);
-                $loan[] = $current['checkoutDate'] ?? '';
-                $loan[] = $current['returnDate'] ?? '';
-                $loan[] = $current['dueDate'] ?? '';
-
-                $history[] = $loan;
-            }
-            $pageEnd = $pageOptions['ilsPaging']
-                ? ceil($result['count'] / $pageOptions['limit'])
-                : 1;
-            $page++;
-        } while ($page <= $pageEnd);
-        $response = $this->getResponse();
-        $response->getHeaders()
-            ->addHeaderLine('Content-Type', 'text/csv')
-            ->addHeaderLine(
-                'Content-Disposition',
-                'attachment; filename="finna-loan-history.csv'
-            );
-
         try {
             $outputPath = tempnam('/tmp', 'csv');
             $handle = fopen($outputPath, 'w');
-            // UTF-8 BOM
-            fwrite($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
             $header = [
                 $this->translate('Title'),
                 $this->translate('Format'),
@@ -1441,13 +1386,62 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 $this->translate('Due Date'),
             ];
             fputcsv($handle, $header);
-            foreach ($history as $h) {
-                fputcsv($handle, $h);
-            }
+            do {
+                // Try to use large page size, but take ILS limits into account
+                $pageOptions = $this->getPaginationHelper()
+                    ->getOptions($page, null, 1000, $functionConfig);
+                $result = $catalog
+                    ->getMyTransactionHistory($patron, $pageOptions['ilsParams']);
+
+                if (isset($result['success']) && !$result['success']) {
+                    $this->flashMessenger()->addErrorMessage($result['status']);
+                    return $this->redirect()->toRoute('checkouts-history');
+                }
+
+                $ids = [];
+                foreach ($result['transactions'] as $current) {
+                    $id = $current['id'] ?? '';
+                    $source = $current['source'] ?? DEFAULT_SEARCH_BACKEND;
+                    $ids[] = compact('id', 'source');
+                }
+                $records = $recordLoader->loadBatch($ids, true);
+                foreach ($result['transactions'] as $i => $current) {
+                    $driver = $records[$i];
+                    $format = $driver->getFormats();
+                    $format = end($format);
+                    $author = $driver->tryMethod('getNonPresenterAuthors');
+
+                    $loan = [];
+                    $loan[] = $current['title'] ? '"' . $current['title'] . '"' : '';
+                    $loan[] = $this->translate($format);
+                    $loan[] = $author[0]['name'] ?? '';
+                    $loan[] = $current['publication_year'] ?? '';
+                    $loan[] = empty($current['borrowingLocation'])
+                        ? ''
+                        : $this->translateWithPrefix('location_', $current['borrowingLocation']);
+                    $loan[] = $current['checkoutDate'] ?? '';
+                    $loan[] = $current['returnDate'] ?? '';
+                    $loan[] = $current['dueDate'] ?? '';
+
+                    fputcsv($handle, $loan);
+                }
+
+                $pageEnd = $pageOptions['ilsPaging']
+                    ? ceil($result['count'] / $pageOptions['limit'])
+                    : 1;
+                $page++;
+            } while ($page <= $pageEnd);
+            $response = $this->getResponse();
+            $response->getHeaders()
+                ->addHeaderLine('Content-Type', 'text/csv')
+                ->addHeaderLine(
+                    'Content-Disposition',
+                    'attachment; filename="finna-loan-history.csv'
+                );
+
             fclose($handle);
             $csvData = file_get_contents($outputPath);
             $response->setContent($csvData);
-
             unlink($outputPath);
         } catch (\Exception $e) {
             $this->flashMessenger()->addErrorMessage('An error has occurred');
