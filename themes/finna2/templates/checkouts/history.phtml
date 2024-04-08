@@ -165,8 +165,17 @@
                 <?php endforeach; ?>
               </table>
               <div class="loan-history-buttons-bottom">
-                <div>
-                  <a class="btn btn-primary loan-history-download-csv" id="download_csv" role="button" href="<?=$this->url('myresearch-downloadloanhistory') ?>"><?=$this->icon('download')?> <?=$this->transEsc('loan_history_download_csv')?></a>
+                <div class="dropdown loan-history-download">
+                <button class="btn btn-default dropdown-toggle download" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <?=$this->icon('download')?> <?=$this->transEsc('loan_history_download')?> <span class="caret"></span>
+                </button>
+                  <ul class="dropdown-menu download">
+                    <?php foreach (['csv', 'ods', 'xlsx'] as $format): ?>
+                      <li>
+                        <a href="<?=$this->url('myresearch-downloadloanhistory')?>?format=<?=$format?>"><?=$this->transEsc('loan_history_download_' . $format)?></a>
+                      </li>
+                    <?php endforeach; ?>
+                  </ul>
                 </div>
                 <?php if ($purgeAllAllowed): ?>
                   <div class="dropdown loan-history-purge-all">

@@ -34,6 +34,10 @@
 
 namespace Finna\Controller;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
+use PhpOffice\PhpSpreadsheet\Writer\Ods;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use VuFind\Exception\Forbidden as ForbiddenException;
 use VuFind\Exception\ILS as ILSException;
 use VuFind\Exception\ListPermission as ListPermissionException;
@@ -1368,13 +1372,15 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             $this->flashMessenger()->addErrorMessage('ils_action_unavailable');
             return $this->redirect()->toRoute('checkouts-history');
         }
+        $fileFormat = $this->params()->fromQuery('format', '');
+        if (!in_array($fileFormat, ['ods', 'csv', 'xlsx'])) {
+            throw new \Exception('Invalid parameters.');
+        }
 
         $recordLoader = $this->serviceLocator->get(\VuFind\Record\Loader::class);
         $page = 1;
         try {
-            $outputPath = tempnam('/tmp', 'csv');
-            $handle = fopen($outputPath, 'w');
-
+            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
             $header = [
                 $this->translate('Title'),
                 $this->translate('Format'),
@@ -1385,7 +1391,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 $this->translate('Return Date'),
                 $this->translate('Due Date'),
             ];
-            fputcsv($handle, $header);
+            $spreadsheet->getActiveSheet()->fromArray($header);
             do {
                 // Try to use large page size, but take ILS limits into account
                 $pageOptions = $this->getPaginationHelper()
@@ -1412,7 +1418,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                     $author = $driver->tryMethod('getNonPresenterAuthors');
 
                     $loan = [];
-                    $loan[] = $current['title'] ? '"' . $current['title'] . '"' : '';
+                    $loan[] = $current['title'] ?? '';
                     $loan[] = $this->translate($format);
                     $loan[] = $author[0]['name'] ?? '';
                     $loan[] = $current['publication_year'] ?? '';
@@ -1422,8 +1428,8 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                     $loan[] = $current['checkoutDate'] ?? '';
                     $loan[] = $current['returnDate'] ?? '';
                     $loan[] = $current['dueDate'] ?? '';
-
-                    fputcsv($handle, $loan);
+                    $nextRow = $spreadsheet->getActiveSheet()->getHighestRow() + 1;
+                    $spreadsheet->getActiveSheet()->fromArray($loan, null, 'A' . (string)$nextRow);
                 }
 
                 $pageEnd = $pageOptions['ilsPaging']
@@ -1432,17 +1438,39 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 $page++;
             } while ($page <= $pageEnd);
             $response = $this->getResponse();
+            $writer = null;
+            if ('xlsx' === $fileFormat) {
+                $writer = new Xlsx($spreadsheet);
+                $response->getHeaders()
+                    ->addHeaderLine(
+                        'Content-Type',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    );
+            } else if ('csv' === $fileFormat) {
+                $writer = new Csv($spreadsheet);
+                $response->getHeaders()
+                    ->addHeaderLine(
+                        'Content-Type',
+                        'text/csv'
+                    );
+            } else if ('ods' === $fileFormat) {
+                $writer = new Ods($spreadsheet);
+                $response->getHeaders()
+                    ->addHeaderLine(
+                        'Content-Type',
+                        'application/vnd.oasis.opendocument.spreadsheet'
+                    );
+            }
             $response->getHeaders()
-                ->addHeaderLine('Content-Type', 'text/csv')
                 ->addHeaderLine(
                     'Content-Disposition',
-                    'attachment; filename="finna-loan-history.csv'
+                    'attachment; filename="finna-loan-history.' . $fileFormat
                 );
+            $tmp = fopen('php://temp', 'w');
+            $writer->save($tmp);
+            rewind($tmp);
 
-            fclose($handle);
-            $csvData = file_get_contents($outputPath);
-            $response->setContent($csvData);
-            unlink($outputPath);
+            $response->setContent(stream_get_contents($tmp));
         } catch (\Exception $e) {
             $this->flashMessenger()->addErrorMessage('An error has occurred');
             return $this->redirect()->toRoute('checkouts-history');
