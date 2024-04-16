@@ -1392,6 +1392,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 $this->translate('Return Date'),
                 $this->translate('Due Date'),
             ];
+            $spreadsheet = null;
             if ('csv' === $fileFormat) {
                 fputcsv($tmp, $header);
             } else {
