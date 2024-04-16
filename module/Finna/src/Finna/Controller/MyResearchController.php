@@ -34,8 +34,9 @@
 
 namespace Finna\Controller;
 
+use PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Ods;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use VuFind\Exception\Forbidden as ForbiddenException;
@@ -1380,7 +1381,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         $recordLoader = $this->serviceLocator->get(\VuFind\Record\Loader::class);
         $page = 1;
         try {
-            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $tmp = fopen('php://temp/maxmemory:' . (5 * 1024 * 1024), 'r+');
             $header = [
                 $this->translate('Title'),
                 $this->translate('Format'),
@@ -1391,7 +1392,16 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 $this->translate('Return Date'),
                 $this->translate('Due Date'),
             ];
-            $spreadsheet->getActiveSheet()->fromArray($header);
+            if ('csv' === $fileFormat) {
+                fputcsv($tmp, $header);
+            } else {
+                $spreadsheet = new Spreadsheet();
+                $worksheet = $spreadsheet->getActiveSheet();
+                $worksheet->fromArray($header);
+                if ('xlsx' === $fileFormat) {
+                    Cell::setValueBinder(new AdvancedValueBinder());
+                }
+            }
             do {
                 // Try to use large page size, but take ILS limits into account
                 $pageOptions = $this->getPaginationHelper()
@@ -1418,18 +1428,23 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                     $author = $driver->tryMethod('getNonPresenterAuthors');
 
                     $loan = [];
-                    $loan[] = $current['title'] ?? '';
+                    $loan[] = $current['title'] ?? $driver->getTitle() ?? '';
                     $loan[] = $this->translate($format);
                     $loan[] = $author[0]['name'] ?? '';
                     $loan[] = $current['publication_year'] ?? '';
-                    $loan[] = empty($current['borrowingLocation'])
-                        ? ''
-                        : $this->translateWithPrefix('location_', $current['borrowingLocation']);
+                    $location = $current['borrowingLocation'] ?? $current['institution_name'] ?? '';
+                    $loan[] = $location
+                        ? $this->translateWithPrefix('location_', $location)
+                        : '';
                     $loan[] = $current['checkoutDate'] ?? '';
                     $loan[] = $current['returnDate'] ?? '';
                     $loan[] = $current['dueDate'] ?? '';
-                    $nextRow = $spreadsheet->getActiveSheet()->getHighestRow() + 1;
-                    $spreadsheet->getActiveSheet()->fromArray($loan, null, 'A' . (string)$nextRow);
+                    if ('csv' === $fileFormat) {
+                        fputcsv($tmp, $loan);
+                    } else {
+                        $nextRow = $worksheet->getHighestRow() + 1;
+                        $worksheet->fromArray($loan, null, 'A' . (string)$nextRow);
+                    }
                 }
 
                 $pageEnd = $pageOptions['ilsPaging']
@@ -1440,34 +1455,34 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             $response = $this->getResponse();
             $writer = null;
             if ('xlsx' === $fileFormat) {
-                $writer = new Xlsx($spreadsheet);
                 $response->getHeaders()
                     ->addHeaderLine(
                         'Content-Type',
                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                     );
-            } else if ('csv' === $fileFormat) {
-                $writer = new Csv($spreadsheet);
-                $response->getHeaders()
-                    ->addHeaderLine(
-                        'Content-Type',
-                        'text/csv'
-                    );
-            } else if ('ods' === $fileFormat) {
-                $writer = new Ods($spreadsheet);
+                $writer = new Xlsx($spreadsheet);
+                $writer->save($tmp);
+            } elseif ('ods' === $fileFormat) {
                 $response->getHeaders()
                     ->addHeaderLine(
                         'Content-Type',
                         'application/vnd.oasis.opendocument.spreadsheet'
                     );
+                $writer = new Ods($spreadsheet);
+                $writer->save($tmp);
+            } elseif ('csv' === $fileFormat) {
+                $response->getHeaders()
+                    ->addHeaderLine(
+                        'Content-Type',
+                        'text/csv'
+                    );
             }
             $response->getHeaders()
                 ->addHeaderLine(
                     'Content-Disposition',
-                    'attachment; filename="finna-loan-history.' . $fileFormat
+                    'attachment; filename="finna-loan-history.' . $fileFormat . '"'
                 );
-            $tmp = fopen('php://temp', 'w');
-            $writer->save($tmp);
+
             rewind($tmp);
 
             $response->setContent(stream_get_contents($tmp));
