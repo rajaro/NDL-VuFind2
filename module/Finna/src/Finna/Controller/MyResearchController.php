@@ -37,6 +37,7 @@ namespace Finna\Controller;
 use PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Ods;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use VuFind\Exception\Forbidden as ForbiddenException;
@@ -70,6 +71,21 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
     use FinnaUnsupportedFunctionViewTrait;
     use FinnaPersonalInformationSupportTrait;
     use Feature\FinnaUserListTrait;
+
+    protected $exportFormats = [
+        'xlsx' => [
+            'mediaType' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'writer' => Xlsx::class,
+        ],
+        'ods' => [
+            'mediaType' => 'application/vnd.oasis.opendocument.spreadsheet',
+            'writer' => Ods::class,
+        ],
+        'csv' => [
+            'mediaType' => 'text/csv',
+            'writer' => Csv::class,
+        ],
+    ];
 
     /**
      * Catalog Login Action
@@ -1387,21 +1403,17 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 $this->translate('Format'),
                 $this->translate('Author'),
                 $this->translate('Publication Year'),
+                $this->translate('Institution'),
                 $this->translate('Borrowing Location'),
                 $this->translate('Checkout Date'),
                 $this->translate('Return Date'),
                 $this->translate('Due Date'),
             ];
-            $spreadsheet = null;
-            if ('csv' === $fileFormat) {
-                fputcsv($tmp, $header);
-            } else {
-                $spreadsheet = new Spreadsheet();
-                $worksheet = $spreadsheet->getActiveSheet();
-                $worksheet->fromArray($header);
-                if ('xlsx' === $fileFormat) {
-                    Cell::setValueBinder(new AdvancedValueBinder());
-                }
+            $spreadsheet = new Spreadsheet();
+            $worksheet = $spreadsheet->getActiveSheet();
+            $worksheet->fromArray($header);
+            if ('xlsx' === $fileFormat) {
+                Cell::setValueBinder(new AdvancedValueBinder());
             }
             do {
                 // Try to use large page size, but take ILS limits into account
@@ -1433,19 +1445,18 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                     $loan[] = $this->translate($format);
                     $loan[] = $author[0]['name'] ?? '';
                     $loan[] = $current['publication_year'] ?? '';
-                    $location = $current['borrowingLocation'] ?? $current['institution_name'] ?? '';
-                    $loan[] = $location
-                        ? $this->translateWithPrefix('location_', $location)
-                        : '';
+                    $loan[] = empty($current['institution_name'])
+                        ? ''
+                        : $this->translateWithPrefix('location_', $current['institution_name']);
+                    $loan[] = empty($current['borrowingLocation'])
+                        ? ''
+                        : $this->translateWithPrefix('location_', $current['borrowingLocation']);
                     $loan[] = $current['checkoutDate'] ?? '';
                     $loan[] = $current['returnDate'] ?? '';
                     $loan[] = $current['dueDate'] ?? '';
-                    if ('csv' === $fileFormat) {
-                        fputcsv($tmp, $loan);
-                    } else {
-                        $nextRow = $worksheet->getHighestRow() + 1;
-                        $worksheet->fromArray($loan, null, 'A' . (string)$nextRow);
-                    }
+
+                    $nextRow = $worksheet->getHighestRow() + 1;
+                    $worksheet->fromArray($loan, null, 'A' . (string)$nextRow);
                 }
 
                 $pageEnd = $pageOptions['ilsPaging']
@@ -1453,31 +1464,20 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                     : 1;
                 $page++;
             } while ($page <= $pageEnd);
-            $response = $this->getResponse();
-            $writer = null;
             if ('xlsx' === $fileFormat) {
-                $response->getHeaders()
-                    ->addHeaderLine(
-                        'Content-Type',
-                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                    );
-                $writer = new Xlsx($spreadsheet);
-                $writer->save($tmp);
-            } elseif ('ods' === $fileFormat) {
-                $response->getHeaders()
-                    ->addHeaderLine(
-                        'Content-Type',
-                        'application/vnd.oasis.opendocument.spreadsheet'
-                    );
-                $writer = new Ods($spreadsheet);
-                $writer->save($tmp);
-            } elseif ('csv' === $fileFormat) {
-                $response->getHeaders()
-                    ->addHeaderLine(
-                        'Content-Type',
-                        'text/csv'
-                    );
+                $spreadsheet->getActiveSheet()->getStyle('G2:I' . $worksheet->getHighestRow())
+                    ->getNumberFormat()
+                    ->setFormatCode('dd.mm.yyyy');
             }
+            $response = $this->getResponse();
+            $response->getHeaders()
+                ->addHeaderLine(
+                    'Content-Type',
+                    $this->exportFormats[$fileFormat]['mediaType']
+                );
+            $writer = new $this->exportFormats[$fileFormat]['writer']($spreadsheet);
+            $writer->save($tmp);
+
             $response->getHeaders()
                 ->addHeaderLine(
                     'Content-Disposition',

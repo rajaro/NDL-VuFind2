@@ -172,7 +172,7 @@
                   <ul class="dropdown-menu download">
                     <?php foreach (['csv', 'ods', 'xlsx'] as $format): ?>
                       <li>
-                        <a href="<?=$this->url('myresearch-downloadloanhistory')?>?format=<?=$format?>"><?=$this->transEsc('loan_history_download_' . $format)?></a>
+                        <a href="<?=$this->url('myresearch-downloadloanhistory', [], ['query' => ['format' => $format]])?>"><?=$this->transEsc('loan_history_download_' . $format)?></a>
                       </li>
                     <?php endforeach; ?>
                   </ul>
