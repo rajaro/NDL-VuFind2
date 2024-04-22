@@ -1465,9 +1465,12 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 $page++;
             } while ($page <= $pageEnd);
             if ('xlsx' === $fileFormat) {
-                $spreadsheet->getActiveSheet()->getStyle('G2:I' . $worksheet->getHighestRow())
+                $worksheet->getStyle('G2:I' . $worksheet->getHighestRow())
                     ->getNumberFormat()
                     ->setFormatCode('dd.mm.yyyy');
+                foreach (['G', 'H', 'I'] as $col) {
+                    $worksheet->getColumnDimension($col)->setAutoSize(true);
+                }
             }
             $response = $this->getResponse();
             $response->getHeaders()
