@@ -596,21 +596,24 @@ class Quria extends AxiellWebServices
             $emailAddresses
                 =  $this->objectToArray($info->emailAddresses->emailAddress);
 
-            $userCached['email'] = $emailAddresses[0]->address ?? '';
-            $userCached['emailId'] = $emailAddress[0]->id ?? '';
+            foreach ($emailAddresses as $emailAddress) {
+                if ($emailAddress->isActive == 'yes' || empty($userCached['email'])) {
+                    $userCached['email'] = $emailAddress->address ?? '';
+                    $userCached['emailId'] = $emailAddress->id ?? '';
+                }
+            }
         }
 
         if (isset($info->addresses->address)) {
             $addresses = $this->objectToArray($info->addresses->address);
-            if (!empty($addresses[0])) {
-                $userCached['address1'] = $addresses[0]->streetAddress ?? '';
-                $userCached['zip'] = $addresses[0]->zipCode ?? '';
-                $userCached['city'] = $addresses[0]->city ?? '';
-                $userCached['country'] = $addresses[0]->country ?? '';
-                $userCached['addressId'] = $addresses[0]->id ?? '';
-            }
-            if (!empty($addresses[1]) && $addresses[1]->isActive) {
-                $userCached['address2'] = $addresses[1]->streetAddress ?? '';
+            foreach ($addresses as $address) {
+                if ($address->isActive == 'yes' || empty($userCached['address1'])) {
+                    $userCached['address1'] = $address->streetAddress ?? '';
+                    $userCached['zip'] = $address->zipCode ?? '';
+                    $userCached['city'] = $address->city ?? '';
+                    $userCached['country'] = $address->country ?? '';
+                    $userCached['addressId'] = $address->id ?? '';
+                }
             }
         }
 
