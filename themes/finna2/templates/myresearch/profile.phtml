@@ -194,6 +194,7 @@
               <?php endif; ?>
             <?php endif; ?>
             <?php if (!empty($this->profile['email']) || $updateEmail): ?>
+            <?= var_dump($this->profile)?>
               <div class="my-profile-col profile-title"><label for="profile_email"><?=$this->transEsc('Email') ?>:</label></div>
               <?php if ($updateEmail): ?>
                 <div>

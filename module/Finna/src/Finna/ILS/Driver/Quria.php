@@ -602,14 +602,22 @@ class Quria extends AxiellWebServices
         if (!empty($info->emailAddresses->emailAddress)) {
             $emailAddresses
                 =  $this->objectToArray($info->emailAddresses->emailAddress);
-            foreach ($emailAddresses as $emailAddress) {
-                if ($emailAddress->isActive == 'yes' || empty($userCached['email'])) {
-                    $userCached['email'] = $emailAddress->address ?? '';
-                    $userCached['emailId'] = $emailAddress->id ?? '';
-                    break;
+            foreach ($emailAddresses as $i => $emailAddress) {
+                if ($emailAddress->isActive == 'yes') {
+                    if ($i === 0) {
+                        $userCached['email'] = $emailAddress->address ?? '';
+                        $userCached['emailId'] = $emailAddress->id ?? '';
+                    } else {
+                        $userCached['extraEmails'][]
+                            = [
+                            'email' . (string)$i => $emailAddress->address ?? '',
+                            'emailId' . (string)$i => $emailAddress->id ?? ''
+                        ];
+                    }
                 }
             }
         }
+        var_dump($userCached);
         if (isset($info->addresses->address)) {
             $addresses = $this->objectToArray($info->addresses->address);
             foreach ($addresses as $address) {
