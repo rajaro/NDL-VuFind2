@@ -155,6 +155,7 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault implements \Laminas\Log\
         'preview_audio' => 'displayLink',
         'preview_text' => 'displayLink',
         'provided_text' => 'displayLink',
+        'provided_video' => 'displayLink',
     ];
 
     /**
@@ -225,6 +226,13 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault implements \Laminas\Log\
      * Array of types for linkResources to be displayed as external URL
      */
     protected $displayExternalLinks = ['provided_3D'];
+
+    /**
+     * Array of types displayed as download links with documents
+     *
+     * @var array
+     */
+    protected $displayDownloadLinks = ['provided_video'];
 
     /**
      * Events used for author information.
@@ -572,7 +580,11 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault implements \Laminas\Log\
                 }
                 // Representation is a document or wanted to be displayed also as an document
                 $displayAsLink = in_array($type, $this->displayExternalLinks);
-                if (in_array($type, $documentTypeKeys) || $displayAsLink) {
+                if (
+                    in_array($type, $documentTypeKeys)
+                    || in_array($type, $this->displayDownloadLinks)
+                    || $displayAsLink
+                ) {
                     $documentDesc = $description;
                     $linkType = $displayAsLink ? 'external-link' : 'proxy-link';
                     if ($displayAsLink && !$documentDesc) {
