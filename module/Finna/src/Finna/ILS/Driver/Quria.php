@@ -606,7 +606,7 @@ class Quria extends AxiellWebServices
                     $userCached['email'] = $emailAddress->address ?? '';
                     $userCached['emailId'] = $emailAddress->id ?? '';
                     $activeEmailFound = $emailActive;
-                } else if ($emailActive) {
+                } elseif ($emailActive) {
                     $userCached['extraEmails'][]
                         = [
                             'email' => $emailAddress->address ?? '',
@@ -1633,7 +1633,7 @@ class Quria extends AxiellWebServices
      *
      * @param array  $patron  Patron array
      * @param string $phone   Phone number
-     * @param string $phoneId Phone ID 
+     * @param string $phoneId Phone ID
      *
      * @throws ILSException
      *

@@ -1507,12 +1507,15 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         if (isset($values->profile_extra_email) && isset($values->profile_extra_email_id)) {
             foreach ($values->profile_extra_email as $i => $extraEmail) {
                 $validator = new \Laminas\Validator\EmailAddress();
-                if ($validator->isValid($extraEmail)
+                if (
+                    $validator->isValid($extraEmail)
                     && $catalog->checkFunction('updateEmail', compact('patron'))
                     && !empty($values->profile_extra_email_id[$i])
                 ) {
                     $result = $catalog->updateEmail(
-                        $patron, $extraEmail, $values->profile_extra_email_id[$i]
+                        $patron,
+                        $extraEmail,
+                        $values->profile_extra_email_id[$i]
                     );
                     if (!$result['success']) {
                         $this->flashMessenger()->addErrorMessage($result['status']);
@@ -1537,7 +1540,9 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             foreach ($values->profile_extra_tel as $i => $extraPhone) {
                 if (!empty($values->profile_extra_tel_id[$i])) {
                     $result = $catalog->updatePhone(
-                        $patron, $extraPhone->phone, $values->profile_extra_tel_id[$i]
+                        $patron,
+                        $extraPhone->phone,
+                        $values->profile_extra_tel_id[$i]
                     );
                     if (!$result['success']) {
                         $this->flashMessenger()->addErrorMessage($result['status']);
