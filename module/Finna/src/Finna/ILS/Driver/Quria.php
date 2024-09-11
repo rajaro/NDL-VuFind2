@@ -610,7 +610,7 @@ class Quria extends AxiellWebServices
                     $userCached['extraEmails'][]
                         = [
                             'email' => $emailAddress->address ?? '',
-                            'emailId' => $emailAddress->id ?? ''
+                            'emailId' => $emailAddress->id ?? '',
                         ];
                 }
             }
@@ -646,7 +646,7 @@ class Quria extends AxiellWebServices
                         $userCached['extraPhones'][]
                             = [
                                 'phone' => ($phoneNumber->areaCode ?? '') . $phoneNumber->localCode ?? '',
-                                'phoneId' => $phoneNumber->id ?? ''
+                                'phoneId' => $phoneNumber->id ?? '',
                             ];
                     }
                 }
@@ -1562,7 +1562,7 @@ class Quria extends AxiellWebServices
                     return [
                         'success' => true,
                         'status' => 'No data to update',
-                        'sys_message' => ''
+                        'sys_message' => '',
                     ];
                 }
             }
@@ -1651,7 +1651,7 @@ class Quria extends AxiellWebServices
                     return [
                         'success' => true,
                         'status' => 'No data to update',
-                        'sys_message' => ''
+                        'sys_message' => '',
                     ];
                 }
             }
