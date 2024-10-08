@@ -1510,7 +1510,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 if (
                     $validator->isValid($extraEmail)
                     && $catalog->checkFunction('updateEmail', compact('patron'))
-                    && !empty($values->profile_extra_email_id[$i])
+                    && isset($values->profile_extra_email_id[$i])
                 ) {
                     $result = $catalog->updateEmail(
                         $patron,
@@ -1538,7 +1538,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         // Update extra phones
         if (isset($values->profile_extra_tel) && isset($values->profile_extra_tel_id)) {
             foreach ($values->profile_extra_tel as $i => $extraPhone) {
-                if (!empty($values->profile_extra_tel_id[$i])) {
+                if (isset($values->profile_extra_tel_id[$i])) {
                     $result = $catalog->updatePhone(
                         $patron,
                         $extraPhone->phone,

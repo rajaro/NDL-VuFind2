@@ -1556,17 +1556,16 @@ class Quria extends AxiellWebServices
 
         $user = $this->getMyProfile($patron);
 
-        if ($emailId) {
-            foreach ($user['extraEmails'] as $extraEmail) {
-                if ($extraEmail['emailId'] === $emailId && $extraEmail['email'] === $email) {
-                    return [
-                        'success' => true,
-                        'status' => 'No data to update',
-                        'sys_message' => '',
-                    ];
-                }
+        if ($updateExtraEmail = isset($emailId) && !empty($user['extraEmails'][$emailId]['email'])) {
+            if ($user['extraEmails'][$emailId]['email'] === $email) {
+                return [
+                    'success' => true,
+                    'status' => 'No data to update',
+                    'sys_message' => '',
+                ];
             }
         }
+
         $function = '';
         $functionResult = '';
         $functionParam = '';
@@ -1587,7 +1586,7 @@ class Quria extends AxiellWebServices
         ];
 
         if (!empty($user['email'])) {
-            $conf['id'] = $emailId ?? $user['emailId'];
+            $conf['id'] = $updateExtraEmail ? $user['extraEmails'][$emailId]['emailId'] : $user['emailId'];
             $function = 'changeEmail';
             $functionResult = 'changeEmailAddressResult';
             $functionParam = 'changeEmailAddressParam';
@@ -1645,18 +1644,15 @@ class Quria extends AxiellWebServices
         $password = $patron['cat_password'];
         $user = $this->getMyProfile($patron);
 
-        if ($phoneId) {
-            foreach ($user['extraPhones'] as $extraPhone) {
-                if ($extraPhone['phoneId'] === $phoneId && $extraPhone['phone'] === $phone) {
-                    return [
-                        'success' => true,
-                        'status' => 'No data to update',
-                        'sys_message' => '',
-                    ];
-                }
+        if ($updateExtraPhone = isset($phoneId) && !empty($user['extraPhones'][$phoneId]['phone'])) {
+            if ($user['extraPhones'][$phoneId]['phone'] === $phone) {
+                return [
+                    'success' => true,
+                    'status' => 'No data to update',
+                    'sys_message' => '',
+                ];
             }
         }
-
         $function = '';
         $functionResult = '';
         $functionParam = '';
@@ -1674,7 +1670,7 @@ class Quria extends AxiellWebServices
         ];
 
         if (!empty($user['phone'])) {
-            $conf['id'] = $phoneId ?? $user['phoneId'];
+            $conf['id'] = $updateExtraPhone ? $user['extraPhones'][$phoneId]['phoneId'] : $user['phoneId'];
             $function = 'changePhone';
             $functionResult = 'changePhoneNumberResult';
             $functionParam = 'changePhoneNumberParam';
