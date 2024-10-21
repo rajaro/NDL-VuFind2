@@ -1412,6 +1412,14 @@ class Quria extends AxiellWebServices
             if (isset($fields['pickUpLocation'])) {
                 [, $branch] = explode('.', $fields['pickUpLocation'], 2);
                 $updateRequest['pickUpBranchId'] = $branch;
+            } else {
+                $locations = $this->getPickUpLocations($patron, ['item_id' => $requestId]);
+                foreach ($locations as $loc) {
+                    if ($loc['locationDisplay'] === $pickupLocation) {
+                        [, $branch] = explode('.', $loc['locationID'], 2);
+                        $updateRequest['pickUpBranchId'] = $branch;
+                    }
+                }
             }
             $result = $this->doSOAPRequest(
                 $this->reservations_wsdl,
