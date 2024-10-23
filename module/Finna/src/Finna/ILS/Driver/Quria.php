@@ -985,7 +985,7 @@ class Quria extends AxiellWebServices
             $detailsStr = $reservation->id . '|' . $reservation->validFromDate
                 . '|' . $reservation->validToDate . '|'
                 . $reservation->pickUpBranchId; // $reservation->pickUpBranchId actually
-                                                // contains the branch name instead of the ID
+            // contains the branch name instead of the ID
             $updateDetails = '';
             $cancelDetails = '';
             // TODO: Regional holds are not yet implemented
