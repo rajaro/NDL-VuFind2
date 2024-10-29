@@ -43,7 +43,15 @@
           // Either a string for a location or null for no default. Change null to
           // false for compatibility with defaultPickup where false indicated no
           // default:
-          $selected = $this->homeLibrary ?? false;
+          $selected = false;
+          if (isset($this->homeLibrary)) {
+            foreach ($this->pickup as $lib) {
+              if ($lib['locationID'] === $this->homeLibrary) {
+                $selected = $this->homeLibrary;
+                break;
+              }
+            }
+          }
         }
       ?>
       <?php if ($this->requestGroupNeeded): ?>
