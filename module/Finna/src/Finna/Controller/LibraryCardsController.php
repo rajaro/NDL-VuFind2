@@ -960,6 +960,23 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
     }
 
     /**
+     * Return a list of users connected to this library card
+     */
+    public function getUsersConnectedToLibraryCardAction()
+    {
+        if (!($user = $this->getUser())) {
+            return $this->forceLogin();
+        }
+        $catUsername = $this->params()->fromQuery('catUsername', '');
+        $userCardService = $this->getDbService(UserCardServiceInterface::class);
+        $users = $userCardService->getUsersForLibraryCard($catUsername);
+        $view = $this->createViewModel();
+        $view->setTemplate('librarycards/users-connected-to-card');
+        $view->users = $users;
+        return $view;
+    }
+
+    /**
      * Helper function for verification hashes
      *
      * @param string $hash User-unique hash string from request

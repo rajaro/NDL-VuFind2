@@ -1099,7 +1099,7 @@ $dynamicRoutes = [
 $staticRoutes = [
     'LibraryCards/Recover', 'LibraryCards/Register',
     'LibraryCards/RegistrationDone', 'LibraryCards/RegistrationForm',
-    'LibraryCards/ResetPassword',
+    'LibraryCards/ResetPassword', 'LibraryCards/GetUsersConnectedToLibraryCard',
     'LocationService/Modal',
     'MetaLib/Home', 'MetaLib/Search', 'MetaLib/Advanced',
     'MyResearch/DownloadLoanHistory',
