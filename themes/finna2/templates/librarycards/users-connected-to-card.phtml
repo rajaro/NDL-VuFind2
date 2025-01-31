@@ -1,16 +1,21 @@
-<h2 class="lightbox-header"><?=$this->transEsc('Tilit, joihin kortti on liitetty'); ?></h2>
+<h2 class="lightbox-header"><?=$this->transEsc('library_card_connected_users'); ?></h2>
 <table class="table table-striped">
-<tr><th>Liittämispäivä</th><th><?=$this->transEsc('Institution')?></th><th><?=$this->transEsc('account_login_method')?></th></tr>
-<?php foreach ($this->users as $user): ?>
-    <?php $institution = explode(':', $user->cat_id);
-        $parts = explode('.', $institution[0]);
-        $org = $parts[0];
-    ?>
-    <tr>
-    <td><?= $user->created?></td>
-    <td><?= $org?></td>
-    <td><?= $this->transEsc('login_method_' . $user->auth_method) ?></td>
-    </tr>
-    <?=$user->username?>
-<?php endforeach; ?>
+    <tr><th><?=$this->transEsc('library_card_date_of_connection')?></th><th><?=$this->transEsc('Institution')?></th><th><?=$this->transEsc('account_login_method')?></th></tr>
+    <?php foreach ($this->users as $user): ?>
+        <?php $parts = explode(':', $user->username, 2);
+            $org = $parts[0];
+            if (!empty($org)) {
+                $site = $org === 'national'
+                    ? 'https://finna.fi'
+                    : 'https://' . $org . '.finna.fi';
+            }
+        ?>
+        <tr>
+            <td><?= $this->escapeHtml($this->dateTime()->convertToDisplayDateAndTime('Y-m-d H:i:s', $user->user_card_created))?></td>
+            <td><a href="<?=$site?>"><?=$this->transEsc('institution::' . $org)?></a></td>
+            <td><?= $this->transEsc('login_method_' . $user->auth_method) ?></td>
+        </tr>
+    <?php endforeach; ?>
 </table>
+<div class="infobox"><?=$this->transEsc('library_card_connected_users_info')?></div>
+<button class="btn btn-primary" data-dismiss="modal"><?=ucfirst($this->transEsc('close')) ?></button>

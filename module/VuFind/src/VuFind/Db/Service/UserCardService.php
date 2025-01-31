@@ -37,8 +37,6 @@ use VuFind\Db\Entity\UserCardEntityInterface;
 use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Table\DbTableAwareInterface;
 use VuFind\Db\Table\DbTableAwareTrait;
-use Laminas\Db\Sql\Select;
-
 
 use function count;
 use function is_int;
@@ -124,26 +122,6 @@ class UserCardService extends AbstractDbService implements
             $criteria['cat_username'] = $catUsername;
         }
         return iterator_to_array($userCard->select($criteria));
-    }
-
-    public function getUsersForLibraryCard($catUsername)
-    {
-        $cardSelect = new Select('user_card');
-        $cardSelect->columns(['user_id']);
-        $cardSelect->where->equalTo('cat_username', $catUsername);
-        $userCard = $this->getDbTable('UserCard');
-        $criteria = [
-            'cat_username' => $catUsername
-        ];
-        $userIds = iterator_to_array($userCard->select($criteria));
-        $users = $this->getDbTable('User');
-        $callback = function ($select) use ($cardSelect) {
-            $select->where->in('id', $cardSelect);
-        };
-        return iterator_to_array($users->select($callback));
-        
-      //  var_dump($userIds);
-
     }
 
     /**
