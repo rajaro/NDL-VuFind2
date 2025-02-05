@@ -974,7 +974,7 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
         $cards = $userCardService->getLibraryCards($user, $cardId);
         $card = current($cards);
         if (!$card) {
-            throw new \Exception('No card found');
+            throw new \Exception('Library card not found');
         }
 
         $catUsername = $card->getCatUsername();

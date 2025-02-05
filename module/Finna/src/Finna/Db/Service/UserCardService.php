@@ -30,7 +30,6 @@
 namespace Finna\Db\Service;
 
 use Closure;
-use Laminas\Db\Sql\Select;
 use VuFind\Auth\ILSAuthenticator;
 use VuFind\Config\AccountCapabilities;
 use VuFind\Db\Entity\UserCardEntityInterface;
@@ -108,10 +107,10 @@ class UserCardService extends \VuFind\Db\Service\UserCardService
                 ->columns(['id', 'user_id', 'user_card_created' => 'created'])
                 ->where->equalTo('user_card.cat_username', $catUsername);
             $select->join(
-                    ['u' => 'user'],
-                    'u.id = user_card.user_id',
-                    ['username', 'auth_method']
-                );
+                ['u' => 'user'],
+                'u.id = user_card.user_id',
+                ['username', 'auth_method']
+            );
         };
         return iterator_to_array($userCards->select($callback));
     }
