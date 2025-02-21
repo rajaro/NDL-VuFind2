@@ -964,12 +964,12 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
      *
      * @return mixed
      */
-    public function getUsersConnectedToLibraryCardAction()
+    public function connectedUsersAction()
     {
         if (!($user = $this->getUser())) {
             return $this->forceLogin();
         }
-        $cardId = $this->params()->fromQuery('cardID', '');
+        $cardId = $this->params()->fromRoute('cardID', null);
         $userCardService = $this->getDbService(UserCardServiceInterface::class);
         $cards = $userCardService->getLibraryCards($user, $cardId);
         $card = current($cards);
