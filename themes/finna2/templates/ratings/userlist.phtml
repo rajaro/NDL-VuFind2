@@ -18,8 +18,8 @@
       <li class="nav-item" role="presentation" id="user-content-<?=$this->escapeHtmlAttr($tab)?>" data-tab="<?=$this->escapeHtmlAttr($tab)?>"><a class="<?='ratings' === $tab ? 'active' : ''?> nav-link" href="<?=$this->url($tab . '-' . 'userlist')?>"><?=$this->transEsc($title)?></a></li>
     <?php endforeach; ?>
   </ul>
-  <div><?=$this->transEsc('finna_nickname')?>: <?=$this->userPublicName($user);?></div>
   <?php if (count($this->ratings) !== 0): ?>  
+    <div><?=$this->transEsc('finna_nickname')?>: <?=$this->userPublicName($user);?></div>
     <nav class="search-header hidden-print">
       <?php
         $abs = $this->ratings->getAbsoluteItemNumber($this->ratings->getItemCountPerPage());
