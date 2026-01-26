@@ -114,4 +114,9 @@ class TabManager extends \VuFind\RecordTab\TabManager
         $tab->setRecordDriver($driver);
         return $tab;
     }
+
+    public function getSeriesTab()
+    {
+        return new \Finna\RecordTab\Series;
+    }
 }

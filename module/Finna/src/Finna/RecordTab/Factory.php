@@ -107,4 +107,9 @@ class Factory
             $useCaptcha
         );
     }
+
+    public function getSeries()
+    {
+        return \Finna\RecordTab\Series::class;
+    }
 }

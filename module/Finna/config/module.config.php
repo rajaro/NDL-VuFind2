@@ -1082,6 +1082,8 @@ $config = [
                     'Finna\RecordTab\HierarchyTree' => 'VuFind\RecordTab\HierarchyTreeFactory',
                     'Finna\RecordTab\Map' => 'Finna\RecordTab\Factory::getMap',
                     'Finna\RecordTab\UserComments' => 'Finna\RecordTab\Factory::getUserComments',
+                    'Finna\RecordTab\Series' => 'Finna\RecordTab\Factory::getSeries',
+
                 ],
                 'invokables' => [
                     'componentparts' => 'Finna\RecordTab\ComponentParts',
