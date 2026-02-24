@@ -1310,6 +1310,19 @@ trait SolrFinnaTrait
         return $this->otherVersions;
     }
 
+    public function getSeriesList()
+    {
+        $seriesKeys = $this->getSeriesKeys();
+        $query = new \VuFindSearch\Query\Query(
+            'series_key_str_mv:"' . $seriesKeys[0] . '"'
+        );
+        $params = new \VuFindSearch\ParamBag(['sort' => 'series_order_str asc']);
+        $command = new SearchCommand($this->sourceIdentifier, $query, 0, 20, $params);
+        $result = $this->searchService->invoke($command)->getResult();
+        return $result;
+
+    }
+
     /**
      * Returns an array of 0 or more record label constants, or null if labels
      * are not enabled in configuration.

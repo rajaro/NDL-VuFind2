@@ -52,4 +52,29 @@ class Series extends \VuFind\RecordTab\AbstractBase
     {
         return 'Series';
     }
+
+    /**
+     * Can this tab be loaded via AJAX?
+     *
+     * @return bool
+     */
+    public function supportsAjax()
+    {
+        return true;
+    }
+
+    public function isActive()
+    {
+        $series = $this->getRecordDriver()->tryMethod('getSeriesKeys');
+        return !empty($series);
+    }
+
+    public function getContext()
+    {
+        $request = $this->getRequest() ?: null;
+        $query = $request?->getQuery();
+        $seriesKey = $query->get('seriesKey');
+    //    var_dump($query);
+        return $seriesKey ?? 'asd';
+    }
 }

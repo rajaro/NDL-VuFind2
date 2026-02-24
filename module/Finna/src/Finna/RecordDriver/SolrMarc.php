@@ -1530,6 +1530,15 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc implements \Psr\Log\LoggerA
         return $matches;
     }
 
+    public function getSeriesOrder()
+    {
+        $order = $this->fields['series_order_str'] ?? '';
+        if (preg_match('/(\d+)$/', $order, $matches)) {
+            return (int)$matches[1];
+        }
+        return $order;
+    }
+
     /**
      * Return SFX Object ID
      *

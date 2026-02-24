@@ -1,0 +1,79 @@
+<?php
+  $seriesKeys = $this->driver->getSeriesKeys();
+  $results = $this->driver->getSeriesList($seriesKeys[0]);
+  $img = $this->recordImage($this->record($this->driver));
+  $thumbnail = false;
+  $thumbnailAlignment = $this->record($this->driver)->getThumbnailAlignment('list');
+  $a = $this->tab->getContext();
+          $a = $_GET;
+        var_dump($a);
+  if ($img):
+    ob_start(); ?>
+    <div class="text-center">
+      <?=$img->render('list', ['small' => ['w' => 100, 'h' => 100], 'medium' => ['w' => 250, 'h' => 250]]) ?>
+    </div>
+    <?php $thumbnail = ob_get_contents(); ?>
+  <?php ob_end_clean(); ?>
+<?php endif; ?>
+<?php
+    $menuItems = [];
+    foreach ($seriesKeys as $key) {
+        $menuItems[] = [
+            'label' => $key,
+            'url' => $this->url()->addQueryParameters(['url' => $key, 'tab' => 'series'])
+        ];
+    }
+
+?>
+<?=$this->component('menu-button', [
+                  'toggleLabel' => 'Series',
+                  'toggleAttrs' => [
+                    'class' => 'nav-link dropdown-toggle',
+                  ],
+                  'wrapperClass' => 'nav-item series',
+                  'wrapperTag' => 'li',
+                  'menuItems' => $menuItems
+              ]) ?>
+<ul class="list-unstyled d-flex overflow-auto gap-3 pb-2">
+<?php foreach ($results as $source => $current): ?>
+    <li class="flex-shrink-0" style="width: 200px;">
+    <img src="<?=$this->url('cover-unavailable')?>" data-src="<?=$this->url('cover-unavailable')?>" class="recordcover" alt="<?=$this->transEsc('No Cover Image')?>" style="width:100px;height:150px">
+    <div>
+        <a href="<?=$this->escapeHtmlAttr($this->recordLinker()->getUrl($current))?>">
+            <?=$this->escapeHtml($current->getTitle())?>
+        </a>
+        <?= $current->getSeriesOrder(); ?>
+    </li>
+    </div>
+<?php endforeach;?>
+
+
+
+
+
+
+
+<?php foreach ($results as $source => $current): ?>
+    <li class="flex-shrink-0" style="width: 200px;">
+        <?= $current->getSeriesOrder(); ?>
+        <a href="<?=$this->escapeHtmlAttr($this->recordLinker()->getUrl($current))?>">
+            <?=$this->escapeHtml($current->getTitle())?>
+        </a>
+    </li>
+<?php endforeach;?>
+<?php foreach ($results as $source => $current): ?>
+    <li class="flex-shrink-0" style="width: 200px;">
+        <?= $current->getSeriesOrder(); ?>
+        <a href="<?=$this->escapeHtmlAttr($this->recordLinker()->getUrl($current))?>">
+            <?=$this->escapeHtml($current->getTitle())?>
+        </a>
+    </li>
+<?php endforeach;?>
+</ul>
+
+<?php
+  $script = <<<JS
+      VuFind.record.handleAjaxTabLinks();
+      JS;
+?>
+<?=$this->assetManager()->outputInlineScriptString($script);?>
