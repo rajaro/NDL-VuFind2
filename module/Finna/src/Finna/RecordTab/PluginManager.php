@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Series tab
+ * Record tab plugin manager
  *
  * PHP version 8
  *
@@ -30,44 +30,30 @@
 namespace Finna\RecordTab;
 
 /**
- * Series tab
+ * Record tab plugin manager
  *
  * @category VuFind
  * @package  RecordTabs
- * @author   Jaro Ravila <jaro.ravila@helsinki,fi>
+ * @author   Jaro Ravila <jaro.ravila@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:record_tabs Wiki
  */
-class Series extends \VuFind\RecordTab\AbstractBase
+class PluginManager extends \VuFind\RecordTab\PluginManager
 {
     /**
-     * Get the on-screen description for this tab.
+     * Constructor
      *
-     * @return string
-     */
-    public function getDescription()
-    {
-        return 'Series';
-    }
-
-    /**
-     * Can this tab be loaded via AJAX?
+     * Make sure plugins are properly initialized.
      *
-     * @return bool
+     * @param mixed $configOrContainerInstance Configuration or container instance
+     * @param array $v3config                  If $configOrContainerInstance is a
+     * container, this value will be passed to the parent constructor.
      */
-    public function supportsAjax()
-    {
-        return true;
-    }
-
-    /**
-     * Is this tab active?
-     *
-     * @return bool
-     */
-    public function isActive()
-    {
-        $series = $this->getRecordDriver()->tryMethod('getSeriesKeys');
-        return !empty($series);
+    public function __construct(
+        $configOrContainerInstance = null,
+        array $v3config = []
+    ) {
+        parent::__construct($configOrContainerInstance, $v3config);
+        $this->aliases['series'] = Series::class;
     }
 }

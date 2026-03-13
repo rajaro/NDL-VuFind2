@@ -1,79 +1,60 @@
-<?php
+<?php 
   $seriesKeys = $this->driver->getSeriesKeys();
-  $results = $this->driver->getSeriesList($seriesKeys[0]);
-  $img = $this->recordImage($this->record($this->driver));
-  $thumbnail = false;
-  $thumbnailAlignment = $this->record($this->driver)->getThumbnailAlignment('list');
-  $a = $this->tab->getContext();
-          $a = $_GET;
-        var_dump($a);
-  if ($img):
-    ob_start(); ?>
-    <div class="text-center">
-      <?=$img->render('list', ['small' => ['w' => 100, 'h' => 100], 'medium' => ['w' => 250, 'h' => 250]]) ?>
-    </div>
-    <?php $thumbnail = ob_get_contents(); ?>
-  <?php ob_end_clean(); ?>
-<?php endif; ?>
-<?php
-    $menuItems = [];
-    foreach ($seriesKeys as $key) {
-        $menuItems[] = [
-            'label' => $key,
-            'url' => $this->url()->addQueryParameters(['url' => $key, 'tab' => 'series'])
-        ];
-    }
-
+  $currentSeriesKey = $this->seriesKey ?? $seriesKeys[0];
+  $results = $this->driver->getSeriesResult($currentSeriesKey);
+  $currentSeries = $this->driver->getSeriesFromSeriesKey($currentSeriesKey);
+  $recordId = $this->driver->getUniqueId();
 ?>
-<?=$this->component('menu-button', [
-                  'toggleLabel' => 'Series',
-                  'toggleAttrs' => [
-                    'class' => 'nav-link dropdown-toggle',
-                  ],
-                  'wrapperClass' => 'nav-item series',
-                  'wrapperTag' => 'li',
-                  'menuItems' => $menuItems
-              ]) ?>
-<ul class="list-unstyled d-flex overflow-auto gap-3 pb-2">
-<?php foreach ($results as $source => $current): ?>
-    <li class="flex-shrink-0" style="width: 200px;">
-    <img src="<?=$this->url('cover-unavailable')?>" data-src="<?=$this->url('cover-unavailable')?>" class="recordcover" alt="<?=$this->transEsc('No Cover Image')?>" style="width:100px;height:150px">
-    <div>
-        <a href="<?=$this->escapeHtmlAttr($this->recordLinker()->getUrl($current))?>">
-            <?=$this->escapeHtml($current->getTitle())?>
-        </a>
-        <?= $current->getSeriesOrder(); ?>
-    </li>
+<div class="record-tab-series-container">
+  <div class="series-header">
+  <h4 id="series"><?=$this->escapeHtml($currentSeries)?></h4>
+  <?php if (count($seriesKeys) > 1): ?>
+      <span class="series-dropdown-text"><?= $this->transEsc('Series')?>: </span><button id="dropdown-toggle" type="button" class="dropdown-toggle series-dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><?=$this->escapeHtml($currentSeries)?></button>
+    <ul class="dropdown-menu">
+      <?php foreach ($seriesKeys as $key): ?>
+        <li>
+          <a class="dropdown-item dropdown__link" href="#" data-id="<?=$this->escapeHtmlAttr($recordId)?>" data-source="<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?>" data-serieskey="<?=$this->escapeHtmlAttr($key)?>"><?=$this->escapeHtml($this->driver->getSeriesFromSeriesKey($key))?></a>
+        </li>
+      <? endforeach; ?>
+    </ul>
+    <?php endif; ?>
+  </div>
+  <div class="series-tab-container container">
+    <div class="list-scrollable">
+      <ul class="list flex-row flex-nowrap overflow-x-auto" id="scrollableList">
+        <?php foreach ($results as $source => $current): ?>
+          <?php
+            $images = $current->getAllImages();
+            $imgurl = $images[0]['urls']['medium'] ?? '';
+            $formats = $current->getFormats();
+            $seriesOrder = $current->getSeriesOrder();
+            $orderForCurrentSeries = null;
+            if ($seriesOrder) {
+              $orderSeriesParts = explode(' ', $seriesOrder['orderKey']);
+              $keySeriesParts = explode(' ', $currentSeriesKey);
+              $orderForCurrentSeries = $orderSeriesParts[1] === $keySeriesParts[1];
+            }
+          ?>
+        <li class="list-item <?= $recordId === $current->getUniqueId() ? 'active' :'' ?>">
+          <?php if ($orderForCurrentSeries): ?>
+            <span class="series"><?=$this->escapeHtml($seriesOrder['order'])?></span>
+          <?php endif; ?>
+          <a class="list-link" href="<?=$this->escapeHtmlAttr($this->recordLinker()->getUrl($current))?>">
+            <img loading="lazy" src="<?=$this->escapeHtmlAttr($imgurl)?>" alt="">
+            <div class="cover iconlabel format-<?=$this->record($this->driver)->getFormatClass(end($formats))?>"></div>
+            <span class="title"><?=$this->escapeHtml($current->getTitle())?></span>
+          </a>
+        </li>
+        <?php endforeach; ?>
+      </ul>
     </div>
-<?php endforeach;?>
-
-
-
-
-
-
-
-<?php foreach ($results as $source => $current): ?>
-    <li class="flex-shrink-0" style="width: 200px;">
-        <?= $current->getSeriesOrder(); ?>
-        <a href="<?=$this->escapeHtmlAttr($this->recordLinker()->getUrl($current))?>">
-            <?=$this->escapeHtml($current->getTitle())?>
-        </a>
-    </li>
-<?php endforeach;?>
-<?php foreach ($results as $source => $current): ?>
-    <li class="flex-shrink-0" style="width: 200px;">
-        <?= $current->getSeriesOrder(); ?>
-        <a href="<?=$this->escapeHtmlAttr($this->recordLinker()->getUrl($current))?>">
-            <?=$this->escapeHtml($current->getTitle())?>
-        </a>
-    </li>
-<?php endforeach;?>
-</ul>
-
+  </div>
+  <?php $searchQuery = urlencode('series_key_str_mv:"' . $currentSeriesKey . '"'); ?>
+  <a href='<?= $this->url('search-results') ?>?lookfor=<?=$searchQuery?>' class="btn btn-primary series-search-link"><?= $this->transEsc('channel_search') ?></a>
+</div>
 <?php
   $script = <<<JS
-      VuFind.record.handleAjaxTabLinks();
+      finna.series.init();
       JS;
 ?>
 <?=$this->assetManager()->outputInlineScriptString($script);?>

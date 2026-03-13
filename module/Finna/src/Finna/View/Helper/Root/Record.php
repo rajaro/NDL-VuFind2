@@ -1420,10 +1420,6 @@ class Record extends \VuFind\View\Helper\Root\Record
         return $this->tabManager->getChannelsTab($this->driver);
     }
 
-    public function getSeriesTab() {
-        return $this->tabManager->getSeriesTab();
-    }
-
     /**
      * Get container js classes if the driver supports ajax status and/or has
      * preferred source.

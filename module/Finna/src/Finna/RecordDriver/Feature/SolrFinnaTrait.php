@@ -1310,17 +1310,26 @@ trait SolrFinnaTrait
         return $this->otherVersions;
     }
 
-    public function getSeriesList()
+    /**
+     * Get parts of a series as a search result
+     *
+     * @param string $seriesKey Series key
+     *
+     * @return \VuFindSearch\Response\RecordCollectionInterface
+     */
+    public function getSeriesResult($seriesKey = ''): \VuFindSearch\Response\RecordCollectionInterface
     {
         $seriesKeys = $this->getSeriesKeys();
+        $key = ($seriesKey && in_array($seriesKey, $seriesKeys))
+            ? $seriesKey
+            : $seriesKeys[0];
+
         $query = new \VuFindSearch\Query\Query(
-            'series_key_str_mv:"' . $seriesKeys[0] . '"'
+            'series_key_str_mv:"' . $key . '"'
         );
         $params = new \VuFindSearch\ParamBag(['sort' => 'series_order_str asc']);
         $command = new SearchCommand($this->sourceIdentifier, $query, 0, 20, $params);
-        $result = $this->searchService->invoke($command)->getResult();
-        return $result;
-
+        return $this->searchService->invoke($command)->getResult();
     }
 
     /**
