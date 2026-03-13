@@ -365,6 +365,15 @@ $config = [
             'preview' => \Finna\Controller\Plugin\Preview::class,
         ],
     ],
+    'view_helpers' => [
+        'factories' => [
+            'Finna\View\Helper\Root\BiblioworksChatbot' =>
+                'Finna\View\Helper\Root\BiblioworksChatbotFactory',
+        ],
+        'aliases' => [
+            'biblioworksChatbot' => 'Finna\View\Helper\Root\BiblioworksChatbot',
+        ],
+    ],
     'service_manager' => [
         'allow_override' => true,
         'factories' => [
@@ -463,6 +472,8 @@ $config = [
                         'Finna\AjaxHandler\AddToListFactory',
                     'Finna\AjaxHandler\BazaarDestroySession' =>
                         'Finna\AjaxHandler\BazaarDestroySessionFactory',
+                    'Finna\AjaxHandler\BiblioworksHelpdeskContext' =>
+                        'Finna\AjaxHandler\BiblioworksHelpdeskContextFactory',
                     'Finna\AjaxHandler\CheckRequestsAreValid' =>
                         'VuFind\AjaxHandler\AbstractIlsAndUserActionFactory',
                     'Finna\AjaxHandler\CommentRecord' =>
@@ -542,6 +553,7 @@ $config = [
                 'aliases' => [
                     'addToList' => 'Finna\AjaxHandler\AddToList',
                     'bazaarDestroySession' => 'Finna\AjaxHandler\BazaarDestroySession',
+                    'biblioworksHelpdeskContext' => 'Finna\AjaxHandler\BiblioworksHelpdeskContext',
                     'checkRequestsAreValid' => 'Finna\AjaxHandler\CheckRequestsAreValid',
                     'editList' => 'Finna\AjaxHandler\EditList',
                     'editListResource' => 'Finna\AjaxHandler\EditListResource',
@@ -744,6 +756,7 @@ $config = [
                     \Finna\Db\Service\RecordServiceInterface::class => \Finna\Db\Service\RecordService::class,
                     \Finna\Db\Service\ResourceServiceInterface::class => \Finna\Db\Service\ResourceService::class,
                     \Finna\Db\Service\SearchServiceInterface::class => \Finna\Db\Service\SearchService::class,
+                    \Finna\Db\Service\UserCardServiceInterface::class => \Finna\Db\Service\UserCardService::class,
                     \Finna\Db\Service\UserListServiceInterface::class => \Finna\Db\Service\UserListService::class,
                     \Finna\Db\Service\UserResourceServiceInterface::class => \Finna\Db\Service\UserResourceService::class,
                     \Finna\Db\Service\UserServiceInterface::class => \Finna\Db\Service\UserService::class,
@@ -979,6 +992,16 @@ $config = [
                     'SolrBrowse' => 'Finna\Search\SolrBrowse\Results',
                 ],
             ],
+            'section_plugin' => [
+                'factories' => [
+                    'Finna\Navigation\FooterMenu' => 'Finna\Navigation\FooterMenuFactory',
+                    'Finna\Navigation\HeaderBar' => 'Finna\Navigation\HeaderBarFactory',
+                ],
+                'aliases' => [
+                    'VuFind\Navigation\FooterMenu' => 'Finna\Navigation\FooterMenu',
+                    'VuFind\Navigation\HeaderBar' => 'Finna\Navigation\HeaderBar',
+                ],
+            ],
             'session' => [
                 'factories' => [
                     'Finna\Session\Redis' => 'Finna\Session\RedisFactory',
@@ -1184,6 +1207,7 @@ $dynamicRoutes = [
     'LibraryCards' => [
         'newLibraryCardPassword' => 'newPassword/[:id]',
         'librarycards-displaybarcode' => 'displayBarcode/[:id]',
+        'librarycards-connectedusers' => 'connectedUsers/:id',
     ],
     'MyResearch' => ['sortList' => 'SortList/[:id]'],
     'ReservationList' => [
