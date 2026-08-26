@@ -73,4 +73,19 @@ interface UserListEntityInterface extends \VuFind\Db\Entity\UserListEntityInterf
      * @return ?DateTime
      */
     public function getFinnaUpdated(): ?DateTime;
+
+    /**
+     * Get Finna custom order index
+     *
+     * @return ?int
+     */
+    public function getFinnaCustomOrderIndex(): ?int;
+
+    /**
+     * Finna custom order index setter
+     *
+     * @return static
+     */
+    public function setFinnaCustomOrderIndex(?int $index): static;
+
 }

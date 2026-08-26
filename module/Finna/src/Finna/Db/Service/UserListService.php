@@ -103,24 +103,34 @@ class UserListService extends \VuFind\Db\Service\UserListService implements User
      *
      * @param UserEntityInterface|int $userOrId User entity object or ID
      * @param string|string[]         $types    Types of user lists to get. Set to an empty array to get all.
+     * @param string                  $order    List order
      *
      * @return array
      * @throws Exception
      */
     public function getUserListsAndCountsByUser(
         UserEntityInterface|int $userOrId,
-        string|array $types = [UserListEntityInterface::TYPE_DEFAULT]
+        string|array $types = [UserListEntityInterface::TYPE_DEFAULT],
+        string $order = ''
     ): array {
-        $lists = parent::getUserListsAndCountsByUser($userOrId, $types);
+        $c = $this->entityManager->getConfiguration()->getMetadataCache();
+        $c->clear();
+        $parameters = [
+            'user' => $this->getDoctrineReference(UserEntityInterface::class, $userOrId),
+        ];
+        $dql = 'SELECT ul AS list_entity, COUNT(DISTINCT(ur.resource)) AS count '
+            . 'FROM ' . UserListEntityInterface::class . ' ul '
+            . 'LEFT JOIN ' . UserResourceEntityInterface::class . ' ur WITH ur.list = ul.id '
+            . 'WHERE ul.user = :user ';
 
-        // Sort lists by id
-        $listsSorted = [];
-        foreach ($lists as $l) {
-            $listsSorted[$l['list_entity']->getId()] = $l;
-        }
-        ksort($listsSorted);
+        $this->addTypesCheck($dql, $parameters, $types);
+        $sort = $order ? $order : 'id';
+        $dql .= 'GROUP BY ul '
+            . 'ORDER BY ul.' . $sort;
 
-        return array_values($listsSorted);
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameters($parameters);
+        return $query->getResult();
     }
 
     /**
@@ -147,6 +157,30 @@ class UserListService extends \VuFind\Db\Service\UserListService implements User
             $recordId = $userResource->getResource()->getRecordId();
             $userResource->setFinnaCustomOrderIndex($recordIndex[$recordId] ?? null);
             $this->entityManager->persist($userResource);
+        }
+        $this->entityManager->flush();
+    }
+
+    /**
+     * Update custom list order.
+     *
+     * @param UserEntityInterface $user        User id
+     * @param array               $orderedList Ordered List of Resources
+     *
+     * @return void
+     */
+    public function saveCustomListOrder(UserEntityInterface $user, array $orderedList): void
+    {
+        $listIndex = array_flip(array_values($orderedList));
+        $dql = 'SELECT ul FROM ' . UserListEntityInterface::class . ' ul'
+            . ' WHERE ul.user = :user';
+
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameters(compact('user'));
+        foreach ($query->getResult() as $userList) {
+            $listId = $userList->getId();
+            $userList->setFinnaCustomOrderIndex($listIndex[$listId] ?? null);
+            $this->entityManager->persist($userList);
         }
         $this->entityManager->flush();
     }

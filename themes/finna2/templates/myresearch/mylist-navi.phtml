@@ -10,6 +10,23 @@
         }
      }
   }
+  $allListsSortList = [
+    'created' => [
+      'desc' => 'Created',
+      'url' => '?allListsSort=created asc',
+      'selected' => $this->currentAllListsSort ? ('created asc' === $this->currentAllListsSort) : true,
+    ],
+    'title' => [
+      'desc' => 'Title',
+      'url' => '?allListsSort=title',
+      'selected' => 'title' === $this->currentAllListsSort
+    ],
+    'customOrder' => [
+      'desc' => 'sort_custom_order',
+      'url' => '?allListsSort=finnaCustomOrderIndex',
+      'selected' => 'finnaCustomOrderIndex' === $this->currentAllListsSort
+    ]
+  ];
 ?>
 <ul class="dropdown-menu subtabs collapse show" role="presentation">
   <li class="mobile-navigation-header-container visible-xs visible-sm">
@@ -54,6 +71,27 @@
     <div class="list-group-item add-new-list">
       <input type="text" class="new-list-input" placeholder="<?=$this->transEsc('Create a List') ?>">
       <button id="add-new-list-item-btn" aria-label="<?=$this->transEsc('Create a List') ?>"><?=$this->icon('list-add', 'list-add-icon') ?></button>
+    </div>
+  </li>
+  <li>
+    <div class="mylist-controls">
+      <div class="control-container sort-lists-control">
+        <div class="dropdown sort-button">
+          <button class="btn btn-primary dropdown-toggle mylists-sort <?=empty($this->currentAllListsSort) ? '' : 'selected'?>" type="button" id="my-lists-sort" title="<?=$this->transEsc('Sort')?>" data-bs-toggle="dropdown" aria-hidden="true" tabindex="-1">
+            <?=$this->icon('dropdown-caret')?>
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="my-lists-sort">
+            <?php foreach ($allListsSortList as $options): ?>
+              <li>
+                <a class="dropdown-item" href="<?=$options['url']?>"><?= $this->transEsc($options['desc']) ?></a>
+              </li>
+            <?php endforeach; ?>
+            <li>
+              <a class="dropdown-item sort-all-lists" href="<?=$this->url('myresearch-sortalllists')?>" data-backdrop=”static” data-lightbox><span class="fa fa-sort" aria-hidden="true"></span> <span class="hidden-xs"><?=$this->transEsc('Sort manually')?></span></a>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </li>
 </ul>

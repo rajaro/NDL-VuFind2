@@ -54,6 +54,11 @@ alter online table resource change column `title` `title` varchar(255) COLLATE u
 alter online table resource change column `author` `author` varchar(255) COLLATE utf8mb4_swedish_ci NULL;
 
 --
+-- Additional columns for user_list
+--
+ALTER TABLE `user_list` ADD COLUMN `finna_custom_order_index` int DEFAULT NULL;
+
+--
 -- Additional tables
 --
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
