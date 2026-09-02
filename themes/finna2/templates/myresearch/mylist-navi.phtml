@@ -11,10 +11,15 @@
      }
   }
   $allListsSortList = [
-    'created' => [
-      'desc' => 'Created',
+    'created-asc' => [
+      'desc' => 'sort_created_asc',
       'url' => '?allListsSort=created asc',
       'selected' => $this->currentAllListsSort ? ('created asc' === $this->currentAllListsSort) : true,
+    ],
+    'created-desc' => [
+      'desc' => 'sort_created_desc',
+      'url' => '?allListsSort=created desc',
+      'selected' => 'created desc' === $this->currentAllListsSort
     ],
     'title' => [
       'desc' => 'Title',
@@ -23,8 +28,8 @@
     ],
     'customOrder' => [
       'desc' => 'sort_custom_order',
-      'url' => '?allListsSort=finnaCustomOrderIndex',
-      'selected' => 'finnaCustomOrderIndex' === $this->currentAllListsSort
+      'url' => '?allListsSort=customOrder',
+      'selected' => 'customOrder' === $this->currentAllListsSort
     ]
   ];
 ?>

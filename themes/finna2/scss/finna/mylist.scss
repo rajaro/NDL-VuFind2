@@ -163,6 +163,10 @@
     &.sort-lists-control {
       justify-content: right;
     }
+    .mylists-sort.selected {
+      color: white;
+      background: $primary;
+    }
   }
 }
 @include media-breakpoint-down(md) {

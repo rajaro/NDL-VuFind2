@@ -734,7 +734,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         return $this->createViewModel(
                 ['sortAllLists' => true,
                  'results' => $userLists,
-                 'currentAllListsSort' => 'finnaCustomOrderIndex'
+                 'currentAllListsSort' => 'customOrder'
                 ]
             )->setTemplate(('myresearch/sortlist.phtml'));
     }
