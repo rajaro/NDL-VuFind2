@@ -730,11 +730,10 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             }
         }
 
-        $userLists = $userListService->getUserListsAndCountsByUser($user, '', 'finnaCustomOrderIndex');
+        $userLists = $userListService->getUserListsAndCountsByUser($user, '', 'customOrder');
         return $this->createViewModel(
                 ['sortAllLists' => true,
                  'results' => $userLists,
-                 'currentAllListsSort' => 'customOrder'
                 ]
             )->setTemplate(('myresearch/sortlist.phtml'));
     }

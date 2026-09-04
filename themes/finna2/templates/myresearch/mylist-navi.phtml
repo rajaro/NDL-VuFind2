@@ -11,6 +11,11 @@
      }
   }
   $allListsSortList = [
+    'customOrder' => [
+      'desc' => 'sort_custom_order',
+      'url' => '?allListsSort=customOrder',
+      'selected' => 'customOrder' === $this->currentAllListsSort
+    ],
     'created-asc' => [
       'desc' => 'sort_created_asc',
       'url' => '?allListsSort=created asc',
@@ -25,11 +30,6 @@
       'desc' => 'Title',
       'url' => '?allListsSort=title',
       'selected' => 'title' === $this->currentAllListsSort
-    ],
-    'customOrder' => [
-      'desc' => 'sort_custom_order',
-      'url' => '?allListsSort=customOrder',
-      'selected' => 'customOrder' === $this->currentAllListsSort
     ]
   ];
 ?>
@@ -73,28 +73,32 @@
     </li>
   <?php endforeach; ?>
   <li class="add-new-list-holder favorites-menulist-item">
-    <div class="list-group-item add-new-list">
-      <input type="text" class="new-list-input" placeholder="<?=$this->transEsc('Create a List') ?>">
-      <button id="add-new-list-item-btn" aria-label="<?=$this->transEsc('Create a List') ?>"><?=$this->icon('list-add', 'list-add-icon') ?></button>
-    </div>
-  </li>
-  <li>
-    <div class="mylist-controls">
-      <div class="control-container sort-lists-control">
-        <div class="dropdown sort-button">
-          <button class="btn btn-primary dropdown-toggle mylists-sort <?=empty($this->currentAllListsSort) ? '' : 'selected'?>" type="button" id="my-lists-sort" title="<?=$this->transEsc('Sort')?>" data-bs-toggle="dropdown" aria-hidden="true" tabindex="-1">
-            <?=$this->icon('dropdown-caret')?>
-          </button>
-          <ul class="dropdown-menu" aria-labelledby="my-lists-sort">
-            <?php foreach ($allListsSortList as $options): ?>
+    <div class="mylist-actions-container">
+      <div class="list-group-item add-new-list">
+        <input type="text" class="new-list-input" placeholder="<?=$this->transEsc('Create a List') ?>">
+        <button id="add-new-list-item-btn" aria-label="<?=$this->transEsc('Create a List') ?>"><?=$this->icon('list-add', 'list-add-icon') ?></button>
+      </div>
+      <div class="mylist-controls">
+        <div class="control-container sort-lists-control">
+          <div class="dropdown sort-button">
+            <button class="btn dropdown-toggle mylists-sort <?=empty($this->currentAllListsSort) ? '' : 'selected'?>" type="button" id="my-lists-sort" title="<?=$this->transEsc('Sort')?>" data-bs-toggle="dropdown" aria-hidden="true" tabindex="-1">
+              <?=$this->icon('ui-menu')?>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="my-lists-sort">
+              <?php foreach ($allListsSortList as $sortOption => $options): ?>
+                <li>
+                  <?php if ($sortOption === 'customOrder' && !$this->userlist()->customOrderAvailableForLists($this->user)):?>
+                    <a class="dropdown-item" href="<?=$this->url('myresearch-sortalllists')?>" data-lightbox><?= $this->transEsc($options['desc']) ?></a>
+                  <?php else: ?>
+                    <a class="dropdown-item <?=$options['selected'] ? 'selected' : ''?>" href="<?=$options['url']?>"><?= $this->transEsc($options['desc']) ?></a>
+                  <?php endif;?>
+                </li>
+              <?php endforeach; ?>
               <li>
-                <a class="dropdown-item" href="<?=$options['url']?>"><?= $this->transEsc($options['desc']) ?></a>
+                <a class="dropdown-item sort-all-lists" href="<?=$this->url('myresearch-sortalllists')?>" data-backdrop=”static” data-lightbox><span aria-hidden="true"></span> <span class="hidden-xs"><?=$this->transEsc('Sort manually')?></span></a>
               </li>
-            <?php endforeach; ?>
-            <li>
-              <a class="dropdown-item sort-all-lists" href="<?=$this->url('myresearch-sortalllists')?>" data-backdrop=”static” data-lightbox><span class="fa fa-sort" aria-hidden="true"></span> <span class="hidden-xs"><?=$this->transEsc('Sort manually')?></span></a>
-            </li>
-          </ul>
+            </ul>
+          </div>
         </div>
       </div>
     </div>

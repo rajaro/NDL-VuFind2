@@ -84,6 +84,23 @@ class UserListService extends \VuFind\Db\Service\UserListService implements User
     }
 
     /**
+     * Check if custom order is used in all lists.
+     *
+     * @param UserEntityInterface $user user entity.
+     *
+     * @return bool
+     */
+    public function isCustomOrderAvailableForLists(UserEntityInterface $user): bool
+    {
+        $dql = 'SELECT ul FROM ' . UserListEntityInterface::class . ' ul'
+            . ' WHERE ul.user = :user AND ul.finnaCustomOrderIndex IS NOT NULL';
+        $query = $this->entityManager->createQuery($dql);
+        $query->setParameters(compact('user'));
+        $query->setMaxResults(1);
+        return $query->getOneOrNullResult() !== null;
+    }
+
+    /**
      * Retrieve user's list object by title.
      *
      * @param UserEntityInterface|int $userOrId User entity or ID.

@@ -62,6 +62,15 @@ interface UserListServiceInterface extends \VuFind\Db\Service\UserListServiceInt
     public function getNextAvailableCustomOrderIndex(UserListEntityInterface $list);
 
     /**
+     * Check if custom order is used in all lists.
+     *
+     * @param UserEntityInterface $user user entity.
+     *
+     * @return bool
+     */
+    public function isCustomOrderAvailableForLists(UserEntityInterface $user): bool;
+
+    /**
      * Get lists belonging to the user and their count. Returns an array of arrays with
      * list_entity and count keys.
      *
