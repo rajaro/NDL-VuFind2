@@ -145,7 +145,7 @@ class UserResourceService extends AbstractDbService implements
         $user = $this->getDoctrineReference(UserEntityInterface::class, $userOrId);
         $list = $this->getDoctrineReference(UserListEntityInterface::class, $listOrId);
         $params = compact('resource', 'list', 'user');
-        $result =  $this->entityManager->getRepository(UserResourceEntityInterface::class)
+        $result = $this->entityManager->getRepository(UserResourceEntityInterface::class)
             ->findOneBy($params);
 
         if (empty($result)) {
