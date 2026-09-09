@@ -56,13 +56,14 @@ class UserList extends \VuFind\View\Helper\Root\UserList
     }
 
     /**
-     * Is custom order available for lists
+     * Is custom order available for lists.
      *
      * @param UserEntityInterface $user User owning lists
      *
      * @return bool
      */
-    public function customOrderAvailableForLists($user): bool {
+    public function customOrderAvailableForLists($user): bool
+    {
         return $this->userListService->isCustomOrderAvailableForLists($user);
     }
 }

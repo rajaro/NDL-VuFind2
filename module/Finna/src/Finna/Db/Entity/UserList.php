@@ -115,7 +115,7 @@ class UserList extends \VuFind\Db\Entity\UserList implements UserListEntityInter
     }
 
     /**
-     * Get Finna custom order index
+     * Get Finna custom order index.
      *
      * @return ?int
      */
@@ -125,7 +125,9 @@ class UserList extends \VuFind\Db\Entity\UserList implements UserListEntityInter
     }
 
     /**
-     * Finna custom order index setter
+     * Finna custom order index setter.
+     *
+     * @param ?int $index Custom order index
      *
      * @return static
      */

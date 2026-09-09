@@ -34,7 +34,7 @@
     <?php if (empty($this->sortAllLists)): ?>
       <li id="<?=$this->escapeHtmlAttr($current->getUniqueId()) ?>"><h4><?= $this->escapeHtml($current->getTitle()) ?><?=$this->icon('sort', 'sort-icon') ?></h4><p><?=$this->record($current)->getFormatList() ?></p></li>
     <?php else: ?>
-      <li id="<?=$this->escapeHtmlAttr($current['list_entity']->getId()) ?>"><h4><?= $this->escapeHtml($current['list_entity']->getTitle()) ?><?=$this->icon('sort', 'sort-icon') ?></h4><p><?= $this->transEsc('List') ?></p></li>
+      <li id="<?=$this->escapeHtmlAttr($current['list_entity']->getId()) ?>"><h4><?=$this->escapeHtml($current['list_entity']->getTitle())?><?=$this->icon('sort', 'sort-icon')?></h4><p><?=$this->icon('user-list')?> <?=$this->transEsc('List')?></p></li>
     <?php endif; ?>
   <?php endforeach; ?>
 </ol>

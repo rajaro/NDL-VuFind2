@@ -141,13 +141,8 @@ class UserListService extends \VuFind\Db\Service\UserListService implements User
             . 'WHERE ul.user = :user ';
 
         $this->addTypesCheck($dql, $parameters, $types);
-        $allowedSorts = [
-            'created asc' => 'created asc',
-            'created desc' => 'created desc',
-            'title' => 'title',
-            'customOrder' => 'finnaCustomOrderIndex'
-        ];
-        $sort = $allowedSorts[$order] ?? 'id';
+
+        $sort = $order === 'custom_order' ? 'finnaCustomOrderIndex' : $order;
         $dql .= 'GROUP BY ul '
             . 'ORDER BY ul.' . $sort;
 

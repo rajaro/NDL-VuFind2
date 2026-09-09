@@ -609,7 +609,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             return $view;
         }
 
-        $view->currentAllListsSort = $this->params()->fromQuery('allListsSort', '');
+        $view->allListsSortList = $this->createSortListForAllLists($user);
         $view->sortList = $this->createSortList($results->getListObject());
 
         return $view;
@@ -692,13 +692,12 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
     }
 
     /**
-     * Sort users favorite lists
+     * Sort users favorite lists.
      *
      * @return mixed
      */
     public function sortAllListsAction()
     {
-        // Fail if lists are disabled:
         if (!$this->listsEnabled()) {
             throw new ForbiddenException('Lists disabled');
         }
@@ -728,14 +727,16 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             if ($this->inLightbox()) {
                 return $this->getRefreshResponse();
             }
+            return $this->redirect()->toRoute('myresearch-favorites', ['allListsSort' => 'custom_order']);
         }
 
-        $userLists = $userListService->getUserListsAndCountsByUser($user, '', 'customOrder');
+        $userLists = $userListService->getUserListsAndCountsByUser($user, '', 'custom_order');
         return $this->createViewModel(
-                ['sortAllLists' => true,
-                 'results' => $userLists,
-                ]
-            )->setTemplate(('myresearch/sortlist.phtml'));
+            [
+                'sortAllLists' => true,
+                'results' => $userLists,
+            ]
+        )->setTemplate(('myresearch/sortlist.phtml'));
     }
 
     /**
@@ -1428,11 +1429,18 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         // Redirect to the first list, if available:
         if ($user = $this->getUser()) {
             $userListService = $this->getDbService(UserListServiceInterface::class);
-            $order = $this->params()->fromQuery('allListsSort', '');
-            $lists = $userListService->getUserListsAndCountsByUser($user, '', $order);
+            $listsOrder = $this->createSortListForAllLists($user)['active'];
+            $lists = $userListService->getUserListsAndCountsByUser($user, '', $listsOrder);
             if ($lists) {
                 $firstList = reset($lists);
-                return $this->forwardTo('MyResearch', 'MyList', ['id' => $firstList['list_entity']->getId(), 'allListsSort' => $order]);
+                return $this->forwardTo(
+                    'MyResearch',
+                    'MyList',
+                    [
+                        'id' => $firstList['list_entity']->getId(),
+                        'allListsSort' => $listsOrder,
+                    ]
+                );
             }
         }
         return parent::favoritesAction();

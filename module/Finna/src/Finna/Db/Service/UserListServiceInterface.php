@@ -76,6 +76,7 @@ interface UserListServiceInterface extends \VuFind\Db\Service\UserListServiceInt
      *
      * @param UserEntityInterface|int $userOrId User entity object or ID
      * @param string|string[]         $types    Types of user lists to get. Set to an empty array to get all.
+     * @param string                  $order    Lists sort order
      *
      * @return array
      * @throws Exception
