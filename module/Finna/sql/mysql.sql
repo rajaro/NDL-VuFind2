@@ -36,6 +36,7 @@ ALTER TABLE `user_card` ADD COLUMN `finna_due_date_reminder` int(11) NOT NULL DE
 --
 ALTER TABLE user_list ADD COLUMN `finna_updated` datetime DEFAULT NULL;
 ALTER TABLE user_list ADD COLUMN `finna_protected` tinyint(1) DEFAULT '0' NOT NULL;
+ALTER TABLE user_list ADD COLUMN `finna_custom_order_index` int DEFAULT NULL;
 
 --
 -- Additional columns for user_resource
@@ -52,11 +53,6 @@ ALTER TABLE `ratings` ADD COLUMN `finna_checked` datetime NOT NULL DEFAULT '2000
 --
 alter online table resource change column `title` `title` varchar(255) COLLATE utf8mb4_swedish_ci NOT NULL DEFAULT '';
 alter online table resource change column `author` `author` varchar(255) COLLATE utf8mb4_swedish_ci NULL;
-
---
--- Additional columns for user_list
---
-ALTER TABLE `user_list` ADD COLUMN `finna_custom_order_index` int DEFAULT NULL;
 
 --
 -- Additional tables
