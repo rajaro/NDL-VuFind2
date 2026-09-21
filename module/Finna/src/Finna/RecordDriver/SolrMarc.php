@@ -2167,6 +2167,8 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc implements \Psr\Log\LoggerA
                         false
                     );
                     if ($name) {
+                        // Field 800: Build series name from author, date, and series title
+                        // instead of the first marc field, which is author in 800
                         if ($field == '800') {
                             $nameSubfields = ['a', 'd', 't'];
                             $name800 = $this->getSubfieldArray(
@@ -2175,7 +2177,10 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc implements \Psr\Log\LoggerA
                                 false
                             );
                             $name = array_diff($name, $name800);
-                            $currentArray['name'] = $this->stripTrailingPunctuation(implode(' ', $name800));
+                            $currentArray = [
+                                'name' =>
+                                    $this->stripTrailingPunctuation(implode(' ', $name800)),
+                            ];
                         } else {
                             $currentArray = [
                                 'name' =>
