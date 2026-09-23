@@ -2171,11 +2171,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc implements \Psr\Log\LoggerA
                         // instead of the first marc field, which is author in 800
                         if ($field == '800') {
                             $nameSubfields = ['a', 'd', 't'];
-                            $name800 = $this->getSubfieldArray(
-                                $currentField,
-                                $nameSubfields,
-                                false
-                            );
+                            $name800 = $this->getSubfieldArray($currentField, $nameSubfields, false);
                             $name = array_diff($name, $name800);
                             $currentArray = [
                                 'name' =>
