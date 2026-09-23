@@ -3,6 +3,7 @@
   $module = $this->layout()->templateDir;
   $selectedTabLabel = 'default_empty_label';
   $searchTabArray = [];
+  $hasSelectedTab = false;
 ?>
 <?php if (!empty($searchTabs)): ?>
   <div role="navigation" aria-label="<?=$this->transEscAttr('Search Tabs')?>">
@@ -10,6 +11,7 @@
       <?php if ($tab['selected']) {
         $this->layout()->currentTabId = $tab['id'];
         $selectedTab = $tab['id'];
+        $hasSelectedTab = true;
       }
       $toggletipKeyHtml = 'tooltip_' . $tab['label'] . '_html';
       if ($this->layout()->templateName !== 'advanced' && !$this->translationEmpty($toggletipKeyHtml)) {
@@ -29,6 +31,16 @@
       ];
       ?>
     <?php endforeach; ?>
+    <?php if (!$hasSelectedTab && !$this->translationEmpty('temporary_search_tab_title')): ?>
+    <?php
+      $selectedTab = 'temporary-search-tab';
+      $searchTabArray['temporary-search-tab'] = [
+        'description' => 'temporary_search_tab_title',
+        'data-tab-url' => '#',
+        'toggletip' => null,
+      ];
+    ?>
+    <?php endif; ?>
     <?php if (!$this->translationEmpty("search_tab_tip_{$selectedTabLabel}_html")) :?>
       <div class="search-tab-tip">
         <?=$this->translate("search_tab_tip_{$selectedTabLabel}_html");?>
