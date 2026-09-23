@@ -26,6 +26,7 @@
  * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @author   Ronja Koistinen <ronja.koistinen@helsinki.fi>
+ * @author   Minna Rönkä <minna.ronka@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:record_drivers Wiki
  */
@@ -50,6 +51,7 @@ use function strlen;
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @author   Minna Rönkä <minna.ronka@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:record_drivers Wiki
  */
@@ -1706,6 +1708,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc implements \Psr\Log\LoggerA
         $languageMappings = ['fin' => 'fi', 'swe' => 'sv', 'eng' => 'en-gb'];
         $languages = [];
         $marc = $this->getMarcReader();
+        // Check language information in 886 field
         foreach ($marc->getFields('886') as $field) {
             $scope = $this->getSubfield($field, '2');
             if (!$scope || 'local' !== $scope) {
@@ -1725,6 +1728,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc implements \Psr\Log\LoggerA
             }
         }
         $summaries = [];
+        // Check language-specific 520 fields first
         foreach ($marc->getFields('520') as $field) {
             $summary = $this->getSubfield($field, 'a');
             if (!$summary) {
@@ -1734,15 +1738,17 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc implements \Psr\Log\LoggerA
             $lng = $link && isset($languages[$link]) ? $languages[$link] : '-';
             $summaries[$lng][] = $summary;
         }
-        foreach ($this->getprioritizedlanguages() as $language) {
+        foreach ($this->getPrioritizedLanguages() as $language) {
             if ($summary = $summaries[$language] ?? null) {
                 return $summary;
             }
         }
+        // Otherwise display all 520 fields and linked 880 fields
         $result = [];
         foreach ($summaries as $languageSummaries) {
             $result = array_merge($result, $languageSummaries);
         }
+        $result = [...$result, ...$this->getMarcReader()->getLinkedFieldsSubfields('880', '520', ['a'])];
         return $result;
     }
 
