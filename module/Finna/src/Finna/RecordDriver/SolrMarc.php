@@ -2174,8 +2174,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc implements \Psr\Log\LoggerA
                             $name800 = $this->getSubfieldArray($currentField, $nameSubfields, false);
                             $name = array_diff($name, $name800);
                             $currentArray = [
-                                'name' =>
-                                    $this->stripTrailingPunctuation(implode(' ', $name800)),
+                                'name' => $this->stripTrailingPunctuation(implode(' ', $name800)),
                             ];
                         } else {
                             $currentArray = [
