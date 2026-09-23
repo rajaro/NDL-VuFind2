@@ -2178,8 +2178,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc implements \Psr\Log\LoggerA
                             ];
                         } else {
                             $currentArray = [
-                                'name' =>
-                                    $this->stripTrailingPunctuation(array_shift($name)),
+                                'name' => $this->stripTrailingPunctuation(array_shift($name)),
                             ];
                         }
                         $currentArray['additional'] = implode(' ', $name);
