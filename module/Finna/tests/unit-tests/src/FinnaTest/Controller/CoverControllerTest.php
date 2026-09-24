@@ -78,6 +78,9 @@ class CoverControllerTest extends \PHPUnit\Framework\TestCase
             'permissions' => [
               'image_piping' => true,
             ],
+            'piping_allowed_copyrights' => [
+              'CC BY 4.0',
+            ],
           ],
         ];
         $requestWithApiKey = [
