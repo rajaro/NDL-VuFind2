@@ -223,8 +223,7 @@ class CoverController extends \VuFind\Controller\CoverController
         $datasource = $driver->getDatasource();
         $datasourceAllowsPiping = $this->datasourceConfig[$datasource]['permissions']['image_piping'] ?? false;
         $copyright = $driver->getAccessRestrictionsType()['copyright'] ?? '';
-        $allowedCopyrights
-            = $this->datasourceConfig[$datasource]['piping_allowed_copyrights']?->toArray() ?? [];
+        $allowedCopyrights = $this->datasourceConfig[$datasource]['piping_allowed_copyrights']?->toArray() ?? [];
         if (!$datasourceAllowsPiping || (!empty($copyright) && !in_array($copyright, $allowedCopyrights))) {
             $response->setStatusCode(403);
             return $response;
