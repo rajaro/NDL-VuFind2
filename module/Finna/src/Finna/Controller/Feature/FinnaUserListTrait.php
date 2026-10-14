@@ -30,7 +30,6 @@
 
 namespace Finna\Controller\Feature;
 
-use VuFind\Db\Entity\UserEntityInterface;
 use VuFind\Db\Entity\UserListEntityInterface;
 
 use function in_array;
@@ -131,11 +130,9 @@ trait FinnaUserListTrait
     /**
      * Create sort list for all favorite lists.
      *
-     * @param ?UserEntityInterface $user User object
-     *
      * @return array
      */
-    protected function createSortListForAllLists(?UserEntityInterface $user): array
+    protected function createSortListForAllLists(): array
     {
         $sortOptions = self::getAllListsSortList();
         $sort = $_GET['allListsSort'] ?? '';

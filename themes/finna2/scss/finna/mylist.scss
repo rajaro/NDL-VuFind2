@@ -178,7 +178,7 @@
     .mylists-sort {
       color: $black;
       border: none;
-      &:hover, &.show {
+      &:hover, &.show, &:focus {
         color: white;
       }
     }

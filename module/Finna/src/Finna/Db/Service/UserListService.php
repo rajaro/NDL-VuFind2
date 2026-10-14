@@ -128,10 +128,8 @@ class UserListService extends \VuFind\Db\Service\UserListService implements User
     public function getUserListsAndCountsByUser(
         UserEntityInterface|int $userOrId,
         string|array $types = [UserListEntityInterface::TYPE_DEFAULT],
-        string $order = ''
+        string $order = 'id'
     ): array {
-        $c = $this->entityManager->getConfiguration()->getMetadataCache();
-        $c->clear();
         $parameters = [
             'user' => $this->getDoctrineReference(UserEntityInterface::class, $userOrId),
         ];
@@ -143,8 +141,7 @@ class UserListService extends \VuFind\Db\Service\UserListService implements User
         $this->addTypesCheck($dql, $parameters, $types);
 
         $sort = $order === 'custom_order' ? 'finnaCustomOrderIndex' : $order;
-        $dql .= 'GROUP BY ul '
-            . 'ORDER BY ul.' . $sort;
+        $dql .= 'GROUP BY ul ORDER BY ul.' . $sort;
 
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters($parameters);

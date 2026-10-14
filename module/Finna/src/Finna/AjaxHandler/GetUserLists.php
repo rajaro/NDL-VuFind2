@@ -48,6 +48,7 @@ use VuFind\I18n\Translator\TranslatorAwareInterface;
 class GetUserLists extends \VuFind\AjaxHandler\AbstractBase implements TranslatorAwareInterface
 {
     use \VuFind\I18n\Translator\TranslatorAwareTrait;
+    use \Finna\Controller\Feature\FinnaUserListTrait;
 
     /**
      * Constructor.
@@ -105,6 +106,7 @@ class GetUserLists extends \VuFind\AjaxHandler\AbstractBase implements Translato
                 'activeId' => $activeId,
                 'lists' => $lists,
                 'totalResourceCount' => $totalResourceCount,
+                'allListsSortList' => $this->createSortListForAllLists(),
             ]
         );
         return $this->formatResponse($html);

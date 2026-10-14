@@ -609,7 +609,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             return $view;
         }
 
-        $view->allListsSortList = $this->createSortListForAllLists($user);
+        $view->allListsSortList = $this->createSortListForAllLists();
         $view->sortList = $this->createSortList($results->getListObject());
 
         return $view;
@@ -1429,7 +1429,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         // Redirect to the first list, if available:
         if ($user = $this->getUser()) {
             $userListService = $this->getDbService(UserListServiceInterface::class);
-            $listsOrder = $this->createSortListForAllLists($user)['active'];
+            $listsOrder = $this->createSortListForAllLists()['active'];
             $lists = $userListService->getUserListsAndCountsByUser($user, '', $listsOrder);
             if ($lists) {
                 $firstList = reset($lists);

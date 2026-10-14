@@ -71,7 +71,7 @@
               <?=$this->icon('list-sort')?>
             </button>
             <ul class="dropdown-menu" aria-labelledby="my-lists-sort">
-              <?php foreach ($this->allListsSortList['sortList'] as $sortOption => $options): ?>
+              <?php foreach ($this->allListsSortList['sortList'] ?? [] as $sortOption => $options): ?>
                 <li>
                   <?php if ($sortOption === 'custom_order' && !$this->userlist()->customOrderAvailableForLists($this->user)):?>
                     <a class="dropdown-item" href="<?=$this->url('myresearch-sortalllists')?>" data-lightbox><?= $this->transEsc($options['desc']) ?></a>
