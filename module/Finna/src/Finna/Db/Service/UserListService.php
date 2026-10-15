@@ -37,6 +37,7 @@ use VuFind\Db\Entity\EntityInterface;
 use VuFind\Db\Entity\UserEntityInterface;
 
 use function assert;
+use function in_array;
 
 /**
  * Database service for UserList.
@@ -140,8 +141,11 @@ class UserListService extends \VuFind\Db\Service\UserListService implements User
 
         $this->addTypesCheck($dql, $parameters, $types);
 
-        $sort = $order === 'custom_order' ? 'finnaCustomOrderIndex' : $order;
-        $dql .= 'GROUP BY ul ORDER BY ul.' . $sort;
+        if (!in_array($order, array_keys($this->getAllListsSortList()))) {
+            $order = 'id';
+        }
+        $order = $order === 'custom_order' ? 'finnaCustomOrderIndex, ul.id asc' : $order;
+        $dql .= 'GROUP BY ul ORDER BY ul.' . $order;
 
         $query = $this->entityManager->createQuery($dql);
         $query->setParameters($parameters);
@@ -222,5 +226,45 @@ class UserListService extends \VuFind\Db\Service\UserListService implements User
         assert($entity instanceof UserListEntityInterface);
         $entity->setFinnaUpdated(new DateTime());
         parent::persistEntity($entity);
+    }
+
+    /**
+     * Create sort list for all favorite lists.
+     *
+     * @param string $sort Currently active sort
+     *
+     * @return array
+     */
+    public function createSortListForAllLists($sort = ''): array
+    {
+        $sortOptions = self::getAllListsSortList();
+        if (!in_array($sort, array_keys($sortOptions))) {
+            $sort = 'id';
+        }
+        $sortList = [];
+
+        foreach ($sortOptions as $key => $value) {
+            $sortList['sortList'][$key] = [
+                'desc' => $value,
+                'selected' => $key === $sort,
+            ];
+        }
+        $sortList['active'] = $sort === 'id' ? '' : $sort;
+        return $sortList;
+    }
+
+    /**
+     * Return sort list for all favorite lists.
+     *
+     * @return array
+     */
+    public static function getAllListsSortList(): array
+    {
+        return [
+            'custom_order' => 'sort_custom_order',
+            'created asc' => 'sort_created_asc',
+            'created desc' => 'sort_created_desc',
+            'title' => 'sort_title',
+        ];
     }
 }

@@ -76,7 +76,7 @@
                   <?php if ($sortOption === 'custom_order' && !$this->userlist()->customOrderAvailableForLists($this->user)):?>
                     <a class="dropdown-item" href="<?=$this->url('myresearch-sortalllists')?>" data-lightbox><?= $this->transEsc($options['desc']) ?></a>
                   <?php else: ?>
-                    <a class="dropdown-item <?=$options['selected'] ? 'active' : ''?>" href="?allListsSort=<?=$sortOption?>"><?= $this->transEsc($options['desc']); ?></a>
+                    <a class="dropdown-item <?=$options['selected'] ? 'active' : ''?>" href="?allListsSort=<?=$sortOption?>" data-sort="<?=$sortOption?>"><?= $this->transEsc($options['desc']); ?></a>
                   <?php endif;?>
                 </li>
               <?php endforeach; ?>

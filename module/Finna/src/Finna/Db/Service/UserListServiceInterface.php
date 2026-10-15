@@ -88,6 +88,22 @@ interface UserListServiceInterface extends \VuFind\Db\Service\UserListServiceInt
     ): array;
 
     /**
+     * Create sort list for all favorite lists.
+     *
+     * @param string $sort Currently active sort
+     *
+     * @return array
+     */
+    public function createSortListForAllLists($sort): array;
+
+    /**
+     * Return sort list for all favorite lists.
+     *
+     * @return array
+     */
+    public static function getAllListsSortList(): array;
+
+    /**
      * Update custom favorite list order.
      *
      * @param UserEntityInterface $user        User id

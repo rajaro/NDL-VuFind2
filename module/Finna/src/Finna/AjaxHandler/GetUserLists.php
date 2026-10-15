@@ -29,11 +29,11 @@
 
 namespace Finna\AjaxHandler;
 
+use Finna\Db\Service\UserListServiceInterface;
 use Finna\Db\Service\UserResourceServiceInterface;
 use Laminas\Mvc\Controller\Plugin\Params;
 use Laminas\View\Renderer\RendererInterface;
 use VuFind\Db\Entity\UserEntityInterface;
-use VuFind\Db\Service\UserListServiceInterface;
 use VuFind\I18n\Translator\TranslatorAwareInterface;
 
 /**
@@ -48,7 +48,6 @@ use VuFind\I18n\Translator\TranslatorAwareInterface;
 class GetUserLists extends \VuFind\AjaxHandler\AbstractBase implements TranslatorAwareInterface
 {
     use \VuFind\I18n\Translator\TranslatorAwareTrait;
-    use \Finna\Controller\Feature\FinnaUserListTrait;
 
     /**
      * Constructor.
@@ -96,7 +95,8 @@ class GetUserLists extends \VuFind\AjaxHandler\AbstractBase implements Translato
         }
 
         $activeId = (int)$params->fromPost('active');
-        $lists = $this->userListService->getUserListsAndCountsByUser($this->user);
+        $allListsSort = $params->fromPost('allListsSort', '');
+        $lists = $this->userListService->getUserListsAndCountsByUser($this->user, '', $allListsSort);
         $totalResourceCount = $this->userResourceService->getTotalResourceCount($this->user);
 
         $html = $this->renderer->partial(
@@ -106,7 +106,7 @@ class GetUserLists extends \VuFind\AjaxHandler\AbstractBase implements Translato
                 'activeId' => $activeId,
                 'lists' => $lists,
                 'totalResourceCount' => $totalResourceCount,
-                'allListsSortList' => $this->createSortListForAllLists(),
+                'allListsSortList' => $this->userListService->createSortListForAllLists($allListsSort),
             ]
         );
         return $this->formatResponse($html);

@@ -32,8 +32,6 @@ namespace Finna\Controller\Feature;
 
 use VuFind\Db\Entity\UserListEntityInterface;
 
-use function in_array;
-
 /**
  * Finna user list support trait.
  *
@@ -124,45 +122,6 @@ trait FinnaUserListTrait
             'year desc' => 'sort_year',
             'year' => 'sort_year_asc',
             'format' => 'sort_format',
-        ];
-    }
-
-    /**
-     * Create sort list for all favorite lists.
-     *
-     * @return array
-     */
-    protected function createSortListForAllLists(): array
-    {
-        $sortOptions = self::getAllListsSortList();
-        $sort = $_GET['allListsSort'] ?? '';
-        if (!in_array($sort, array_keys($sortOptions))) {
-            $sort = 'id';
-        }
-        $sortList = [];
-
-        foreach ($sortOptions as $key => $value) {
-            $sortList['sortList'][$key] = [
-                'desc' => $value,
-                'selected' => $key === $sort,
-            ];
-        }
-        $sortList['active'] = $sort;
-        return $sortList;
-    }
-
-    /**
-     * Return sort list for all favorite lists.
-     *
-     * @return array
-     */
-    public static function getAllListsSortList(): array
-    {
-        return [
-            'custom_order' => 'sort_custom_order',
-            'created asc' => 'sort_created_asc',
-            'created desc' => 'sort_created_desc',
-            'title' => 'sort_title',
         ];
     }
 }
