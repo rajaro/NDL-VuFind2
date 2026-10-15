@@ -238,9 +238,6 @@ class UserListService extends \VuFind\Db\Service\UserListService implements User
     public function createSortListForAllLists($sort = ''): array
     {
         $sortOptions = self::getAllListsSortList();
-        if (!in_array($sort, array_keys($sortOptions))) {
-            $sort = 'id';
-        }
         $sortList = [];
 
         foreach ($sortOptions as $key => $value) {
@@ -248,8 +245,10 @@ class UserListService extends \VuFind\Db\Service\UserListService implements User
                 'desc' => $value,
                 'selected' => $key === $sort,
             ];
+            if ($key === $sort) {
+                $sortList['active'] = $sort;
+            }
         }
-        $sortList['active'] = $sort === 'id' ? '' : $sort;
         return $sortList;
     }
 
